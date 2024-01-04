@@ -1,5 +1,7 @@
 #include "Logging.h"
 
+#include "Version.h"
+
 
 #include <iostream>
 #include <sstream>

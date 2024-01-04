@@ -20,12 +20,6 @@ target_include_directories(hydro PUBLIC
 
 configure_file(Config.h.in Config.h)
 
-# list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/utils.cpp" "src/utils.h")
-
-# target_include_directories(hydro PUBLIC
-#                             "src"
-#                             )
-
 # target_link_libraries(hydro PUBLIC utils)
 # target_link_libraries(hydro PUBLIC solver)
 
@@ -78,6 +72,6 @@ execute_process(COMMAND
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 # generate Version.cpp
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)
+configure_file("${CMAKE_SOURCE_DIR}/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)
 
-list(APPEND SOURCES "${CMAKE_CURRENT_BINARY_DIR}/Version.cpp" src/Version.h)
+list(APPEND SOURCES "${CMAKE_BINARY_DIR}/Version.cpp" Version.h)
