@@ -8,8 +8,7 @@
 #include <string>
 
 namespace hydro_playground {
-  namespace logging {
-
+namespace logging {
 
 /**
 * write a log message.
@@ -63,6 +62,6 @@ const char* Log::getStageName(LogStage stage){
 
 
 
-  } // namespace logging
+} // namespace logging
 } // namespace hydro_playground
 

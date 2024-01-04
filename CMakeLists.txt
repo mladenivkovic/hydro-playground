@@ -25,10 +25,10 @@ configure_file(Config.h.in Config.h)
 # Tests
 # ----------------------------------
 
-# add_subdirectory(tests)
+add_subdirectory(tests)
 
-# enable_testing()
-# add_test(NAME logging COMMAND test_logging)
+enable_testing()
+add_test(NAME logging COMMAND test_logging)
 
 
 # ----------------------------------

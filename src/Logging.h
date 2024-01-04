@@ -8,7 +8,7 @@
 
 
 namespace hydro_playground {
-  namespace logging {
+namespace logging {
 
 enum LogLevel {
   LogLevelUndefined = -1,
@@ -38,8 +38,5 @@ class Log {
 };
 
 
-// std::string get_stage_name(log_stage stage);
-
-
-  } // namespace logging
+} // namespace logging
 } // namespace hydro_playground
