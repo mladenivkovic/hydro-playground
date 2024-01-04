@@ -27,6 +27,8 @@ int main(void) {
   int stageMin = static_cast<int>(logging::LogStageUndefined);
   int stageMax = static_cast<int>(logging::LogStageCount);
 
+  // First, let's test verbosity level printouts and that stages
+  // are named correctly.
   for (int verb = 0; verb < 4; verb++){
 
     for (int stage = stageMin; stage < stageMax; stage++){
@@ -44,7 +46,7 @@ int main(void) {
 
         std::cout << msg.str();
 
-        logging::Log(msg.str(), l, s, verb);
+        logging::Log(msg, l, s, verb);
         std::cout << "\n";
 
       }
@@ -52,6 +54,39 @@ int main(void) {
     }
     printFatLine();
   }
+
+
+  printFatLine();
+
+  // Now let's test different constructors.
+
+  const char *char_msg = "Const Char message";
+  std::string str_msg  = std::string("String message");
+  std::stringstream ss_msg;
+  ss_msg << "String stream message";
+
+
+  logging::Log{char_msg};
+  logging::Log(char_msg, logging::LogLevel::LogLevelQuiet, logging::LogStage::LogStageInit);
+  logging::Log(char_msg, logging::LogLevel::LogLevelQuiet, logging::LogStage::LogStageInit, 1);
+
+  logging::Log{str_msg};
+  logging::Log(str_msg, logging::LogLevel::LogLevelQuiet, logging::LogStage::LogStageInit);
+  logging::Log(str_msg, logging::LogLevel::LogLevelQuiet, logging::LogStage::LogStageInit, 1);
+
+  logging::Log{ss_msg};
+  logging::Log(ss_msg, logging::LogLevel::LogLevelQuiet, logging::LogStage::LogStageInit);
+  logging::Log(ss_msg, logging::LogLevel::LogLevelQuiet, logging::LogStage::LogStageInit, 1);
+
+  logging::Log{"Directly writing in here"};
+  logging::Log("Directly writing in here");
+  logging::Log("Directly writing in here", logging::LogLevel::LogLevelQuiet, logging::LogStage::LogStageInit);
+  logging::Log("Directly writing in here", logging::LogLevel::LogLevelQuiet, logging::LogStage::LogStageInit, 1);
+
+
+
+
+
 
   return 0;
 

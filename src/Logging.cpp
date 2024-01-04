@@ -10,14 +10,7 @@
 namespace hydro_playground {
 namespace logging {
 
-/**
-* write a log message.
-*
-* @param message The message you want to print out.
-* @param level "verbosity level" of the log message.
-* @param stage stage of the code where this log is called from.
-* @param verbose how verbose the code is being run.
-*/
+
 Log::Log(std::string message, LogLevel level, LogStage stage, int verbose){
 
   // Are we talkative enough?
@@ -34,9 +27,27 @@ Log::Log(std::string message, LogLevel level, LogStage stage, int verbose){
   if (flush) std::cout << std::flush;
 }
 
-Log::Log(std::stringstream messagestream, LogLevel level, LogStage stage, int verbose){
+Log::Log(std::stringstream& messagestream, LogLevel level, LogStage stage, int verbose){
   Log(messagestream.str(), level, stage, verbose);
 }
+
+Log::Log(const char* message, LogLevel level, LogStage stage, int verbose){
+  Log(std::string(message), level, stage, verbose);
+}
+
+Log::Log(std::string message){
+  // Always print these kinds of messages.
+  Log(message, LogLevel::LogLevelUndefined, LogStage::LogStageUndefined, -1);
+}
+
+Log::Log(std::stringstream& messagestream){
+  Log(messagestream.str());
+}
+
+Log::Log(const char* message){
+  Log(std::string(message));
+}
+
 
 
 /**
