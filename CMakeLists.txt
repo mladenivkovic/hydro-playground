@@ -17,7 +17,7 @@ target_include_directories(hydro PUBLIC
                             "${PROJECT_BINARY_DIR}"
                             )
 
-configure_file(Config.h.in Config.h)
+configure_file(src/Config.h.in Config.h)
 
 
 
@@ -68,6 +68,6 @@ execute_process(COMMAND
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 # generate Version.cpp
-configure_file("${CMAKE_SOURCE_DIR}/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)
+configure_file("${CMAKE_SOURCE_DIR}/src/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)
 
 list(APPEND SOURCES "${CMAKE_BINARY_DIR}/Version.cpp" src/Version.h)
