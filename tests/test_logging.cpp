@@ -22,10 +22,10 @@ int main(void) {
   using namespace hydro_playground;
 
 
-  int levelMin = static_cast<int>(logging::LogLevelUndefined);
-  int levelMax = static_cast<int>(logging::LogLevelCount);
-  int stageMin = static_cast<int>(logging::LogStageUndefined);
-  int stageMax = static_cast<int>(logging::LogStageCount);
+  int levelMin = static_cast<int>(logging::LogLevel::Undefined);
+  int levelMax = static_cast<int>(logging::LogLevel::Count);
+  int stageMin = static_cast<int>(logging::LogStage::Undefined);
+  int stageMax = static_cast<int>(logging::LogStage::Count);
 
   // First, let's test verbosity level printouts and that stages
   // are named correctly.
@@ -67,25 +67,21 @@ int main(void) {
 
 
   logging::Log{char_msg};
-  logging::Log(char_msg, logging::LogLevel::LogLevelQuiet, logging::LogStage::LogStageInit);
-  logging::Log(char_msg, logging::LogLevel::LogLevelQuiet, logging::LogStage::LogStageInit, 1);
+  logging::Log(char_msg, logging::LogLevel::Quiet, logging::LogStage::Init);
+  logging::Log(char_msg, logging::LogLevel::Quiet, logging::LogStage::Init, 1);
 
   logging::Log{str_msg};
-  logging::Log(str_msg, logging::LogLevel::LogLevelQuiet, logging::LogStage::LogStageInit);
-  logging::Log(str_msg, logging::LogLevel::LogLevelQuiet, logging::LogStage::LogStageInit, 1);
+  logging::Log(str_msg, logging::LogLevel::Quiet, logging::LogStage::Init);
+  logging::Log(str_msg, logging::LogLevel::Quiet, logging::LogStage::Init, 1);
 
   logging::Log{ss_msg};
-  logging::Log(ss_msg, logging::LogLevel::LogLevelQuiet, logging::LogStage::LogStageInit);
-  logging::Log(ss_msg, logging::LogLevel::LogLevelQuiet, logging::LogStage::LogStageInit, 1);
+  logging::Log(ss_msg, logging::LogLevel::Quiet, logging::LogStage::Init);
+  logging::Log(ss_msg, logging::LogLevel::Quiet, logging::LogStage::Init, 1);
 
   logging::Log{"Directly writing in here"};
   logging::Log("Directly writing in here");
-  logging::Log("Directly writing in here", logging::LogLevel::LogLevelQuiet, logging::LogStage::LogStageInit);
-  logging::Log("Directly writing in here", logging::LogLevel::LogLevelQuiet, logging::LogStage::LogStageInit, 1);
-
-
-
-
+  logging::Log("Directly writing in here", logging::LogLevel::Quiet, logging::LogStage::Init);
+  logging::Log("Directly writing in here", logging::LogLevel::Quiet, logging::LogStage::Init, 1);
 
 
   return 0;

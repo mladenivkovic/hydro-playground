@@ -7,6 +7,7 @@
 
 #include <sstream>
 
+namespace hydro_playground {
 namespace utils {
 
 /* stuff that doesn't fit anywhere else */
@@ -23,4 +24,5 @@ void print_header();
 /* void throw_error(const char *format, ...); */
 /* void printbool(int boolean); */
 
-}
+} // namespace utils
+} // namespace hydro_playground

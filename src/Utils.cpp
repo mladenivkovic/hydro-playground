@@ -1,4 +1,5 @@
 // #include "defines.h"
+#include "Logging.h"
 #include "Utils.h"
 #include "Version.h"
 
@@ -6,6 +7,8 @@
 #include <sstream>
 // #include <iostream>
 
+
+namespace hydro_playground {
 
 /**
  * @brief returns the banner for the header.
@@ -29,18 +32,30 @@ std::stringstream utils::get_banner(void){
  */
 void utils::print_header(void){
 
+  std::stringstream banner = get_banner();
+  std::cout << banner.str();
+
   const int version_major = version::Version::MAJOR;
   const int version_minor = version::Version::MINOR;
 
-  std::stringstream header;
-  std::stringstream banner = get_banner();
+  logging::LogStage stage = logging::LogStage::Header;
+  logging::LogLevel level = logging::LogLevel::Quiet;
 
-  header << banner.str();
+  std::stringstream version_txt;
+  version_txt <<    "Version:     " << version_major << "." << version_minor;
+  logging::Log(version_txt, level, stage);
 
-  header << "Version " << version_major << "." << version_minor;
+  std::stringstream git_branch_txt;
+  git_branch_txt << "Git branch:  " << version::Version::GIT_BRANCH;
+  logging::Log(git_branch_txt, level, stage);
+
+  std::stringstream git_comm_txt;
+  git_comm_txt <<   "Git commit:  " << version::Version::GIT_SHA1;
+  logging::Log(git_comm_txt, level, stage);
 
 
-
-  std::cout << header.str() << std::endl;
 
 }
+
+
+} // namespace hydro_playground

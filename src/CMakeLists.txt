@@ -6,6 +6,7 @@ add_library(Logging Logging.cpp Logging.h)
 
 add_library(Utils Utils.cpp Utils.h)
 target_link_libraries(Utils Version)
+target_link_libraries(Utils Logging)
 
 
 

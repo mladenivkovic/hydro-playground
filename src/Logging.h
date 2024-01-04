@@ -10,21 +10,21 @@
 namespace hydro_playground {
 namespace logging {
 
-enum LogLevel {
-  LogLevelUndefined = -1,
-  LogLevelQuiet = 0,
-  LogLevelVerbose = 1,
-  LogLevelDebug = 2,
-  LogLevelCount
+enum class LogLevel {
+  Undefined = -1,
+  Quiet = 0,
+  Verbose = 1,
+  Debug = 2,
+  Count
 };
 
 
-enum LogStage {
-  LogStageUndefined = -1,
-  LogStageHeader = 0,
-  LogStageInit = 1,
-  LogStageStep = 2,
-  LogStageCount,
+enum class LogStage {
+  Undefined = -1,
+  Header = 0,
+  Init = 1,
+  Step = 2,
+  Count,
 };
 
 
@@ -38,9 +38,9 @@ class Log {
     * @param stage stage of the code where this log is called from.
     * @param verbose how verbose the code is being run.
     */
-    Log(std::string message, LogLevel level, LogStage stage, int verbose = LogLevelCount);
-    Log(std::stringstream& messagestream, LogLevel level, LogStage stage, int verbose = LogLevelCount);
-    Log(const char* message, LogLevel level, LogStage stage, int verbose = LogLevelCount);
+    Log(std::string message, LogLevel level, LogStage stage, int verbose = static_cast<int>(LogLevel::Count));
+    Log(std::stringstream& messagestream, LogLevel level, LogStage stage, int verbose = static_cast<int>(LogLevel::Count));
+    Log(const char* message, LogLevel level, LogStage stage, int verbose = static_cast<int>(LogLevel::Count));
 
     /**
      * shorthand to write a log message.
