@@ -1,13 +1,11 @@
-#include "config.h"
 // #include "defines.h"
-#include "utils.h"
+#include "Utils.h"
+#include "Version.h"
 
 #include <iostream>
 #include <sstream>
 // #include <iostream>
 
-
-namespace hydro_playground {
 
 /**
  * @brief returns the banner for the header.
@@ -31,8 +29,8 @@ std::stringstream utils::get_banner(void){
  */
 void utils::print_header(void){
 
-  const int version_major = HYDRO_PLAYGROUND_VERSION_MAJOR;
-  const int version_minor = HYDRO_PLAYGROUND_VERSION_MINOR;
+  const int version_major = version::Version::MAJOR;
+  const int version_minor = version::Version::MINOR;
 
   std::stringstream header;
   std::stringstream banner = get_banner();
@@ -46,7 +44,3 @@ void utils::print_header(void){
   std::cout << header.str() << std::endl;
 
 }
-
-} // namespace hydro_playground
-
-

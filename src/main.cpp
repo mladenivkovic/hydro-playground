@@ -2,9 +2,9 @@
 
 #include <iostream> // todo: necessary?
 
-#include "config.h" // todo: necessary?
-#include "logging.h"
-#include "utils.h"
+#include "Config.h" // todo: necessary?
+#include "Logging.h"
+#include "Utils.h"
 
 
 

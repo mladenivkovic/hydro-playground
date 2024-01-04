@@ -7,8 +7,7 @@
 
 #include <sstream>
 
-namespace hydro_playground {
-  namespace utils {
+namespace utils {
 
 /* stuff that doesn't fit anywhere else */
 std::stringstream get_banner(void);
@@ -24,5 +23,4 @@ void print_header();
 /* void throw_error(const char *format, ...); */
 /* void printbool(int boolean); */
 
-  }
 }

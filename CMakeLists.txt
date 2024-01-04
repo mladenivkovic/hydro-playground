@@ -1,3 +1,7 @@
+# ----------------------------------
+# Globals / Main Project
+# ----------------------------------
+
 cmake_minimum_required(VERSION 3.21)
 
 project(hydro_playground
@@ -6,21 +10,17 @@ project(hydro_playground
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-configure_file(config.h.in config.h)
-
-# add_subdirectory("src/solver")
-
 add_executable(hydro src/main.cpp)
-
-    # src/utils.cpp
-    # src/utils.h
 add_subdirectory(src)
-
-# list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/utils.cpp" "src/utils.h")
 
 target_include_directories(hydro PUBLIC
                             "${PROJECT_BINARY_DIR}"
+                            "${PROJECT_SOURCE_DIR}/src"
                             )
+
+configure_file(Config.h.in Config.h)
+
+# list(APPEND SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/utils.cpp" "src/utils.h")
 
 # target_include_directories(hydro PUBLIC
 #                             "src"
@@ -31,8 +31,14 @@ target_include_directories(hydro PUBLIC
 
 
 
+# ----------------------------------
+# Tests
+# ----------------------------------
 
+# add_subdirectory(tests)
 
+# enable_testing()
+# add_test(NAME logging COMMAND test_logging)
 
 
 # ----------------------------------
@@ -71,7 +77,7 @@ execute_process(COMMAND
     OUTPUT_VARIABLE GIT_COMMIT_SUBJECT
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-# generate version.cc
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/version.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/version.cpp" @ONLY)
+# generate Version.cpp
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)
 
-list(APPEND SOURCES "${CMAKE_CURRENT_BINARY_DIR}/version.cpp" src/version.h)
+list(APPEND SOURCES "${CMAKE_CURRENT_BINARY_DIR}/Version.cpp" src/Version.h)
