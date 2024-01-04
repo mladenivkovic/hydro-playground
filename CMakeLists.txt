@@ -15,13 +15,9 @@ add_subdirectory(src)
 
 target_include_directories(hydro PUBLIC
                             "${PROJECT_BINARY_DIR}"
-                            "${PROJECT_SOURCE_DIR}/src"
                             )
 
 configure_file(Config.h.in Config.h)
-
-# target_link_libraries(hydro PUBLIC utils)
-# target_link_libraries(hydro PUBLIC solver)
 
 
 
@@ -74,4 +70,4 @@ execute_process(COMMAND
 # generate Version.cpp
 configure_file("${CMAKE_SOURCE_DIR}/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)
 
-list(APPEND SOURCES "${CMAKE_BINARY_DIR}/Version.cpp" Version.h)
+list(APPEND SOURCES "${CMAKE_BINARY_DIR}/Version.cpp" src/Version.h)
