@@ -8,8 +8,10 @@ add_library(Utils Utils.cpp Utils.h)
 target_link_libraries(Utils Version)
 target_link_libraries(Utils Logging)
 
+add_library(Parameters Parameters.cpp Parameters.h)
 
 
 target_link_libraries(hydro Logging)
 target_link_libraries(hydro Utils)
+target_link_libraries(hydro Parameters)
 
