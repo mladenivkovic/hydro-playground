@@ -12,8 +12,17 @@
 namespace hydro_playground {
   namespace logging {
 
+// This macro truncates the full path from the __FILE__ macro.
+#ifdef SOURCE_PATH_SIZE
+#pragma message "GOT IT"
+#define __FILENAME__ (__FILE__ + SOURCE_PATH_SIZE)
+#else
+#pragma message "NOPE"
+#define __FILENAME__ __FILE__
+#endif
+
 #define log(msg, level, stage) \
-  hydro_playground::logging::Log::message(__FILE__, __FUNCTION__, __LINE__, msg, level, stage);
+  hydro_playground::logging::Log::message(__FILENAME__, __FUNCTION__, __LINE__, msg, level, stage);
 
 
     enum class LogLevel { Undefined = -1, Quiet = 0, Verbose = 1, Debug = 2, Count };
