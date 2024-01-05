@@ -14,10 +14,8 @@ namespace hydro_playground {
 
 // This macro truncates the full path from the __FILE__ macro.
 #ifdef SOURCE_PATH_SIZE
-#pragma message "GOT IT"
 #define __FILENAME__ (__FILE__ + SOURCE_PATH_SIZE)
 #else
-#pragma message "NOPE"
 #define __FILENAME__ __FILE__
 #endif
 

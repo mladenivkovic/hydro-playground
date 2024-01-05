@@ -30,10 +30,7 @@ namespace hydro_playground {
       std::stringstream str;
       str << "[" << getStageName(stage) << "] ";
 #if DEBUG_LEVEL > 0
-#pragma message "HELLO THERE"
       str << "{" << file << ":" << function << "():" << line << "} ";
-#else
-#pragma message "THE FUCK"
 #endif
       str << text << "\n";
 
