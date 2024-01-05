@@ -42,17 +42,50 @@ namespace IdealGas
       Getters and setters!
       */
       /* Setter for Rho */
-      void      setRho(const Precision& val);
+      void      setRho(const Precision val);
       Precision getRho() const;
 
       /* same for u */
-      void      setU(const Precision& val, int index);
-      Precision getU(int index) const;
+      void      setU(int index, const Precision val);
+      Precision getU(const int index) const;
 
       /*used a lot, made a function for it*/
       Precision getUSquared() const;
 
-      void      setP(const Precision& val);
+      void      setP(const Precision val);
       Precision getP() const;
+  };
+
+  class ConservedState{
+    private:
+      Precision rho;
+      std::array<Precision, 2> rhou;
+      Precision E;
+
+    public:
+      /* Standard constructor, init variables to 0 */
+      ConservedState();
+
+      /* putting this in in case it's needed */
+      void resetToInitialState() { *this = ConservedState(); }
+
+      void PrimitiveToConserved(const PrimitiveState& primState);
+      void GetCFluxFromPstate(const PrimitiveState& p, int dimension);
+      void GetCFluxFromCstate(const ConservedState& c, int dimension);
+
+      /*
+      Getters and setters!
+      */
+      void      setRho(const Precision& val);
+      Precision getRho() const;
+
+      /* same for u */
+      void      setRhou(int index, const Precision val);
+      Precision getRhou(int index) const;
+      // std::array<Precision, 2> getRhou() const;
+      Precision getRhoUSquared() const;
+
+      void      setE(const Precision val);
+      Precision getE() const;
   };
 }
