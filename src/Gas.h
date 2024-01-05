@@ -1,3 +1,58 @@
 #pragma once
 
 #include "Constants.h"
+#include "Config.h"
+#include <array>
+// #include <math.h>
+
+
+namespace IdealGas
+{
+  // hacky forward declaration, ConservedToPrimitive doesn't work without it
+  class ConservedState;
+  class PrimitiveState;
+
+  class PrimitiveState{
+    private:
+      Precision rho; /* density */
+      std::array<Precision, 2> u; /* velocity vector. u[0] = ux, u[1] = uy */
+      Precision p;    /* pressure */
+
+
+    public:
+      /* Standard constructor, init variables to 0 */
+      PrimitiveState();
+      
+      /* putting this in just in case it's needed */
+      void resetToInitialState() { *this = PrimitiveState(); }
+
+      /*
+      Mimicking original C function.
+      Can we std::move all of the member variables from the conserved state
+      here (and pass in the conserved state as rvalue ref)? Don't yet know 
+      about the intention of the original function.
+      */
+      void ConservedToPrimitive(const ConservedState& conservedState);
+
+      Precision getSoundSpeed();
+      Precision getEnergy();
+
+
+      /*
+      Getters and setters!
+      */
+      /* Setter for Rho */
+      void      setRho(const Precision& val);
+      Precision getRho() const;
+
+      /* same for u */
+      void      setU(const Precision& val, int index);
+      Precision getU(int index) const;
+
+      /*used a lot, made a function for it*/
+      Precision getUSquared() const;
+
+      void      setP(const Precision& val);
+      Precision getP() const;
+  };
+}
