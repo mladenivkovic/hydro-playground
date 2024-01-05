@@ -28,9 +28,13 @@ namespace hydro_playground {
         std::cout << std::flush;
     }
 
-    Log::Log(std::stringstream& messagestream, LogLevel level, LogStage stage, int verbose) { Log(messagestream.str(), level, stage, verbose); }
+    Log::Log(std::stringstream& messagestream, LogLevel level, LogStage stage, int verbose) {
+      Log(messagestream.str(), level, stage, verbose);
+    }
 
-    Log::Log(const char* message, LogLevel level, LogStage stage, int verbose) { Log(std::string(message), level, stage, verbose); }
+    Log::Log(const char* message, LogLevel level, LogStage stage, int verbose) {
+      Log(std::string(message), level, stage, verbose);
+    }
 
     Log::Log(std::string message) {
       // Always print these kinds of messages.

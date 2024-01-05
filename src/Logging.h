@@ -32,9 +32,24 @@ namespace hydro_playground {
        * @param stage stage of the code where this log is called from.
        * @param verbose how verbose the code is being run.
        */
-      Log(std::string message, LogLevel level, LogStage stage, int verbose = static_cast<int>(LogLevel::Count));
-      Log(std::stringstream& messagestream, LogLevel level, LogStage stage, int verbose = static_cast<int>(LogLevel::Count));
-      Log(const char* message, LogLevel level, LogStage stage, int verbose = static_cast<int>(LogLevel::Count));
+      Log(
+        std::string message,
+        LogLevel    level,
+        LogStage    stage,
+        int         verbose = static_cast<int>(LogLevel::Count)
+      );
+      Log(
+        std::stringstream& messagestream,
+        LogLevel           level,
+        LogStage           stage,
+        int                verbose = static_cast<int>(LogLevel::Count)
+      );
+      Log(
+        const char* message,
+        LogLevel    level,
+        LogStage    stage,
+        int         verbose = static_cast<int>(LogLevel::Count)
+      );
 
       /**
        * shorthand to write a log message.
