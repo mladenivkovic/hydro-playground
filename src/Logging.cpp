@@ -65,10 +65,7 @@ namespace hydro_playground {
     }
 
 
-
-
-
-    void Log::logWarning( const char* file, const char* function, const int   line, std::string text) {
+    void Log::logWarning(const char* file, const char* function, const int line, std::string text) {
 
       std::stringstream str;
       str << "[WARNING] ";
@@ -78,17 +75,18 @@ namespace hydro_playground {
       std::cerr << str.str();
     }
 
-    void Log::logWarning( const char*        file, const char*        function, const int          line, std::stringstream& text) {
+    void Log::logWarning(
+      const char* file, const char* function, const int line, std::stringstream& text
+    ) {
       logWarning(file, function, line, text.str());
     }
 
-    void Log::logWarning( const char* file, const char* function, const int   line, const char* text) {
+    void Log::logWarning(const char* file, const char* function, const int line, const char* text) {
       logWarning(file, function, line, std::string(text));
     }
 
 
-
-    void Log::logError( const char* file, const char* function, const int   line, std::string text) {
+    void Log::logError(const char* file, const char* function, const int line, std::string text) {
 
       std::stringstream str;
       str << "[ERROR] ";
@@ -102,18 +100,15 @@ namespace hydro_playground {
       std::abort();
     }
 
-    void Log::logError( const char*        file, const char*        function, const int          line, std::stringstream& text) {
+    void Log::logError(
+      const char* file, const char* function, const int line, std::stringstream& text
+    ) {
       logError(file, function, line, text.str());
     }
 
-    void Log::logError( const char* file, const char* function, const int   line, const char* text) {
+    void Log::logError(const char* file, const char* function, const int line, const char* text) {
       logError(file, function, line, std::string(text));
     }
-
-
-
-
-
 
 
     void Log::setVerbosity(int verbosity) {
