@@ -6,9 +6,65 @@ cmake_minimum_required(VERSION 3.21)
 
 project(hydro_playground
         VERSION 1.0)
+set(LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+
+
+#-------------------------------
+# Set up build types
+#-------------------------------
+
+# Note: This needs to be done *BEFORE* adding libraries, targets etc.
+# Otherwise, the compiler options won't be applied.
+
+# specify with -DCMAKE_BUILD_TYPE=[Debug,Release,RelWithDebInfo]
+
+if(NOT CMAKE_BUILD_TYPE)
+    message("* No build type provided. Set with -DCMAKE_BUILD_TYPE=[Debug,Release,RelWithDebInfo].")
+    message("* Setting to Debug and continuing.")
+    set(CMAKE_BUILD_TYPE Debug
+        CACHE STRING "Choose the type of build : [Debug,Release,RelWithDebInfo]."
+        FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+
+
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_compile_options(
+        -Werror -Wall -Wextra -Wpedantic -O3
+    )
+    set(DEBUG_LEVEL 0)
+
+elseif (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    add_compile_options(
+        -Werror -Wall -Wextra -Wpedantic -O3 -g
+    )
+    set(DEBUG_LEVEL 1)
+
+elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(
+        -Werror -Wall -Wextra -Wpedantic -O0 -g
+    )
+    set(DEBUG_LEVEL 2)
+
+else()
+    message(FATAL_ERROR 
+        "Invalid CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}. " 
+        "Options are [Release, RelWithDebInfo, Debug]. "
+        "Pick one of those."
+        )
+
+endif()
+
+message("* Current build type is : ${CMAKE_BUILD_TYPE}")
+
+
+
+# ---------------------------
+# Main Target
+# ---------------------------
 
 add_executable(hydro src/main.cpp)
 add_subdirectory(src)
@@ -19,10 +75,6 @@ target_include_directories(hydro PUBLIC
 
 configure_file(src/Config.h.in Config.h)
 
-
-# Default compiler flags
-set(CMAKE_CXX_FLAGS_INIT "-Werror -Wall -Wextra -Wpedantic")
-message("setting CMAKE_CXX_FLAGS_INIT=" ${CMAKE_CXX_FLAGS_INIT})
 
 
 

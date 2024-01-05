@@ -1,2 +1,5 @@
-#define HYDRO_PLAYGROUND_VERSION_MAJOR @hydro_playground_VERSION_MAJOR@
-#define HYDRO_PLAYGROUND_VERSION_MINOR @hydro_playground_VERSION_MINOR@
+// Some global definitions.
+// Variables enclosed by '@' are generated with CMake.
+
+#define DEBUG_LEVEL @DEBUG_LEVEL@
+
