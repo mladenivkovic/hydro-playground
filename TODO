@@ -3,3 +3,4 @@
 - Theory
 - Update main README as code grows
 - write out compiler flags used into header
+- add github CI - make sure code compiles every time we add something to main branch.
