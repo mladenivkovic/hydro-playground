@@ -1,0 +1,101 @@
+\newpage
+%===============================================================================
+\section{Developer Notes}
+%===============================================================================
+
+
+%===============================================================================
+\subsection{Adding New Files}
+%===============================================================================
+
+I've chosen to go with a simple principle of creating a library for any pair of
+\verb|.cpp| and \verb|.h| files. To add them to the \verb|cmake| build system,
+modify the file \verb|src/CMakeLists.txt|.
+
+
+For example, let's first look at the ``\verb|Logging|'' library. We have a file
+\verb|Logging.cpp| and \verb|Logging.h|. In \verb|src/CMakeLists.txt|, we add
+the library as follows:
+
+\begin{lstlisting}
+add_library(Logging Logging.cpp Logging.h)
+\end{lstlisting}
+
+The library's name in \verb|cmake|'s internal registry is then called
+\verb|Logging|.
+
+Our main executable, which has the name \verb|hydro| in \verb|cmake|'s
+internals, will need to have the \verb|Logging| library linked against it. So
+we need to tell \verb|cmake| about that:
+
+\begin{lstlisting}
+target_link_libraries(hydro Logging)
+\end{lstlisting}
+
+And that should do the trick!
+
+
+
+
+% -----------------------------------------------------------------
+\subsubsection{Libraries with other dependencies}
+% -----------------------------------------------------------------
+
+Note however that other libraries may require other libraries too. For example,
+the \verb|Utils| library, defined in \verb|src/CMakeLists.txt| as
+
+\begin{lstlisting}
+add_library(Utils Utils.cpp Utils.h)
+\end{lstlisting}
+
+also needs the \verb|Version| and the \verb|Logging| library linked against it.
+We then simply need to add the dependency using the same syntax as for the
+executable \verb|hydro| above, and just change the target:
+
+\begin{lstlisting}
+target_link_libraries(Utils Version)
+target_link_libraries(Utils Logging)
+\end{lstlisting}
+
+
+
+
+
+% -----------------------------------------------------------------
+\subsubsection{\texttt{Version.cpp} and \texttt{Config.h}}
+% -----------------------------------------------------------------
+
+Currently, there are two exceptions to this procedure. Those are the files
+\verb|Version.cpp| and \verb|Config.h|. They are special because they will be
+generated with \verb|cmake| from their respective templates,
+\verb|src/Config.h.in| and \verb|src/Version.cpp.in|.
+
+The generated files will be \verb|your_build_dir/Version.cpp| and
+\verb|your_build_dir/Config.h|.  So to get the \verb|Version| library to
+compile, we need to tell it a) where to find the file, and b) that the header
+file that needs to be included is in a different directory. We do that as
+follows:
+
+
+\begin{lstlisting}
+add_library(Version "${CMAKE_BINARY_DIR}/Version.cpp" Version.h)
+target_include_directories(Version PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+\end{lstlisting}
+
+\verb|${CMAKE_BINARY_DIR}| is the directory you're currently building the
+project in. The \verb|${CMAKE_CURRENT_SOURCE_DIR}| variable gives you the path
+to the directory where the \verb|CMakeLists.txt| file is located, which is
+conveniently the same directory as the \verb|Version.h| header file.
+
+
+
+Similarly, if you want a library to include the \verb|Config.h| header, you need to tell it where it is as follows. Take for example the library \verb|Utils| again:
+
+\begin{lstlisting}
+add_library(Utils Utils.cpp Utils.h)
+target_include_directories(Utils PUBLIC "${PROJECT_BINARY_DIR}")
+\end{lstlisting}
+
+
+
+

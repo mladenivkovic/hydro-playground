@@ -1,0 +1,6 @@
+// Some global definitions.
+// Variables enclosed by '@' are generated with CMake.
+
+#define DEBUG_LEVEL @DEBUG_LEVEL@
+#define CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
+
