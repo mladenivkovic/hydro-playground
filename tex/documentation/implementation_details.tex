@@ -1,0 +1,198 @@
+\newpage
+
+
+
+%======================================================
+\section{General Implementation Details}
+%======================================================
+
+
+
+%-------------------------------------------------------
+\subsection{Repository Layout}
+%-------------------------------------------------------
+
+\begin{itemize} 
+
+    \item 	All the source files are in the \verb|src/| directory.
+
+    \item 	\verb|tests/| contains unit and functional tests.
+	
+    \item   \verb|tex/| contains LaTeX documentation of the code:
+
+    \begin{itemize}
+        \item   \verb|tex/documentation| contains the code documentation,
+                including how to get the code, first steps and getting started,
+                and developer notes.
+
+        \item   \verb|tex/theory| contains equations being solved, and the 
+                numerical methods used to solve them.
+    \end{itemize}
+\end{itemize}
+
+
+\todo{
+Add Python
+
+Add  sh scripts, ICs, ...
+}
+
+
+
+
+
+%-------------------------------------------------------------------------------
+\subsection{Contents of Specific Files and Directories in \texttt{src/}}
+%-------------------------------------------------------------------------------
+
+\todo{
+    This is copy-pasted from mesh-hydro. All of this needs checking.
+}
+
+% \begin{itemize}
+% 	\item 	\texttt{/program/src/cell.c}, \texttt{/program/src/cell.h}:
+%
+% 			All cell/grid related functions.
+% 			The grid is used as \texttt{ struct cell* grid} or \texttt{struct cell** grid}, depending on whether you run the code in 1D or 2D, respectively.
+%
+% 			It's an array of \texttt{struct cell}, defined in \texttt{/program/src/cell.h}, which is meant to store all cell related quantities: primitive states, \texttt{prim}, as  \texttt{struct pstate}, and conserved states, \texttt{cons}, as \texttt{struct cstate}.
+% 			Furthermore they have \texttt{struct pstate pflux} and \texttt{struct cstate cflux} to store fluxes of primitive and conserved variables.
+% 			All cell/grid related functions are written in \texttt{/program/src/cell.c}.
+%
+%
+% 	\item 	\texttt{/program/src/defines.h}:
+%
+% 			Contains all macro definitions, like iteration tolerance, the box size, the adiabatic coefficient $\gamma$ etc, as well as some physical constants (mostly related to $\gamma$).
+%
+% 	\item 	\texttt{/program/src/io.h}, \texttt{/program/src/io.c}:
+%
+% 			All input/output related functions, i.e. anything related to reading and writing files.
+%
+% 	\item 	\texttt{/program/src/limiter.h}, \texttt{/program/src/limiter.c}:
+%
+% 			Slope and flux limiter related functions (section \ref{chap:limiters}) that are used regardless of the choice of the limiter.
+% 			For a specific choice of slope limiter, \texttt{/program/src/limiter.h} includes a specific file from \texttt{/program/src/limiter/}.
+% 			The file name in \texttt{/program/src/limiter/} should be obvious.
+%
+% 	\item 	\texttt{/program/src/limiter/}:
+%
+% 			Slope limiter functions (section \ref{chap:limiters}) for specific limiters.
+% 			They will be included by \texttt{/program/src/limiter.h} during compile time by setting the corresponding variable name in the \texttt{/program/bin/Makefile}.
+%
+% 			Essentially, these files only contain the actual computation of $\phi(r)$ and $\xi(r)$.
+%
+%
+% 	\item 	\texttt{/program/src/main.c}:
+%
+% 			The main function of the program when the program is utilized as a hydro/hyperbolic conservation law solver.
+%
+% 	\item 	\texttt{/program/src/main-riemann.c}:
+%
+% 			The main function of the program when the program is utilized as a Riemann solver.
+%
+%
+% 	\item 	\texttt{/program/src/riemann.h}, \texttt{/program/src/riemann.c}:
+%
+% 			Riemann solver related functions (section \ref{chap:riemann}) that are used regardless of the choice of the Riemann solver.
+% 			For a specific choice of Riemann solver, \texttt{/program/src/riemann.h} includes a specific file from \texttt{/program/src/riemann/}.
+% 			The file name in \texttt{program/src/riemann/} should be obvious.
+%
+% 	\item 	\texttt{/program/src/riemann/}:
+%
+% 			Riemann solver functions (section \ref{chap:riemann}) for specific Riemann solvers.
+% 			They will be included by \texttt{/program/src/riemann.h} during compile time by setting the corresponding variable name in the \texttt{/program/bin/Makefile}.
+%
+% 			Essentially, these files contain only the specific function to get the star state pressure and contact wave velocity.
+% 			The only exception is the HLLC solver, which works a bit differently than the other implemented solvers.
+% 			There, essentially everything needs to be done in a special way, so the solver contains its own routines, with a ``\texttt{HLLC}'' added to the function names.
+%
+% 	\item 	\texttt{/program/src/solver.h}, \texttt{/program/src/solver.c}:
+%
+% 			Hydro and advection solver related functions (section \ref{chap:advection}, \ref{chap:hydro}) that are used regardless of the choice of the hydro solver.
+% 			For a specific choice of solver, \texttt{/program/src/solver.h} includes a specific file from \texttt{/program/src/solver/}.
+% 			The file name in \texttt{/program/src/solver/} should be obvious.
+% 			For implementation details of each solver, look up the implementation details in their respective section \ref{chap:advection}, \ref{chap:hydro}.
+%
+% 	\item 	\texttt{/program/src/solver/}:
+%
+% 			Hydro and advection solver functions (section \ref{chap:advection}, \ref{chap:hydro}) for specific  solvers.
+% 			They will be included by \texttt{/program/src/solver.h} during compile time by setting the corresponding variable name in the \texttt{/program/bin/Makefile}.
+% 			For implementation details of each solver, look up the implementation details in their respective section \ref{chap:advection}, \ref{chap:hydro}.
+%
+% 	\item 	\texttt{/program/src/utils.h}, \texttt{/program/src/utils.c}:
+%
+% 			Miscellaneous small utilities that are irrelevant for the actual hydro or hyperbolic conservation law solving, like printing a banner every time the code starts, standardized functions to print outputs to screen or throw errors, etc.
+%
+% \end{itemize}
+
+	
+
+
+
+
+
+
+
+
+%-------------------------------------------------------
+\subsection{How the Code Works}
+%-------------------------------------------------------
+
+
+\todo{
+    This is copy-pasted from mesh-hydro. All of this needs checking.
+}
+
+% \begin{itemize} \item 	All the source files are in the \verb|src/| directory.
+%
+%     \item 	The main program file is \verb{src/main.cpp}
+%
+%     \item 	The program starts off by reading in the initial conditions (IC) file and the parameter
+%     file, which are both required command line arguments when executing the program.  All functions
+%     related to reading and writing files are in \verb{src/io.c}
+%
+%     \item 	Then a few checks are done to make sure no contradictory or missing parameters are
+%     given, and the grid on which the code will work on is initialized, as well as some global
+%     variables like the step number and current in-code time.
+%
+%     \item 	There are two global variables used throughout the code:
+%
+%         \begin{itemize} \item 	\texttt{ struct params param}: A parameter struct (defined in
+%         \texttt{gsrc/params.h}) that stores global parameters that are useful to have
+%         everywhere throughout the code (even if it isn't optimal coding practice...) All parameter
+%         related functions are in \texttt{gsrc/params.c}.
+%
+%             \item 	\texttt{ struct cell* grid} or \texttt{struct cell** grid}, depending on whether
+%             you run the code in 1D or 2D, respectively.  It's an array of \texttt{struct cell},
+%             defined in \texttt{gsrc/cell.h}, which is meant to store all cell related
+%             quantities: primitive states, \texttt{prim}, as  \texttt{struct pstate}, and conserved
+%             states, \texttt{cons}, as \texttt{struct cstate}.  Furthermore they have \texttt{struct
+%             pstate pflux} and \texttt{struct cstate cflux} to store fluxes of primitive and
+%             conserved variables.  All cell/grid related functions are written in
+%             \texttt{gsrc/cell.c}.	\end{itemize}
+%
+%     \item 	If the code is used as a hydro/conservation law solver:
+%
+%         \begin{itemize}
+%             \item 	The main loop starts now:
+%             \item 	Advance the solver for a time step.
+%             \item 	Write output data if you need to (when to dump output is specified in the
+%         parameter file).  All functions related to reading and writing files are in
+%         \texttt{gsrc/io.c}
+%             \item 	Write a message to the screen after the time step is
+%         done.  This includes the current step number, in-code time, the ratio of initial mass to the
+%         current mass on the entire grid, and the wall-clock time that the step needed to finish.
+%         \end{itemize}
+%
+%     \item 	Write output data.  All functions related to reading and writing files are in
+%     \texttt{gsrc/io.c} \end{itemize} \end{itemize}
+%
+% \end{itemize}
+
+
+
+
+
+
+
+
