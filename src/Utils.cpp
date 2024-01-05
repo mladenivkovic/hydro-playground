@@ -1,5 +1,3 @@
-// #include "defines.h"
-
 #include "Utils.h"
 
 #include <iostream>
@@ -8,7 +6,6 @@
 #include "Config.h"
 #include "Logging.h"
 #include "Version.h"
-// #include <iostream>
 
 
 namespace hydro_playground {
