@@ -20,6 +20,11 @@ target_include_directories(hydro PUBLIC
 configure_file(src/Config.h.in Config.h)
 
 
+# Default compiler flags
+set(CMAKE_CXX_FLAGS_INIT "-Werror -Wall -Wextra -Wpedantic")
+message("setting CMAKE_CXX_FLAGS_INIT=" ${CMAKE_CXX_FLAGS_INIT})
+
+
 
 # ----------------------------------
 # Tests
