@@ -9,16 +9,29 @@
 namespace hydro_playground {
   namespace logging {
 
+    // Initialise the verbosity as debug.
+    LogLevel Log::_verbosity = LogLevel::Debug;
 
-    Log::Log(std::string message, LogLevel level, LogStage stage, int verbose) {
+
+    void Log::message(
+      const char* file,
+      const char* function,
+      const int   line,
+      std::string text,
+      LogLevel    level,
+      LogStage    stage
+    ) {
 
       // Are we talkative enough?
-      if (verbose < static_cast<int>(level))
+      if (_verbosity < level)
         return;
 
       std::stringstream str;
       str << "[" << getStageName(stage) << "] ";
-      str << message << "\n";
+#if DEBUG_LEVEL > 0
+      str << "[" << file << ":" << function << "():" << line;
+#endif
+      str << text << "\n";
 
       std::cout << str.str();
 
@@ -28,27 +41,36 @@ namespace hydro_playground {
         std::cout << std::flush;
     }
 
-    Log::Log(std::stringstream& messagestream, LogLevel level, LogStage stage, int verbose) {
-      Log(messagestream.str(), level, stage, verbose);
+    void Log::message(
+      const char*        file,
+      const char*        function,
+      const int          line,
+      std::stringstream& text,
+      LogLevel           level,
+      LogStage           stage
+    ) {
+      message(file, function, line, text.str(), level, stage);
     }
 
-    Log::Log(const char* message, LogLevel level, LogStage stage, int verbose) {
-      Log(std::string(message), level, stage, verbose);
+    void Log::message(
+      const char* file,
+      const char* function,
+      const int   line,
+      const char* text,
+      LogLevel    level,
+      LogStage    stage
+    ) {
+      message(file, function, line, std::string(text), level, stage);
     }
 
-    Log::Log(std::string message) {
-      // Always print these kinds of messages.
-      Log(message, LogLevel::Undefined, LogStage::Undefined, -1);
+
+    void Log::setVerbosity(int verbosity) {
+      LogLevel vlevel = static_cast<LogLevel>(verbosity);
+      setVerbosity(vlevel);
     }
 
-    Log::Log(std::stringstream& messagestream) { Log(messagestream.str()); }
+    void Log::setVerbosity(LogLevel verbosity) { Log::_verbosity = verbosity; }
 
-    Log::Log(const char* message) { Log(std::string(message)); }
-
-
-    /**
-     * Get the name of the given stage.
-     */
     const char* Log::getStageName(LogStage stage) {
 
       switch (stage) {

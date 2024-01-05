@@ -4,14 +4,19 @@
 #include <sstream>
 #include <string>
 
-// Utilities related to logging.
+/**
+ * @file Logging.h Utilities related to logging.
+ */
 
 
 namespace hydro_playground {
   namespace logging {
 
-    enum class LogLevel { Undefined = -1, Quiet = 0, Verbose = 1, Debug = 2, Count };
+#define log(msg, level, stage) \
+  hydro_playground::logging::Log::message(__FILE__, __FUNCTION__, __LINE__, msg, level, stage);
 
+
+    enum class LogLevel { Undefined = -1, Quiet = 0, Verbose = 1, Debug = 2, Count };
 
     enum class LogStage {
       Undefined = -1,
@@ -24,59 +29,57 @@ namespace hydro_playground {
 
     class Log {
     public:
+      // Don't instantiate this class, ever.
+      Log() = delete;
+
       /**
        * write a log message.
        *
-       * @param message The message you want to print out.
+       * @param file The current file. Intended to be the __FILE__ macro.
+       * @param function The current function. Intended to be the __FUNCTION__ macro.
+       * @param line The current line in the file. Intended to be the __LINE__ macro.
+       * @param text The message you want to print out.
        * @param level "verbosity level" of the log message.
        * @param stage stage of the code where this log is called from.
-       * @param verbose how verbose the code is being run.
        */
-      Log(
-        std::string message,
+      static void message(
+        const char* file,
+        const char* function,
+        const int   line,
+        std::string text,
         LogLevel    level,
-        LogStage    stage,
-        int         verbose = static_cast<int>(LogLevel::Count)
+        LogStage    stage
       );
-      Log(
-        std::stringstream& messagestream,
+      static void message(
+        const char*        file,
+        const char*        function,
+        const int          line,
+        std::stringstream& text,
         LogLevel           level,
-        LogStage           stage,
-        int                verbose = static_cast<int>(LogLevel::Count)
+        LogStage           stage
       );
-      Log(
-        const char* message,
+      static void message(
+        const char* file,
+        const char* function,
+        const int   line,
+        const char* text,
         LogLevel    level,
-        LogStage    stage,
-        int         verbose = static_cast<int>(LogLevel::Count)
+        LogStage    stage
       );
 
       /**
-       * shorthand to write a log message.
-       * This will always be printed directly to screen, and is
-       * intended for temporary development/debugging purposes.
-       *
-       * Note that instantiating the `Log` using parentheses, e.g.
-       *
-       *    const char *msg = "This is my message";
-       *    Log(msg);
-       *
-       * Will lead to issues (see 'most vexing parse problem').
-       * Instead, use braces:
-       *
-       *    Log{msg};
-       *
-       * However, passing a string literal directly to the constructor
-       * works as intended.
-       *
-       *    Log("This works!");
+       * Set the global verbosity level.
        */
-      Log(std::string message);
-      Log(std::stringstream& messagestream);
-      Log(const char* message);
+      static void setVerbosity(int verbosity);
+      static void setVerbosity(LogLevel verbosity);
 
     private:
-      const char* getStageName(LogStage stage);
+      static LogLevel _verbosity;
+
+      /**
+       * Get the name of the given stage.
+       */
+      static const char* getStageName(LogStage stage);
     };
 
 
