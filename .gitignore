@@ -13,6 +13,7 @@ compile_commands.json
 *.synctex.gz
 *.o
 *.toc
+*.pdf
 
 **/__pycache__
 *.pyc
