@@ -4,14 +4,12 @@
 
 // https://stackoverflow.com/questions/1435953/how-can-i-pass-git-sha1-to-compiler-as-definition-using-cmake
 
-namespace version
-{
+namespace version {
   /**
    * Contains compile time information on code version, current
    * git state, etc.
    */
-  struct Version
-  {
+  struct Version {
     static const int MINOR;
     static const int MAJOR;
 
@@ -20,4 +18,4 @@ namespace version
     static const std::string GIT_BRANCH;
     static const std::string GIT_COMMIT_SUBJECT;
   };
-}
+} // namespace version

@@ -8,7 +8,6 @@
 #include "Utils.h"
 
 
-
 int main(void) {
 
   using namespace hydro_playground;

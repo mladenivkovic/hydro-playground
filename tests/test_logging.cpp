@@ -1,16 +1,16 @@
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 
 #include "Logging.h"
 
 
-void printFatLine(void){
+void printFatLine(void) {
   std::cout << "====================================================";
   std::cout << "====================================================";
   std::cout << "====================================================" << std::endl;
 }
-void printThinLine(void){
+void printThinLine(void) {
   std::cout << "----------------------------------------------------";
   std::cout << "----------------------------------------------------";
   std::cout << "----------------------------------------------------" << std::endl;
@@ -29,12 +29,12 @@ int main(void) {
 
   // First, let's test verbosity level printouts and that stages
   // are named correctly.
-  for (int verb = 0; verb < 4; verb++){
+  for (int verb = 0; verb < 4; verb++) {
 
-    for (int stage = stageMin; stage < stageMax; stage++){
+    for (int stage = stageMin; stage < stageMax; stage++) {
       logging::LogStage s = static_cast<logging::LogStage>(stage);
 
-      for (int level = levelMin; level < levelMax; level++){
+      for (int level = levelMin; level < levelMax; level++) {
         logging::LogLevel l = static_cast<logging::LogLevel>(level);
 
         std::stringstream msg;
@@ -48,7 +48,6 @@ int main(void) {
 
         logging::Log(msg, l, s, verb);
         std::cout << "\n";
-
       }
       printThinLine();
     }
@@ -60,8 +59,8 @@ int main(void) {
 
   // Now let's test different constructors.
 
-  const char *char_msg = "Const Char message";
-  std::string str_msg  = std::string("String message");
+  const char*       char_msg = "Const Char message";
+  std::string       str_msg  = std::string("String message");
   std::stringstream ss_msg;
   ss_msg << "String stream message";
 
@@ -85,5 +84,4 @@ int main(void) {
 
 
   return 0;
-
 }

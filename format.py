@@ -550,7 +550,7 @@ if __name__ == "__main__":
                         if verbose:
                             print(
                                 f"File '{f}' doesn't look like a Python nor C/C++ file to me, skipping it."
-                                )
+                            )
                         continue
                     filelist.append(f)
         else:

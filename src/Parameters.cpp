@@ -16,16 +16,16 @@ namespace hydro_playground {
 
     // simulation related parameters
     // -----------------------------
-    int Parameters::_nsteps = 0;
-    float Parameters::_tmax = 0;
+    int   Parameters::_nsteps = 0;
+    float Parameters::_tmax   = 0;
 
-    int Parameters::_nx = 100;
+    int   Parameters::_nx   = 100;
     float Parameters::_ccfl = 0.9;
     // float Parameters::_forceDt = 0;
     int Parameters::_boundary = 0;
 
-    int Parameters::_nxTot = 100 + BCTOT;
-    float Parameters::_dx = BOXLEN / _nx;
+    int   Parameters::_nxTot = 100 + BCTOT;
+    float Parameters::_dx    = BOXLEN / _nx;
 
 
     // output related parameters
@@ -58,78 +58,45 @@ namespace hydro_playground {
     // _constant_acceleration_computed = 0;
     // _sources_are_read = 0;
 
-  /**
-   * Initialize parameters to default values
-   */
-  void Parameters::init(){
-    // TODO
-  }
+    /**
+     * Initialize parameters to default values
+     */
+    void Parameters::init() {
+      // TODO
+    }
 
-  int Parameters::getNstepsLog(){
-    return _nstepsLog;
-  }
+    int Parameters::getNstepsLog() { return _nstepsLog; }
 
-  void Parameters::setNstepsLog(const int nstepsLog){
-    _nstepsLog = nstepsLog;
-  }
+    void Parameters::setNstepsLog(const int nstepsLog) { _nstepsLog = nstepsLog; }
 
-  int Parameters::getNsteps() {
-    return _nsteps;
-  }
+    int Parameters::getNsteps() { return _nsteps; }
 
-  void Parameters::setNsteps(const int nsteps){
-    _nsteps = nsteps;
-  }
+    void Parameters::setNsteps(const int nsteps) { _nsteps = nsteps; }
 
-  float Parameters::getTmax()  {
-    return _tmax;
-  }
+    float Parameters::getTmax() { return _tmax; }
 
-  void Parameters::setTmax(const float tmax){
-    _tmax = tmax;
-  }
+    void Parameters::setTmax(const float tmax) { _tmax = tmax; }
 
-  int Parameters::getNx()  {
-    return _nx;
-  }
+    int Parameters::getNx() { return _nx; }
 
-  void Parameters::setNx(const int nx){
-    _nx = nx;
-  }
+    void Parameters::setNx(const int nx) { _nx = nx; }
 
-  float Parameters::getCcfl()  {
-    return _ccfl;
-  }
+    float Parameters::getCcfl() { return _ccfl; }
 
-  void Parameters::setCcfl(const float ccfl){
-    _ccfl = ccfl;
-  }
+    void Parameters::setCcfl(const float ccfl) { _ccfl = ccfl; }
 
-  int Parameters::getBoundary()  {
-    return _boundary;
-  }
+    int Parameters::getBoundary() { return _boundary; }
 
-  void Parameters::setBoundary(const int boundary){
-    _boundary = boundary;
-  }
+    void Parameters::setBoundary(const int boundary) { _boundary = boundary; }
 
-  int Parameters::getNxTot()  {
-    return _nxTot;
-  }
+    int Parameters::getNxTot() { return _nxTot; }
 
-  void Parameters::setNxTot(const int nxTot) {
-    _nxTot = nxTot;
-  }
+    void Parameters::setNxTot(const int nxTot) { _nxTot = nxTot; }
 
-  float Parameters::getDx() {
-    return _dx;
-  }
+    float Parameters::getDx() { return _dx; }
 
-  void Parameters::setDx(const float dx){
-    _dx = dx;
-  }
+    void Parameters::setDx(const float dx) { _dx = dx; }
 
 
   } // namespace parameters
 } // namespace hydro_playground
-
