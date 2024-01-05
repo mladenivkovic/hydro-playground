@@ -30,22 +30,28 @@ if(NOT CMAKE_BUILD_TYPE)
         FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
+# Notes:
+#   - Wno-unused-parameter: 
+#       Ignore warnings about unused function parameters.
+#   - Wno-string-plus-int: 
+#       Avoid warning "adding 'int' to a string does not append to the string"
+#       That occurs all the time because of my __FILENAME__ = __FILE__ + SOURCE_PATH_SIZE trick.
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     add_compile_options(
-        -Werror -Wall -Wextra -Wpedantic -O3
+        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-string-plus-int -O3
     )
     set(DEBUG_LEVEL 0)
 
 elseif (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     add_compile_options(
-        -Werror -Wall -Wextra -Wpedantic -O3 -g
+        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-string-plus-int -O3 -g
     )
     set(DEBUG_LEVEL 1)
 
 elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(
-        -Werror -Wall -Wextra -Wpedantic -O0 -g
+        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-string-plus-int -O0 -g
     )
     set(DEBUG_LEVEL 2)
 
@@ -61,6 +67,15 @@ endif()
 message("* Current build type is : ${CMAKE_BUILD_TYPE}")
 
 
+# ---------------------------------------
+# Truncate full path from __FILE__ macro
+# ---------------------------------------
+
+# The additional / is important to remove the last character from the path.
+# Note that it does not matter if the OS uses / or \, because we are only
+# saving the path size.
+string(LENGTH "${CMAKE_SOURCE_DIR}/" SOURCE_PATH_SIZE)
+add_definitions("-DSOURCE_PATH_SIZE=${SOURCE_PATH_SIZE}")
 
 # ---------------------------
 # Main Target
@@ -128,3 +143,5 @@ execute_process(COMMAND
 configure_file("${CMAKE_SOURCE_DIR}/src/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)
 
 list(APPEND SOURCES "${CMAKE_BINARY_DIR}/Version.cpp" src/Version.h)
+
+
