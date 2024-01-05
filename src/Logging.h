@@ -143,7 +143,7 @@ namespace hydro_playground {
     __LINE__, \
     msg, \
     hydro_playground::logging::LogLevel::Undefined, \
-    hydro_playground::logging::LogLevbel::Undefined \
+    hydro_playground::logging::LogStage::Undefined \
   );
 
 #define MESSAGE_GET_4TH_ARG(arg1, arg2, arg3, arg4, ...) arg4
