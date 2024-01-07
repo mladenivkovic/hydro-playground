@@ -15,9 +15,7 @@ IdealGas::PrimitiveState::PrimitiveState() :
 
 Precision IdealGas::PrimitiveState::getSoundSpeed()
 {
-  // waiting until includes are fixed
-  // return std::sqrt( GAMMA * getP() / getRho() );
-  return 1;
+  return std::sqrt( GAMMA * getP() / getRho() );
 }
 
 
@@ -44,7 +42,7 @@ void      IdealGas::PrimitiveState::setU(int index, const Precision val){
   u[index] = val;
 }
 
-Precision IdealGas::PrimitiveState::getU(const int index) const{
+Precision IdealGas::PrimitiveState::getU(int index) const{
   // bounds checking? why not.... if we have time
   #if Debug > 0
   assert(index>=0 and index<=2)

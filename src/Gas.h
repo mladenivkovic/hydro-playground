@@ -3,7 +3,7 @@
 #include "Constants.h"
 #include "Config.h"
 #include <array>
-// #include <math.h>
+#include <math.h>
 
 
 namespace IdealGas
