@@ -80,12 +80,10 @@ IdealGas::ConservedState::ConservedState() :
 
 void IdealGas::ConservedState::PrimitiveToConserved(const PrimitiveState& p)
 {
-  rho     = p.getRho();
-  rhou[0] = p.getRho() * p.getU(0);
-  rhou[1] = p.getRho() * p.getU(1);
-  E       = 0.5 * p.getRho()
-          * p.getUSquared()
-          + p.getP() / GM1;
+  setRho(p.getRho());
+  setRhou(0, p.getRho() * p.getU(0));
+  setRhou(1, p.getRho() * p.getU(1));
+  setE( 0.5 * p.getRho() * p.getUSquared() + p.getP() / GM1 );
 }
 
 
@@ -105,9 +103,9 @@ void      IdealGas::ConservedState::GetCFluxFromPstate(const PrimitiveState& p, 
    * it C++ style.
    * ----------------------------------------------------------- */
 
-  rho = p.getRho() * p.getU(dimension);
-  rhou[dimension]           = p.getRho() * p.getU(dimension) * p.getU(dimension) + p.getP();
-  rhou[(dimension + 1) % 2] = p.getRho() * p.getU(0) * p.getU(1);
+  setRho(p.getRho() * p.getU(dimension));
+  setRhou(dimension, p.getRho() * p.getU(dimension) * p.getU(dimension) + p.getP());
+  setRhou((dimension + 1) % 2, p.getRho() * p.getU(0) * p.getU(1));
 
   Precision tempE = 0.5 * p.getRho() * p.getUSquared() + p.getP() / GM1;
   setE( tempE + p.getP() * p.getU(dimension) );
