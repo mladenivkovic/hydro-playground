@@ -14,7 +14,7 @@ namespace hydro_playground {
     LogLevel Log::_verbosity = LogLevel::Debug;
 
 
-    void Log::message(
+    void Log::logMessage(
       const char* file,
       const char* function,
       const int   line,
@@ -42,7 +42,7 @@ namespace hydro_playground {
         std::cout << std::flush;
     }
 
-    void Log::message(
+    void Log::logMessage(
       const char*        file,
       const char*        function,
       const int          line,
@@ -50,10 +50,10 @@ namespace hydro_playground {
       LogLevel           level,
       LogStage           stage
     ) {
-      message(file, function, line, text.str(), level, stage);
+      logMessage(file, function, line, text.str(), level, stage);
     }
 
-    void Log::message(
+    void Log::logMessage(
       const char* file,
       const char* function,
       const int   line,
@@ -61,7 +61,53 @@ namespace hydro_playground {
       LogLevel    level,
       LogStage    stage
     ) {
-      message(file, function, line, std::string(text), level, stage);
+      logMessage(file, function, line, std::string(text), level, stage);
+    }
+
+
+    void Log::logWarning(const char* file, const char* function, const int line, std::string text) {
+
+      std::stringstream str;
+      str << "[WARNING] ";
+      str << "{" << file << ":" << function << "():" << line << "} ";
+      str << text << "\n";
+
+      std::cerr << str.str();
+    }
+
+    void Log::logWarning(
+      const char* file, const char* function, const int line, std::stringstream& text
+    ) {
+      logWarning(file, function, line, text.str());
+    }
+
+    void Log::logWarning(const char* file, const char* function, const int line, const char* text) {
+      logWarning(file, function, line, std::string(text));
+    }
+
+
+    void Log::logError(const char* file, const char* function, const int line, std::string text) {
+
+      std::stringstream str;
+      str << "[ERROR] ";
+      str << "{" << file << ":" << function << "():" << line << "} ";
+      str << text << "\n";
+
+      std::cerr << str.str();
+
+      std::cerr << std::flush;
+      std::cout << std::flush;
+      std::abort();
+    }
+
+    void Log::logError(
+      const char* file, const char* function, const int line, std::stringstream& text
+    ) {
+      logError(file, function, line, text.str());
+    }
+
+    void Log::logError(const char* file, const char* function, const int line, const char* text) {
+      logError(file, function, line, std::string(text));
     }
 
 
