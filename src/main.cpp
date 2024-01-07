@@ -15,7 +15,6 @@ int main(void) {
   utils::print_header();
 
   // Initialise global paramters.
-  parameters::Parameters::init();
-
+  parameters::Parameters::Instance.init();
   return 0;
 }

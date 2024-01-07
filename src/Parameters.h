@@ -1,5 +1,23 @@
 #pragma once
 
+/*
+
+Turning this class into singleton pattern. In any file where you
+include Parameters.h, you can call
+hydro_playground::parameters::Parameters::Instance._nstepsLog (for example)
+and it will be this single global copy.
+
+Since the member variables are nonstatic now i've un-deleted the default
+constructor. This will be called by default on the static member anyhow
+
+We could remove the namespaceing
+here as it is a bit of a mouthful to type...
+
+It's up to us whether we make the instance itself private and use the
+getter or just make it public. It doesn't make a difference, since we
+need to return a reference anyway...
+
+*/
 
 namespace parameters {
 
@@ -12,36 +30,33 @@ namespace parameters {
     //! how verbose are we?
     // int _verbose;
 
-    //! interval between steps to write current state to screen
-    static int _nstepsLog;
+      //! interval between steps to write current state to screen
+      int _nstepsLog;
 
 
     // simulation related parameters
     // -----------------------------
 
-    //! How many steps to do
-    static int _nsteps;
+      //! How many steps to do
+      int _nsteps;
 
-    //! at what time to end simulation
-    static float _tmax;
+      //! at what time to end simulation
+      float _tmax;
 
-    //! number of cells to use (in each dimension)
-    static int _nx;
+      //! number of cells to use (in each dimension)
+      int _nx;
 
-    //! CFL coefficient
-    static float _ccfl;
+      //! CFL coefficient
+      float _ccfl;
 
-    //! time step sized used when enforcing a fixed time step size
-    // float _force_dt;
+      //! boundary condition
+      int _boundary;
 
-    //! boundary condition
-    static int _boundary;
+      //! number of mesh points, including boundary cells
+      int _nxTot;
 
-    //! number of mesh points, including boundary cells
-    static int _nxTot;
-
-    //! cell size
-    static float _dx;
+      //! cell size
+      float _dx;
 
 
     // Output related parameters
@@ -107,37 +122,45 @@ namespace parameters {
     // int _sources_are_read;
 
 
-  public:
-    Parameters() = delete;
+    public:
+      Parameters();
 
-    static void init();
+      void init();
 
-    static void cleanup();
+      void cleanup();
 
-    static int  getNstepsLog();
-    static void setNstepsLog(const int nsteps_log);
+      int  getNstepsLog();
+      void setNstepsLog(const int nsteps_log);
 
-    static int  getNsteps();
-    static void setNsteps(const int nsteps);
+      int  getNsteps();
+      void setNsteps(const int nsteps);
 
-    static float getTmax();
-    static void  setTmax(const float tmax);
+      float getTmax();
+      void  setTmax(const float tmax);
 
-    static int  getNx();
-    static void setNx(const int nx);
+      int  getNx();
+      void setNx(const int nx);
 
-    static float getCcfl();
-    static void  setCcfl(float ccfl);
+      float getCcfl();
+      void  setCcfl(float ccfl);
 
-    static int  getBoundary();
-    static void setBoundary(const int boundary);
+      int  getBoundary();
+      void setBoundary(const int boundary);
 
-    static int  getNxTot();
-    static void setNxTot(const int nxTot);
+      int  getNxTot();
+      void setNxTot(const int nxTot);
 
-    static float getDx();
-    static void  setDx(const float dx);
-  };
+      float getDx();
+      void  setDx(const float dx);
+
+    public:
+
+      // single copy of the global variables
+      static Parameters Instance;
+
+      // getter for the single global copy
+      static Parameters& getInstance() {return Instance;}
+    };
 
 
 } // namespace parameters
