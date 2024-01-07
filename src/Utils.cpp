@@ -48,28 +48,28 @@ namespace hydro_playground {
 
     std::stringstream version_txt;
     version_txt << "Version:     " << version_major << "." << version_minor;
-    log(version_txt, level, stage);
+    message(version_txt, level, stage);
 
     std::stringstream git_branch_txt;
     git_branch_txt << "Git branch:  " << version::Version::GIT_BRANCH;
-    log(git_branch_txt, level, stage);
+    message(git_branch_txt, level, stage);
 
     std::stringstream git_comm_txt;
     git_comm_txt << "Git commit:  " << version::Version::GIT_SHA1;
-    log(git_comm_txt, level, stage);
+    message(git_comm_txt, level, stage);
 
     std::stringstream build_type;
     build_type << "Build type:  " << CMAKE_BUILD_TYPE;
-    log(build_type, level, stage);
+    message(build_type, level, stage);
 
-    log("Build date:  " __DATE__ " - " __TIME__, level, stage);
+    message("Build date:  " __DATE__ " - " __TIME__, level, stage);
 
     std::stringstream debug;
     debug << "Debug level: " << DEBUG_LEVEL;
-    log(debug, level, stage);
+    message(debug, level, stage);
 
 #if DEBUG_LEVEL > 0
-    log("WARNING: Code compiled with debugging enabled.", level, stage);
+    warning("Code compiled with debugging enabled.");
 #endif
   }
 
