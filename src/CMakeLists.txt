@@ -14,7 +14,6 @@ add_library(Parameters Parameters.cpp Parameters.h)
 
 add_library(Gas Gas.cpp Gas.h)
 target_include_directories(Gas PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
-target_link_libraries(Gas Version)
 target_link_libraries(Gas Logging)
 
 add_library(Cell Cell.cpp Cell.h)
