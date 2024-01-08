@@ -8,21 +8,8 @@
  * @file Logging.h Utilities related to logging.
  */
 
-
 namespace hydro_playground {
   namespace logging {
-
-// This macro truncates the full path from the __FILE__ macro.
-#ifdef SOURCE_PATH_SIZE
-#define __FILENAME__ (__FILE__ + SOURCE_PATH_SIZE)
-#else
-#define __FILENAME__ __FILE__
-#endif
-
-#define log(msg, level, stage) \
-  hydro_playground::logging::Log::message(__FILENAME__, __FUNCTION__, __LINE__, msg, level, stage);
-
-
     enum class LogLevel { Undefined = -1, Quiet = 0, Verbose = 1, Debug = 2, Count };
 
     enum class LogStage {
@@ -40,7 +27,7 @@ namespace hydro_playground {
       Log() = delete;
 
       /**
-       * write a log message.
+       * @brief write a log message to screen.
        *
        * @param file The current file. Intended to be the __FILE__ macro.
        * @param function The current function. Intended to be the __FUNCTION__ macro.
@@ -49,7 +36,7 @@ namespace hydro_playground {
        * @param level "verbosity level" of the log message.
        * @param stage stage of the code where this log is called from.
        */
-      static void message(
+      static void logMessage(
         const char* file,
         const char* function,
         const int   line,
@@ -57,7 +44,7 @@ namespace hydro_playground {
         LogLevel    level,
         LogStage    stage
       );
-      static void message(
+      static void logMessage(
         const char*        file,
         const char*        function,
         const int          line,
@@ -65,7 +52,7 @@ namespace hydro_playground {
         LogLevel           level,
         LogStage           stage
       );
-      static void message(
+      static void logMessage(
         const char* file,
         const char* function,
         const int   line,
@@ -73,6 +60,43 @@ namespace hydro_playground {
         LogLevel    level,
         LogStage    stage
       );
+
+      /**
+       * @brief write a warning message.
+       *
+       * @param file The current file. Intended to be the __FILE__ macro.
+       * @param function The current function. Intended to be the __FUNCTION__ macro.
+       * @param line The current line in the file. Intended to be the __LINE__ macro.
+       * @param text The message you want to print out.
+       */
+      static void logWarning(
+        const char* file, const char* function, const int line, std::string text
+      );
+      static void logWarning(
+        const char* file, const char* function, const int line, std::stringstream& text
+      );
+      static void logWarning(
+        const char* file, const char* function, const int line, const char* text
+      );
+
+      /**
+       * @brief write an error message and abort the run.
+       *
+       * @param file The current file. Intended to be the __FILE__ macro.
+       * @param function The current function. Intended to be the __FUNCTION__ macro.
+       * @param line The current line in the file. Intended to be the __LINE__ macro.
+       * @param text The message you want to print out.
+       */
+      static void logError(
+        const char* file, const char* function, const int line, std::string text
+      );
+      static void logError(
+        const char* file, const char* function, const int line, std::stringstream& text
+      );
+      static void logError(
+        const char* file, const char* function, const int line, const char* text
+      );
+
 
       /**
        * Set the global verbosity level.
@@ -88,6 +112,59 @@ namespace hydro_playground {
        */
       static const char* getStageName(LogStage stage);
     };
+
+
+// This macro truncates the full path from the __FILE__ macro.
+#ifdef SOURCE_PATH_SIZE
+#define __FILENAME__ (__FILE__ + SOURCE_PATH_SIZE)
+#else
+#define __FILENAME__ __FILE__
+#endif
+
+#define MESSAGE_3_ARGS(msg, level, stage) \
+  hydro_playground::logging::Log::logMessage( \
+    __FILENAME__, __FUNCTION__, __LINE__, msg, level, stage \
+  );
+
+#define MESSAGE_2_ARGS(msg, stage) \
+  hydro_playground::logging::Log::logMessage( \
+    __FILENAME__, \
+    __FUNCTION__, \
+    __LINE__, \
+    msg, \
+    hydro_playground::logging::LogLevel::Undefined, \
+    stage \
+  );
+
+#define MESSAGE_1_ARG(msg) \
+  hydro_playground::logging::Log::logMessage( \
+    __FILENAME__, \
+    __FUNCTION__, \
+    __LINE__, \
+    msg, \
+    hydro_playground::logging::LogLevel::Undefined, \
+    hydro_playground::logging::LogStage::Undefined \
+  );
+
+#define MESSAGE_GET_4TH_ARG(arg1, arg2, arg3, arg4, ...) arg4
+
+// We return the 4th argument. The variable number of arguments passed
+// to this macro (which are __VA_ARGS__) pushes the "correct" message
+// macro we want to use to the 4th argument. So this way, we get the
+// correct macro to use.
+#define MESSAGE_STRING_MACRO_CHOOSER(...) \
+  MESSAGE_GET_4TH_ARG(__VA_ARGS__, MESSAGE_3_ARGS, MESSAGE_2_ARGS, MESSAGE_1_ARG, )
+
+
+// The main message() macro.
+#define message(...) MESSAGE_STRING_MACRO_CHOOSER(__VA_ARGS__)(__VA_ARGS__)
+
+
+#define error(msg) \
+  hydro_playground::logging::Log::logError(__FILENAME__, __FUNCTION__, __LINE__, msg);
+
+#define warning(msg) \
+  hydro_playground::logging::Log::logWarning(__FILENAME__, __FUNCTION__, __LINE__, msg);
 
 
   } // namespace logging
