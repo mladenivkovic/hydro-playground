@@ -4,3 +4,5 @@
 #define DEBUG_LEVEL @DEBUG_LEVEL@
 #define CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
 
+
+typedef float Precision;

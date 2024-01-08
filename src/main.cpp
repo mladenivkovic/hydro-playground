@@ -6,6 +6,7 @@
 #include "Logging.h"
 #include "Parameters.h"
 #include "Utils.h"
+#include "Gas.h" // probably not necessary. wanna catch compile errors
 
 
 int main(void) {
@@ -16,7 +17,6 @@ int main(void) {
   utils::print_header();
 
   // Initialise global paramters.
-  parameters::Parameters::init();
-
+  parameters::Parameters::Instance.init();
   return 0;
 }
