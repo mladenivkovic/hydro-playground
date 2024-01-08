@@ -62,6 +62,9 @@ namespace hydro_playground {
       //! cell size
       float _dx;
 
+      //! Number of Ghost cells at each edge
+      int _bc;
+
 
       // Output related parameters
       // -------------------------
@@ -133,29 +136,32 @@ namespace hydro_playground {
 
       void cleanup();
 
-      int  getNstepsLog();
+      int  getNstepsLog() const;
       void setNstepsLog(const int nsteps_log);
 
-      int  getNsteps();
+      int  getNsteps() const;
       void setNsteps(const int nsteps);
 
-      float getTmax();
+      float getTmax() const;
       void  setTmax(const float tmax);
 
-      int  getNx();
+      int  getNx() const;
       void setNx(const int nx);
 
-      float getCcfl();
+      float getCcfl() const;
       void  setCcfl(float ccfl);
 
-      int  getBoundary();
+      int  getBoundary() const;
       void setBoundary(const int boundary);
 
-      int  getNxTot();
+      int  getNxTot() const;
       void setNxTot(const int nxTot);
 
-      float getDx();
+      float getDx() const;
       void  setDx(const float dx);
+
+      int  getBc() const;
+      void setBc(const int bc);
     
     public: 
 

@@ -2,8 +2,9 @@
 
 
 // TODO: These definitions are temporary and need to go.
+#define BC 2
 #define BOXLEN 1.
-#define BCTOT 2
+#define BCTOT 2 * BC
 
 namespace hydro_playground {
   namespace parameters {
@@ -15,7 +16,7 @@ namespace hydro_playground {
     _nstepsLog(0), _nsteps(0),
     _tmax(0), _nx(100),
     _ccfl(0.9), _boundary(0),
-    _nxTot(100 + BCTOT), _dx(BOXLEN / _nx)
+    _nxTot(100 + BCTOT), _dx(BOXLEN / _nx), _bc(BC)
     {/* empty body */}
 
 
@@ -87,6 +88,10 @@ namespace hydro_playground {
     float Parameters::getDx() { return _dx; }
 
     void Parameters::setDx(const float dx) { _dx = dx; }
+
+    int Parameters::getBc() const { return _bc; }
+
+    void Parameters::setBc(const int bc) {_bc = bc;}
 
 
   } // namespace parameters
