@@ -3,6 +3,7 @@
 #include <iostream> // todo: necessary?
 
 #include "Config.h" // todo: necessary?
+#include "Gas.h"    // probably not necessary. wanna catch compile errors
 #include "Logging.h"
 #include "Parameters.h"
 #include "Utils.h"
