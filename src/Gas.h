@@ -26,17 +26,10 @@ namespace IdealGas {
     /* putting this in just in case it's needed */
     void resetToInitialState() { *this = PrimitiveState(); }
 
-    /*
-    Mimicking original C function.
-    Can we std::move all of the member variables from the conserved state
-    here (and pass in the conserved state as rvalue ref)? Don't yet know
-    about the intention of the original function.
-    */
     void ConservedToPrimitive(const ConservedState& conservedState);
 
     Precision getSoundSpeed();
     Precision getEnergy();
-
 
     /*
     Getters and setters!
@@ -82,7 +75,6 @@ namespace IdealGas {
     /* same for u */
     void      setRhou(int index, const Precision val);
     Precision getRhou(int index) const;
-    // std::array<Precision, 2> getRhou() const;
     Precision getRhoUSquared() const;
 
     void      setE(const Precision val);
