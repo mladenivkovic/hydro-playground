@@ -4,9 +4,11 @@
 
 #include "Config.h" // todo: necessary?
 #include "Gas.h"    // probably not necessary. wanna catch compile errors
+#include "Cell.h"   // probably not necessary. wanna catch compile errors
 #include "Logging.h"
 #include "Parameters.h"
 #include "Utils.h"
+
 
 
 int main(void) {
@@ -18,5 +20,9 @@ int main(void) {
 
   // Initialise global paramters.
   parameters::Parameters::Instance.init();
+
+  // initialise the grid of cells
+  Grid::Instance.InitCells();
+
   return 0;
 }

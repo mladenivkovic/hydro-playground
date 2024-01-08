@@ -1,11 +1,12 @@
 // Some global definitions.
 // Variables enclosed by '@' are generated with CMake.
+#pragma once 
 
 #define DEBUG_LEVEL @DEBUG_LEVEL@
 #define CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
 
 // Global dimensions macro; change this to be fetched
 // from CMake in the future...
-#define Dimensions 2;
+static constexpr int Dimensions = 2;
 
 typedef float Precision;
