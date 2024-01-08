@@ -35,18 +35,10 @@ Precision IdealGas::PrimitiveState::getRho() const{
 }
 
 void      IdealGas::PrimitiveState::setU(int index, const Precision val){
-  // bounds checking? why not.... if we have time
-  #if Debug > 0
-  assert(index>=0 and index<=2)
-  #endif
   u[index] = val;
 }
 
 Precision IdealGas::PrimitiveState::getU(int index) const{
-  // bounds checking? why not.... if we have time
-  #if Debug > 0
-  assert(index>=0 and index<=2)
-  #endif
   return u[index];
 }
 
