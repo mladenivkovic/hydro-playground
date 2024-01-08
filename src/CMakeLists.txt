@@ -17,6 +17,10 @@ target_include_directories(Gas PUBLIC "${PROJECT_BINARY_DIR}") # we need this fo
 target_link_libraries(Gas Version)
 target_link_libraries(Gas Logging)
 
+add_library(Cell Cell.cpp Cell.h)
+target_include_directories(Cell PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_link_libraries(Cell Version)
+target_link_libraries(Cell Logging)
 
 target_link_libraries(hydro Logging)
 target_link_libraries(hydro Utils)
