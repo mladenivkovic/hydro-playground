@@ -30,7 +30,6 @@ void Grid::InitCells()
   }
   if (Dimensions==2) 
   {
-    totalCells = parameters::Parameters::Instance.getNxTot() * parameters::Parameters::Instance.getNxTot();
     _cells.reserve( totalCells * totalCells );
     for (int j=0; j<totalCells; j++)
     {
@@ -47,12 +46,7 @@ void Grid::InitCells()
   }
   else assert(false);
 
-  // for (int i=0; i<totalCells; i++) cells.emplace_back();
 }
-
-// Cell& Grid::operator()(int i, int j=0)
-// {
-// }
 
 Cell& Grid::getCell(int i, int j)
 {
@@ -68,7 +62,6 @@ Cell& Grid::getCell(int i, int j)
     i * totalCells * (Dimensions==2) +
     j
    ];
-
 }
 
 /*
