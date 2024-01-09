@@ -24,5 +24,7 @@ int main(void) {
   // initialise the grid of cells
   Grid::Instance.InitCells();
 
+  message("Does this work?");
+
   return 0;
 }

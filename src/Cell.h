@@ -1,10 +1,11 @@
+#pragma once
+
 #include "Config.h"
 #include "Gas.h"
 #include "Parameters.h"
-#include <cassert>
-
 #include "Logging.h"
 
+#include <cassert>
 #include <vector>
 
 
@@ -19,10 +20,11 @@ namespace hydro_playground{
 
     public:
       Grid();
-      Cell&       getCell(int i, int j);
+      Cell&       getCell(int i, int j=0);
       // const Cell& getCell(int i, int j) const;
 
-      void InitCells();
+      void      InitCells();
+      Precision GetTotalMass();
 
       
       // access cells with overloaded operator
@@ -39,7 +41,7 @@ namespace hydro_playground{
     public:
 
       Cell();
-      Cell(int id, Precision x, Precision y);
+      // Cell(int id, Precision x, Precision y);
     private:
       int _id;
 
@@ -49,11 +51,11 @@ namespace hydro_playground{
       Precision _x;
       Precision _y;
 
-      IdealGas::PrimitiveState prim;
-      IdealGas::ConservedState cons;
+      IdealGas::PrimitiveState _prim;
+      IdealGas::ConservedState _cons;
 
-      IdealGas::PrimitiveState pflux;
-      IdealGas::ConservedState cflux;
+      IdealGas::PrimitiveState _pflux;
+      IdealGas::ConservedState _cflux;
 
       std::array<Precision, 2> _acc;
 
@@ -63,6 +65,12 @@ namespace hydro_playground{
       void setY(Precision x);
 
       void setId(int id);
+
+      // return const ref to the above
+      const IdealGas::PrimitiveState& getPrim()  const { return _prim; }
+      const IdealGas::ConservedState& getCons()  const { return _cons; }
+      const IdealGas::PrimitiveState& getPFlux() const { return _pflux; }
+      const IdealGas::ConservedState& getCFlux() const { return _cflux; }
   };
 
 } // hydro_playground

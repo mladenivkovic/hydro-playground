@@ -24,4 +24,5 @@ target_link_libraries(hydro Logging)
 target_link_libraries(hydro Utils)
 target_link_libraries(hydro Parameters)
 target_link_libraries(hydro Cell)
+target_link_libraries(hydro Gas)
 

@@ -35,7 +35,7 @@ namespace IdealGas {
     Getters and setters!
     */
     /* Setter for Rho */
-    void      setRho(const Precision val);
+    void      setRho(Precision val);
     Precision getRho() const;
 
     /* same for u */
@@ -69,7 +69,7 @@ namespace IdealGas {
     /*
     Getters and setters!
     */
-    void      setRho(const Precision& val);
+    void      setRho(Precision val);
     Precision getRho() const;
 
     /* same for u */

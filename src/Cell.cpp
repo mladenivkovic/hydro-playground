@@ -28,7 +28,7 @@ void Grid::InitCells()
     }
 
   }
-  if (Dimensions==2) 
+  else if (Dimensions==2) 
   {
     _cells.resize( totalCells * totalCells );
     for (int j=0; j<totalCells; j++)
@@ -45,10 +45,9 @@ void Grid::InitCells()
 
   }
   else assert(false);
-
 }
 
-Cell& Grid::getCell(int i, int j=0)
+Cell& Grid::getCell(int i, int j)
 {
   static int totalCells = parameters::Parameters::Instance.getNxTot();
   /*
@@ -64,25 +63,59 @@ Cell& Grid::getCell(int i, int j=0)
    ];
 }
 
+Precision Grid::GetTotalMass()
+{
+  /*
+  Get total mass on the grid.
+
+  Writing it naively here. There are a few ways to speed it up.
+  Does this code get called often?
+  */
+  Precision total = 0;
+  // would get a bit crowded down there if we don't define another variable for this
+  int       bc    = parameters::Parameters::Instance.getBc();
+  int       nx    = parameters::Parameters::Instance.getNx();
+
+  // there is a way to do this with a branch or 
+  // a macro. do it like this for now
+  if ( Dimensions==1 )
+  {
+    for (int i=bc; i < bc+nx; i++)
+      // this is a mouthful...
+      total += getCell(i).getPrim().getRho();
+  }
+
+  else if (Dimensions==2)
+  {
+    for (int i=bc; i < bc+nx; i++)
+    for (int j=bc; j < bc+nx; j++)
+    {
+
+    }
+    
+  }
+  return 1;
+}
+
+
 /*
 Constructor for the cell. This has everything from the old
 cell_init_cell() function
 */
 Cell::Cell():
   _id(0), _x(0), _y(0),
+  // and the ideal gasses too
+  // _prim(),  _cons(),
+  // _pflux(), _cflux(),
   _acc({0,0})
-  {
-    /* Empty body. We trust that the default constructors
-    for the ideal gasses will be called
-   */
-  }
+{/* Empty body. */}
 
 /*
 Constructor when x, y, id are already known
 */
-Cell::Cell(int id, Precision x, Precision y):
-  _id(id), _x(x), _y(y), _acc({0,0})
-{/*Empty body*/}
+// Cell::Cell(int id, Precision x, Precision y):
+//   _id(id), _x(x), _y(y), _acc({0,0})
+// {/*Empty body*/}
 
 
 /*
