@@ -24,5 +24,6 @@ int main(void) {
   // initialise the grid of cells
   Grid::Instance.InitCells();
 
+  Grid::Instance.getCell(5);
   return 0;
 }

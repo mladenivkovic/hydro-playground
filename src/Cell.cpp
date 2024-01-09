@@ -83,6 +83,8 @@ Precision Grid::GetTotalMass()
     for (int i=bc; i < bc+nx; i++)
       // this is a mouthful...
       total += getCell(i).getPrim().getRho();
+    
+    total *= parameters::Parameters::Instance.getDx();
   }
 
   else if (Dimensions==2)
@@ -90,11 +92,12 @@ Precision Grid::GetTotalMass()
     for (int i=bc; i < bc+nx; i++)
     for (int j=bc; j < bc+nx; j++)
     {
-
+      total += getCell(i,j).getPrim().getRho();
     }
     
+    total *= parameters::Parameters::Instance.getDx() * parameters::Parameters::Instance.getDx();
   }
-  return 1;
+  return total;
 }
 
 
