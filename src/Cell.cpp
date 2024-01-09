@@ -23,14 +23,14 @@ void Grid::InitCells()
 
     for (int i=0; i<totalCells; i++)
     {
-      _cells[i].setX( (i-Bc+0.5) * Dx );
-      _cells[i].setId(i);
+      getCell(i).setX( (i-Bc+0.5) * Dx );
+      getCell(i).setId(i);
     }
 
   }
   if (Dimensions==2) 
   {
-    _cells.reserve( totalCells * totalCells );
+    _cells.resize( totalCells * totalCells );
     for (int j=0; j<totalCells; j++)
     {
       for (int i=0; i<totalCells; i++)
@@ -48,7 +48,7 @@ void Grid::InitCells()
 
 }
 
-Cell& Grid::getCell(int i, int j)
+Cell& Grid::getCell(int i, int j=0)
 {
   static int totalCells = parameters::Parameters::Instance.getNxTot();
   /*
