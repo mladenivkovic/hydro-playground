@@ -22,8 +22,7 @@ int main(void) {
   parameters::Parameters::Instance.init();
 
   // initialise the grid of cells
-  Grid::Instance.InitCells();
+  Grid::Instance.InitGrid();
 
-  Grid::Instance.getCell(5);
   return 0;
 }

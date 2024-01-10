@@ -11,7 +11,7 @@ Grid::Grid()
 /* Empty body */
 }
 
-void Grid::InitCells()
+void Grid::InitGrid()
 { 
   int       totalCells = parameters::Parameters::Instance.getNxTot();
   int       Bc         = parameters::Parameters::Instance.getBc();
@@ -30,6 +30,7 @@ void Grid::InitCells()
   }
   else if (Dimensions==2) 
   {
+    // floods the vector with default constructed cells
     _cells.resize( totalCells * totalCells );
     for (int j=0; j<totalCells; j++)
     {
@@ -129,3 +130,9 @@ void Cell::setY(Precision y) {_y = y;}
 
 void Cell::setId(int id) {_id = id;}
 
+void CopyBoundaryDataReflective(const Cell& real)
+{
+  // copy everything from the other!
+
+  // check this is taking a deep copy for real!
+}

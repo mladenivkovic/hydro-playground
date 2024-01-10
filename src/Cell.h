@@ -23,15 +23,15 @@ namespace hydro_playground{
       Cell&       getCell(int i, int j=0);
       // const Cell& getCell(int i, int j) const;
 
-      void      InitCells();
+      void      InitGrid();
       Precision GetTotalMass();
 
-      
-      // access cells with overloaded operator
-      // Cell& operator() (int i, int j);
-      // const version of above, compiler should choose appropriate one
-      const Cell& operator() (int i, int j) const;
+      void getCStatesFromPstates();
+      void getPStatesFromCstates();
+      void resetFluxes();
 
+
+      
       // static copy for global access
       static Grid  Instance;
       static Grid& getInstance() {return Instance;}
@@ -39,9 +39,15 @@ namespace hydro_playground{
   
   class Cell{
     public:
-
+      //! Standard constructor
       Cell();
-      // Cell(int id, Precision x, Precision y);
+      //! copy assignment, for copying boundary data
+      //! Return reference to this, for chaining calls
+      Cell& operator= (const Cell& other) = default;
+
+      //! This function generates a new temp cell to be stolen from
+      void CopyBoundaryDataReflective(const Cell& real);
+
     private:
       int _id;
 
@@ -60,17 +66,24 @@ namespace hydro_playground{
       std::array<Precision, 2> _acc;
 
     public:
+      // void 
+
+      /* leaving these for now */
+      std::string getIndexString();
+    public:
       /* getters and setters */
       void setX(Precision x);
       void setY(Precision x);
 
-      void setId(int id);
+      void               setId(int id);
+      std::pair<int,int> getIJ();
 
-      // return const ref to the above
-      const IdealGas::PrimitiveState& getPrim()  const { return _prim; }
-      const IdealGas::ConservedState& getCons()  const { return _cons; }
-      const IdealGas::PrimitiveState& getPFlux() const { return _pflux; }
-      const IdealGas::ConservedState& getCFlux() const { return _cflux; }
+
+      // return refs to the above
+      IdealGas::PrimitiveState& getPrim()  { return _prim; }
+      IdealGas::ConservedState& getCons()  { return _cons; }
+      IdealGas::PrimitiveState& getPFlux() { return _pflux; }
+      IdealGas::ConservedState& getCFlux() { return _cflux; }
   };
 
 } // hydro_playground
