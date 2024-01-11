@@ -29,8 +29,6 @@ namespace hydro_playground{
       void getCStatesFromPstates();
       void getPStatesFromCstates();
       void resetFluxes();
-
-
       
       // static copy for global access
       static Grid  Instance;
@@ -45,8 +43,10 @@ namespace hydro_playground{
       //! Return reference to this, for chaining calls
       Cell& operator= (const Cell& other) = default;
 
-      //! This function generates a new temp cell to be stolen from
-      void CopyBoundaryDataReflective(const Cell& real);
+      //! Should be called from within the ghost
+      void CopyBoundaryData(const Cell& real);
+      //! Should be called from within the ghost
+      void CopyBoundaryDataReflective(const Cell& real, int dimension);
 
     private:
       int _id;
@@ -84,6 +84,10 @@ namespace hydro_playground{
       IdealGas::ConservedState& getCons()  { return _cons; }
       IdealGas::PrimitiveState& getPFlux() { return _pflux; }
       IdealGas::ConservedState& getCFlux() { return _cflux; }
+      
+      // const versions to shush the compiler
+      const IdealGas::PrimitiveState& getPrim() const  { return _prim; }
+      const IdealGas::ConservedState& getCons() const  { return _cons; }
   };
 
 } // hydro_playground

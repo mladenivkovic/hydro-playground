@@ -23,6 +23,9 @@ namespace IdealGas {
     /* Standard constructor, init variables to 0 */
     PrimitiveState();
 
+    /* copy assignment */
+    PrimitiveState& operator= (const PrimitiveState& other) = default;
+
     /* putting this in just in case it's needed */
     void resetToInitialState() { *this = PrimitiveState(); }
 

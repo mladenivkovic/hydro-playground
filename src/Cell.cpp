@@ -36,8 +36,8 @@ void Grid::InitGrid()
     {
       for (int i=0; i<totalCells; i++)
       {
-        getCell(i,j).setX( (i-Bc+0.5) * Dx  );
-        getCell(i,j).setY( (j-Bc+0.5) * Dx  );
+        getCell(i,j).setX( (i-Bc+0.5) * Dx );
+        getCell(i,j).setY( (j-Bc+0.5) * Dx );
 
         // this used to be i + j * pars.nxtot, but i disagree...
         getCell(i,j).setId( i * totalCells + j );
@@ -115,14 +115,6 @@ Cell::Cell():
 {/* Empty body. */}
 
 /*
-Constructor when x, y, id are already known
-*/
-// Cell::Cell(int id, Precision x, Precision y):
-//   _id(id), _x(x), _y(y), _acc({0,0})
-// {/*Empty body*/}
-
-
-/*
 Getters and setters for cell!
 */
 void Cell::setX(Precision x) {_x = x;}
@@ -130,9 +122,32 @@ void Cell::setY(Precision y) {_y = y;}
 
 void Cell::setId(int id) {_id = id;}
 
-void CopyBoundaryDataReflective(const Cell& real)
+void Cell::CopyBoundaryData(const Cell& real)
 {
-  // copy everything from the other!
+  // This should be called from within the ghost
 
+  // copy everything from the other!
+  _prim = real.getPrim();
+  _cons = real.getCons();
   // check this is taking a deep copy for real!
 }
+
+void Cell::CopyBoundaryDataReflective(const Cell& real, int dimension)
+{
+  /*
+  * Copies the data we need. Dimension indiciates which dimension
+  * We flip the velocities
+  */
+
+  // This should be called from within the ghost
+  _prim = real.getPrim();
+  _cons = real.getCons();
+
+  // flip the velocities in specified dimension
+  Precision u = getPrim().getU(dimension);
+  getPrim().setU(dimension, -1. * u);
+
+  Precision rhou = getCons().getRhou(dimension);
+  getCons().setRhou(dimension, -1. * rhou);
+}
+
