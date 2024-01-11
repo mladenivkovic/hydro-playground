@@ -101,6 +101,59 @@ Precision Grid::GetTotalMass()
   return total;
 }
 
+void Grid::resetFluxes()
+{
+  constexpr int dim2 = (Dimensions == 2);
+  int           bc   = parameters::Parameters::Instance.getBc();
+  int           nx   = parameters::Parameters::Instance.getNx();
+
+  for (int i=bc; i<bc + nx; i++)
+  for (int j=bc*dim2; j<(bc+nx)*dim2; j++)
+  {
+    // if we are in 1d, j will be fixed to zero
+    getCell(i,j).getPrim().resetToInitialState();
+    getCell(i,j).getCons().resetToInitialState();
+  }
+}
+
+void Grid::getCStatesFromPstates()
+{
+  /**
+   * runs through interior cells. Calls PrimitveToConserved()
+   * on each.
+  */
+  constexpr int dim2 = (Dimensions == 2);
+  int           bc   = parameters::Parameters::Instance.getBc();
+  int           nx   = parameters::Parameters::Instance.getNx();
+
+  for (int i=bc; i<bc + nx; i++)
+  for (int j=bc*dim2; j<(bc+nx)*dim2; j++)
+  {
+    // if we are in 1d, j will be fixed to zero
+    // get const reference to prim state in this cell
+    getCell(i,j).PrimitiveToConserved();
+  }
+}
+
+void Grid::getPStatesFromCstates()
+{
+  /**
+   * runs through interior cells. Calls ConservedToPrimitve()
+   * on each.
+  */
+  constexpr int dim2 = (Dimensions == 2);
+  int           bc   = parameters::Parameters::Instance.getBc();
+  int           nx   = parameters::Parameters::Instance.getNx();
+
+  for (int i=bc; i<bc + nx; i++)
+  for (int j=bc*dim2; j<(bc+nx)*dim2; j++)
+  {
+    // if we are in 1d, j will be fixed to zero
+    getCell(i,j).ConservedToPrimitive();
+  }
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 /*
 Constructor for the cell. This has everything from the old
@@ -114,13 +167,7 @@ Cell::Cell():
   _acc({0,0})
 {/* Empty body. */}
 
-/*
-Getters and setters for cell!
-*/
-void Cell::setX(Precision x) {_x = x;}
-void Cell::setY(Precision y) {_y = y;}
 
-void Cell::setId(int id) {_id = id;}
 
 void Cell::CopyBoundaryData(const Cell& real)
 {
@@ -151,3 +198,10 @@ void Cell::CopyBoundaryDataReflective(const Cell& real, int dimension)
   getCons().setRhou(dimension, -1. * rhou);
 }
 
+/*
+Getters and setters for cell!
+*/
+void Cell::setX(Precision x) {_x = x;}
+void Cell::setY(Precision y) {_y = y;}
+
+void Cell::setId(int id) {_id = id;}

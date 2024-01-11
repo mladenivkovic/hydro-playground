@@ -11,6 +11,30 @@ IdealGas::PrimitiveState::PrimitiveState():
   p(0) // empty body...
 {};
 
+void IdealGas::PrimitiveState::ConservedToPrimitive(const ConservedState& c)
+{
+  if (c.getRho() <= SMALLRHO)
+  {
+    // execption handling for vacuum
+    setRho(SMALLRHO);
+    setU(0, SMALLU);
+    setU(1, SMALLU);
+    setP(SMALLP);
+  }
+  else
+  {
+    setRho( c.getRho() );
+    setU(0, c.getRhou(0) / c.getRho());
+    setU(1, c.getRhou(1) / c.getRho());
+    setP(
+      GM1 * c.getE() - 0.5 * c.getRhoUSquared() / c.getRho()
+    );
+
+    // handle negative pressure
+    if (getP() <= SMALLP) setP( SMALLP );
+  }
+
+}
 
 Precision IdealGas::PrimitiveState::getSoundSpeed() { return std::sqrt(GAMMA * getP() / getRho()); }
 

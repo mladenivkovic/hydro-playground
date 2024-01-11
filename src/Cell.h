@@ -48,6 +48,11 @@ namespace hydro_playground{
       //! Should be called from within the ghost
       void CopyBoundaryDataReflective(const Cell& real, int dimension);
 
+      //! Calls conserved to primitive on the members
+      void ConservedToPrimitive() { _prim.ConservedToPrimitive(_cons); };
+      //! Calls primitive to conserved on the members
+      void PrimitiveToConserved() { _cons.PrimitiveToConserved(_prim); };
+
     private:
       int _id;
 
