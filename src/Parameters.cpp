@@ -15,7 +15,7 @@ namespace hydro_playground {
     Parameters::Parameters() :
     _nstepsLog(0), _nsteps(0),
     _tmax(0), _nx(100),
-    _ccfl(0.9), _boundary(0),
+    _ccfl(0.9), _boundary(Parameters::BoundaryCondition::Periodic),
     _nxTot(100 + BCTOT), _dx(BOXLEN / _nx), _bc(BC)
     {/* empty body */}
 
@@ -77,9 +77,9 @@ namespace hydro_playground {
 
     void Parameters::setCcfl(const float ccfl) { _ccfl = ccfl; }
 
-    int Parameters::getBoundary() const { return _boundary; }
+    Parameters::BoundaryCondition Parameters::getBoundary() const { return _boundary; }
 
-    void Parameters::setBoundary(const int boundary) { _boundary = boundary; }
+    void Parameters::setBoundary(Parameters::BoundaryCondition boundary) { _boundary = boundary; }
 
     int Parameters::getNxTot() const { return _nxTot; }
 

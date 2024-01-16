@@ -50,7 +50,8 @@ void Grid::InitGrid()
 
 Cell& Grid::getCell(int i, int j)
 {
-  static int totalCells = parameters::Parameters::Instance.getNxTot();
+  static int totalCells     = parameters::Parameters::Instance.getNxTot();
+  static constexpr int dim2 = (Dimensions==2);
   /*
   This is hacky, but if we are in 1d, we wanna return cells[i], 
   but if we are in 2d we wanna return cells[ i*totalCells + j ]
@@ -58,9 +59,8 @@ Cell& Grid::getCell(int i, int j)
   We trust that this function is called with j=0 in 1d
   */
   return _cells[ 
-    i * (Dimensions==1) +
-    i * totalCells * (Dimensions==2) +
-    j
+    i                  * dim2 + // in 2d this line is zero
+    (i*totalCells + j) * dim2   // in 1d this line is zero
    ];
 }
 
@@ -130,7 +130,6 @@ void Grid::getCStatesFromPstates()
   for (int j=bc*dim2; j<(bc+nx)*dim2; j++)
   {
     // if we are in 1d, j will be fixed to zero
-    // get const reference to prim state in this cell
     getCell(i,j).PrimitiveToConserved();
   }
 }
@@ -153,6 +152,80 @@ void Grid::getPStatesFromCstates()
   }
 }
 
+void Grid::setBoundary()
+{
+  std::vector<Cell*> realLeft  ( parameters::Parameters::Instance.getBc() );
+  std::vector<Cell*> realRight ( parameters::Parameters::Instance.getBc() );
+  std::vector<Cell*> ghostLeft ( parameters::Parameters::Instance.getBc() );
+  std::vector<Cell*> ghostRight( parameters::Parameters::Instance.getBc() );
+
+  int bc   = parameters::Parameters::Instance.getBc();
+  int nx   = parameters::Parameters::Instance.getNx();
+
+  // doesn't look like we will need this code often. so avoid hacky stuff
+  if (Dimensions==1)
+  {
+    for (int i=0; i<bc; i++)
+    {
+      realLeft[i]   = &(getCell( bc+i ));
+      realRight[i]  = &(getCell( nx+i )); /* = last index of a real cell  - BC + (i + 1) */
+      ghostLeft[i]  = &(getCell(i));
+      ghostRight[i] = &(getCell( nx+bc+i ));
+    }
+    // call cell - real - to ghost!
+    realToGhost( realLeft, realRight, ghostLeft, ghostRight );
+
+    // add in enum for boundary conditions
+  }
+}
+
+void Grid::realToGhost(
+  std::vector<Cell*> realLeft, 
+  std::vector<Cell*> realRight, 
+  std::vector<Cell*> ghostLeft, 
+  std::vector<Cell*> ghostRight,
+  int dimension) // dimension defaults to 0
+{
+  // prevents crowding down there
+  int bc = parameters::Parameters::Instance.getBc();
+
+  switch ( parameters::Parameters::Instance.getBoundary() )
+  {
+    case parameters::Parameters::BoundaryCondition::Periodic:
+    {
+      for (int i=0; i<bc; i++)
+      {
+        ghostLeft[i] ->CopyBoundaryData( realLeft[i] );
+        ghostRight[i]->CopyBoundaryData( realRight[i] );
+      }
+
+    } break;
+
+    case parameters::Parameters::BoundaryCondition::Reflective:
+    {
+      for (int i=0; i<bc; i++)
+      {
+        ghostLeft[i] ->CopyBoundaryDataReflective( realLeft[i] , dimension);
+        ghostRight[i]->CopyBoundaryDataReflective( realRight[i], dimension);
+      }
+    } break;
+
+    case parameters::Parameters::BoundaryCondition::Transmissive:
+    {
+      for (int i=0; i<bc; i++)
+      {
+        ghostLeft[i] ->CopyBoundaryData(realLeft[i]);
+        ghostRight[i]->CopyBoundaryData( ( realRight.back() - i ) ); // need to dereference to obtain Cell* pointer
+
+        //this line used to read:
+        //cell_copy_boundary_data(realR[BC - 1 - i], ghostR[i]);
+
+      }
+    } break;
+  }
+
+}
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 /*
@@ -169,17 +242,17 @@ Cell::Cell():
 
 
 
-void Cell::CopyBoundaryData(const Cell& real)
+void Cell::CopyBoundaryData(const Cell* real)
 {
   // This should be called from within the ghost
 
   // copy everything from the other!
-  _prim = real.getPrim();
-  _cons = real.getCons();
+  _prim = real->getPrim();
+  _cons = real->getCons();
   // check this is taking a deep copy for real!
 }
 
-void Cell::CopyBoundaryDataReflective(const Cell& real, int dimension)
+void Cell::CopyBoundaryDataReflective(const Cell* real, int dimension)
 {
   /*
   * Copies the data we need. Dimension indiciates which dimension
@@ -187,8 +260,8 @@ void Cell::CopyBoundaryDataReflective(const Cell& real, int dimension)
   */
 
   // This should be called from within the ghost
-  _prim = real.getPrim();
-  _cons = real.getCons();
+  _prim = real->getPrim();
+  _cons = real->getCons();
 
   // flip the velocities in specified dimension
   Precision u = getPrim().getU(dimension);

@@ -23,6 +23,13 @@ namespace hydro_playground {
   namespace parameters {
 
     class Parameters {
+    
+    public:
+      enum class BoundaryCondition {
+        Periodic,
+        Reflective,
+        Transmissive
+      };
 
     private:
       // Talking related parameters
@@ -54,7 +61,7 @@ namespace hydro_playground {
       // float _force_dt;
 
       //! boundary condition
-      int _boundary;
+      BoundaryCondition _boundary;
 
       //! number of mesh points, including boundary cells
       int _nxTot;
@@ -151,8 +158,8 @@ namespace hydro_playground {
       float getCcfl() const;
       void  setCcfl(float ccfl);
 
-      int  getBoundary() const;
-      void setBoundary(const int boundary);
+      BoundaryCondition  getBoundary() const;
+      void setBoundary(BoundaryCondition boundary);
 
       int  getNxTot() const;
       void setNxTot(const int nxTot);

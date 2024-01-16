@@ -29,6 +29,9 @@ namespace hydro_playground{
       void getCStatesFromPstates();
       void getPStatesFromCstates();
       void resetFluxes();
+
+      void setBoundary();
+      void realToGhost(std::vector<Cell*>, std::vector<Cell*>, std::vector<Cell*>, std::vector<Cell*>, int dimension = 0);
       
       // static copy for global access
       static Grid  Instance;
@@ -44,9 +47,9 @@ namespace hydro_playground{
       Cell& operator= (const Cell& other) = default;
 
       //! Should be called from within the ghost
-      void CopyBoundaryData(const Cell& real);
+      void CopyBoundaryData(const Cell* real);
       //! Should be called from within the ghost
-      void CopyBoundaryDataReflective(const Cell& real, int dimension);
+      void CopyBoundaryDataReflective(const Cell* real, int dimension);
 
       //! Calls conserved to primitive on the members
       void ConservedToPrimitive() { _prim.ConservedToPrimitive(_cons); };
