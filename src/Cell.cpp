@@ -62,6 +62,7 @@ Cell& Grid::getCell(int i, int j)
 {
   static int totalCells     = parameters::Parameters::Instance.getNxTot();
   static constexpr int dim2 = (Dimensions==2);
+  static constexpr int dim1 = (Dimensions==1);
   /*
   This is hacky, but if we are in 1d, we wanna return cells[i], 
   but if we are in 2d we wanna return cells[ i*totalCells + j ]
@@ -69,7 +70,7 @@ Cell& Grid::getCell(int i, int j)
   We trust that this function is called with j=0 in 1d
   */
   return _cells[ 
-    i                  * dim2 + // in 2d this line is zero
+    i                  * dim1 + // in 2d this line is zero
     (i*totalCells + j) * dim2   // in 1d this line is zero
    ];
 }
