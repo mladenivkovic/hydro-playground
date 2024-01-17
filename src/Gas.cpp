@@ -124,8 +124,14 @@ void IdealGas::ConservedState::GetCFluxFromCstate(const ConservedState& c, int d
     Precision v = c.getRhou(dimension) / c.getRho();
     Precision p = GM1 * c.getRhoUSquared() / c.getRho();
 
-    setRhou(dimension, c.getRho() * v * v + p);
-    setRhou((dimension + 1) % 2, c.getRhou((dimension + 1) % 2) * v);
+    setRhou(
+      dimension, 
+      c.getRho() * v * v + p
+    );
+    setRhou(
+      (dimension + 1) % 2,
+      c.getRhou((dimension + 1) % 2) * v
+    );
     setE((c.getE() + p) * v);
   } else {
     setRhou(0, 0);

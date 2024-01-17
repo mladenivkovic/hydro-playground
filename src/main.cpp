@@ -24,5 +24,7 @@ int main(void) {
   // initialise the grid of cells
   Grid::Instance.InitGrid();
 
+  // Grid::Instance.setBoundary();
+
   return 0;
 }

@@ -63,15 +63,14 @@ namespace hydro_playground {
       //! boundary condition
       BoundaryCondition _boundary;
 
-      //! number of mesh points, including boundary cells
-      int _nxTot;
-
       //! cell size
       float _dx;
 
       //! Number of Ghost cells at each edge
       int _bc;
 
+      //! number of mesh points, including boundary cells
+      int _nxTot;
 
       // Output related parameters
       // -------------------------
@@ -169,6 +168,8 @@ namespace hydro_playground {
 
       int  getBc() const;
       void setBc(const int bc);
+
+      int getBcTot() const;
     
     public: 
 

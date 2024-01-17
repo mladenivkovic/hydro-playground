@@ -13,15 +13,23 @@ Grid::Grid()
 
 void Grid::InitGrid()
 { 
-  int       totalCells = parameters::Parameters::Instance.getNxTot();
-  int       Bc         = parameters::Parameters::Instance.getBc();
-  Precision Dx         = parameters::Parameters::Instance.getDx();
+  /**
+   * This time the convention is different.
+   * _cell(0,0)             is the top left cell.
+   * _cell(nxtot-1,0)       is the bottom left cell
+   * _cell(0,nxtot-1)       is the top-right cell
+   * _cell(nxtot-1,nxtot-1) is the bottom right cell
+   * 
+  */
+  int       nxTot = parameters::Parameters::Instance.getNxTot();
+  int       Bc    = parameters::Parameters::Instance.getBc();
+  Precision Dx    = parameters::Parameters::Instance.getDx();
   if (Dimensions==1)
   {
-    // floods the vector with default constructed cells
-    _cells.resize( totalCells );
+    // make some room in the vector...
+    _cells.reserve( nxTot );
 
-    for (int i=0; i<totalCells; i++)
+    for (int i=0; i<nxTot; i++)
     {
       getCell(i).setX( (i-Bc+0.5) * Dx );
       getCell(i).setId(i);
@@ -30,17 +38,19 @@ void Grid::InitGrid()
   }
   else if (Dimensions==2) 
   {
-    // floods the vector with default constructed cells
-    _cells.resize( totalCells * totalCells );
-    for (int j=0; j<totalCells; j++)
+    // make some room in the vector...
+    _cells.reserve( nxTot * nxTot );
+
+    for (int i=0; i<nxTot; i++)
     {
-      for (int i=0; i<totalCells; i++)
+      for (int j=0; j<nxTot; j++)
       {
         getCell(i,j).setX( (i-Bc+0.5) * Dx );
         getCell(i,j).setY( (j-Bc+0.5) * Dx );
 
-        // this used to be i + j * pars.nxtot, but i disagree...
-        getCell(i,j).setId( i * totalCells + j );
+        // this used to be i + j * pars.nxtot, but i have altered the 
+        // convention this time around
+        getCell(i,j).setId( i * nxTot + j );
       }
     }
 
@@ -159,8 +169,9 @@ void Grid::setBoundary()
   std::vector<Cell*> ghostLeft ( parameters::Parameters::Instance.getBc() );
   std::vector<Cell*> ghostRight( parameters::Parameters::Instance.getBc() );
 
-  int bc   = parameters::Parameters::Instance.getBc();
-  int nx   = parameters::Parameters::Instance.getNx();
+  int bc    = parameters::Parameters::Instance.getBc();
+  int nx    = parameters::Parameters::Instance.getNx();
+  int bctot = parameters::Parameters::Instance.getBcTot();
 
   // doesn't look like we will need this code often. so avoid hacky stuff
   if (Dimensions==1)
@@ -168,14 +179,47 @@ void Grid::setBoundary()
     for (int i=0; i<bc; i++)
     {
       realLeft[i]   = &(getCell( bc+i ));
-      realRight[i]  = &(getCell( nx+i )); /* = last index of a real cell  - BC + (i + 1) */
+      realRight[i]  = &(getCell( nx+i )); /* = last index of a real cell = BC + (i + 1) */
       ghostLeft[i]  = &(getCell(i));
       ghostRight[i] = &(getCell( nx+bc+i ));
     }
     // call cell - real - to ghost!
     realToGhost( realLeft, realRight, ghostLeft, ghostRight );
 
-    // add in enum for boundary conditions
+  }
+
+  else if (Dimensions==2)
+  {
+    // left-right boundaries
+
+    // run over all the rows
+    for (int i=0; i<nx+bctot; i++)
+    {
+      for (int j=0; j<bc; j++)
+      {
+        realLeft[j]   = &(getCell( i, bc+j ));
+        realRight[j]  = &(getCell( i, nx+j ));
+        ghostLeft[j]  = &(getCell( i,j ));
+        ghostRight[j] = &(getCell( i, nx+bc+j ));
+      }
+    // here is the first major difference from switching convention 
+    // (could always switch it back) - this code was used identically before
+    // but used dimension 0
+    realToGhost( realLeft, realRight, ghostLeft, ghostRight, 1 );
+    }
+  }
+
+  // upper-lower boundaries
+  for (int j=0; j<nx+bctot; j++)
+  {
+    for (int i=0; i<bc; i++)
+    {
+      realLeft[i]   = &(getCell( bc+i, j ));
+      realRight[i]  = &(getCell( nx+i, j ));
+      ghostLeft[i]  = &(getCell( i,j ));
+      ghostRight[i] = &(getCell( nx+bc+i, j ));
+    }
+    realToGhost( realLeft, realRight, ghostLeft, ghostRight, 0 );
   }
 }
 
@@ -215,6 +259,8 @@ void Grid::realToGhost(
       for (int i=0; i<bc; i++)
       {
         ghostLeft[i] ->CopyBoundaryData(realLeft[i]);
+
+        // assumption that this vector has length "bc".
         ghostRight[i]->CopyBoundaryData( ( realRight.back() - i ) ); // need to dereference to obtain Cell* pointer
 
         //this line used to read:
