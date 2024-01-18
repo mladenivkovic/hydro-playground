@@ -60,10 +60,10 @@ void Grid::InitGrid()
 
 Cell& Grid::getCell(int i, int j)
 {
-  static int totalCells     = parameters::Parameters::Instance.getNxTot();
+  static int nxTot = parameters::Parameters::Instance.getNxTot();
 
   if (Dimensions==1) return _cells[i];
-  if (Dimensions==2) return _cells[i*totalCells + j];
+  if (Dimensions==2) return _cells[i*nxTot + j];
 
 }
 
