@@ -20,9 +20,14 @@ add_library(Cell Cell.cpp Cell.h)
 target_include_directories(Cell PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 target_link_libraries(Cell Logging)
 
+add_library(IO IO.cpp IO.h)
+target_include_directories(IO PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_link_libraries(IO Logging)
+
 target_link_libraries(hydro Logging)
 target_link_libraries(hydro Utils)
 target_link_libraries(hydro Parameters)
 target_link_libraries(hydro Cell)
 target_link_libraries(hydro Gas)
+target_link_libraries(hydro IO)
 
