@@ -1,6 +1,7 @@
 #pragma once
 #include "Cell.h"
 #include "Parameters.h"
+#include "Logging.h"
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -25,6 +26,10 @@ namespace hydro_playground{
 
         void readCommandOptions();
 
+        std::string getHelpMessage() {return helpMessage;}
+
+        bool inputIsValid();
+
       private:
         //! Vector to hold incoming command line args
         std::vector<std::string> clArguments;
@@ -37,8 +42,10 @@ namespace hydro_playground{
         //! We implement this as a vector of pairs so 
         //! that "--help" and "-h" are equivalent,
         //! for instance
-        static const std::vector< std::string > validOptions;
+        static const std::vector< std::string > requiredArgs;
         
+        static const std::vector< std::string > optionalArgs;
+
         //! Help message
         static const std::string helpMessage;
     };

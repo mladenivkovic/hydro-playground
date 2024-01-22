@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 /*
 
@@ -82,7 +83,7 @@ namespace hydro_playground {
       // float _dt_out;
 
       //! Output file name basename
-      // char _outputfilename[MAX_FNAME_SIZE];
+      std::string _outputfilename;
 
       //! file name containing output times
       // char _toutfilename[MAX_FNAME_SIZE];
@@ -107,7 +108,7 @@ namespace hydro_playground {
       // int _ndim_ic;
 
       //! IC data filename
-      // char _datafilename[MAX_FNAME_SIZE];
+      std::string _icdatafilename;
 
       //! parameter filename
       // char _paramfilename[MAX_FNAME_SIZE];
@@ -170,6 +171,13 @@ namespace hydro_playground {
       void setBc(const int bc);
 
       int getBcTot() const;
+
+      void setOutputFilename(std::string);
+      std::string getOutputFilename() const;
+
+      void setIcDataFilename(std::string);
+      std::string getIcDataFilename() const;
+
     
     public: 
 
@@ -177,7 +185,7 @@ namespace hydro_playground {
       static Parameters Instance;
 
       // getter for the single global copy
-      static Parameters& getInstance() {return Instance;}
+      Parameters& getInstance() {return Instance;}
     };
 
 

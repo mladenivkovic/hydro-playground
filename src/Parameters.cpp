@@ -63,43 +63,39 @@ namespace hydro_playground {
     }
 
     int Parameters::getNstepsLog() const { return _nstepsLog; }
-
     void Parameters::setNstepsLog(const int nstepsLog) { _nstepsLog = nstepsLog; }
 
     int Parameters::getNsteps() const { return _nsteps; }
-
     void Parameters::setNsteps(const int nsteps) { _nsteps = nsteps; }
 
     float Parameters::getTmax() const { return _tmax; }
-
     void Parameters::setTmax(const float tmax) { _tmax = tmax; }
 
     int Parameters::getNx() const { return _nx; }
-
     void Parameters::setNx(const int nx) { _nx = nx; }
 
     float Parameters::getCcfl() const { return _ccfl; }
-
     void Parameters::setCcfl(const float ccfl) { _ccfl = ccfl; }
 
     Parameters::BoundaryCondition Parameters::getBoundary() const { return _boundary; }
-
     void Parameters::setBoundary(Parameters::BoundaryCondition boundary) { _boundary = boundary; }
 
     int Parameters::getNxTot() const { return _nxTot; }
-
     void Parameters::setNxTot(const int nxTot) { _nxTot = nxTot; }
 
     float Parameters::getDx() const { return _dx; }
-
     void Parameters::setDx(const float dx) { _dx = dx; }
 
     int Parameters::getBc() const { return _bc; }
 
     void Parameters::setBc(const int bc) {_bc = bc;}
-
     int Parameters::getBcTot() const {return 2*getBc();}
 
+    void Parameters::setOutputFilename(std::string ofname) {_outputfilename=ofname;}
+    std::string Parameters::getOutputFilename() const {return _outputfilename;}
+
+    void Parameters::setIcDataFilename(std::string icfname) {_icdatafilename=icfname;}
+    std::string Parameters::getIcDataFilename() const {return _icdatafilename;}
 
   } // namespace parameters
 } // namespace hydro_playground

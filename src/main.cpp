@@ -21,6 +21,10 @@ int main(int argc, char* argv[]) {
 
   // Fire up IO
   IO::InputParse input(argc, argv);
+  if ( !input.inputIsValid() )
+    return 1;
+
+  // all is good, let's keep going
   input.readCommandOptions();
 
   // Initialise global paramters.
