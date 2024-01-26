@@ -24,10 +24,18 @@ namespace hydro_playground{
 
         bool commandOptionExists(const std::string& option);
 
+        //! Drive everything from this function. This is 
+        //! what we expose to main.
         void readCommandOptions();
+
+        void readConfigFile();
+
+        void readICFile();
 
         std::string getHelpMessage() {return helpMessage;}
 
+        //! Use this to return early from main if the input
+        //! is invalid. 
         bool inputIsValid();
 
       private:
@@ -39,9 +47,6 @@ namespace hydro_playground{
         //! cmd options we expect to see are present
         //! This is defined in the cpp file.
         //! 
-        //! We implement this as a vector of pairs so 
-        //! that "--help" and "-h" are equivalent,
-        //! for instance
         static const std::vector< std::string > requiredArgs;
         
         static const std::vector< std::string > optionalArgs;
