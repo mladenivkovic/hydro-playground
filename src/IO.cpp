@@ -235,6 +235,8 @@ namespace hydro_playground{
         {
           initialValuesToPassOver[i] = readVal();
         }
+        // reset the pointers we use to the start of the buffer
+        ptr0 = lineBuffer; ptr1 = lineBuffer;
 
         // Send these off to the grid - handle indexing in the grid class
         Grid::Instance.SetInitialConditions(valuesFetched, initialValuesToPassOver);
