@@ -224,7 +224,6 @@ namespace hydro_playground{
       */
       while ( bytesToRead > 0 )      
       {
-        std::cout << bytesToRead << "\n";
         // fill the line buffer with some data
         readUntil('\n');
         if ( lineIsInvalid(lineBuffer) ) continue;
