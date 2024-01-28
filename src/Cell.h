@@ -26,6 +26,14 @@ namespace hydro_playground{
       void      InitGrid();
       Precision GetTotalMass();
 
+      //! Pass in vector of initial vals, to be read from IC file.
+      //! In 1d this should be:
+      //! [density, velocity, pressure]
+      //! In 2d this should be:
+      //! [density, velocity_x, velocity_y, pressure]
+      //! 
+      void SetInitialConditions(int position, std::vector<Precision> vals);
+
       void getCStatesFromPstates();
       void getPStatesFromCstates();
       void resetFluxes();

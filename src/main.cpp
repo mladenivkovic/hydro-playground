@@ -33,6 +33,8 @@ int main(int argc, char* argv[]) {
   // initialise the grid of cells
   Grid::Instance.InitGrid();
 
+  input.readICFile();
+
   Grid::Instance.setBoundary();
 
   return 0;

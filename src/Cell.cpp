@@ -58,6 +58,41 @@ void Grid::InitGrid()
   else assert(false);
 }
 
+/**
+ * [density, velocity, pressure]
+*/
+void Grid::SetInitialConditions(int position, std::vector<Precision> vals)
+{
+  assert( 
+    (vals.size() == 4 and Dimensions==2)
+    or
+    (vals.size() == 3 and Dimensions==1)
+  );
+  // Let's set i,j based on the position in the array we passed in
+  int i,j;
+  if ( Dimensions == 1 ) { i=position; j=0; }
+  if ( Dimensions == 2 )
+  {
+    i = position % parameters::Parameters::Instance.getNx();
+    j = position / parameters::Parameters::Instance.getNx();
+  }
+
+  // alias the bc value
+  int bc = parameters::Parameters::Instance.getBc();
+
+  getCell(i+bc, j+bc).getPrim().setRho( vals[0] );
+  getCell(i+bc, j+bc).getPrim().setU(0, vals[1]);
+  if(Dimensions==1)
+  {
+    getCell(i+bc, j+bc).getPrim().setP(vals[2]);
+  }
+  if(Dimensions==2)
+  {
+    getCell(i+bc, j+bc).getPrim().setU(1,vals[2]);
+    getCell(i+bc, j+bc).getPrim().setP(vals[3]);
+  }
+}
+
 Cell& Grid::getCell(int i, int j)
 {
   static int nxTot = parameters::Parameters::Instance.getNxTot();
