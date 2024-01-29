@@ -2,18 +2,18 @@
 
 /*
 
-Turning this class into singleton pattern. In any file where you 
-include Parameters.h, you can call 
+Turning this class into singleton pattern. In any file where you
+include Parameters.h, you can call
 hydro_playground::parameters::Parameters::Instance._nstepsLog (for example)
-and it will be this single global copy. 
+and it will be this single global copy.
 
-Since the member variables are nonstatic now i've un-deleted the default 
+Since the member variables are nonstatic now i've un-deleted the default
 constructor. This will be called by default on the static member anyhow
 
 We could remove the namespaceing
-here as it is a bit of a mouthful to type... 
+here as it is a bit of a mouthful to type...
 
-It's up to us whether we make the instance itself private and use the 
+It's up to us whether we make the instance itself private and use the
 getter or just make it public. It doesn't make a difference, since we
 need to return a reference anyway...
 
@@ -23,13 +23,9 @@ namespace hydro_playground {
   namespace parameters {
 
     class Parameters {
-    
+
     public:
-      enum class BoundaryCondition {
-        Periodic,
-        Reflective,
-        Transmissive
-      };
+      enum class BoundaryCondition { Periodic, Reflective, Transmissive };
 
     private:
       // Talking related parameters
@@ -157,8 +153,8 @@ namespace hydro_playground {
       float getCcfl() const;
       void  setCcfl(float ccfl);
 
-      BoundaryCondition  getBoundary() const;
-      void setBoundary(BoundaryCondition boundary);
+      BoundaryCondition getBoundary() const;
+      void              setBoundary(BoundaryCondition boundary);
 
       int  getNxTot() const;
       void setNxTot(const int nxTot);
@@ -170,14 +166,13 @@ namespace hydro_playground {
       void setBc(const int bc);
 
       int getBcTot() const;
-    
-    public: 
 
+    public:
       // single copy of the global variables
       static Parameters Instance;
 
       // getter for the single global copy
-      static Parameters& getInstance() {return Instance;}
+      static Parameters& getInstance() { return Instance; }
     };
 
 

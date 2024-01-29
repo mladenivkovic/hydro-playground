@@ -9,31 +9,25 @@ IdealGas::PrimitiveState::PrimitiveState():
   rho(0),
   u({0, 0}),
   p(0) // empty body...
-{};
+  {};
 
-void IdealGas::PrimitiveState::ConservedToPrimitive(const ConservedState& c)
-{
-  if (c.getRho() <= SMALLRHO)
-  {
+void IdealGas::PrimitiveState::ConservedToPrimitive(const ConservedState& c) {
+  if (c.getRho() <= SMALLRHO) {
     // execption handling for vacuum
     setRho(SMALLRHO);
     setU(0, SMALLU);
     setU(1, SMALLU);
     setP(SMALLP);
-  }
-  else
-  {
-    setRho( c.getRho() );
+  } else {
+    setRho(c.getRho());
     setU(0, c.getRhou(0) / c.getRho());
     setU(1, c.getRhou(1) / c.getRho());
-    setP(
-      GM1 * c.getE() - 0.5 * c.getRhoUSquared() / c.getRho()
-    );
+    setP(GM1 * c.getE() - 0.5 * c.getRhoUSquared() / c.getRho());
 
     // handle negative pressure
-    if (getP() <= SMALLP) setP( SMALLP );
+    if (getP() <= SMALLP)
+      setP(SMALLP);
   }
-
 }
 
 Precision IdealGas::PrimitiveState::getSoundSpeed() { return std::sqrt(GAMMA * getP() / getRho()); }
@@ -68,8 +62,7 @@ IdealGas::ConservedState::ConservedState():
   // initialiser list
   rho(0),
   rhou({0, 0}),
-  E(0)
-{};
+  E(0){};
 
 
 void IdealGas::ConservedState::PrimitiveToConserved(const PrimitiveState& p) {
@@ -124,14 +117,8 @@ void IdealGas::ConservedState::GetCFluxFromCstate(const ConservedState& c, int d
     Precision v = c.getRhou(dimension) / c.getRho();
     Precision p = GM1 * c.getRhoUSquared() / c.getRho();
 
-    setRhou(
-      dimension, 
-      c.getRho() * v * v + p
-    );
-    setRhou(
-      (dimension + 1) % 2,
-      c.getRhou((dimension + 1) % 2) * v
-    );
+    setRhou(dimension, c.getRho() * v * v + p);
+    setRhou((dimension + 1) % 2, c.getRhou((dimension + 1) % 2) * v);
     setE((c.getE() + p) * v);
   } else {
     setRhou(0, 0);
@@ -152,6 +139,5 @@ Precision IdealGas::ConservedState::getRhoUSquared() const {
 void      IdealGas::ConservedState::setE(const Precision val) { E = val; }
 Precision IdealGas::ConservedState::getE() const { return E; }
 
-Precision IdealGas::ConservedState::getRho() const       { return rho; }
-void      IdealGas::ConservedState::setRho(Precision val){ rho=val; }
-
+Precision IdealGas::ConservedState::getRho() const { return rho; }
+void      IdealGas::ConservedState::setRho(Precision val) { rho = val; }

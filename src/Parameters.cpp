@@ -12,17 +12,22 @@ namespace hydro_playground {
     // need to define it as well...
     Parameters Parameters::Instance;
 
-    Parameters::Parameters() :
-    _nstepsLog(0), _nsteps(0),
-    _tmax(0), _nx(100),
-    _ccfl(0.9), _boundary(Parameters::BoundaryCondition::Periodic),
-    _dx(1.0 / _nx), _bc(2), 
-    _nxTot(100 + 2*_bc)
+    Parameters::Parameters():
+      _nstepsLog(0),
+      _nsteps(0),
+      _tmax(0),
+      _nx(100),
+      _ccfl(0.9),
+      _boundary(Parameters::BoundaryCondition::Periodic),
+      _dx(1.0 / _nx),
+      _bc(2),
+      _nxTot(100 + 2 * _bc)
 
-    // nxtot used to be 100 + BCTOT = 100 + 2*BC. Fixing BC to be 2 and BCTOT to be 
+    // nxtot used to be 100 + BCTOT = 100 + 2*BC. Fixing BC to be 2 and BCTOT to be
     // 2*BC
 
-    {/* empty body */}
+    { /* empty body */
+    }
 
 
     // output related parameters
@@ -96,9 +101,9 @@ namespace hydro_playground {
 
     int Parameters::getBc() const { return _bc; }
 
-    void Parameters::setBc(const int bc) {_bc = bc;}
+    void Parameters::setBc(const int bc) { _bc = bc; }
 
-    int Parameters::getBcTot() const {return 2*getBc();}
+    int Parameters::getBcTot() const { return 2 * getBc(); }
 
 
   } // namespace parameters

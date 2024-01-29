@@ -2,12 +2,11 @@
 
 #include <iostream> // todo: necessary?
 
-#include "Config.h" // todo: necessary?
 #include "Cell.h"
+#include "Config.h" // todo: necessary?
 #include "Logging.h"
 #include "Parameters.h"
 #include "Utils.h"
-
 
 
 int main(void) {

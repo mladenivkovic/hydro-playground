@@ -24,7 +24,7 @@ namespace IdealGas {
     PrimitiveState();
 
     /* copy assignment */
-    PrimitiveState& operator= (const PrimitiveState& other) = default;
+    PrimitiveState& operator=(const PrimitiveState& other) = default;
 
     /* putting this in just in case it's needed */
     void resetToInitialState() { *this = PrimitiveState(); }
