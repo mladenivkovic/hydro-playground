@@ -10,7 +10,6 @@ Grid::Grid() { /* Empty body */ }
 
 void Grid::InitGrid() {
   /**
-   * This time the convention is different.
    * _cell(0,0)             is the bottom left cell.
    * _cell(nxtot-1,0)       is the bottom right cell
    * _cell(0,nxtot-1)       is the top-left cell
