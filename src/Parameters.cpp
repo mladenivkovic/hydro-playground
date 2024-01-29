@@ -7,26 +7,6 @@
 
 namespace parameters {
 
-<<<<<<< HEAD
-  // First initialisation of static params
-
-  // Talking related parameters
-  // --------------------------
-  int Parameters::_nstepsLog = 0;
-
-  // simulation related parameters
-  // -----------------------------
-  int   Parameters::_nsteps = 0;
-  float Parameters::_tmax   = 0;
-
-  int   Parameters::_nx   = 100;
-  float Parameters::_ccfl = 0.9;
-  // float Parameters::_forceDt = 0;
-  int Parameters::_boundary = 0;
-
-  int   Parameters::_nxTot = 100 + BCTOT;
-  float Parameters::_dx    = BOXLEN / _nx;
-=======
     // need to define it as well...
     Parameters Parameters::Instance;
 
@@ -34,9 +14,9 @@ namespace parameters {
     _nstepsLog(0), _nsteps(0),
     _tmax(0), _nx(100),
     _ccfl(0.9), _boundary(0),
-    _nxTot(100 + BCTOT), _dx(BOXLEN / _nx)
+    _nxTot(100 + BCTOT),
+    _dx(BOXLEN / _nx)
     {/* empty body */}
->>>>>>> d71bc8a (change the parameters class to contain a single static copy of itself to hold global variables)
 
 
   // output related parameters
