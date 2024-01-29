@@ -11,12 +11,16 @@ namespace hydro_playground {
     // need to define it as well...
     Parameters Parameters::Instance;
 
-    Parameters::Parameters() :
-    _nstepsLog(0), _nsteps(0),
-    _tmax(0), _nx(100),
-    _ccfl(0.9), _boundary(0),
-    _nxTot(100 + BCTOT), _dx(BOXLEN / _nx)
-    {/* empty body */}
+    Parameters::Parameters():
+      _nstepsLog(0),
+      _nsteps(0),
+      _tmax(0),
+      _nx(100),
+      _ccfl(0.9),
+      _boundary(0),
+      _nxTot(100 + BCTOT),
+      _dx(BOXLEN / _nx) { /* empty body */
+    }
 
 
     // output related parameters
