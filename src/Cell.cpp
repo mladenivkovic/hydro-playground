@@ -15,10 +15,10 @@ void Grid::InitGrid()
 { 
   /**
    * This time the convention is different.
-   * _cell(0,0)             is the top left cell.
-   * _cell(nxtot-1,0)       is the bottom left cell
-   * _cell(0,nxtot-1)       is the top-right cell
-   * _cell(nxtot-1,nxtot-1) is the bottom right cell
+   * _cell(0,0)             is the bottom left cell.
+   * _cell(nxtot-1,0)       is the bottom right cell
+   * _cell(0,nxtot-1)       is the top-left cell
+   * _cell(nxtot-1,nxtot-1) is the top-right cell
    * 
   */
   int       nxTot = parameters::Parameters::Instance.getNxTot();
@@ -27,7 +27,7 @@ void Grid::InitGrid()
   if (Dimensions==1)
   {
     // make some room in the vector...
-    _cells.reserve( nxTot );
+    _cells.resize( nxTot );
 
     for (int i=0; i<nxTot; i++)
     {
@@ -39,7 +39,7 @@ void Grid::InitGrid()
   else if (Dimensions==2) 
   {
     // make some room in the vector...
-    _cells.reserve( nxTot * nxTot );
+    _cells.resize( nxTot * nxTot );
 
     for (int i=0; i<nxTot; i++)
     {
@@ -50,7 +50,7 @@ void Grid::InitGrid()
 
         // this used to be i + j * pars.nxtot, but i have altered the 
         // convention this time around
-        getCell(i,j).setId( i * nxTot + j );
+        getCell(i,j).setId( i + j * nxTot  );
       }
     }
 
@@ -63,7 +63,7 @@ Cell& Grid::getCell(int i, int j)
   static int nxTot = parameters::Parameters::Instance.getNxTot();
 
   if (Dimensions==1) return _cells[i];
-  if (Dimensions==2) return _cells[i*nxTot + j];
+  if (Dimensions==2) return _cells[i + j*nxTot];
 
 }
 
@@ -72,21 +72,18 @@ Precision Grid::GetTotalMass()
   /*
   Get total mass on the grid.
 
-  Writing it naively here. There are a few ways to speed it up.
-  Does this code get called often?
+  Writing it naively here.
   */
   Precision total = 0;
-  // would get a bit crowded down there if we don't define another variable for this
   int       bc    = parameters::Parameters::Instance.getBc();
   int       nx    = parameters::Parameters::Instance.getNx();
 
-  // there is a way to do this with a branch or 
-  // a macro. do it like this for now
   if ( Dimensions==1 )
   {
     for (int i=bc; i < bc+nx; i++)
-      // this is a mouthful...
+    {
       total += getCell(i).getPrim().getRho();
+    }
     
     total *= parameters::Parameters::Instance.getDx();
   }
@@ -176,43 +173,36 @@ void Grid::setBoundary()
       ghostLeft[i]  = &(getCell(i));
       ghostRight[i] = &(getCell( nx+bc+i ));
     }
-    // call cell - real - to ghost!
     realToGhost( realLeft, realRight, ghostLeft, ghostRight );
-
   }
 
   else if (Dimensions==2)
   {
     // left-right boundaries
-
-    // run over all the rows
-    for (int i=0; i<nx+bctot; i++)
+    for (int j=0; j<nx+bctot; j++)
     {
-      for (int j=0; j<bc; j++)
+      for (int i=0; i<bc; i++)
       {
-        realLeft[j]   = &(getCell( i, bc+j ));
-        realRight[j]  = &(getCell( i, nx+j ));
-        ghostLeft[j]  = &(getCell( i,j ));
-        ghostRight[j] = &(getCell( i, nx+bc+j ));
+        realLeft[i]   = &(getCell( bc+i, j ));
+        realRight[i]  = &(getCell( nx+i, j ));
+        ghostLeft[i]  = &(getCell( i,j ));
+        ghostRight[i] = &(getCell( nx+bc+i, j ));
       }
-    // here is the first major difference from switching convention 
-    // (could always switch it back) - this code was used identically before
-    // but used dimension 0
-    realToGhost( realLeft, realRight, ghostLeft, ghostRight, 1 );
+    realToGhost( realLeft, realRight, ghostLeft, ghostRight, 0 );
     }
   }
 
   // upper-lower boundaries
-  for (int j=0; j<nx+bctot; j++)
+  for (int i=0; i<nx+bctot; i++)
   {
-    for (int i=0; i<bc; i++)
+    for (int j=0; j<bc; j++)
     {
-      realLeft[i]   = &(getCell( bc+i, j ));
-      realRight[i]  = &(getCell( nx+i, j ));
-      ghostLeft[i]  = &(getCell( i,j ));
-      ghostRight[i] = &(getCell( nx+bc+i, j ));
+      realLeft[j]   = &(getCell( bc+i, j ));
+      realRight[j]  = &(getCell( nx+i, j ));
+      ghostLeft[j]  = &(getCell( i,j ));
+      ghostRight[j] = &(getCell( nx+bc+i, j ));
     }
-    realToGhost( realLeft, realRight, ghostLeft, ghostRight, 0 );
+    realToGhost( realLeft, realRight, ghostLeft, ghostRight, 1 );
   }
 }
 
@@ -310,6 +300,24 @@ void Cell::CopyBoundaryDataReflective(const Cell* real, int dimension)
   getCons().setRhou(dimension, -1. * rhou);
 }
 
+std::pair<int,int> Cell::getIJ()
+{
+  std::pair<int,int> output;
+  int nxtot = parameters::Parameters::Instance.getNxTot();
+  if (Dimensions==1)
+  {
+    output.first  = getID();
+    output.second = 0;
+  }
+  if (Dimensions==2)
+  {
+    int j = getID() / ( nxtot );
+    int i = getID() - j * nxtot;
+    output.first = i; output.second = j;
+  }
+  return output;
+}
+
 /*
 Getters and setters for cell!
 */
@@ -317,3 +325,4 @@ void Cell::setX(Precision x) {_x = x;}
 void Cell::setY(Precision y) {_y = y;}
 
 void Cell::setId(int id) {_id = id;}
+int  Cell::getID()  const{return _id;}

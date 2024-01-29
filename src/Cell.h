@@ -84,6 +84,7 @@ namespace hydro_playground{
       void setY(Precision x);
 
       void               setId(int id);
+      int                getID() const;
       std::pair<int,int> getIJ();
 
 
