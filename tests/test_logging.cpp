@@ -32,10 +32,23 @@ int main(void) {
   std::stringstream ss_msg;
   ss_msg << "String stream message";
 
-  logging::Log::logMessage(__FILENAME__, __FUNCTION__, __LINE__, char_msg, logging::LogLevel::Quiet, logging::LogStage::Init);
-  logging::Log::logMessage(__FILENAME__, __FUNCTION__, __LINE__, str_msg, logging::LogLevel::Quiet, logging::LogStage::Init);
-  logging::Log::logMessage(__FILENAME__, __FUNCTION__, __LINE__, ss_msg, logging::LogLevel::Quiet, logging::LogStage::Init);
-  logging::Log::logMessage(__FILENAME__, __FUNCTION__, __LINE__, "Directly writing in here", logging::LogLevel::Quiet, logging::LogStage::Init);
+  logging::Log::logMessage(
+    __FILENAME__, __FUNCTION__, __LINE__, char_msg, logging::LogLevel::Quiet, logging::LogStage::Init
+  );
+  logging::Log::logMessage(
+    __FILENAME__, __FUNCTION__, __LINE__, str_msg, logging::LogLevel::Quiet, logging::LogStage::Init
+  );
+  logging::Log::logMessage(
+    __FILENAME__, __FUNCTION__, __LINE__, ss_msg, logging::LogLevel::Quiet, logging::LogStage::Init
+  );
+  logging::Log::logMessage(
+    __FILENAME__,
+    __FUNCTION__,
+    __LINE__,
+    "Directly writing in here",
+    logging::LogLevel::Quiet,
+    logging::LogStage::Init
+  );
 
   logging::Log::logWarning(__FILENAME__, __FUNCTION__, __LINE__, char_msg);
   logging::Log::logWarning(__FILENAME__, __FUNCTION__, __LINE__, str_msg);
@@ -63,7 +76,6 @@ int main(void) {
 
 
   printFatLine();
-
 
 
   // -----------------------------------------------------------------
@@ -101,7 +113,8 @@ int main(void) {
         msg << " | ";
 
         std::cout << msg.str();
-        if (not expect_print) std::cout << "\n";
+        if (not expect_print)
+          std::cout << "\n";
 
         message("My Message", l, s);
       }
