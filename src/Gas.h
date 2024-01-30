@@ -23,6 +23,9 @@ namespace IdealGas {
     /* Standard constructor, init variables to 0 */
     PrimitiveState();
 
+    /* copy assignment */
+    PrimitiveState& operator=(const PrimitiveState& other) = default;
+
     /* putting this in just in case it's needed */
     void resetToInitialState() { *this = PrimitiveState(); }
 
@@ -35,7 +38,7 @@ namespace IdealGas {
     Getters and setters!
     */
     /* Setter for Rho */
-    void      setRho(const Precision val);
+    void      setRho(Precision val);
     Precision getRho() const;
 
     /* same for u */
@@ -69,7 +72,7 @@ namespace IdealGas {
     /*
     Getters and setters!
     */
-    void      setRho(const Precision& val);
+    void      setRho(Precision val);
     Precision getRho() const;
 
     /* same for u */

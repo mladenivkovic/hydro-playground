@@ -2,8 +2,8 @@
 
 #include <iostream> // todo: necessary?
 
+#include "Cell.h"
 #include "Config.h" // todo: necessary?
-#include "Gas.h"    // probably not necessary. wanna catch compile errors
 #include "Logging.h"
 #include "Parameters.h"
 #include "Utils.h"
@@ -17,7 +17,12 @@ int main(void) {
   utils::print_header();
 
   // Initialise global paramters.
-  parameters::Parameters::init();
+  parameters::Parameters::Instance.init();
+
+  // initialise the grid of cells
+  Grid::Instance.InitGrid();
+
+  Grid::Instance.setBoundary();
 
   return 0;
 }

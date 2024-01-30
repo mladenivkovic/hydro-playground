@@ -2,30 +2,32 @@
 
 
 // TODO: These definitions are temporary and need to go.
-#define BOXLEN 1.
-#define BCTOT 2
+// #define BC 2
+// #define BOXLEN 1.
+// #define BCTOT 2 * BC
 
 namespace hydro_playground {
   namespace parameters {
 
-    // First initialisation of static params
+    // need to define it as well...
+    Parameters Parameters::Instance;
 
-    // Talking related parameters
-    // --------------------------
-    int Parameters::_nstepsLog = 0;
+    Parameters::Parameters():
+      _nstepsLog(0),
+      _nsteps(0),
+      _tmax(0),
+      _nx(100),
+      _ccfl(0.9),
+      _boundary(Parameters::BoundaryCondition::Periodic),
+      _dx(1.0 / _nx),
+      _bc(2),
+      _nxTot(100 + 2 * _bc)
 
-    // simulation related parameters
-    // -----------------------------
-    int   Parameters::_nsteps = 0;
-    float Parameters::_tmax   = 0;
+    // nxtot used to be 100 + BCTOT = 100 + 2*BC. Fixing BC to be 2 and BCTOT to be
+    // 2*BC
 
-    int   Parameters::_nx   = 100;
-    float Parameters::_ccfl = 0.9;
-    // float Parameters::_forceDt = 0;
-    int Parameters::_boundary = 0;
-
-    int   Parameters::_nxTot = 100 + BCTOT;
-    float Parameters::_dx    = BOXLEN / _nx;
+    { /* empty body */
+    }
 
 
     // output related parameters
@@ -65,37 +67,43 @@ namespace hydro_playground {
       // TODO
     }
 
-    int Parameters::getNstepsLog() { return _nstepsLog; }
+    int Parameters::getNstepsLog() const { return _nstepsLog; }
 
     void Parameters::setNstepsLog(const int nstepsLog) { _nstepsLog = nstepsLog; }
 
-    int Parameters::getNsteps() { return _nsteps; }
+    int Parameters::getNsteps() const { return _nsteps; }
 
     void Parameters::setNsteps(const int nsteps) { _nsteps = nsteps; }
 
-    float Parameters::getTmax() { return _tmax; }
+    float Parameters::getTmax() const { return _tmax; }
 
     void Parameters::setTmax(const float tmax) { _tmax = tmax; }
 
-    int Parameters::getNx() { return _nx; }
+    int Parameters::getNx() const { return _nx; }
 
     void Parameters::setNx(const int nx) { _nx = nx; }
 
-    float Parameters::getCcfl() { return _ccfl; }
+    float Parameters::getCcfl() const { return _ccfl; }
 
     void Parameters::setCcfl(const float ccfl) { _ccfl = ccfl; }
 
-    int Parameters::getBoundary() { return _boundary; }
+    Parameters::BoundaryCondition Parameters::getBoundary() const { return _boundary; }
 
-    void Parameters::setBoundary(const int boundary) { _boundary = boundary; }
+    void Parameters::setBoundary(Parameters::BoundaryCondition boundary) { _boundary = boundary; }
 
-    int Parameters::getNxTot() { return _nxTot; }
+    int Parameters::getNxTot() const { return _nxTot; }
 
     void Parameters::setNxTot(const int nxTot) { _nxTot = nxTot; }
 
-    float Parameters::getDx() { return _dx; }
+    float Parameters::getDx() const { return _dx; }
 
     void Parameters::setDx(const float dx) { _dx = dx; }
+
+    int Parameters::getBc() const { return _bc; }
+
+    void Parameters::setBc(const int bc) { _bc = bc; }
+
+    int Parameters::getBcTot() const { return 2 * getBc(); }
 
 
   } // namespace parameters
