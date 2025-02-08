@@ -14,9 +14,9 @@ namespace IdealGas {
 
   class PrimitiveState {
   private:
-    Precision                rho; /* density */
-    std::array<Precision, 2> u;   /* velocity vector. u[0] = ux, u[1] = uy */
-    Precision                p;   /* pressure */
+    float_t                rho; /* density */
+    std::array<float_t, 2> u;   /* velocity vector. u[0] = ux, u[1] = uy */
+    float_t                p;   /* pressure */
 
 
   public:
@@ -28,32 +28,32 @@ namespace IdealGas {
 
     void ConservedToPrimitive(const ConservedState& conservedState);
 
-    Precision getSoundSpeed();
-    Precision getEnergy();
+    float_t getSoundSpeed();
+    float_t getEnergy();
 
     /*
     Getters and setters!
     */
     /* Setter for Rho */
-    void      setRho(const Precision val);
-    Precision getRho() const;
+    void      setRho(float_t val);
+    float_t getRho() const;
 
     /* same for u */
-    void      setU(int index, const Precision val);
-    Precision getU(const int index) const;
+    void      setU(int index, const float_t val);
+    float_t getU(const int index) const;
 
     /*used a lot, made a function for it*/
-    Precision getUSquared() const;
+    float_t getUSquared() const;
 
-    void      setP(const Precision val);
-    Precision getP() const;
+    void      setP(const float_t val);
+    float_t getP() const;
   };
 
   class ConservedState {
   private:
-    Precision                rho;
-    std::array<Precision, 2> rhou;
-    Precision                E;
+    float_t                rho;
+    std::array<float_t, 2> rhou;
+    float_t                E;
 
   public:
     /* Standard constructor, init variables to 0 */
@@ -69,15 +69,15 @@ namespace IdealGas {
     /*
     Getters and setters!
     */
-    void      setRho(const Precision& val);
-    Precision getRho() const;
+    void      setRho(const float_t& val);
+    float_t getRho() const;
 
     /* same for u */
-    void      setRhou(int index, const Precision val);
-    Precision getRhou(int index) const;
-    Precision getRhoUSquared() const;
+    void      setRhou(int index, const float_t val);
+    float_t getRhou(int index) const;
+    float_t getRhoUSquared() const;
 
-    void      setE(const Precision val);
-    Precision getE() const;
+    void      setE(const float_t val);
+    float_t getE() const;
   };
 } // namespace IdealGas

@@ -1,8 +1,9 @@
 // Some global definitions.
+// File is generated from template src/Config.h.in
 // Variables enclosed by '@' are generated with CMake.
 
 #define DEBUG_LEVEL @DEBUG_LEVEL@
 #define CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
 
 
-typedef float Precision;
+using Precision = float;
