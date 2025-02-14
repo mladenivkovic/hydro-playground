@@ -13,7 +13,7 @@ namespace hydro_playground {
   /**
    * @brief returns the banner for the header.
    */
-  std::stringstream utils::get_banner(void) {
+  std::stringstream utils::get_banner() {
 
     std::stringstream banner;
     banner
@@ -35,7 +35,7 @@ namespace hydro_playground {
   /**
    * @brief Prints out the header at the start of the run.
    */
-  void utils::print_header(void) {
+  void utils::print_header() {
 
     std::stringstream banner = get_banner();
     std::cout << banner.str();

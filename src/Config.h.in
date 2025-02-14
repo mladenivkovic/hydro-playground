@@ -5,5 +5,5 @@
 #define DEBUG_LEVEL @DEBUG_LEVEL@
 #define CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
 
-
-using Precision = float;
+// TODO(mivkov): Make this a compile time define
+using float_t = float;

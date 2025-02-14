@@ -1,14 +1,12 @@
 #pragma once
 
 #include <array>
-#include <math.h>
 
 #include "Config.h"
-#include "Constants.h"
 
 
 namespace IdealGas {
-  // hacky forward declaration, ConservedToPrimitive doesn't work without it
+  // forward declaration, ConservedToPrimitive doesn't work without it
   class ConservedState;
   class PrimitiveState;
 
@@ -23,26 +21,28 @@ namespace IdealGas {
     /* Standard constructor, init variables to 0 */
     PrimitiveState();
 
-    /* putting this in just in case it's needed */
+    // putting this in just in case it's needed
     void resetToInitialState() { *this = PrimitiveState(); }
 
+    // Convert a conserved state to a (this) primitive state.
+    // Overwrites the contents of this primitive state.
+    // TODO(mivkov): implementation
     void ConservedToPrimitive(const ConservedState& conservedState);
 
     float_t getSoundSpeed();
     float_t getEnergy();
 
-    /*
-    Getters and setters!
-    */
-    /* Setter for Rho */
+    // Getters and setters!
+
+    // Setter for Rho
     void      setRho(float_t val);
     float_t getRho() const;
 
-    /* same for u */
-    void      setU(int index, const float_t val);
+    // same for u
+    void    setU(const int index, const float_t val);
     float_t getU(const int index) const;
 
-    /*used a lot, made a function for it*/
+    // used a lot, made a function for it
     float_t getUSquared() const;
 
     void      setP(const float_t val);
@@ -56,28 +56,26 @@ namespace IdealGas {
     float_t                E;
 
   public:
-    /* Standard constructor, init variables to 0 */
+    // Standard constructor, init variables to 0
     ConservedState();
 
-    /* putting this in in case it's needed */
+    // putting this in in case it's needed
     void resetToInitialState() { *this = ConservedState(); }
 
     void PrimitiveToConserved(const PrimitiveState& primState);
-    void GetCFluxFromPstate(const PrimitiveState& p, int dimension);
-    void GetCFluxFromCstate(const ConservedState& c, int dimension);
+    void GetCFluxFromPstate(const PrimitiveState& pstate, int dimension);
+    void GetCFluxFromCstate(const ConservedState& cstate, int dimension);
 
-    /*
-    Getters and setters!
-    */
+    // Getters and setters!
     void      setRho(const float_t& val);
     float_t getRho() const;
 
-    /* same for u */
-    void      setRhou(int index, const float_t val);
-    float_t getRhou(int index) const;
+    // same for u
+    void    setRhou(const int index, const float_t val);
+    float_t getRhou(const int index) const;
     float_t getRhoUSquared() const;
 
-    void      setE(const float_t val);
+    void    setE(const float_t val);
     float_t getE() const;
   };
 } // namespace IdealGas

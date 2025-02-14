@@ -11,7 +11,7 @@ namespace hydro_playground {
   namespace utils {
 
     /* stuff that doesn't fit anywhere else */
-    std::stringstream get_banner(void);
+    std::stringstream get_banner();
     void              print_header();
 
     /* void print_compile_defines(); */

@@ -1,14 +1,15 @@
+#include <cmath>
+
+#include "Constants.h"
 #include "Gas.h"
 
-/*
-Stuff for primitive state
-*/
+// Stuff for primitive state
 
 IdealGas::PrimitiveState::PrimitiveState():
   // initialiser list
-  rho{0},
-  u{0, 0},
-  p{0} // empty body...
+  rho{0.},
+  u{0., 0.},
+  p{0.} // empty body...
 {};
 
 
@@ -19,15 +20,15 @@ float_t IdealGas::PrimitiveState::getEnergy() {
   return 0.5 * getRho() * getUSquared() + getP() / GM1;
 }
 
-/* getters and setters for PrimitiveState  */
+// getters and setters for PrimitiveState
 
 void IdealGas::PrimitiveState::setRho(const float_t val) { rho = val; }
 
 float_t IdealGas::PrimitiveState::getRho() const { return rho; }
 
-void IdealGas::PrimitiveState::setU(int index, const float_t val) { u[index] = val; }
+void IdealGas::PrimitiveState::setU(const int index, const float_t val) { u[index] = val; }
 
-float_t IdealGas::PrimitiveState::getU(int index) const { return u[index]; }
+float_t IdealGas::PrimitiveState::getU(const int index) const { return u[index]; }
 
 float_t IdealGas::PrimitiveState::getUSquared() const { return u[0] * u[0] + u[1] * u[1]; }
 
@@ -36,9 +37,7 @@ void IdealGas::PrimitiveState::setP(const float_t val) { p = val; }
 float_t IdealGas::PrimitiveState::getP() const { return p; }
 
 
-/*
-Stuff for conserved state
-*/
+// Stuff for conserved state
 
 IdealGas::ConservedState::ConservedState():
   // initialiser list
@@ -112,9 +111,9 @@ void IdealGas::ConservedState::GetCFluxFromCstate(const ConservedState& c, int d
 
 /* Getters and Setters */
 
-void IdealGas::ConservedState::setRhou(int index, const float_t val) { rhou[index] = val; }
+void IdealGas::ConservedState::setRhou(const int index, const float_t val) { rhou[index] = val; }
 
-float_t IdealGas::ConservedState::getRhou(int index) const { return rhou[index]; }
+float_t IdealGas::ConservedState::getRhou(const int index) const { return rhou[index]; }
 
 float_t IdealGas::ConservedState::getRhoUSquared() const {
   return rhou[0] * rhou[0] + rhou[1] * rhou[1];
