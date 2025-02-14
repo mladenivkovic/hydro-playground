@@ -87,15 +87,11 @@ namespace logging {
      * @param line The current line in the file. Intended to be the __LINE__ macro.
      * @param text The message you want to print out.
      */
-    static void logError(
-      const char* file, const char* function, const int line, std::string text
-    );
+    static void logError(const char* file, const char* function, const int line, std::string text);
     static void logError(
       const char* file, const char* function, const int line, std::stringstream& text
     );
-    static void logError(
-      const char* file, const char* function, const int line, const char* text
-    );
+    static void logError(const char* file, const char* function, const int line, const char* text);
 
 
     /**
@@ -122,29 +118,22 @@ namespace logging {
 #endif
 
 #define MESSAGE_3_ARGS(msg, level, stage) \
-logging::Log::logMessage( \
-  FILENAME_, __FUNCTION__, __LINE__, msg, level, stage \
-);
+  logging::Log::logMessage(FILENAME_, __FUNCTION__, __LINE__, msg, level, stage);
 
 #define MESSAGE_2_ARGS(msg, stage) \
-logging::Log::logMessage( \
-  FILENAME_, \
-  __FUNCTION__, \
-  __LINE__, \
-  msg, \
-  logging::LogLevel::Undefined, \
-  stage \
-);
+  logging::Log::logMessage( \
+    FILENAME_, __FUNCTION__, __LINE__, msg, logging::LogLevel::Undefined, stage \
+  );
 
 #define MESSAGE_1_ARG(msg) \
-logging::Log::logMessage( \
-  FILENAME_, \
-  __FUNCTION__, \
-  __LINE__, \
-  msg, \
-  logging::LogLevel::Undefined, \
-  logging::LogStage::Undefined \
-);
+  logging::Log::logMessage( \
+    FILENAME_, \
+    __FUNCTION__, \
+    __LINE__, \
+    msg, \
+    logging::LogLevel::Undefined, \
+    logging::LogStage::Undefined \
+  );
 
 #define MESSAGE_GET_4TH_ARG(arg1, arg2, arg3, arg4, ...) arg4
 
@@ -153,18 +142,16 @@ logging::Log::logMessage( \
 // macro we want to use to the 4th argument. So this way, we get the
 // correct macro to use.
 #define MESSAGE_STRING_MACRO_CHOOSER(...) \
-MESSAGE_GET_4TH_ARG(__VA_ARGS__, MESSAGE_3_ARGS, MESSAGE_2_ARGS, MESSAGE_1_ARG, )
+  MESSAGE_GET_4TH_ARG(__VA_ARGS__, MESSAGE_3_ARGS, MESSAGE_2_ARGS, MESSAGE_1_ARG, )
 
 
 // The main message() macro.
 #define message(...) MESSAGE_STRING_MACRO_CHOOSER(__VA_ARGS__)(__VA_ARGS__)
 
 
-#define error(msg) \
-logging::Log::logError(FILENAME_, __FUNCTION__, __LINE__, msg);
+#define error(msg) logging::Log::logError(FILENAME_, __FUNCTION__, __LINE__, msg);
 
-#define warning(msg) \
-logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, msg);
+#define warning(msg) logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, msg);
 
 
 } // namespace logging

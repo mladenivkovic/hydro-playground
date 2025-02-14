@@ -21,5 +21,3 @@ static constexpr float_t BETA         = 0.5 * (GAMMA - 1.) / GAMMA;
 static constexpr float_t SMALLRHO = 1e-6;
 static constexpr float_t SMALLU   = 1e-6;
 static constexpr float_t SMALLP   = 1e-6;
-
-

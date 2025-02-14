@@ -11,8 +11,6 @@
 
 int main(void) {
 
-  using namespace hydro_playground;
-
   // Useless things first :)
   utils::print_header();
 

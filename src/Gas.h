@@ -35,7 +35,7 @@ namespace IdealGas {
     // Getters and setters!
 
     // Setter for Rho
-    void      setRho(float_t val);
+    void    setRho(float_t val);
     float_t getRho() const;
 
     // same for u
@@ -45,7 +45,7 @@ namespace IdealGas {
     // used a lot, made a function for it
     float_t getUSquared() const;
 
-    void      setP(const float_t val);
+    void    setP(const float_t val);
     float_t getP() const;
   };
 
@@ -67,7 +67,7 @@ namespace IdealGas {
     void GetCFluxFromCstate(const ConservedState& cstate, int dimension);
 
     // Getters and setters!
-    void      setRho(const float_t& val);
+    void    setRho(const float_t& val);
     float_t getRho() const;
 
     // same for u

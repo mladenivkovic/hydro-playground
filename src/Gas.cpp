@@ -1,7 +1,8 @@
+#include "Gas.h"
+
 #include <cmath>
 
 #include "Constants.h"
-#include "Gas.h"
 
 // Stuff for primitive state
 

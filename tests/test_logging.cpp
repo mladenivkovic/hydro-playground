@@ -25,10 +25,10 @@ int main() {
   // with macros involved.
   // -----------------------------------------------------------------
 
-  const char*       char_msg = "Const Char message";
+  const char* char_msg = "Const Char message";
   // added std::allocator<char> here, which is the default argument, to stop
   // the linter from screaming at me.
-  const std::string str_msg  = std::string("String message", std::allocator<char>());
+  const std::string str_msg = std::string("String message", std::allocator<char>());
   std::stringstream ss_msg;
   ss_msg << "String stream message";
 

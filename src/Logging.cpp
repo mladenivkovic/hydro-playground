@@ -64,7 +64,9 @@ namespace logging {
   }
 
 
-  void Log::logWarning(const char* file, const char* function, const int line, const std::string& text) {
+  void Log::logWarning(
+    const char* file, const char* function, const int line, const std::string& text
+  ) {
 
     std::stringstream str;
     str << "[WARNING] ";
