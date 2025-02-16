@@ -26,40 +26,42 @@ namespace parameters {
 
   class Parameters {
 
-  private:
     // Talking related parameters
     // --------------------------
 
+  private:
+
     //! how verbose are we?
-    logging::LogLevel verbose;
+    logging::LogLevel _verbose;
 
     //! interval between steps to write current state to screen
-    int nstepsLog;
+    int _nstepsLog;
 
 
     // simulation related parameters
     // -----------------------------
 
     //! How many steps to do
-    int nsteps;
+    int _nsteps;
 
     //! at what time to end simulation
-    double tmax;
+    float_t _tmax;
 
     //! number of cells to use (in each dimension)
-    int nx;
+    int _nx;
 
     //! CFL coefficient
-    float_t ccfl;
+    float_t _ccfl;
 
     //! boundary condition
+    // TODO(mivkov): Make enum
     int _boundary;
 
     //! number of mesh points, including boundary cells
     int _nxTot;
 
     //! cell size
-    float _dx;
+    float_t _dx;
 
 
     // Output related parameters
@@ -69,7 +71,7 @@ namespace parameters {
     // int _foutput;
 
     //! time interval between outputs
-    // float _dt_out;
+    // double _dt_out;
 
     //! Output file name basename
     // char _outputfilename[MAX_FNAME_SIZE];
@@ -78,7 +80,7 @@ namespace parameters {
     // char _toutfilename[MAX_FNAME_SIZE];
 
     //! whether we're using the t_out_file
-    // int _use_toutfile;
+    // bool _use_toutfile;
 
     //! how many outputs we will be writing. Only used if(use_toutfile)
     // int _noutput_tot;
@@ -87,7 +89,7 @@ namespace parameters {
     // int _noutput;
 
     //! array of output times given in the output file
-    // float *_outputtimes;
+    // float_t _*outputtimes;
 
 
     // IC related parameters
@@ -107,56 +109,57 @@ namespace parameters {
     // --------------------------
 
     //! constant acceleration in x direction for constant source terms
-    // float _src_const_acc_x;
+    // float_t _src_const_acc_x;
 
     //! constant acceleration in y direction for constant source terms
-    // float _src_const_acc_y;
+    // float_t _src_const_acc_y;
 
     //! constant acceleration in radial direction for radial source terms
-    // float _src_const_acc_r;
+    // float_t _src_const_acc_r;
 
     //! whether the sources will be constant
-    // int _constant_acceleration;
+    // bool _constant_acceleration;
 
     //! whether the constant acceleration has been computed
-    // int _constant_acceleration_computed;
+    // bool _constant_acceleration_computed;
 
     //! whether sources have been read in
-    // int _sources_are_read;
+    // bool _sources_are_read;
 
 
   public:
     Parameters();
 
-    void init();
-
+    // ToDo: Move in destructor
     void cleanup();
 
-    int  getNstepsLog();
-    void setNstepsLog(const int nsteps_log);
+    logging::LogLevel getVerbose() const;
+    void setVerbose(const logging::LogLevel logLevel);
 
-    int  getNsteps();
+    int  getNstepsLog() const;
+    void setNstepsLog(const int nstepsLog);
+
+    int  getNsteps() const;
     void setNsteps(const int nsteps);
 
-    float getTmax();
-    void  setTmax(const float tmax);
+    float_t getTmax() const;
+    void setTmax(const float_t tmax);
 
-    int  getNx();
+    int  getNx() const;
     void setNx(const int nx);
 
-    float getCcfl();
-    void  setCcfl(float ccfl);
+    float_t getCcfl() const;
+    void  setCcfl(float_t ccfl);
 
-    int  getBoundary();
+    int  getBoundary() const;
     void setBoundary(const int boundary);
 
-    int  getNxTot();
+    int  getNxTot() const;
     void setNxTot(const int nxTot);
 
-    float getDx();
-    void  setDx(const float dx);
+    float_t getDx() const;
+    void  setDx(const float_t dx);
 
-  public:
     // single copy of the global variables
     static Parameters Instance;
 
