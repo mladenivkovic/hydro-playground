@@ -1,4 +1,5 @@
 #include "Parameters.h"
+
 #include "Logging.h"
 
 
@@ -11,7 +12,7 @@ namespace parameters {
   // need to define it as well...
   Parameters Parameters::Instance;
 
-  Parameters::Parameters() :
+  Parameters::Parameters():
     _verbose(logging::LogLevel::Quiet),
     _nstepsLog(0),
     _nsteps(0),
@@ -20,7 +21,8 @@ namespace parameters {
     _ccfl(0.),
     _boundary(0),
     _nxTot(0),
-    _dx(0.) { /* empty body */ }
+    _dx(0.) { /* empty body */
+  }
 
 
   // output related parameters
@@ -58,7 +60,7 @@ namespace parameters {
     return _verbose;
   }
 
-  void Parameters::setVerbose(const logging::LogLevel logLevel){
+  void Parameters::setVerbose(const logging::LogLevel logLevel) {
     _verbose = logLevel;
   }
 
@@ -115,7 +117,9 @@ namespace parameters {
     return _nxTot;
   }
 
-  void Parameters::setNxTot(const int nxTot) { _nxTot = nxTot; }
+  void Parameters::setNxTot(const int nxTot) {
+    _nxTot = nxTot;
+  }
 
   float_t Parameters::getDx() const {
     return _dx;

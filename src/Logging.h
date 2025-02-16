@@ -10,7 +10,13 @@
 
 namespace logging {
 
-  enum class LogLevel { Undefined = -1, Quiet = 0, Verbose = 1, Debug = 2, Count };
+  enum class LogLevel {
+    Undefined = -1,
+    Quiet     = 0,
+    Verbose   = 1,
+    Debug     = 2,
+    Count
+  };
 
   enum class LogStage {
     Undefined = -1,

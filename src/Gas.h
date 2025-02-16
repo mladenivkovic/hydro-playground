@@ -22,7 +22,9 @@ namespace IdealGas {
     PrimitiveState();
 
     // putting this in just in case it's needed
-    void resetToInitialState() { *this = PrimitiveState(); }
+    void resetToInitialState() {
+      *this = PrimitiveState();
+    }
 
     // Convert a conserved state to a (this) primitive state.
     // Overwrites the contents of this primitive state.
@@ -60,7 +62,9 @@ namespace IdealGas {
     ConservedState();
 
     // putting this in in case it's needed
-    void resetToInitialState() { *this = ConservedState(); }
+    void resetToInitialState() {
+      *this = ConservedState();
+    }
 
     void PrimitiveToConserved(const PrimitiveState& primState);
     void GetCFluxFromPstate(const PrimitiveState& pstate, int dimension);

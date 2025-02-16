@@ -30,7 +30,6 @@ namespace parameters {
     // --------------------------
 
   private:
-
     //! how verbose are we?
     logging::LogLevel _verbose;
 
@@ -134,7 +133,7 @@ namespace parameters {
     void cleanup();
 
     logging::LogLevel getVerbose() const;
-    void setVerbose(const logging::LogLevel logLevel);
+    void              setVerbose(const logging::LogLevel logLevel);
 
     int  getNstepsLog() const;
     void setNstepsLog(const int nstepsLog);
@@ -143,13 +142,13 @@ namespace parameters {
     void setNsteps(const int nsteps);
 
     float_t getTmax() const;
-    void setTmax(const float_t tmax);
+    void    setTmax(const float_t tmax);
 
     int  getNx() const;
     void setNx(const int nx);
 
     float_t getCcfl() const;
-    void  setCcfl(float_t ccfl);
+    void    setCcfl(float_t ccfl);
 
     int  getBoundary() const;
     void setBoundary(const int boundary);
@@ -158,13 +157,15 @@ namespace parameters {
     void setNxTot(const int nxTot);
 
     float_t getDx() const;
-    void  setDx(const float_t dx);
+    void    setDx(const float_t dx);
 
     // single copy of the global variables
     static Parameters Instance;
 
     // getter for the single global copy
-    static Parameters& getInstance() { return Instance; }
+    static Parameters& getInstance() {
+      return Instance;
+    }
   };
 
 
