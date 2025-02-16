@@ -1,4 +1,5 @@
 #include "Parameters.h"
+#include "Logging.h"
 
 
 // TODO: These definitions are temporary and need to go.
@@ -7,24 +8,19 @@
 
 namespace parameters {
 
-  // First initialisation of static params
+  // need to define it as well...
+  Parameters Parameters::Instance;
 
-  // Talking related parameters
-  // --------------------------
-  int Parameters::_nstepsLog = 0;
-
-  // simulation related parameters
-  // -----------------------------
-  int   Parameters::_nsteps = 0;
-  float Parameters::_tmax   = 0;
-
-  int   Parameters::_nx   = 100;
-  float Parameters::_ccfl = 0.9;
-  // float Parameters::_forceDt = 0;
-  int Parameters::_boundary = 0;
-
-  int   Parameters::_nxTot = 100 + BCTOT;
-  float Parameters::_dx    = BOXLEN / _nx;
+  Parameters::Parameters() :
+    _verbose(logging::LogLevel::Quiet),
+    _nstepsLog(0),
+    _nsteps(0),
+    _tmax(0.),
+    _nx(0),
+    _ccfl(0.),
+    _boundary(0),
+    _nxTot(0),
+    _dx(0.) { /* empty body */ }
 
 
   // output related parameters
@@ -57,44 +53,77 @@ namespace parameters {
   // _constant_acceleration_computed = 0;
   // _sources_are_read = 0;
 
-  /**
-   * Initialize parameters to default values
-   */
-  void Parameters::init() {
-    // TODO
+
+  logging::LogLevel Parameters::getVerbose() const {
+    return _verbose;
   }
 
-  int Parameters::getNstepsLog() { return _nstepsLog; }
+  void Parameters::setVerbose(const logging::LogLevel logLevel){
+    _verbose = logLevel;
+  }
 
-  void Parameters::setNstepsLog(const int nstepsLog) { _nstepsLog = nstepsLog; }
 
-  int Parameters::getNsteps() { return _nsteps; }
+  int Parameters::getNstepsLog() const {
+    return _nstepsLog;
+  }
 
-  void Parameters::setNsteps(const int nsteps) { _nsteps = nsteps; }
+  void Parameters::setNstepsLog(const int nstepsLog) {
+    _nstepsLog = nstepsLog;
+  }
 
-  float Parameters::getTmax() { return _tmax; }
+  int Parameters::getNsteps() const {
+    return _nsteps;
+  }
 
-  void Parameters::setTmax(const float tmax) { _tmax = tmax; }
+  void Parameters::setNsteps(const int nsteps) {
+    _nsteps = nsteps;
+  }
 
-  int Parameters::getNx() { return _nx; }
+  float_t Parameters::getTmax() const {
+    return _tmax;
+  }
 
-  void Parameters::setNx(const int nx) { _nx = nx; }
+  void Parameters::setTmax(const float tmax) {
+    _tmax = tmax;
+  }
 
-  float Parameters::getCcfl() { return _ccfl; }
+  int Parameters::getNx() const {
+    return _nx;
+  }
 
-  void Parameters::setCcfl(const float ccfl) { _ccfl = ccfl; }
+  void Parameters::setNx(const int nx) {
+    _nx = nx;
+  }
 
-  int Parameters::getBoundary() { return _boundary; }
+  float_t Parameters::getCcfl() const {
+    return _ccfl;
+  }
 
-  void Parameters::setBoundary(const int boundary) { _boundary = boundary; }
+  void Parameters::setCcfl(const float ccfl) {
+    _ccfl = ccfl;
+  }
 
-  int Parameters::getNxTot() { return _nxTot; }
+  int Parameters::getBoundary() const {
+    return _boundary;
+  }
+
+  void Parameters::setBoundary(const int boundary) {
+    _boundary = boundary;
+  }
+
+  int Parameters::getNxTot() const {
+    return _nxTot;
+  }
 
   void Parameters::setNxTot(const int nxTot) { _nxTot = nxTot; }
 
-  float Parameters::getDx() { return _dx; }
+  float_t Parameters::getDx() const {
+    return _dx;
+  }
 
-  void Parameters::setDx(const float dx) { _dx = dx; }
+  void Parameters::setDx(const float_t dx) {
+    _dx = dx;
+  }
 
 
 } // namespace parameters

@@ -5,7 +5,6 @@
 #include <string>
 
 #include "Config.h"
-#include "Version.h"
 
 namespace logging {
 

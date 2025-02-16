@@ -1,47 +1,67 @@
 #pragma once
 
+#include "Config.h"
+#include "Logging.h"
+
+/*
+
+Turning this class into singleton pattern. In any file where you
+include Parameters.h, you can call
+hydro_playground::parameters::Parameters::Instance._nstepsLog (for example)
+and it will be this single global copy.
+
+Since the member variables are nonstatic now i've un-deleted the default
+constructor. This will be called by default on the static member anyhow
+
+We could remove the namespaceing
+here as it is a bit of a mouthful to type...
+
+It's up to us whether we make the instance itself private and use the
+getter or just make it public. It doesn't make a difference, since we
+need to return a reference anyway...
+
+*/
 
 namespace parameters {
 
   class Parameters {
 
-  private:
     // Talking related parameters
     // --------------------------
 
+  private:
+
     //! how verbose are we?
-    // int _verbose;
+    logging::LogLevel _verbose;
 
     //! interval between steps to write current state to screen
-    static int _nstepsLog;
+    int _nstepsLog;
 
 
     // simulation related parameters
     // -----------------------------
 
     //! How many steps to do
-    static int _nsteps;
+    int _nsteps;
 
     //! at what time to end simulation
-    static float _tmax;
+    float_t _tmax;
 
     //! number of cells to use (in each dimension)
-    static int _nx;
+    int _nx;
 
     //! CFL coefficient
-    static float _ccfl;
-
-    //! time step sized used when enforcing a fixed time step size
-    // float _force_dt;
+    float_t _ccfl;
 
     //! boundary condition
-    static int _boundary;
+    // TODO(mivkov): Make enum
+    int _boundary;
 
     //! number of mesh points, including boundary cells
-    static int _nxTot;
+    int _nxTot;
 
     //! cell size
-    static float _dx;
+    float_t _dx;
 
 
     // Output related parameters
@@ -51,7 +71,7 @@ namespace parameters {
     // int _foutput;
 
     //! time interval between outputs
-    // float _dt_out;
+    // double _dt_out;
 
     //! Output file name basename
     // char _outputfilename[MAX_FNAME_SIZE];
@@ -60,7 +80,7 @@ namespace parameters {
     // char _toutfilename[MAX_FNAME_SIZE];
 
     //! whether we're using the t_out_file
-    // int _use_toutfile;
+    // bool _use_toutfile;
 
     //! how many outputs we will be writing. Only used if(use_toutfile)
     // int _noutput_tot;
@@ -69,7 +89,7 @@ namespace parameters {
     // int _noutput;
 
     //! array of output times given in the output file
-    // float *_outputtimes;
+    // float_t _*outputtimes;
 
 
     // IC related parameters
@@ -89,54 +109,62 @@ namespace parameters {
     // --------------------------
 
     //! constant acceleration in x direction for constant source terms
-    // float _src_const_acc_x;
+    // float_t _src_const_acc_x;
 
     //! constant acceleration in y direction for constant source terms
-    // float _src_const_acc_y;
+    // float_t _src_const_acc_y;
 
     //! constant acceleration in radial direction for radial source terms
-    // float _src_const_acc_r;
+    // float_t _src_const_acc_r;
 
     //! whether the sources will be constant
-    // int _constant_acceleration;
+    // bool _constant_acceleration;
 
     //! whether the constant acceleration has been computed
-    // int _constant_acceleration_computed;
+    // bool _constant_acceleration_computed;
 
     //! whether sources have been read in
-    // int _sources_are_read;
+    // bool _sources_are_read;
 
 
   public:
-    Parameters() = delete;
+    Parameters();
 
-    static void init();
+    // ToDo: Move in destructor
+    void cleanup();
 
-    static void cleanup();
+    logging::LogLevel getVerbose() const;
+    void setVerbose(const logging::LogLevel logLevel);
 
-    static int  getNstepsLog();
-    static void setNstepsLog(const int nsteps_log);
+    int  getNstepsLog() const;
+    void setNstepsLog(const int nstepsLog);
 
-    static int  getNsteps();
-    static void setNsteps(const int nsteps);
+    int  getNsteps() const;
+    void setNsteps(const int nsteps);
 
-    static float getTmax();
-    static void  setTmax(const float tmax);
+    float_t getTmax() const;
+    void setTmax(const float_t tmax);
 
-    static int  getNx();
-    static void setNx(const int nx);
+    int  getNx() const;
+    void setNx(const int nx);
 
-    static float getCcfl();
-    static void  setCcfl(float ccfl);
+    float_t getCcfl() const;
+    void  setCcfl(float_t ccfl);
 
-    static int  getBoundary();
-    static void setBoundary(const int boundary);
+    int  getBoundary() const;
+    void setBoundary(const int boundary);
 
-    static int  getNxTot();
-    static void setNxTot(const int nxTot);
+    int  getNxTot() const;
+    void setNxTot(const int nxTot);
 
-    static float getDx();
-    static void  setDx(const float dx);
+    float_t getDx() const;
+    void  setDx(const float_t dx);
+
+    // single copy of the global variables
+    static Parameters Instance;
+
+    // getter for the single global copy
+    static Parameters& getInstance() { return Instance; }
   };
 
 
