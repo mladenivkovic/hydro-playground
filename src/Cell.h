@@ -58,7 +58,7 @@ namespace cell {
     //! Should be called from within the ghost
     void CopyBoundaryData(const Cell* real);
     //! Should be called from within the ghost
-    void CopyBoundaryDataReflective(const Cell* real, int dimension);
+    void CopyBoundaryDataReflective(const Cell* real, const int dimension);
 
     //! Calls conserved to primitive on the members
     void ConservedToPrimitive() {
@@ -90,12 +90,11 @@ namespace cell {
     // leaving these for now
     std::string getIndexString();
 
-  public:
     // getters and setters
     void setX(float_t x);
     void setY(float_t y);
 
-    void                      setId(int id);
+    void                      setId(const int id);
     int                       getID() const;
     std::pair<size_t, size_t> getIJ();
 

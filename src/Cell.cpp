@@ -6,7 +6,8 @@
 // the user has to call InitCells()
 cell::Grid cell::Grid::Instance;
 
-cell::Grid::Grid() { /* Empty body */
+cell::Grid::Grid() {
+  /* Empty body */
 }
 
 void cell::Grid::InitGrid() {
@@ -18,14 +19,14 @@ void cell::Grid::InitGrid() {
    *
    */
   size_t  nxTot = parameters::Parameters::Instance.getNxTot();
-  size_t  Bc    = parameters::Parameters::Instance.getNBC();
-  float_t Dx    = parameters::Parameters::Instance.getDx();
+  size_t  bc    = parameters::Parameters::Instance.getNBC();
+  float_t dx    = parameters::Parameters::Instance.getDx();
   if (Dimensions == 1) {
     // make some room in the vector...
     _cells.resize(nxTot);
 
-    for (int i = 0; i < nxTot; i++) {
-      getCell(i).setX((i - Bc + 0.5) * Dx);
+    for (size_t i = 0; i < nxTot; i++) {
+      getCell(i).setX((i - bc + 0.5) * dx);
       getCell(i).setId(i);
     }
 
@@ -35,8 +36,8 @@ void cell::Grid::InitGrid() {
 
     for (size_t i = 0; i < nxTot; i++) {
       for (size_t j = 0; j < nxTot; j++) {
-        getCell(i, j).setX((i - Bc + 0.5) * Dx);
-        getCell(i, j).setY((j - Bc + 0.5) * Dx);
+        getCell(i, j).setX((i - bc + 0.5) * dx);
+        getCell(i, j).setY((j - bc + 0.5) * dx);
 
         // this used to be i + j * pars.nxtot, but i have altered the
         // convention this time around
@@ -83,10 +84,11 @@ float_t cell::Grid::GetTotalMass() {
   }
 
   else if (Dimensions == 2) {
-    for (size_t i = bc; i < bc + nx; i++)
+    for (size_t i = bc; i < bc + nx; i++) {
       for (size_t j = bc; j < bc + nx; j++) {
         total += getCell(i, j).getPrim().getRho();
       }
+    }
 
     total *= parameters::Parameters::Instance.getDx() * parameters::Parameters::Instance.getDx();
   }
@@ -153,7 +155,7 @@ void cell::Grid::setBoundary() {
 
   // doesn't look like we will need this code often. so avoid hacky stuff
   if (Dimensions == 1) {
-    for (int i = 0; i < bc; i++) {
+    for (size_t i = 0; i < bc; i++) {
       realLeft[i]   = &(getCell(bc + i));
       realRight[i]  = &(getCell(nx + i)); /* = last index of a real cell = BC + (i + 1) */
       ghostLeft[i]  = &(getCell(i));
@@ -196,11 +198,11 @@ void cell::Grid::realToGhost(
 ) // dimension defaults to 0
 {
   // prevents crowding down there
-  int bc = parameters::Parameters::Instance.getNBC();
+  size_t bc = parameters::Parameters::Instance.getNBC();
 
   switch (parameters::Parameters::Instance.getBoundaryType()) {
   case parameters::Parameters::BoundaryCondition::Periodic: {
-    for (int i = 0; i < bc; i++) {
+    for (size_t i = 0; i < bc; i++) {
       ghostLeft[i]->CopyBoundaryData(realLeft[i]);
       ghostRight[i]->CopyBoundaryData(realRight[i]);
     }
@@ -208,14 +210,14 @@ void cell::Grid::realToGhost(
   } break;
 
   case parameters::Parameters::BoundaryCondition::Reflective: {
-    for (int i = 0; i < bc; i++) {
+    for (size_t i = 0; i < bc; i++) {
       ghostLeft[i]->CopyBoundaryDataReflective(realLeft[i], dimension);
       ghostRight[i]->CopyBoundaryDataReflective(realRight[i], dimension);
     }
   } break;
 
   case parameters::Parameters::BoundaryCondition::Transmissive: {
-    for (int i = 0; i < bc; i++) {
+    for (size_t i = 0; i < bc; i++) {
       ghostLeft[i]->CopyBoundaryData(realLeft[i]);
 
       // assumption that this vector has length "bc".
@@ -257,7 +259,7 @@ void cell::Cell::CopyBoundaryData(const cell::Cell* real) {
   // check this is taking a deep copy for real!
 }
 
-void cell::Cell::CopyBoundaryDataReflective(const cell::Cell* real, int dimension) {
+void cell::Cell::CopyBoundaryDataReflective(const cell::Cell* real, const int dimension) {
   /*
    * Copies the data we need. Dimension indiciates which dimension
    * We flip the velocities
@@ -291,9 +293,7 @@ std::pair<size_t, size_t> cell::Cell::getIJ() {
   return output;
 }
 
-/*
-Getters and setters for cell!
-*/
+// Getters and setters for cell!
 void cell::Cell::setX(float_t x) {
   _x = x;
 }
@@ -302,7 +302,7 @@ void cell::Cell::setY(float_t y) {
   _y = y;
 }
 
-void cell::Cell::setId(int id) {
+void cell::Cell::setId(const int id) {
   _id = id;
 }
 
