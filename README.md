@@ -58,7 +58,7 @@ $ git clone git@github.com:mladenivkovic/hydro-playground.git
 
 ### Getting And Installing The Python Module
 
-The entire python module is stored within this repository as a git submodule of its 
+The entire python module is stored within this repository as a git submodule of its
 [own repository](https://github.com/mladenivkovic/mesh_hydro_utils).
 
 Once you've cloned the mesh-hydro repository, you'll also need to tell git to grab the submodules
@@ -75,7 +75,8 @@ need to install this python module.
 The easiest way is to navigate into the directory and install it locally using e.g. `pip`:
 
 ```
-$ cd python_module $ pip install -e .
+$ cd python_module
+$ pip install -e .
 ```
 
 Alternatively (***albeit very discouraged***), you can add the directory
@@ -89,7 +90,7 @@ Alternatively (***albeit very discouraged***), you can add the directory
 Check the documentation in `tex/documentation`. You can build it using the provided `Makefile`:
 
 ```
-$ cd hydro_playground/tex/documentation 
+$ cd hydro_playground/tex/documentation
 $ make
 ```
 
@@ -98,7 +99,7 @@ That should leave you with the resulting `documentation.pdf` file.
 Alternately, you can run the latex compile command by hand:
 
 ```
-$ cd hydro_playground/tex/documentation 
+$ cd hydro_playground/tex/documentation
 $ pdflatex -jobname=documentation documentation.tex
 ```
 

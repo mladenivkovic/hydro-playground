@@ -8,9 +8,11 @@
 \subsection{Adding New Files}
 %===============================================================================
 
-I've chosen to go with a simple principle of creating a library for any pair of
-\verb|.cpp| and \verb|.h| files. To add them to the \verb|cmake| build system,
-modify the file \verb|src/CMakeLists.txt|.
+Behind the scenes, for every \verb|.cpp| file, we create an object file
+(\verb|.cpp.o|) with \cmake. We do this by telling \cmake to create an ``object
+library'' for any  pair of \verb|.cpp| and \verb|.h| files. We add them
+manually to the \cmake build system by specifying that in the modify the
+\verb|src/CMakeLists.txt| file.
 
 
 For example, let's first look at the ``\verb|Logging|'' library. We have a file
@@ -18,21 +20,44 @@ For example, let's first look at the ``\verb|Logging|'' library. We have a file
 the library as follows:
 
 \begin{lstlisting}
-add_library(Logging Logging.cpp Logging.h)
+add_library(Logging OBJECT Logging.cpp Logging.h)
 \end{lstlisting}
 
-The library's name in \verb|cmake|'s internal registry is then called
+The library's name in \cmake's internal registry is then called
 \verb|Logging|.
 
-Our main executable, which has the name \verb|hydro| in \verb|cmake|'s
-internals, will need to have the \verb|Logging| library linked against it. So
-we need to tell \verb|cmake| about that:
+Our main executable, which has the name \verb|hydro| in \cmake's internals
+(specified as \verb|add_executable(hydro src/main.cpp)| in
+\verb|hydro_playground/CMakeLists.txt|), will need to have the \verb|Logging|
+library linked against it. So we need to tell \cmake about that:
 
 \begin{lstlisting}
 target_link_libraries(hydro Logging)
 \end{lstlisting}
 
-And that should do the trick!
+And that should do the trick.
+
+One more thing to note here is that the order of the link ``library''
+inclusions (they're just object files, to be honest) is \emph{that the order
+matters}. If object file/library \jargon{A} has a dependency \jargon{B} (for
+example, \verb|Utils.cpp| requires \verb|Version.cpp| to be compiled \emph{and}
+linked), you need to make sure to add the linking dependency \jargon{B}
+\emph{after} \jargon{A}. For example:
+
+
+\begin{lstlisting}
+target_link_libraries(hydro A)
+target_link_libraries(hydro B) # needed by A
+\end{lstlisting}
+
+The other way around will result in linking errors along the lines of:
+
+\begin{lstlisting}
+/usr/bin/ld: src/CMakeFiles/Utils.dir/Utils.cpp.o: in function `utils::print_header()': hydro-playground/src/Utils.cpp:41:(.text+0x134): undefined reference to `version::Version::MAJOR'
+/usr/bin/ld: hydro-playground/src/Utils.cpp:42:(.text+0x140): undefined reference to `version::Version::MINOR'
+/usr/bin/ld: hydro-playground/src/Utils.cpp:52:(.text+0x22a): undefined reference to `version::Version::GIT_BRANCH[abi:cxx11]'
+/usr/bin/ld: hydro-playground/src/Utils.cpp:56:(.text+0x290): undefined reference to `version::Version::GIT_SHA1[abi:cxx11]'
+\end{lstlisting}
 
 
 
@@ -41,11 +66,11 @@ And that should do the trick!
 \subsubsection{Libraries with other dependencies}
 % -----------------------------------------------------------------
 
-Note however that other libraries may require other libraries too. For example,
-the \verb|Utils| library, defined in \verb|src/CMakeLists.txt| as
+Some of the object files/libraries may require other libraries themselves. For
+example, the \verb|Utils| library, defined in \verb|src/CMakeLists.txt| as
 
 \begin{lstlisting}
-add_library(Utils Utils.cpp Utils.h)
+add_library(Utils OBJECT Utils.cpp Utils.h)
 \end{lstlisting}
 
 also needs the \verb|Version| and the \verb|Logging| library linked against it.
@@ -67,8 +92,8 @@ target_link_libraries(Utils Logging)
 
 Currently, there are two exceptions to this procedure. Those are the files
 \verb|Version.cpp| and \verb|Config.h|. They are special because they will be
-generated with \verb|cmake| from their respective templates,
-\verb|src/Config.h.in| and \verb|src/Version.cpp.in|.
+generated with \cmake from their respective templates, \verb|src/Config.h.in|
+and \verb|src/Version.cpp.in|.
 
 The generated files will be \verb|your_build_dir/Version.cpp| and
 \verb|your_build_dir/Config.h|.  So to get the \verb|Version| library to
@@ -89,7 +114,9 @@ conveniently the same directory as the \verb|Version.h| header file.
 
 
 
-Similarly, if you want a library to include the \verb|Config.h| header, you need to tell it where it is as follows. Take for example the library \verb|Utils| again:
+Similarly, if you want a library to include the \verb|Config.h| header, you
+need to tell it where it is as follows. Take for example the library
+\verb|Utils| again:
 
 \begin{lstlisting}
 add_library(Utils Utils.cpp Utils.h)
