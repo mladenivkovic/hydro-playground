@@ -84,9 +84,7 @@ add_definitions("-DSOURCE_PATH_SIZE=${SOURCE_PATH_SIZE}")
 add_executable(hydro src/main.cpp)
 add_subdirectory(src)
 
-target_include_directories(hydro PUBLIC
-                            "${PROJECT_BINARY_DIR}"
-                            )
+target_include_directories(hydro PUBLIC "${PROJECT_BINARY_DIR}")
 
 configure_file(src/Config.h.in Config.h)
 
