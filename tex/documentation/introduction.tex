@@ -6,16 +6,20 @@
 %======================================================
 
 
-\hydro is a simple toy code solving finite volume hydrodynamics in 1D and 2D.
-The main goal is to have simple working code as a playground for developments
-in terms of acceleration, optimisation, and parallelisation.
+\hydro is a simple toy code solving finite volume hydrodynamics in 2D. The main
+goal is to have simple working code as a playground for developments in terms of
+acceleration, optimisation, and parallelisation.
 
 It is based on the \codename{Mesh-Hydro}
-code\footnote{https://github.com/mladenivkovic/mesh-hydro}, which is a
+code\footnote{\url{https://github.com/mladenivkovic/mesh-hydro}}, which is a
 playground to learn about and experiment with numerical methods to solve
-hyperbolic conservation laws, in particular the advection equation and the
-Euler equations of ideal gases.
+hyperbolic conservation laws, in particular the advection equation and the Euler
+equations of ideal gases.
 
-
+\hydro is written in C++ and makes use of \codename{cmake} for the build system.
+A simple python module, \mhutils\footnote{
+\url{https://github.com/mladenivkovic/mesh\_hydro\_utils}}, provides convenience
+functions to plot outputs and generate initial conditions. It depends on
+\codename{matplotlib} and \codename{numpy}.
 
 

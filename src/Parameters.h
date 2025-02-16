@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Config.h"
+#include "Logging.h"
+
 /*
 
 Turning this class into singleton pattern. In any file where you
@@ -16,13 +19,9 @@ here as it is a bit of a mouthful to type...
 It's up to us whether we make the instance itself private and use the
 getter or just make it public. It doesn't make a difference, since we
 need to return a reference anyway...
-
 */
 
-namespace hydro_playground {
-  namespace parameters {
-
-    class Parameters {
+namespace parameters {
 
     public:
       enum class BoundaryCondition { Periodic, Reflective, Transmissive };
@@ -31,150 +30,146 @@ namespace hydro_playground {
       // Talking related parameters
       // --------------------------
 
-      //! how verbose are we?
-      // int _verbose;
+    //! how verbose are we?
+    logging::LogLevel _verbose;
 
-      //! interval between steps to write current state to screen
-      int _nstepsLog;
-
-
-      // simulation related parameters
-      // -----------------------------
-
-      //! How many steps to do
-      int _nsteps;
-
-      //! at what time to end simulation
-      float _tmax;
-
-      //! number of cells to use (in each dimension)
-      int _nx;
-
-      //! CFL coefficient
-      float _ccfl;
-
-      //! time step sized used when enforcing a fixed time step size
-      // float _force_dt;
-
-      //! boundary condition
-      BoundaryCondition _boundary;
-
-      //! cell size
-      float _dx;
-
-      //! Number of Ghost cells at each edge
-      int _bc;
-
-      //! number of mesh points, including boundary cells
-      int _nxTot;
-
-      // Output related parameters
-      // -------------------------
-
-      //! after how many steps to write output
-      // int _foutput;
-
-      //! time interval between outputs
-      // float _dt_out;
-
-      //! Output file name basename
-      // char _outputfilename[MAX_FNAME_SIZE];
-
-      //! file name containing output times
-      // char _toutfilename[MAX_FNAME_SIZE];
-
-      //! whether we're using the t_out_file
-      // int _use_toutfile;
-
-      //! how many outputs we will be writing. Only used if(use_toutfile)
-      // int _noutput_tot;
-
-      //! at which output we are. Only used if(use_toutfile)
-      // int _noutput;
-
-      //! array of output times given in the output file
-      // float *_outputtimes;
+    //! interval between steps to write current state to screen
+    int _nstepsLog;
 
 
-      // IC related parameters
-      // ---------------------
-
-      //! dimension of IC file
-      // int _ndim_ic;
-
-      //! IC data filename
-      // char _datafilename[MAX_FNAME_SIZE];
-
-      //! parameter filename
-      // char _paramfilename[MAX_FNAME_SIZE];
+    // simulation related parameters
+    // -----------------------------
 
 
-      // Sources related parameters
-      // --------------------------
+    //! How many steps to do
+    int _nsteps;
 
-      //! constant acceleration in x direction for constant source terms
-      // float _src_const_acc_x;
+    //! at what time to end simulation
+    float_t _tmax;
 
-      //! constant acceleration in y direction for constant source terms
-      // float _src_const_acc_y;
+    //! number of cells to use (in each dimension)
+    int _nx;
 
-      //! constant acceleration in radial direction for radial source terms
-      // float _src_const_acc_r;
+    //! CFL coefficient
+    float_t _ccfl;
 
-      //! whether the sources will be constant
-      // int _constant_acceleration;
+    //! boundary condition
+    // TODO(mivkov): Make enum
+    BoundaryCondition _boundary;
 
-      //! whether the constant acceleration has been computed
-      // int _constant_acceleration_computed;
+    //! number of mesh points, including boundary cells
+    int _nxTot;
 
-      //! whether sources have been read in
-      // int _sources_are_read;
+    //! cell size
+    float_t _dx;
 
+    //! Number of Ghost cells at each edge
+    int _bc;
 
-    public:
-      Parameters();
+    //! number of mesh points, including boundary cells
+    int _nxTot;
 
-      void init();
+    // Output related parameters
+    // -------------------------
 
-      void cleanup();
+    //! after how many steps to write output
+    // int _foutput;
 
-      int  getNstepsLog() const;
-      void setNstepsLog(const int nsteps_log);
+    //! time interval between outputs
+    // double _dt_out;
 
-      int  getNsteps() const;
-      void setNsteps(const int nsteps);
+    //! Output file name basename
+    // char _outputfilename[MAX_FNAME_SIZE];
 
-      float getTmax() const;
-      void  setTmax(const float tmax);
+    //! file name containing output times
+    // char _toutfilename[MAX_FNAME_SIZE];
 
-      int  getNx() const;
-      void setNx(const int nx);
+    //! whether we're using the t_out_file
+    // bool _use_toutfile;
 
-      float getCcfl() const;
-      void  setCcfl(float ccfl);
+    //! how many outputs we will be writing. Only used if(use_toutfile)
+    // int _noutput_tot;
 
-      BoundaryCondition getBoundary() const;
-      void              setBoundary(BoundaryCondition boundary);
+    //! at which output we are. Only used if(use_toutfile)
+    // int _noutput;
 
-      int  getNxTot() const;
-      void setNxTot(const int nxTot);
-
-      float getDx() const;
-      void  setDx(const float dx);
-
-      int  getBc() const;
-      void setBc(const int bc);
-
-      int getBcTot() const;
-
-    public:
-      // single copy of the global variables
-      static Parameters Instance;
-
-      // getter for the single global copy
-      static Parameters& getInstance() { return Instance; }
-    };
+    //! array of output times given in the output file
+    // float_t _*outputtimes;
 
 
-  } // namespace parameters
-} // namespace hydro_playground
+    // IC related parameters
+    // ---------------------
+
+    //! dimension of IC file
+    // int _ndim_ic;
+
+    //! IC data filename
+    // char _datafilename[MAX_FNAME_SIZE];
+
+    //! parameter filename
+    // char _paramfilename[MAX_FNAME_SIZE];
+
+
+    // Sources related parameters
+    // --------------------------
+
+    //! constant acceleration in x direction for constant source terms
+    // float_t _src_const_acc_x;
+
+    //! constant acceleration in y direction for constant source terms
+    // float_t _src_const_acc_y;
+
+    //! constant acceleration in radial direction for radial source terms
+    // float_t _src_const_acc_r;
+
+    //! whether the sources will be constant
+    // bool _constant_acceleration;
+
+    //! whether the constant acceleration has been computed
+    // bool _constant_acceleration_computed;
+
+    //! whether sources have been read in
+    // bool _sources_are_read;
+
+
+  public:
+    Parameters();
+
+    // ToDo: Move in destructor
+    void cleanup();
+
+    logging::LogLevel getVerbose() const;
+    void              setVerbose(const logging::LogLevel logLevel);
+
+    int  getNstepsLog() const;
+    void setNstepsLog(const int nstepsLog);
+
+    int  getNsteps() const;
+    void setNsteps(const int nsteps);
+
+    float_t getTmax() const;
+    void    setTmax(const float_t tmax);
+
+    int  getNx() const;
+    void setNx(const int nx);
+
+    float_t getCcfl() const;
+    void    setCcfl(float_t ccfl);
+
+    BoundaryCondition getBoundary() const;
+    void              setBoundary(BoundaryCondition boundary);
+
+    int  getNxTot() const;
+    void setNxTot(const int nxTot);
+
+    float_t getDx() const;
+    void    setDx(const float_t dx);
+
+    // single copy of the global variables
+    static Parameters Instance;
+
+    // getter for the single global copy
+    static Parameters& getInstance() {
+      return Instance;
+  };
+} // namespace parameters

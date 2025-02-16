@@ -1,22 +1,20 @@
 #pragma once
 
 #include <array>
-#include <math.h>
 
 #include "Config.h"
-#include "Constants.h"
 
 
 namespace IdealGas {
-  // hacky forward declaration, ConservedToPrimitive doesn't work without it
+  // forward declaration, ConservedToPrimitive doesn't work without it
   class ConservedState;
   class PrimitiveState;
 
   class PrimitiveState {
   private:
-    Precision                rho; /* density */
-    std::array<Precision, 2> u;   /* velocity vector. u[0] = ux, u[1] = uy */
-    Precision                p;   /* pressure */
+    float_t                rho; /* density */
+    std::array<float_t, 2> u;   /* velocity vector. u[0] = ux, u[1] = uy */
+    float_t                p;   /* pressure */
 
 
   public:
@@ -26,61 +24,66 @@ namespace IdealGas {
     /* copy assignment */
     PrimitiveState& operator=(const PrimitiveState& other) = default;
 
-    /* putting this in just in case it's needed */
-    void resetToInitialState() { *this = PrimitiveState(); }
+    // putting this in just in case it's needed
+    void resetToInitialState() {
+      *this = PrimitiveState();
+    }
 
+    // Convert a conserved state to a (this) primitive state.
+    // Overwrites the contents of this primitive state.
+    // TODO(mivkov): implementation
     void ConservedToPrimitive(const ConservedState& conservedState);
 
-    Precision getSoundSpeed();
-    Precision getEnergy();
+    float_t getSoundSpeed();
+    float_t getEnergy();
 
-    /*
-    Getters and setters!
-    */
-    /* Setter for Rho */
-    void      setRho(Precision val);
-    Precision getRho() const;
+    // Getters and setters!
+    //
 
-    /* same for u */
-    void      setU(int index, const Precision val);
-    Precision getU(const int index) const;
+    // Setter for Rho
+    void    setRho(float_t val);
+    float_t getRho() const;
 
-    /*used a lot, made a function for it*/
-    Precision getUSquared() const;
+    // same for u
+    void    setU(const int index, const float_t val);
+    float_t getU(const int index) const;
 
-    void      setP(const Precision val);
-    Precision getP() const;
+    // used a lot, made a function for it
+    float_t getUSquared() const;
+
+    void    setP(const float_t val);
+    float_t getP() const;
   };
 
   class ConservedState {
   private:
-    Precision                rho;
-    std::array<Precision, 2> rhou;
-    Precision                E;
+    float_t                rho;
+    std::array<float_t, 2> rhou;
+    float_t                E;
 
   public:
-    /* Standard constructor, init variables to 0 */
+    // Standard constructor, init variables to 0
     ConservedState();
 
-    /* putting this in in case it's needed */
-    void resetToInitialState() { *this = ConservedState(); }
+    // putting this in in case it's needed
+    void resetToInitialState() {
+      *this = ConservedState();
+    }
 
     void PrimitiveToConserved(const PrimitiveState& primState);
-    void GetCFluxFromPstate(const PrimitiveState& p, int dimension);
-    void GetCFluxFromCstate(const ConservedState& c, int dimension);
+    void GetCFluxFromPstate(const PrimitiveState& pstate, int dimension);
+    void GetCFluxFromCstate(const ConservedState& cstate, int dimension);
 
-    /*
-    Getters and setters!
-    */
-    void      setRho(Precision val);
-    Precision getRho() const;
+    // Getters and setters!
+    void    setRho(const float_t& val);
+    float_t getRho() const;
 
-    /* same for u */
-    void      setRhou(int index, const Precision val);
-    Precision getRhou(int index) const;
-    Precision getRhoUSquared() const;
+    // same for u
+    void    setRhou(const int index, const float_t val);
+    float_t getRhou(const int index) const;
+    float_t getRhoUSquared() const;
 
-    void      setE(const Precision val);
-    Precision getE() const;
+    void    setE(const float_t val);
+    float_t getE() const;
   };
 } // namespace IdealGas

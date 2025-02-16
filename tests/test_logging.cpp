@@ -5,21 +5,19 @@
 #include "Logging.h"
 
 
-void printFatLine(void) {
+void printFatLine() {
   std::cout << "====================================================";
   std::cout << "====================================================";
-  std::cout << "====================================================" << std::endl;
+  std::cout << "====================================================\n";
 }
-void printThinLine(void) {
+void printThinLine() {
   std::cout << "----------------------------------------------------";
   std::cout << "----------------------------------------------------";
-  std::cout << "----------------------------------------------------" << std::endl;
+  std::cout << "----------------------------------------------------\n";
 }
 
 
-int main(void) {
-
-  using namespace hydro_playground;
+int main() {
 
   // -----------------------------------------------------------------
   // First, let's test the different Log functions without the macros.
@@ -27,22 +25,24 @@ int main(void) {
   // with macros involved.
   // -----------------------------------------------------------------
 
-  const char*       char_msg = "Const Char message";
-  std::string       str_msg  = std::string("String message");
+  const char* char_msg = "Const Char message";
+  // added std::allocator<char> here, which is the default argument, to stop
+  // the linter from screaming at me.
+  const std::string str_msg = std::string("String message", std::allocator<char>());
   std::stringstream ss_msg;
   ss_msg << "String stream message";
 
   logging::Log::logMessage(
-    __FILENAME__, __FUNCTION__, __LINE__, char_msg, logging::LogLevel::Quiet, logging::LogStage::Init
+    FILENAME_, __FUNCTION__, __LINE__, char_msg, logging::LogLevel::Quiet, logging::LogStage::Init
   );
   logging::Log::logMessage(
-    __FILENAME__, __FUNCTION__, __LINE__, str_msg, logging::LogLevel::Quiet, logging::LogStage::Init
+    FILENAME_, __FUNCTION__, __LINE__, str_msg, logging::LogLevel::Quiet, logging::LogStage::Init
   );
   logging::Log::logMessage(
-    __FILENAME__, __FUNCTION__, __LINE__, ss_msg, logging::LogLevel::Quiet, logging::LogStage::Init
+    FILENAME_, __FUNCTION__, __LINE__, ss_msg, logging::LogLevel::Quiet, logging::LogStage::Init
   );
   logging::Log::logMessage(
-    __FILENAME__,
+    FILENAME_,
     __FUNCTION__,
     __LINE__,
     "Directly writing in here",
@@ -50,10 +50,10 @@ int main(void) {
     logging::LogStage::Init
   );
 
-  logging::Log::logWarning(__FILENAME__, __FUNCTION__, __LINE__, char_msg);
-  logging::Log::logWarning(__FILENAME__, __FUNCTION__, __LINE__, str_msg);
-  logging::Log::logWarning(__FILENAME__, __FUNCTION__, __LINE__, ss_msg);
-  logging::Log::logWarning(__FILENAME__, __FUNCTION__, __LINE__, "Directly writing in here");
+  logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, char_msg);
+  logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, str_msg);
+  logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, ss_msg);
+  logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, "Directly writing in here");
 
   // Now try the message() macros
   message(char_msg);

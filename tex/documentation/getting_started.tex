@@ -19,13 +19,83 @@ $ git clone https://github.com/mladenivkovic/hydro-playground.git
 \end{lstlisting}
 
 
-using the https protocol, or
+using the \jargon{https} protocol, or
 
 \begin{lstlisting}
 $ git clone git@github.com:mladenivkovic/hydro-playground.git
 \end{lstlisting}
 
-using ssh.
+using \jargon{ssh}.
+
+
+
+
+
+
+
+
+%======================================================
+\subsection{Getting and Installing the Python Module}
+%======================================================
+
+
+The entire \mhutils python module is stored within this repository as a git
+submodule of its own
+repository\footnote{\url{https://github.com/mladenivkovic/mesh_hydro_utils}}.
+
+Once you've cloned the mesh-hydro repository, you'll also need to tell git to
+grab the submodules using
+
+\begin{lstlisting}
+$ git submodule init
+$ git submodule update
+\end{lstlisting}
+
+When completed successfully, the directory \verb|./python_module| should now
+contain some files. We now need to install this python module.
+
+The easiest way is to navigate into the directory and install it locally using
+e.g. \code{pip}:
+
+\begin{lstlisting}
+$ cd python_module
+$ pip install -e .
+\end{lstlisting}
+
+On your local machine, that should work just fine. If you are trying to install
+this python package some place where your permissions are restricted, e.g. on a
+cluster or HPC facility, then \code{pip} may be prohibited from installing this
+way. In those cases, you can try
+
+\begin{lstlisting}
+$ pip install --user -e .
+\end{lstlisting}
+
+first. If that doesn't work, a reliable failsafe is to create a python virtual
+environment and install it there. (In fact, this should be the preferred
+method.) You can do this by:
+
+\begin{lstlisting}
+$ python3 -m venv $HOME/virtualenv/some_name
+$ source $HOME/virtualenv/some_name/bin/activate
+$ cd ./python_module
+$ pip install -e .
+\end{lstlisting}
+
+You may choose the path \verb|$HOME/virtualenv/some_name| freely to your liking.
+Note that every time you start a new session, you'll need to run the command
+
+\begin{lstlisting}
+$ source $HOME/virtualenv/some_name/bin/activate
+\end{lstlisting}
+
+to activate the virtual environment again to make \codename{mesh\_hydro\_utils}
+available. You can automate that away by putting the command above in your
+shell's runtime configuration file, which is usually \verb|$HOME/.bashrc| for
+\jargon{bash}, \verb|$HOME/.zshrc| for \jargon{zsh} etc.
+
+
+
 
 
 
@@ -57,7 +127,7 @@ $ pdflatex -jobname=documentation documentation.tex
 \end{lstlisting}
 
 Another way yet is to import the documentation directory into your LaTeX editor
-of choice. The main file you need to import, open and compile is
+of choice. The main file you need to import, open, and compile is
 \verb|documentation.tex|.
 
 
@@ -72,13 +142,13 @@ of choice. The main file you need to import, open and compile is
 \subsection{Compiling the Code}
 %======================================================
 
-For the default setup, the code only requires \verb|cmake| (version 3.21 and
+For the default setup, the code only requires \cmake (version 3.21 and
 above) to build the project, and a C++ compiler compatible with the C++11
 standard.
 
 To build the code, navigate into the repository directory and run the usual
-\verb|cmake| workflow (where we first create a directory \verb|build|, descend
-into it, and then run the \verb|cmake| commands):
+\cmake workflow (where we first create a directory \verb|build|, descend
+into it, and then run the \cmake commands):
 
 \begin{lstlisting}
 $ cd hydro_playground
@@ -88,8 +158,18 @@ $ cmake ..
 $ cmake --build .
 \end{lstlisting}
 
+An alternative, but equivalent workflow, is
+
+\begin{lstlisting}
+$ cd hydro_playground
+$ cmake -B build
+$ cmake --build build/
+\end{lstlisting}
+
+
 That should leave you with an executable file \verb|hydro| in the directory
 \verb|hydro_playground/build/|.
+
 
 
 

@@ -15,7 +15,7 @@ target_branch = "p4"
 
 # Formatting tools versions
 black_version = "23.3.0"
-clang_version = "16.0.5"
+clang_version = "19.1.7"
 
 # Global variables for easy access
 verbose = True  # Will be overwritten by arg parser

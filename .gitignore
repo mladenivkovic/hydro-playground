@@ -19,3 +19,5 @@ compile_commands.json
 *.pyc
 black_formatting_env/**
 .formatting_python_env/
+.kile
+*.kilepr
