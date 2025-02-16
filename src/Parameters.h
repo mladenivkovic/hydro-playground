@@ -30,33 +30,33 @@ namespace parameters {
     //! how verbose are we?
     // int _verbose;
 
-      //! interval between steps to write current state to screen
-      int _nstepsLog;
+    //! interval between steps to write current state to screen
+    int _nstepsLog;
 
 
     // simulation related parameters
     // -----------------------------
 
-      //! How many steps to do
-      int _nsteps;
+    //! How many steps to do
+    int _nsteps;
 
-      //! at what time to end simulation
-      float _tmax;
+    //! at what time to end simulation
+    float _tmax;
 
-      //! number of cells to use (in each dimension)
-      int _nx;
+    //! number of cells to use (in each dimension)
+    int _nx;
 
-      //! CFL coefficient
-      float _ccfl;
+    //! CFL coefficient
+    float _ccfl;
 
-      //! boundary condition
-      int _boundary;
+    //! boundary condition
+    int _boundary;
 
-      //! number of mesh points, including boundary cells
-      int _nxTot;
+    //! number of mesh points, including boundary cells
+    int _nxTot;
 
-      //! cell size
-      float _dx;
+    //! cell size
+    float _dx;
 
 
     // Output related parameters
@@ -122,45 +122,44 @@ namespace parameters {
     // int _sources_are_read;
 
 
-    public:
-      Parameters();
+  public:
+    Parameters();
 
-      void init();
+    void init();
 
-      void cleanup();
+    void cleanup();
 
-      int  getNstepsLog();
-      void setNstepsLog(const int nsteps_log);
+    int  getNstepsLog();
+    void setNstepsLog(const int nsteps_log);
 
-      int  getNsteps();
-      void setNsteps(const int nsteps);
+    int  getNsteps();
+    void setNsteps(const int nsteps);
 
-      float getTmax();
-      void  setTmax(const float tmax);
+    float getTmax();
+    void  setTmax(const float tmax);
 
-      int  getNx();
-      void setNx(const int nx);
+    int  getNx();
+    void setNx(const int nx);
 
-      float getCcfl();
-      void  setCcfl(float ccfl);
+    float getCcfl();
+    void  setCcfl(float ccfl);
 
-      int  getBoundary();
-      void setBoundary(const int boundary);
+    int  getBoundary();
+    void setBoundary(const int boundary);
 
-      int  getNxTot();
-      void setNxTot(const int nxTot);
+    int  getNxTot();
+    void setNxTot(const int nxTot);
 
-      float getDx();
-      void  setDx(const float dx);
+    float getDx();
+    void  setDx(const float dx);
 
-    public:
+  public:
+    // single copy of the global variables
+    static Parameters Instance;
 
-      // single copy of the global variables
-      static Parameters Instance;
-
-      // getter for the single global copy
-      static Parameters& getInstance() {return Instance;}
-    };
+    // getter for the single global copy
+    static Parameters& getInstance() { return Instance; }
+  };
 
 
 } // namespace parameters
