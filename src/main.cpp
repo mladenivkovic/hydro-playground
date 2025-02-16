@@ -16,7 +16,7 @@ int main(void) {
   utils::print_header();
 
   // Initialise global paramters.
-  auto params = parameters::Parameters::Instance;
+  auto               params = parameters::Parameters::Instance;
   std::ostringstream msg;
   msg << "Got params dx=" << params.getDx();
   message(msg.str());

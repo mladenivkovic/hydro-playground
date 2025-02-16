@@ -116,7 +116,9 @@ namespace logging {
     setVerbosity(vlevel);
   }
 
-  void Log::setVerbosity(LogLevel verbosity) { Log::_verbosity = verbosity; }
+  void Log::setVerbosity(LogLevel verbosity) {
+    Log::_verbosity = verbosity;
+  }
 
   const char* Log::getStageName(LogStage stage) {
 
