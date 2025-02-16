@@ -10,16 +10,28 @@ namespace IdealGas {
   class ConservedState;
   class PrimitiveState;
 
+  /**
+   * @brief Holds a primitive state (density, velocity, pressure)
+   */
   class PrimitiveState {
   private:
-    float_t                rho; /* density */
-    std::array<float_t, 2> u;   /* velocity vector. u[0] = ux, u[1] = uy */
-    float_t                p;   /* pressure */
+    //! density
+    float_t rho;
+
+    //! velocity
+    std::array<float_t, 2> u;
+
+    //! pressure
+    float_t p;
 
 
   public:
-    /* Standard constructor, init variables to 0 */
+    // Standard constructor, init variables to 0
     PrimitiveState();
+
+    // copy assignment
+    // TODO(mivkov): This doesn't compile
+    // PrimitiveState& operator=(const PrimitiveState& other) = default;
 
     // putting this in just in case it's needed
     void resetToInitialState() {
@@ -35,9 +47,10 @@ namespace IdealGas {
     float_t getEnergy();
 
     // Getters and setters!
+    //
 
     // Setter for Rho
-    void    setRho(float_t val);
+    void    setRho(const float_t val);
     float_t getRho() const;
 
     // same for u
@@ -51,11 +64,20 @@ namespace IdealGas {
     float_t getP() const;
   };
 
+
+  /**
+   * @brief Holds a conserved state (density, momentum, energy)
+   */
   class ConservedState {
   private:
-    float_t                rho;
+    //! Density
+    float_t rho;
+
+    //! Momentum: rho * u
     std::array<float_t, 2> rhou;
-    float_t                E;
+
+    //! Energy
+    float_t E;
 
   public:
     // Standard constructor, init variables to 0
@@ -71,12 +93,12 @@ namespace IdealGas {
     void GetCFluxFromCstate(const ConservedState& cstate, int dimension);
 
     // Getters and setters!
-    void    setRho(const float_t& val);
+    void    setRho(const float_t val);
     float_t getRho() const;
 
     // same for u
-    void    setRhou(const int index, const float_t val);
-    float_t getRhou(const int index) const;
+    void    setRhou(const std::size_t index, const float_t val);
+    float_t getRhou(const std::size_t index) const;
     float_t getRhoUSquared() const;
 
     void    setE(const float_t val);

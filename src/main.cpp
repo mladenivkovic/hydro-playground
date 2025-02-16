@@ -3,22 +3,30 @@
 #include <iostream> // todo: necessary?
 #include <sstream>
 
-#include "Config.h" // todo: necessary?
-// #include "Gas.h"    // probably not necessary. wanna catch compile errors
-// #include "Logging.h"
+#include "Cell.h"
+// #include "Config.h" // todo: necessary?
+#include "Logging.h"
 #include "Parameters.h"
 #include "Utils.h"
 
 
-int main(void) {
+int main() {
 
   // Useless things first :)
   utils::print_header();
 
-  // Initialise global paramters.
-  auto               params = parameters::Parameters::Instance;
+  // Initialise global parameters.
+  auto params = parameters::Parameters::Instance;
+  auto grid   = cell::Grid::Instance;
+
+
   std::ostringstream msg;
   msg << "Got params dx=" << params.getDx();
   message(msg.str());
+
+  // initialise the grid of cells
+  grid.InitGrid();
+  grid.setBoundary();
+
   return 0;
 }

@@ -19,13 +19,20 @@ add_library(Gas OBJECT Gas.cpp Gas.h)
 target_include_directories(Gas PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 target_link_libraries(Gas Logging)
 
+add_library(Cell OBJECT Cell.cpp Cell.h)
+target_include_directories(Cell PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_link_libraries(Cell Logging)
+
+
 # Linking to the main executable
 # ------------------------------
 # Order matters here! E.g. Utils needs Version and Logging. If you put them before Utils,
 # Utils won't find its link dependencies during the executable linking step.
 # The target_link_libraries of Utils above only applies to the compile step of the object library above.
+target_link_libraries(hydro Cell)
+target_link_libraries(hydro Gas)
 target_link_libraries(hydro Utils)
 target_link_libraries(hydro Parameters)
-target_link_libraries(hydro Version)
 target_link_libraries(hydro Logging)
+target_link_libraries(hydro Version)
 

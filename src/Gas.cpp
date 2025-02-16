@@ -8,11 +8,28 @@
 
 IdealGas::PrimitiveState::PrimitiveState():
   // initialiser list
-  rho{0.},
-  u{0., 0.},
-  p{0.} // empty body...
-{};
+  rho(0.),
+  u({0., 0.}),
+  p(0.) { /* empty body... */ };
 
+void IdealGas::PrimitiveState::ConservedToPrimitive(const ConservedState& c) {
+  if (c.getRho() <= SMALLRHO) {
+    // execption handling for vacuum
+    setRho(SMALLRHO);
+    setU(0, SMALLU);
+    setU(1, SMALLU);
+    setP(SMALLP);
+  } else {
+    setRho(c.getRho());
+    setU(0, c.getRhou(0) / c.getRho());
+    setU(1, c.getRhou(1) / c.getRho());
+    setP(GM1 * c.getE() - 0.5 * c.getRhoUSquared() / c.getRho());
+
+    // handle negative pressure
+    if (getP() <= SMALLP)
+      setP(SMALLP);
+  }
+}
 
 float_t IdealGas::PrimitiveState::getSoundSpeed() {
   return std::sqrt(GAMMA * getP() / getRho());
@@ -58,10 +75,9 @@ float_t IdealGas::PrimitiveState::getP() const {
 
 IdealGas::ConservedState::ConservedState():
   // initialiser list
-  rho{0},
-  rhou{0, 0},
-  E{0} // empty body...
-{};
+  rho(0.),
+  rhou({0., 0.}),
+  E(0.) { /* empty body... */ };
 
 
 void IdealGas::ConservedState::PrimitiveToConserved(const PrimitiveState& p) {
@@ -128,11 +144,11 @@ void IdealGas::ConservedState::GetCFluxFromCstate(const ConservedState& c, int d
 
 /* Getters and Setters */
 
-void IdealGas::ConservedState::setRhou(const int index, const float_t val) {
+void IdealGas::ConservedState::setRhou(const size_t index, const float_t val) {
   rhou[index] = val;
 }
 
-float_t IdealGas::ConservedState::getRhou(const int index) const {
+float_t IdealGas::ConservedState::getRhou(const size_t index) const {
   return rhou[index];
 }
 
@@ -146,4 +162,12 @@ void IdealGas::ConservedState::setE(const float_t val) {
 
 float_t IdealGas::ConservedState::getE() const {
   return E;
+}
+
+float_t IdealGas::ConservedState::getRho() const {
+  return rho;
+}
+
+void IdealGas::ConservedState::setRho(const float_t val) {
+  rho = val;
 }
