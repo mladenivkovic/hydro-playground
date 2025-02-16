@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Config.h"
+#include "Logging.h"
+
 /*
 
 Turning this class into singleton pattern. In any file where you
@@ -28,26 +31,26 @@ namespace parameters {
     // --------------------------
 
     //! how verbose are we?
-    // int _verbose;
+    logging::LogLevel verbose;
 
     //! interval between steps to write current state to screen
-    int _nstepsLog;
+    int nstepsLog;
 
 
     // simulation related parameters
     // -----------------------------
 
     //! How many steps to do
-    int _nsteps;
+    int nsteps;
 
     //! at what time to end simulation
-    float _tmax;
+    double tmax;
 
     //! number of cells to use (in each dimension)
-    int _nx;
+    int nx;
 
     //! CFL coefficient
-    float _ccfl;
+    float_t ccfl;
 
     //! boundary condition
     int _boundary;
