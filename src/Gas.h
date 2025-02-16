@@ -15,15 +15,14 @@ namespace IdealGas {
    */
   class PrimitiveState {
   private:
-
     //! density
-    float_t                rho;
+    float_t rho;
 
     //! velocity
     std::array<float_t, 2> u;
 
     //! pressure
-    float_t                p;
+    float_t p;
 
 
   public:
@@ -71,15 +70,14 @@ namespace IdealGas {
    */
   class ConservedState {
   private:
-
     //! Density
-    float_t                rho;
+    float_t rho;
 
     //! Momentum: rho * u
     std::array<float_t, 2> rhou;
 
     //! Energy
-    float_t                E;
+    float_t E;
 
   public:
     // Standard constructor, init variables to 0

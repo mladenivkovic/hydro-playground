@@ -26,7 +26,11 @@ namespace parameters {
   class Parameters {
 
   public:
-    enum class BoundaryCondition { Periodic, Reflective, Transmissive };
+    enum class BoundaryCondition {
+      Periodic,
+      Reflective,
+      Transmissive
+    };
 
   private:
     // Talking related parameters
@@ -129,11 +133,9 @@ namespace parameters {
     //! whether sources have been read in
     // bool _sources_are_read;
 
-#if DEBUG_LEVEL > 0
     // Lock params after initial setup and throw errors if somebody
     // tries to modify them.
     bool _locked;
-#endif
 
   public:
     Parameters();
@@ -142,15 +144,15 @@ namespace parameters {
      * @brief Sets up parameters.
      */
     void init(
-      logging::LogLevel verbose = logging::LogLevel::Quiet,
-      size_t nstepsLog = 1,
-      size_t nsteps = 1,
-      float_t tmax = 1.,
-      size_t nx = 100,
-      float_t Ccfl = 0.9,
+      logging::LogLevel verbose      = logging::LogLevel::Quiet,
+      size_t            nstepsLog    = 1,
+      size_t            nsteps       = 1,
+      float_t           tmax         = 1.,
+      size_t            nx           = 100,
+      float_t           Ccfl         = 0.9,
       BoundaryCondition boundaryType = BoundaryCondition::Periodic,
-      size_t nbc = 2
-        );
+      size_t            nbc          = 2
+    );
 
     // ToDo: Move to destructor
     void cleanup();
@@ -164,14 +166,14 @@ namespace parameters {
     /**
      * @brief Get number of steps between writing log to screen
      */
-    size_t  getNstepsLog() const;
-    void setNstepsLog(const size_t nstepsLog);
+    size_t getNstepsLog() const;
+    void   setNstepsLog(const size_t nstepsLog);
 
     /**
      * @brief Get max nr of simulation steps to run
      */
-    size_t  getNsteps() const;
-    void setNsteps(const size_t nsteps);
+    size_t getNsteps() const;
+    void   setNsteps(const size_t nsteps);
 
     /**
      * @brief get simulation end time
@@ -182,8 +184,8 @@ namespace parameters {
     /**
      * @brief Get the number of cells with actual content per dimension
      */
-    size_t  getNx() const;
-    void setNx(const size_t nx);
+    size_t getNx() const;
+    void   setNx(const size_t nx);
 
     /**
      * @brief Get the CFL constant
@@ -213,7 +215,7 @@ namespace parameters {
      * boundary cells.
      * @TODO: what to do with replication
      */
-    size_t  getNxTot() const;
+    size_t getNxTot() const;
 
     /**
      * @brief Get the cell size
@@ -230,6 +232,5 @@ namespace parameters {
     static Parameters& getInstance() {
       return Instance;
     }
-
   };
 } // namespace parameters

@@ -20,7 +20,7 @@ namespace cell {
     Cell& getCell(size_t i);
     Cell& getCell(size_t i, size_t j);
 
-    void      InitGrid();
+    void InitGrid();
     /**
      * @brief get the total mass of the grid.
      */
@@ -41,7 +41,9 @@ namespace cell {
 
     // static copy for global access
     static Grid  Instance;
-    static Grid& getInstance() { return Instance; }
+    static Grid& getInstance() {
+      return Instance;
+    }
   };
 
   class Cell {
@@ -59,9 +61,13 @@ namespace cell {
     void CopyBoundaryDataReflective(const Cell* real, int dimension);
 
     //! Calls conserved to primitive on the members
-    void ConservedToPrimitive() { _prim.ConservedToPrimitive(_cons); };
+    void ConservedToPrimitive() {
+      _prim.ConservedToPrimitive(_cons);
+    };
     //! Calls primitive to conserved on the members
-    void PrimitiveToConserved() { _cons.PrimitiveToConserved(_prim); };
+    void PrimitiveToConserved() {
+      _cons.PrimitiveToConserved(_prim);
+    };
 
   private:
     int _id;
@@ -89,20 +95,32 @@ namespace cell {
     void setX(float_t x);
     void setY(float_t y);
 
-    void                setId(int id);
-    int                 getID() const;
+    void                      setId(int id);
+    int                       getID() const;
     std::pair<size_t, size_t> getIJ();
 
 
     // return refs to the above
-    IdealGas::PrimitiveState& getPrim() { return _prim; }
-    IdealGas::ConservedState& getCons() { return _cons; }
-    IdealGas::PrimitiveState& getPFlux() { return _pflux; }
-    IdealGas::ConservedState& getCFlux() { return _cflux; }
+    IdealGas::PrimitiveState& getPrim() {
+      return _prim;
+    }
+    IdealGas::ConservedState& getCons() {
+      return _cons;
+    }
+    IdealGas::PrimitiveState& getPFlux() {
+      return _pflux;
+    }
+    IdealGas::ConservedState& getCFlux() {
+      return _cflux;
+    }
 
     // const versions to shush the compiler
-    const IdealGas::PrimitiveState& getPrim() const { return _prim; }
-    const IdealGas::ConservedState& getCons() const { return _cons; }
+    const IdealGas::PrimitiveState& getPrim() const {
+      return _prim;
+    }
+    const IdealGas::ConservedState& getCons() const {
+      return _cons;
+    }
   };
 
-}  // namespace cell
+} // namespace cell

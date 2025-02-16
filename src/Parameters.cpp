@@ -10,26 +10,27 @@
 
 namespace parameters {
 
-    // need to define it as well...
-    Parameters Parameters::Instance;
+  // need to define it as well...
+  Parameters Parameters::Instance;
 
-    Parameters::Parameters():
-      _verbose(logging::LogLevel::Quiet),
-      _nstepsLog(0),
-      _nsteps(0),
-      _tmax(0),
-      _nx(1),
-      _ccfl(0.),
-      _boundaryType(Parameters::BoundaryCondition::Periodic),
-      _nxTot(0),
-      _dx(1.0),
-      _nbc(0),
-      _locked(false)
+  Parameters::Parameters():
+    _verbose(logging::LogLevel::Quiet),
+    _nstepsLog(0),
+    _nsteps(0),
+    _tmax(0),
+    _nx(1),
+    _ccfl(0.),
+    _boundaryType(Parameters::BoundaryCondition::Periodic),
+    _nxTot(0),
+    _dx(1.0),
+    _nbc(0),
+    _locked(false)
 
-    // nxtot used to be 100 + BCTOT = 100 + 2*BC. Fixing BC to be 2 and BCTOT to be
-    // 2*BC
+  // nxtot used to be 100 + BCTOT = 100 + 2*BC. Fixing BC to be 2 and BCTOT to be
+  // 2*BC
 
-    { /* empty body */ }
+  { /* empty body */
+  }
 
 
   // output related parameters
@@ -65,15 +66,15 @@ namespace parameters {
 
 
   void Parameters::init(
-      logging::LogLevel verbose,
-      size_t nstepsLog,
-      size_t nsteps,
-      float_t tmax,
-      size_t nx,
-      float_t Ccfl,
-      BoundaryCondition boundaryType,
-      size_t nbc
-      ) {
+    logging::LogLevel verbose,
+    size_t            nstepsLog,
+    size_t            nsteps,
+    float_t           tmax,
+    size_t            nx,
+    float_t           Ccfl,
+    BoundaryCondition boundaryType,
+    size_t            nbc
+  ) {
 
     setVerbose(verbose);
     setNstepsLog(nstepsLog);
@@ -87,7 +88,6 @@ namespace parameters {
 #if DEBUG_LEVEL > 0
     _locked = true;
 #endif
-
   }
 
   logging::LogLevel Parameters::getVerbose() const {
@@ -98,7 +98,7 @@ namespace parameters {
     _verbose = logLevel;
 
 #if DEBUG_LEVEL > 0
-    if(_locked) {
+    if (_locked) {
       error("Trying to overwrite parameter values after init!");
     }
 #endif
@@ -113,7 +113,7 @@ namespace parameters {
     _nstepsLog = nstepsLog;
 
 #if DEBUG_LEVEL > 0
-    if(_locked) {
+    if (_locked) {
       error("Trying to overwrite parameter values after init!");
     }
 #endif
@@ -127,7 +127,7 @@ namespace parameters {
     _nsteps = nsteps;
 
 #if DEBUG_LEVEL > 0
-    if(_locked) {
+    if (_locked) {
       error("Trying to overwrite parameter values after init!");
     }
 #endif
@@ -141,7 +141,7 @@ namespace parameters {
     _tmax = tmax;
 
 #if DEBUG_LEVEL > 0
-    if(_locked) {
+    if (_locked) {
       error("Trying to overwrite parameter values after init!");
     }
 #endif
@@ -155,7 +155,7 @@ namespace parameters {
     _nx = nx;
 
 #if DEBUG_LEVEL > 0
-    if(_locked) {
+    if (_locked) {
       error("Trying to overwrite parameter values after init!");
     }
 #endif
@@ -169,7 +169,7 @@ namespace parameters {
     _ccfl = ccfl;
 
 #if DEBUG_LEVEL > 0
-    if(_locked) {
+    if (_locked) {
       error("Trying to overwrite parameter values after init!");
     }
 #endif
@@ -188,20 +188,21 @@ namespace parameters {
 
 
 #if DEBUG_LEVEL > 0
-    if(_locked) {
+    if (_locked) {
       error("Trying to overwrite parameter values after init!");
     }
 #endif
   }
 
   Parameters::BoundaryCondition Parameters::getBoundaryType() const {
-    return _boundaryType; }
+    return _boundaryType;
+  }
 
   void Parameters::setBoundaryType(Parameters::BoundaryCondition boundaryType) {
     _boundaryType = boundaryType;
 
 #if DEBUG_LEVEL > 0
-    if(_locked) {
+    if (_locked) {
       error("Trying to overwrite parameter values after init!");
     }
 #endif
@@ -215,7 +216,7 @@ namespace parameters {
     _nbc = bc;
 
 #if DEBUG_LEVEL > 0
-    if(_locked) {
+    if (_locked) {
       error("Trying to overwrite parameter values after init!");
     }
 #endif

@@ -10,8 +10,7 @@ IdealGas::PrimitiveState::PrimitiveState():
   // initialiser list
   rho(0.),
   u({0., 0.}),
-  p(0.)
-  { /* empty body... */ };
+  p(0.) { /* empty body... */ };
 
 void IdealGas::PrimitiveState::ConservedToPrimitive(const ConservedState& c) {
   if (c.getRho() <= SMALLRHO) {
@@ -78,8 +77,7 @@ IdealGas::ConservedState::ConservedState():
   // initialiser list
   rho(0.),
   rhou({0., 0.}),
-  E(0.)
-  { /* empty body... */ };
+  E(0.) { /* empty body... */ };
 
 
 void IdealGas::ConservedState::PrimitiveToConserved(const PrimitiveState& p) {
@@ -170,6 +168,6 @@ float_t IdealGas::ConservedState::getRho() const {
   return rho;
 }
 
-void    IdealGas::ConservedState::setRho(const float_t val) {
+void IdealGas::ConservedState::setRho(const float_t val) {
   rho = val;
 }

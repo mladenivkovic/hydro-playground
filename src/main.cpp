@@ -16,8 +16,8 @@ int main() {
   utils::print_header();
 
   // Initialise global parameters.
-  auto               params = parameters::Parameters::Instance;
-  auto grid =        cell::Grid::Instance;
+  auto params = parameters::Parameters::Instance;
+  auto grid   = cell::Grid::Instance;
 
 
   std::ostringstream msg;

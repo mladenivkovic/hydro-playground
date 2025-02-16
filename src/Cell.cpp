@@ -1,4 +1,5 @@
 #include "Cell.h"
+
 #include "Parameters.h"
 
 // define the static copy. Calls the default constructor but
@@ -16,8 +17,8 @@ void cell::Grid::InitGrid() {
    * _cell(nxtot-1,nxtot-1) is the top-right cell
    *
    */
-  size_t       nxTot = parameters::Parameters::Instance.getNxTot();
-  size_t       Bc    = parameters::Parameters::Instance.getNBC();
+  size_t  nxTot = parameters::Parameters::Instance.getNxTot();
+  size_t  Bc    = parameters::Parameters::Instance.getNBC();
   float_t Dx    = parameters::Parameters::Instance.getDx();
   if (Dimensions == 1) {
     // make some room in the vector...
@@ -70,8 +71,8 @@ cell::Cell& cell::Grid::getCell(size_t i, size_t j) {
 
 float_t cell::Grid::GetTotalMass() {
   float_t total = 0;
-  size_t       bc    = parameters::Parameters::Instance.getNBC();
-  size_t       nx    = parameters::Parameters::Instance.getNx();
+  size_t  bc    = parameters::Parameters::Instance.getNBC();
+  size_t  nx    = parameters::Parameters::Instance.getNx();
 
   if (Dimensions == 1) {
     for (size_t i = bc; i < bc + nx; i++) {
@@ -94,8 +95,8 @@ float_t cell::Grid::GetTotalMass() {
 
 void cell::Grid::resetFluxes() {
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
-  size_t        bc   = parameters::Parameters::Instance.getNBC();
-  size_t        nx   = parameters::Parameters::Instance.getNx();
+  size_t         bc   = parameters::Parameters::Instance.getNBC();
+  size_t         nx   = parameters::Parameters::Instance.getNx();
 
   for (size_t i = bc; i < bc + nx; i++) {
     for (size_t j = bc * dim2; j < (bc + nx) * dim2; j++) {
@@ -112,8 +113,8 @@ void cell::Grid::getCStatesFromPstates() {
    * on each.
    */
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
-  size_t           bc   = parameters::Parameters::Instance.getNBC();
-  size_t           nx   = parameters::Parameters::Instance.getNx();
+  size_t         bc   = parameters::Parameters::Instance.getNBC();
+  size_t         nx   = parameters::Parameters::Instance.getNx();
 
   for (size_t i = bc; i < bc + nx; i++) {
     for (size_t j = bc * dim2; j < (bc + nx) * dim2; j++) {
@@ -129,8 +130,8 @@ void cell::Grid::getPStatesFromCstates() {
    * on each.
    */
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
-  size_t           bc   = parameters::Parameters::Instance.getNBC();
-  size_t           nx   = parameters::Parameters::Instance.getNx();
+  size_t         bc   = parameters::Parameters::Instance.getNBC();
+  size_t         nx   = parameters::Parameters::Instance.getNx();
 
   for (size_t i = bc; i < bc + nx; i++) {
     for (size_t j = bc * dim2; j < (bc + nx) * dim2; j++) {
@@ -276,14 +277,14 @@ void cell::Cell::CopyBoundaryDataReflective(const cell::Cell* real, int dimensio
 
 std::pair<size_t, size_t> cell::Cell::getIJ() {
   std::pair<size_t, size_t> output;
-  size_t              nxtot = parameters::Parameters::Instance.getNxTot();
+  size_t                    nxtot = parameters::Parameters::Instance.getNxTot();
   if (Dimensions == 1) {
     output.first  = getID();
     output.second = 0;
   }
   if (Dimensions == 2) {
-    size_t j         = getID() / (nxtot);
-    size_t i         = getID() - j * nxtot;
+    size_t j      = getID() / (nxtot);
+    size_t i      = getID() - j * nxtot;
     output.first  = i;
     output.second = j;
   }
