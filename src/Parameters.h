@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Config.h"
-#include "Logging.h"
+#include "Logging.h" // for verbosity level
 
 /*
 
@@ -23,57 +23,55 @@ need to return a reference anyway...
 
 namespace parameters {
 
-    public:
-      enum class BoundaryCondition { Periodic, Reflective, Transmissive };
+  class Parameters {
 
-    private:
-      // Talking related parameters
-      // --------------------------
+  public:
+    enum class BoundaryCondition { Periodic, Reflective, Transmissive };
+
+  private:
+    // Talking related parameters
+    // --------------------------
 
     //! how verbose are we?
     logging::LogLevel _verbose;
 
     //! interval between steps to write current state to screen
-    int _nstepsLog;
+    size_t _nstepsLog;
 
 
     // simulation related parameters
     // -----------------------------
 
-
     //! How many steps to do
-    int _nsteps;
+    size_t _nsteps;
 
     //! at what time to end simulation
     float_t _tmax;
 
     //! number of cells to use (in each dimension)
-    int _nx;
+    size_t _nx;
 
     //! CFL coefficient
     float_t _ccfl;
 
     //! boundary condition
-    // TODO(mivkov): Make enum
-    BoundaryCondition _boundary;
+    BoundaryCondition _boundaryType;
 
     //! number of mesh points, including boundary cells
-    int _nxTot;
+    size_t _nxTot;
 
     //! cell size
     float_t _dx;
 
     //! Number of Ghost cells at each edge
-    int _bc;
+    size_t _nbc;
 
-    //! number of mesh points, including boundary cells
-    int _nxTot;
 
     // Output related parameters
     // -------------------------
 
     //! after how many steps to write output
-    // int _foutput;
+    // size_t _foutput;
 
     //! time interval between outputs
     // double _dt_out;
@@ -88,10 +86,10 @@ namespace parameters {
     // bool _use_toutfile;
 
     //! how many outputs we will be writing. Only used if(use_toutfile)
-    // int _noutput_tot;
+    // size_t _noutput_tot;
 
     //! at which output we are. Only used if(use_toutfile)
-    // int _noutput;
+    // size_t _noutput;
 
     //! array of output times given in the output file
     // float_t _*outputtimes;
@@ -101,7 +99,7 @@ namespace parameters {
     // ---------------------
 
     //! dimension of IC file
-    // int _ndim_ic;
+    // size_t _ndim_ic;
 
     //! IC data filename
     // char _datafilename[MAX_FNAME_SIZE];
@@ -131,45 +129,107 @@ namespace parameters {
     //! whether sources have been read in
     // bool _sources_are_read;
 
+#if DEBUG_LEVEL > 0
+    // Lock params after initial setup and throw errors if somebody
+    // tries to modify them.
+    bool _locked;
+#endif
 
   public:
     Parameters();
 
-    // ToDo: Move in destructor
+    /**
+     * @brief Sets up parameters.
+     */
+    void init(
+      logging::LogLevel verbose = logging::LogLevel::Quiet,
+      size_t nstepsLog = 1,
+      size_t nsteps = 1,
+      float_t tmax = 1.,
+      size_t nx = 100,
+      float_t Ccfl = 0.9,
+      BoundaryCondition boundaryType = BoundaryCondition::Periodic,
+      size_t nbc = 2
+        );
+
+    // ToDo: Move to destructor
     void cleanup();
 
+    /**
+     * @brief Get the logging level
+     */
     logging::LogLevel getVerbose() const;
     void              setVerbose(const logging::LogLevel logLevel);
 
-    int  getNstepsLog() const;
-    void setNstepsLog(const int nstepsLog);
+    /**
+     * @brief Get number of steps between writing log to screen
+     */
+    size_t  getNstepsLog() const;
+    void setNstepsLog(const size_t nstepsLog);
 
-    int  getNsteps() const;
-    void setNsteps(const int nsteps);
+    /**
+     * @brief Get max nr of simulation steps to run
+     */
+    size_t  getNsteps() const;
+    void setNsteps(const size_t nsteps);
 
+    /**
+     * @brief get simulation end time
+     */
     float_t getTmax() const;
     void    setTmax(const float_t tmax);
 
-    int  getNx() const;
-    void setNx(const int nx);
+    /**
+     * @brief Get the number of cells with actual content per dimension
+     */
+    size_t  getNx() const;
+    void setNx(const size_t nx);
 
+    /**
+     * @brief Get the CFL constant
+     */
     float_t getCcfl() const;
     void    setCcfl(float_t ccfl);
 
-    BoundaryCondition getBoundary() const;
-    void              setBoundary(BoundaryCondition boundary);
+    /**
+     * @brief Get the type of boundary condition used
+     */
+    BoundaryCondition getBoundaryType() const;
+    void              setBoundaryType(BoundaryCondition boundary);
 
-    int  getNxTot() const;
-    void setNxTot(const int nxTot);
+    /**
+     * @brief Get the number of boundary cells on each side of the box
+     */
+    size_t getNBC() const;
+    void   setNBC(size_t nbc);
 
+    /**
+     * @brief get the total number of boundary cells per dimension.
+     */
+    size_t getNBCTot() const;
+
+    /**
+     * @brief get the total number of cells per dimension. This includes
+     * boundary cells.
+     * @TODO: what to do with replication
+     */
+    size_t  getNxTot() const;
+
+    /**
+     * @brief Get the cell size
+     */
     float_t getDx() const;
     void    setDx(const float_t dx);
 
-    // single copy of the global variables
+    //! single copy of the global variables
     static Parameters Instance;
 
-    // getter for the single global copy
+    /**
+     * @brief getter for the single global copy
+     */
     static Parameters& getInstance() {
       return Instance;
+    }
+
   };
 } // namespace parameters

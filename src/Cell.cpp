@@ -1,14 +1,14 @@
 #include "Cell.h"
-
-using namespace hydro_playground;
+#include "Parameters.h"
 
 // define the static copy. Calls the default constructor but
 // the user has to call InitCells()
-Grid Grid::Instance;
+cell::Grid cell::Grid::Instance;
 
-Grid::Grid() { /* Empty body */ }
+cell::Grid::Grid() { /* Empty body */
+}
 
-void Grid::InitGrid() {
+void cell::Grid::InitGrid() {
   /**
    * _cell(0,0)             is the bottom left cell.
    * _cell(nxtot-1,0)       is the bottom right cell
@@ -16,9 +16,9 @@ void Grid::InitGrid() {
    * _cell(nxtot-1,nxtot-1) is the top-right cell
    *
    */
-  int       nxTot = parameters::Parameters::Instance.getNxTot();
-  int       Bc    = parameters::Parameters::Instance.getBc();
-  Precision Dx    = parameters::Parameters::Instance.getDx();
+  size_t       nxTot = parameters::Parameters::Instance.getNxTot();
+  size_t       Bc    = parameters::Parameters::Instance.getNBC();
+  float_t Dx    = parameters::Parameters::Instance.getDx();
   if (Dimensions == 1) {
     // make some room in the vector...
     _cells.resize(nxTot);
@@ -32,8 +32,8 @@ void Grid::InitGrid() {
     // make some room in the vector...
     _cells.resize(nxTot * nxTot);
 
-    for (int i = 0; i < nxTot; i++) {
-      for (int j = 0; j < nxTot; j++) {
+    for (size_t i = 0; i < nxTot; i++) {
+      for (size_t j = 0; j < nxTot; j++) {
         getCell(i, j).setX((i - Bc + 0.5) * Dx);
         getCell(i, j).setY((j - Bc + 0.5) * Dx);
 
@@ -44,30 +44,37 @@ void Grid::InitGrid() {
     }
 
   } else
-    assert(false);
+    error("Not implemented yet");
 }
 
-Cell& Grid::getCell(int i, int j) {
-  static int nxTot = parameters::Parameters::Instance.getNxTot();
+cell::Cell& cell::Grid::getCell(size_t i) {
 
-  if (Dimensions == 1)
-    return _cells[i];
-  if (Dimensions == 2)
-    return _cells[i + j * nxTot];
+#if DEBUG_LEVEL > 0
+  if (Dimensions != 1) {
+    error("This function is for 1D only!")
+  }
+#endif
+  return _cells[i];
 }
 
-Precision Grid::GetTotalMass() {
-  /*
-  Get total mass on the grid.
+cell::Cell& cell::Grid::getCell(size_t i, size_t j) {
+  static size_t nxTot = parameters::Parameters::Instance.getNxTot();
 
-  Writing it naively here.
-  */
-  Precision total = 0;
-  int       bc    = parameters::Parameters::Instance.getBc();
-  int       nx    = parameters::Parameters::Instance.getNx();
+#if DEBUG_LEVEL > 0
+  if (Dimensions != 2) {
+    error("This function is for 2D only!")
+  }
+#endif
+  return _cells[i + j * nxTot];
+}
+
+float_t cell::Grid::GetTotalMass() {
+  float_t total = 0;
+  size_t       bc    = parameters::Parameters::Instance.getNBC();
+  size_t       nx    = parameters::Parameters::Instance.getNx();
 
   if (Dimensions == 1) {
-    for (int i = bc; i < bc + nx; i++) {
+    for (size_t i = bc; i < bc + nx; i++) {
       total += getCell(i).getPrim().getRho();
     }
 
@@ -75,8 +82,8 @@ Precision Grid::GetTotalMass() {
   }
 
   else if (Dimensions == 2) {
-    for (int i = bc; i < bc + nx; i++)
-      for (int j = bc; j < bc + nx; j++) {
+    for (size_t i = bc; i < bc + nx; i++)
+      for (size_t j = bc; j < bc + nx; j++) {
         total += getCell(i, j).getPrim().getRho();
       }
 
@@ -85,60 +92,63 @@ Precision Grid::GetTotalMass() {
   return total;
 }
 
-void Grid::resetFluxes() {
-  constexpr int dim2 = (Dimensions == 2);
-  int           bc   = parameters::Parameters::Instance.getBc();
-  int           nx   = parameters::Parameters::Instance.getNx();
+void cell::Grid::resetFluxes() {
+  constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
+  size_t        bc   = parameters::Parameters::Instance.getNBC();
+  size_t        nx   = parameters::Parameters::Instance.getNx();
 
-  for (int i = bc; i < bc + nx; i++)
-    for (int j = bc * dim2; j < (bc + nx) * dim2; j++) {
+  for (size_t i = bc; i < bc + nx; i++) {
+    for (size_t j = bc * dim2; j < (bc + nx) * dim2; j++) {
       // if we are in 1d, j will be fixed to zero
       getCell(i, j).getPrim().resetToInitialState();
       getCell(i, j).getCons().resetToInitialState();
     }
+  }
 }
 
-void Grid::getCStatesFromPstates() {
+void cell::Grid::getCStatesFromPstates() {
   /**
    * runs through interior cells. Calls PrimitveToConserved()
    * on each.
    */
-  constexpr int dim2 = (Dimensions == 2);
-  int           bc   = parameters::Parameters::Instance.getBc();
-  int           nx   = parameters::Parameters::Instance.getNx();
+  constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
+  size_t           bc   = parameters::Parameters::Instance.getNBC();
+  size_t           nx   = parameters::Parameters::Instance.getNx();
 
-  for (int i = bc; i < bc + nx; i++)
-    for (int j = bc * dim2; j < (bc + nx) * dim2; j++) {
+  for (size_t i = bc; i < bc + nx; i++) {
+    for (size_t j = bc * dim2; j < (bc + nx) * dim2; j++) {
       // if we are in 1d, j will be fixed to zero
       getCell(i, j).PrimitiveToConserved();
     }
+  }
 }
 
-void Grid::getPStatesFromCstates() {
+void cell::Grid::getPStatesFromCstates() {
   /**
    * runs through interior cells. Calls ConservedToPrimitve()
    * on each.
    */
-  constexpr int dim2 = (Dimensions == 2);
-  int           bc   = parameters::Parameters::Instance.getBc();
-  int           nx   = parameters::Parameters::Instance.getNx();
+  constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
+  size_t           bc   = parameters::Parameters::Instance.getNBC();
+  size_t           nx   = parameters::Parameters::Instance.getNx();
 
-  for (int i = bc; i < bc + nx; i++)
-    for (int j = bc * dim2; j < (bc + nx) * dim2; j++) {
+  for (size_t i = bc; i < bc + nx; i++) {
+    for (size_t j = bc * dim2; j < (bc + nx) * dim2; j++) {
       // if we are in 1d, j will be fixed to zero
       getCell(i, j).ConservedToPrimitive();
     }
+  }
 }
 
-void Grid::setBoundary() {
-  std::vector<Cell*> realLeft(parameters::Parameters::Instance.getBc());
-  std::vector<Cell*> realRight(parameters::Parameters::Instance.getBc());
-  std::vector<Cell*> ghostLeft(parameters::Parameters::Instance.getBc());
-  std::vector<Cell*> ghostRight(parameters::Parameters::Instance.getBc());
+void cell::Grid::setBoundary() {
+  std::vector<cell::Cell*> realLeft(parameters::Parameters::Instance.getNBC());
+  std::vector<cell::Cell*> realRight(parameters::Parameters::Instance.getNBC());
+  std::vector<cell::Cell*> ghostLeft(parameters::Parameters::Instance.getNBC());
+  std::vector<cell::Cell*> ghostRight(parameters::Parameters::Instance.getNBC());
 
-  int bc    = parameters::Parameters::Instance.getBc();
-  int nx    = parameters::Parameters::Instance.getNx();
-  int bctot = parameters::Parameters::Instance.getBcTot();
+  size_t bc    = parameters::Parameters::Instance.getNBC();
+  size_t nx    = parameters::Parameters::Instance.getNx();
+  size_t bctot = parameters::Parameters::Instance.getNBCTot();
 
   // doesn't look like we will need this code often. so avoid hacky stuff
   if (Dimensions == 1) {
@@ -153,8 +163,8 @@ void Grid::setBoundary() {
 
   else if (Dimensions == 2) {
     // left-right boundaries
-    for (int j = 0; j < nx + bctot; j++) {
-      for (int i = 0; i < bc; i++) {
+    for (size_t j = 0; j < nx + bctot; j++) {
+      for (size_t i = 0; i < bc; i++) {
         realLeft[i]   = &(getCell(bc + i, j));
         realRight[i]  = &(getCell(nx + i, j));
         ghostLeft[i]  = &(getCell(i, j));
@@ -165,8 +175,8 @@ void Grid::setBoundary() {
   }
 
   // upper-lower boundaries
-  for (int i = 0; i < nx + bctot; i++) {
-    for (int j = 0; j < bc; j++) {
+  for (size_t i = 0; i < nx + bctot; i++) {
+    for (size_t j = 0; j < bc; j++) {
       realLeft[j]   = &(getCell(bc + i, j));
       realRight[j]  = &(getCell(nx + i, j));
       ghostLeft[j]  = &(getCell(i, j));
@@ -176,18 +186,18 @@ void Grid::setBoundary() {
   }
 }
 
-void Grid::realToGhost(
-  std::vector<Cell*> realLeft,
-  std::vector<Cell*> realRight,
-  std::vector<Cell*> ghostLeft,
-  std::vector<Cell*> ghostRight,
-  int                dimension
+void cell::Grid::realToGhost(
+  std::vector<cell::Cell*> realLeft,
+  std::vector<cell::Cell*> realRight,
+  std::vector<cell::Cell*> ghostLeft,
+  std::vector<cell::Cell*> ghostRight,
+  int                      dimension
 ) // dimension defaults to 0
 {
   // prevents crowding down there
-  int bc = parameters::Parameters::Instance.getBc();
+  int bc = parameters::Parameters::Instance.getNBC();
 
-  switch (parameters::Parameters::Instance.getBoundary()) {
+  switch (parameters::Parameters::Instance.getBoundaryType()) {
   case parameters::Parameters::BoundaryCondition::Periodic: {
     for (int i = 0; i < bc; i++) {
       ghostLeft[i]->CopyBoundaryData(realLeft[i]);
@@ -224,7 +234,7 @@ void Grid::realToGhost(
 Constructor for the cell. This has everything from the old
 cell_init_cell() function
 */
-Cell::Cell():
+cell::Cell::Cell():
   _id(0),
   _x(0),
   _y(0),
@@ -237,7 +247,7 @@ Cell::Cell():
 }
 
 
-void Cell::CopyBoundaryData(const Cell* real) {
+void cell::Cell::CopyBoundaryData(const cell::Cell* real) {
   // This should be called from within the ghost
 
   // copy everything from the other!
@@ -246,7 +256,7 @@ void Cell::CopyBoundaryData(const Cell* real) {
   // check this is taking a deep copy for real!
 }
 
-void Cell::CopyBoundaryDataReflective(const Cell* real, int dimension) {
+void cell::Cell::CopyBoundaryDataReflective(const cell::Cell* real, int dimension) {
   /*
    * Copies the data we need. Dimension indiciates which dimension
    * We flip the velocities
@@ -257,23 +267,23 @@ void Cell::CopyBoundaryDataReflective(const Cell* real, int dimension) {
   _cons = real->getCons();
 
   // flip the velocities in specified dimension
-  Precision u = getPrim().getU(dimension);
+  float_t u = getPrim().getU(dimension);
   getPrim().setU(dimension, -1. * u);
 
-  Precision rhou = getCons().getRhou(dimension);
+  float_t rhou = getCons().getRhou(dimension);
   getCons().setRhou(dimension, -1. * rhou);
 }
 
-std::pair<int, int> Cell::getIJ() {
-  std::pair<int, int> output;
-  int                 nxtot = parameters::Parameters::Instance.getNxTot();
+std::pair<size_t, size_t> cell::Cell::getIJ() {
+  std::pair<size_t, size_t> output;
+  size_t              nxtot = parameters::Parameters::Instance.getNxTot();
   if (Dimensions == 1) {
     output.first  = getID();
     output.second = 0;
   }
   if (Dimensions == 2) {
-    int j         = getID() / (nxtot);
-    int i         = getID() - j * nxtot;
+    size_t j         = getID() / (nxtot);
+    size_t i         = getID() - j * nxtot;
     output.first  = i;
     output.second = j;
   }
@@ -283,8 +293,18 @@ std::pair<int, int> Cell::getIJ() {
 /*
 Getters and setters for cell!
 */
-void Cell::setX(Precision x) { _x = x; }
-void Cell::setY(Precision y) { _y = y; }
+void cell::Cell::setX(float_t x) {
+  _x = x;
+}
 
-void Cell::setId(int id) { _id = id; }
-int  Cell::getID() const { return _id; }
+void cell::Cell::setY(float_t y) {
+  _y = y;
+}
+
+void cell::Cell::setId(int id) {
+  _id = id;
+}
+
+int cell::Cell::getID() const {
+  return _id;
+}

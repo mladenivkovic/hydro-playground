@@ -1,15 +1,13 @@
 #pragma once
 
-#include <cassert>
+#include <string>
 #include <vector>
 
 #include "Config.h"
 #include "Gas.h"
-#include "Logging.h"
-#include "Parameters.h"
 
 
-namespace hydro_playground {
+namespace cell {
   class Cell;
 
   // template <int Dimensions>
@@ -19,11 +17,14 @@ namespace hydro_playground {
 
   public:
     Grid();
-    Cell& getCell(int i, int j = 0);
-    // const Cell& getCell(int i, int j) const;
+    Cell& getCell(size_t i);
+    Cell& getCell(size_t i, size_t j);
 
     void      InitGrid();
-    Precision GetTotalMass();
+    /**
+     * @brief get the total mass of the grid.
+     */
+    float_t GetTotalMass();
 
     void getCStatesFromPstates();
     void getPStatesFromCstates();
@@ -49,7 +50,8 @@ namespace hydro_playground {
     Cell();
     //! copy assignment, for copying boundary data
     //! Return reference to this, for chaining calls
-    Cell& operator=(const Cell& other) = default;
+    // TODO: This doesn't compile
+    // Cell& operator=(const Cell& other) = default;
 
     //! Should be called from within the ghost
     void CopyBoundaryData(const Cell* real);
@@ -67,8 +69,8 @@ namespace hydro_playground {
     /*
     Positions of centres
     */
-    Precision _x;
-    Precision _y;
+    float_t _x;
+    float_t _y;
 
     IdealGas::PrimitiveState _prim;
     IdealGas::ConservedState _cons;
@@ -76,22 +78,20 @@ namespace hydro_playground {
     IdealGas::PrimitiveState _pflux;
     IdealGas::ConservedState _cflux;
 
-    std::array<Precision, 2> _acc;
+    std::array<float_t, Dimensions> _acc;
 
   public:
-    // void
-
-    /* leaving these for now */
+    // leaving these for now
     std::string getIndexString();
 
   public:
-    /* getters and setters */
-    void setX(Precision x);
-    void setY(Precision x);
+    // getters and setters
+    void setX(float_t x);
+    void setY(float_t y);
 
     void                setId(int id);
     int                 getID() const;
-    std::pair<int, int> getIJ();
+    std::pair<size_t, size_t> getIJ();
 
 
     // return refs to the above
@@ -105,4 +105,4 @@ namespace hydro_playground {
     const IdealGas::ConservedState& getCons() const { return _cons; }
   };
 
-} // namespace hydro_playground
+}  // namespace cell

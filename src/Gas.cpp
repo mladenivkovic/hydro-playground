@@ -11,7 +11,7 @@ IdealGas::PrimitiveState::PrimitiveState():
   rho(0.),
   u({0., 0.}),
   p(0.)
-  { // empty body... };
+  { /* empty body... */ };
 
 void IdealGas::PrimitiveState::ConservedToPrimitive(const ConservedState& c) {
   if (c.getRho() <= SMALLRHO) {
@@ -78,8 +78,8 @@ IdealGas::ConservedState::ConservedState():
   // initialiser list
   rho(0.),
   rhou({0., 0.}),
-  E(0.){};
-{ /* empty body... */ };
+  E(0.)
+  { /* empty body... */ };
 
 
 void IdealGas::ConservedState::PrimitiveToConserved(const PrimitiveState& p) {
@@ -146,19 +146,17 @@ void IdealGas::ConservedState::GetCFluxFromCstate(const ConservedState& c, int d
 
 /* Getters and Setters */
 
-void IdealGas::ConservedState::setRhou(const int index, const float_t val) {
+void IdealGas::ConservedState::setRhou(const size_t index, const float_t val) {
   rhou[index] = val;
 }
 
-float_t IdealGas::ConservedState::getRhou(const int index) const {
+float_t IdealGas::ConservedState::getRhou(const size_t index) const {
   return rhou[index];
 }
 
 float_t IdealGas::ConservedState::getRhoUSquared() const {
   return rhou[0] * rhou[0] + rhou[1] * rhou[1];
 }
-
-Precision IdealGas::ConservedState::getE() const { return E; }
 
 void IdealGas::ConservedState::setE(const float_t val) {
   E = val;
@@ -168,5 +166,10 @@ float_t IdealGas::ConservedState::getE() const {
   return E;
 }
 
-float_t IdealGas::ConservedState::getRho() const { return rho; }
-void    IdealGas::ConservedState::setRho(float_t val) { rho = val; }
+float_t IdealGas::ConservedState::getRho() const {
+  return rho;
+}
+
+void    IdealGas::ConservedState::setRho(const float_t val) {
+  rho = val;
+}
