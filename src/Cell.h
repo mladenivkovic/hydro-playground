@@ -10,50 +10,6 @@
 namespace cell {
   class Cell;
 
-  // template <int Dimensions>
-  class Grid {
-  private:
-    std::vector<Cell> _cells;
-
-  public:
-    Grid();
-    Cell& getCell(size_t i);
-    Cell& getCell(size_t i, size_t j);
-
-    void InitGrid();
-    /**
-     * @brief get the total mass of the grid.
-     */
-    float_t GetTotalMass();
-
-    //! Pass in vector of initial vals, to be read from IC file.
-    //! In 1d this should be:
-    //! [density, velocity, pressure]
-    //! In 2d this should be:
-    //! [density, velocity_x, velocity_y, pressure]
-    //!
-    void SetInitialConditions(int position, std::vector<float_t> vals);
-
-    void getCStatesFromPstates();
-    void getPStatesFromCstates();
-    void resetFluxes();
-
-    void setBoundary();
-    void realToGhost(
-      std::vector<Cell*>,
-      std::vector<Cell*>,
-      std::vector<Cell*>,
-      std::vector<Cell*>,
-      int dimension = 0
-    );
-
-    // static copy for global access
-    static Grid  Instance;
-    static Grid& getInstance() {
-      return Instance;
-    }
-  };
-
   class Cell {
   public:
     //! Standard constructor

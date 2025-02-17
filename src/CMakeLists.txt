@@ -23,6 +23,11 @@ add_library(Cell OBJECT Cell.cpp Cell.h)
 target_include_directories(Cell PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 target_link_libraries(Cell Logging)
 
+add_library(Grid OBJECT Grid.cpp Grid.h)
+target_include_directories(Grid PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_link_libraries(Grid Cell)
+target_link_libraries(Grid Logging)
+
 add_library(IO OBJECT IO.cpp IO.h)
 target_include_directories(IO PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 target_link_libraries(IO Logging)
@@ -34,6 +39,7 @@ target_link_libraries(IO Logging)
 # Utils won't find its link dependencies during the executable linking step.
 # The target_link_libraries of Utils above only applies to the compile step of the object library above.
 target_link_libraries(hydro IO)
+target_link_libraries(hydro Grid)
 target_link_libraries(hydro Cell)
 target_link_libraries(hydro Gas)
 target_link_libraries(hydro Utils)
