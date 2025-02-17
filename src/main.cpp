@@ -3,7 +3,7 @@
 #include <iostream> // todo: necessary?
 #include <sstream>
 
-#include "Cell.h"
+#include "Grid.h"
 // #include "Config.h" // todo: necessary?
 #include "Logging.h"
 #include "Parameters.h"
@@ -19,9 +19,10 @@ int main(int argc, char* argv[]) {
   utils::print_header();
 
   // Fire up IO
-  hydro_playground::IO::InputParse input(argc, argv);
-  if ( !input.inputIsValid() )
+  IO::InputParse input(argc, argv);
+  if ( not input.inputIsValid() ) {
     return 1;
+  }
 
   // all is good, let's keep going
   input.readCommandOptions();
@@ -30,11 +31,11 @@ int main(int argc, char* argv[]) {
   parameters::Parameters::Instance.init();
 
   // initialise the grid of cells
-  cell::Grid::Instance.InitGrid();
+  grid::Grid::Instance.InitGrid();
 
   input.readICFile();
 
-  cell::Grid::Instance.setBoundary();
+  grid::Grid::Instance.setBoundary();
 
   // Initialise global parameters.
   auto params = parameters::Parameters::Instance;
