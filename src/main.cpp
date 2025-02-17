@@ -1,10 +1,10 @@
 
 
 #include <iostream> // todo: necessary?
+#include <sstream>
 
-#include "Config.h" // todo: necessary?
-#include "Gas.h"    // probably not necessary. wanna catch compile errors
-#include "Cell.h"   // probably not necessary. wanna catch compile errors
+#include "Cell.h"
+// #include "Config.h" // todo: necessary?
 #include "Logging.h"
 #include "Parameters.h"
 #include "Utils.h"
@@ -14,13 +14,12 @@
 
 int main(int argc, char* argv[]) {
 
-  using namespace hydro_playground;
 
   // Useless things first :)
   utils::print_header();
 
   // Fire up IO
-  IO::InputParse input(argc, argv);
+  hydro_playground::IO::InputParse input(argc, argv);
   if ( !input.inputIsValid() )
     return 1;
 
@@ -31,11 +30,24 @@ int main(int argc, char* argv[]) {
   parameters::Parameters::Instance.init();
 
   // initialise the grid of cells
-  Grid::Instance.InitGrid();
+  cell::Grid::Instance.InitGrid();
 
   input.readICFile();
 
-  Grid::Instance.setBoundary();
+  cell::Grid::Instance.setBoundary();
+
+  // Initialise global parameters.
+  auto params = parameters::Parameters::Instance;
+  // auto grid   = cell::Grid::Instance;
+
+
+  std::ostringstream msg;
+  msg << "Got params dx=" << params.getDx();
+  message(msg.str());
+
+  // initialise the grid of cells
+  // grid.InitGrid();
+  // grid.setBoundary();
 
   return 0;
 }

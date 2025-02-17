@@ -1,6 +1,7 @@
 // Some global definitions.
+// File is generated from template src/Config.h.in
 // Variables enclosed by '@' are generated with CMake.
-#pragma once 
+#pragma once
 
 #define DEBUG_LEVEL @DEBUG_LEVEL@
 #define CMAKE_BUILD_TYPE "@CMAKE_BUILD_TYPE@"
@@ -9,4 +10,5 @@
 // from CMake in the future...
 static constexpr int Dimensions = 2;
 
-typedef float Precision;
+// TODO(mivkov): Make this a compile time define
+using float_t = float;

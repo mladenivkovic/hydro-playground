@@ -1,75 +1,83 @@
 #include "Gas.h"
 
-/*
-Stuff for primitive state
-*/
+#include <cmath>
+
+#include "Constants.h"
+
+// Stuff for primitive state
 
 IdealGas::PrimitiveState::PrimitiveState():
   // initialiser list
-  rho(0),
-  u({0, 0}),
-  p(0) // empty body...
-{};
+  rho(0.),
+  u({0., 0.}),
+  p(0.) { /* empty body... */ };
 
-void IdealGas::PrimitiveState::ConservedToPrimitive(const ConservedState& c)
-{
-  if (c.getRho() <= SMALLRHO)
-  {
+void IdealGas::PrimitiveState::ConservedToPrimitive(const ConservedState& c) {
+  if (c.getRho() <= SMALLRHO) {
     // execption handling for vacuum
     setRho(SMALLRHO);
     setU(0, SMALLU);
     setU(1, SMALLU);
     setP(SMALLP);
-  }
-  else
-  {
-    setRho( c.getRho() );
+  } else {
+    setRho(c.getRho());
     setU(0, c.getRhou(0) / c.getRho());
     setU(1, c.getRhou(1) / c.getRho());
-    setP(
-      GM1 * c.getE() - 0.5 * c.getRhoUSquared() / c.getRho()
-    );
+    setP(GM1 * c.getE() - 0.5 * c.getRhoUSquared() / c.getRho());
 
     // handle negative pressure
-    if (getP() <= SMALLP) setP( SMALLP );
+    if (getP() <= SMALLP)
+      setP(SMALLP);
   }
-
 }
 
-Precision IdealGas::PrimitiveState::getSoundSpeed() { return std::sqrt(GAMMA * getP() / getRho()); }
+float_t IdealGas::PrimitiveState::getSoundSpeed() {
+  return std::sqrt(GAMMA * getP() / getRho());
+}
 
 
-Precision IdealGas::PrimitiveState::getEnergy() {
+float_t IdealGas::PrimitiveState::getEnergy() {
   return 0.5 * getRho() * getUSquared() + getP() / GM1;
 }
 
-/* getters and setters for PrimitiveState  */
+// getters and setters for PrimitiveState
 
-void IdealGas::PrimitiveState::setRho(Precision val) { rho = val; }
+void IdealGas::PrimitiveState::setRho(const float_t val) {
+  rho = val;
+}
 
-Precision IdealGas::PrimitiveState::getRho() const { return rho; }
+float_t IdealGas::PrimitiveState::getRho() const {
+  return rho;
+}
 
-void IdealGas::PrimitiveState::setU(int index, const Precision val) { u[index] = val; }
+void IdealGas::PrimitiveState::setU(const int index, const float_t val) {
+  u[index] = val;
+}
 
-Precision IdealGas::PrimitiveState::getU(int index) const { return u[index]; }
+float_t IdealGas::PrimitiveState::getU(const int index) const {
+  return u[index];
+}
 
-Precision IdealGas::PrimitiveState::getUSquared() const { return u[0] * u[0] + u[1] * u[1]; }
+float_t IdealGas::PrimitiveState::getUSquared() const {
+  return u[0] * u[0] + u[1] * u[1];
+}
 
-void IdealGas::PrimitiveState::setP(const Precision val) { p = val; }
+void IdealGas::PrimitiveState::setP(const float_t val) {
+  p = val;
+}
 
-Precision IdealGas::PrimitiveState::getP() const { return p; }
+float_t IdealGas::PrimitiveState::getP() const {
+  return p;
+}
 
 
-/*
-Stuff for conserved state
-*/
+// Stuff for conserved state
 
 IdealGas::ConservedState::ConservedState():
   // initialiser list
-  rho(0),
-  rhou({0, 0}),
-  E(0)
-{};
+  rho(0.),
+  rhou({0., 0.}),
+  E(0.) { /* empty body... */ };
 
 
 void IdealGas::ConservedState::PrimitiveToConserved(const PrimitiveState& p) {
@@ -100,7 +108,7 @@ void IdealGas::ConservedState::GetCFluxFromPstate(const PrimitiveState& p, int d
   setRhou(dimension, p.getRho() * p.getU(dimension) * p.getU(dimension) + p.getP());
   setRhou((dimension + 1) % 2, p.getRho() * p.getU(0) * p.getU(1));
 
-  Precision tempE = 0.5 * p.getRho() * p.getUSquared() + p.getP() / GM1;
+  float_t tempE = 0.5 * p.getRho() * p.getUSquared() + p.getP() / GM1;
   setE(tempE + p.getP() * p.getU(dimension));
 }
 
@@ -121,17 +129,11 @@ void IdealGas::ConservedState::GetCFluxFromCstate(const ConservedState& c, int d
    * ----------------------------------------------------------- */
   setRho(c.getRhou(dimension));
   if (c.getRho() > 0) {
-    Precision v = c.getRhou(dimension) / c.getRho();
-    Precision p = GM1 * c.getRhoUSquared() / c.getRho();
+    float_t v = c.getRhou(dimension) / c.getRho();
+    float_t p = GM1 * c.getRhoUSquared() / c.getRho();
 
-    setRhou(
-      dimension, 
-      c.getRho() * v * v + p
-    );
-    setRhou(
-      (dimension + 1) % 2,
-      c.getRhou((dimension + 1) % 2) * v
-    );
+    setRhou(dimension, c.getRho() * v * v + p);
+    setRhou((dimension + 1) % 2, c.getRhou((dimension + 1) % 2) * v);
     setE((c.getE() + p) * v);
   } else {
     setRhou(0, 0);
@@ -142,16 +144,30 @@ void IdealGas::ConservedState::GetCFluxFromCstate(const ConservedState& c, int d
 
 /* Getters and Setters */
 
-void      IdealGas::ConservedState::setRhou(int index, const Precision val) { rhou[index] = val; }
-Precision IdealGas::ConservedState::getRhou(int index) const { return rhou[index]; }
+void IdealGas::ConservedState::setRhou(const size_t index, const float_t val) {
+  rhou[index] = val;
+}
 
-Precision IdealGas::ConservedState::getRhoUSquared() const {
+float_t IdealGas::ConservedState::getRhou(const size_t index) const {
+  return rhou[index];
+}
+
+float_t IdealGas::ConservedState::getRhoUSquared() const {
   return rhou[0] * rhou[0] + rhou[1] * rhou[1];
 }
 
-void      IdealGas::ConservedState::setE(const Precision val) { E = val; }
-Precision IdealGas::ConservedState::getE() const { return E; }
+void IdealGas::ConservedState::setE(const float_t val) {
+  E = val;
+}
 
-Precision IdealGas::ConservedState::getRho() const       { return rho; }
-void      IdealGas::ConservedState::setRho(Precision val){ rho=val; }
+float_t IdealGas::ConservedState::getE() const {
+  return E;
+}
 
+float_t IdealGas::ConservedState::getRho() const {
+  return rho;
+}
+
+void IdealGas::ConservedState::setRho(const float_t val) {
+  rho = val;
+}

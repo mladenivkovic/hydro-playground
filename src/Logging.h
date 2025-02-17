@@ -1,149 +1,144 @@
 #pragma once
 
-#include <iostream>
 #include <sstream>
 #include <string>
 
 /**
- * @file Logging.h Utilities related to logging.
+ * @file Logging.h
+ * @brief Utilities related to logging.
  */
 
-namespace hydro_playground {
-  namespace logging {
-    enum class LogLevel { Undefined = -1, Quiet = 0, Verbose = 1, Debug = 2, Count };
+namespace logging {
 
-    enum class LogStage {
-      Undefined = -1,
-      Header    = 0,
-      Init      = 1,
-      Step      = 2,
-      Count,
-    };
+  enum class LogLevel {
+    Undefined = -1,
+    Quiet     = 0,
+    Verbose   = 1,
+    Debug     = 2,
+    Count
+  };
 
-
-    class Log {
-    public:
-      // Don't instantiate this class, ever.
-      Log() = delete;
-
-      /**
-       * @brief write a log message to screen.
-       *
-       * @param file The current file. Intended to be the __FILE__ macro.
-       * @param function The current function. Intended to be the __FUNCTION__ macro.
-       * @param line The current line in the file. Intended to be the __LINE__ macro.
-       * @param text The message you want to print out.
-       * @param level "verbosity level" of the log message.
-       * @param stage stage of the code where this log is called from.
-       */
-      static void logMessage(
-        const char* file,
-        const char* function,
-        const int   line,
-        std::string text,
-        LogLevel    level,
-        LogStage    stage
-      );
-      static void logMessage(
-        const char*        file,
-        const char*        function,
-        const int          line,
-        std::stringstream& text,
-        LogLevel           level,
-        LogStage           stage
-      );
-      static void logMessage(
-        const char* file,
-        const char* function,
-        const int   line,
-        const char* text,
-        LogLevel    level,
-        LogStage    stage
-      );
-
-      /**
-       * @brief write a warning message.
-       *
-       * @param file The current file. Intended to be the __FILE__ macro.
-       * @param function The current function. Intended to be the __FUNCTION__ macro.
-       * @param line The current line in the file. Intended to be the __LINE__ macro.
-       * @param text The message you want to print out.
-       */
-      static void logWarning(
-        const char* file, const char* function, const int line, std::string text
-      );
-      static void logWarning(
-        const char* file, const char* function, const int line, std::stringstream& text
-      );
-      static void logWarning(
-        const char* file, const char* function, const int line, const char* text
-      );
-
-      /**
-       * @brief write an error message and abort the run.
-       *
-       * @param file The current file. Intended to be the __FILE__ macro.
-       * @param function The current function. Intended to be the __FUNCTION__ macro.
-       * @param line The current line in the file. Intended to be the __LINE__ macro.
-       * @param text The message you want to print out.
-       */
-      static void logError(
-        const char* file, const char* function, const int line, std::string text
-      );
-      static void logError(
-        const char* file, const char* function, const int line, std::stringstream& text
-      );
-      static void logError(
-        const char* file, const char* function, const int line, const char* text
-      );
+  enum class LogStage {
+    Undefined = -1,
+    Header    = 0,
+    Init      = 1,
+    Step      = 2,
+    Count,
+  };
 
 
-      /**
-       * Set the global verbosity level.
-       */
-      static void setVerbosity(int verbosity);
-      static void setVerbosity(LogLevel verbosity);
+  class Log {
+  public:
+    // Don't instantiate this class, ever.
+    Log() = delete;
 
-    private:
-      static LogLevel _verbosity;
+    /**
+     * @brief write a log message to screen.
+     *
+     * @param file The current file. Intended to be the __FILE__ macro.
+     * @param function The current function. Intended to be the __FUNCTION__ macro.
+     * @param line The current line in the file. Intended to be the __LINE__ macro.
+     * @param text The message you want to print out.
+     * @param level "verbosity level" of the log message.
+     * @param stage stage of the code where this log is called from.
+     */
+    static void logMessage(
+      const char* file,
+      const char* function,
+      const int   line,
+      std::string text,
+      LogLevel    level,
+      LogStage    stage
+    );
+    static void logMessage(
+      const char*        file,
+      const char*        function,
+      const int          line,
+      std::stringstream& text,
+      LogLevel           level,
+      LogStage           stage
+    );
+    static void logMessage(
+      const char* file,
+      const char* function,
+      const int   line,
+      const char* text,
+      LogLevel    level,
+      LogStage    stage
+    );
 
-      /**
-       * Get the name of the given stage.
-       */
-      static const char* getStageName(LogStage stage);
-    };
+    /**
+     * @brief write a warning message.
+     *
+     * @param file The current file. Intended to be the __FILE__ macro.
+     * @param function The current function. Intended to be the __FUNCTION__ macro.
+     * @param line The current line in the file. Intended to be the __LINE__ macro.
+     * @param text The message you want to print out.
+     */
+    static void logWarning(
+      const char* file, const char* function, const int line, const std::string& text
+    );
+    static void logWarning(
+      const char* file, const char* function, const int line, const std::stringstream& text
+    );
+    static void logWarning(
+      const char* file, const char* function, const int line, const char* text
+    );
+
+    /**
+     * @brief write an error message and abort the run.
+     *
+     * @param file The current file. Intended to be the __FILE__ macro.
+     * @param function The current function. Intended to be the __FUNCTION__ macro.
+     * @param line The current line in the file. Intended to be the __LINE__ macro.
+     * @param text The message you want to print out.
+     */
+    static void logError(const char* file, const char* function, const int line, std::string text);
+    static void logError(
+      const char* file, const char* function, const int line, std::stringstream& text
+    );
+    static void logError(const char* file, const char* function, const int line, const char* text);
+
+
+    /**
+     * Set the global verbosity level.
+     */
+    static void setVerbosity(const int verbosity);
+    static void setVerbosity(const LogLevel verbosity);
+
+  private:
+    static LogLevel _verbosity;
+
+    /**
+     * Get the name of the given stage.
+     */
+    static const char* getStageName(LogStage stage);
+  };
 
 
 // This macro truncates the full path from the __FILE__ macro.
 #ifdef SOURCE_PATH_SIZE
-#define __FILENAME__ (__FILE__ + SOURCE_PATH_SIZE)
+#define FILENAME_ (__FILE__ + SOURCE_PATH_SIZE)
 #else
-#define __FILENAME__ __FILE__
+#define FILENAME_ __FILE__
 #endif
 
 #define MESSAGE_3_ARGS(msg, level, stage) \
-  hydro_playground::logging::Log::logMessage( \
-    __FILENAME__, __FUNCTION__, __LINE__, msg, level, stage \
-  );
+  logging::Log::logMessage(FILENAME_, __FUNCTION__, __LINE__, msg, level, stage);
 
 #define MESSAGE_2_ARGS(msg, stage) \
-  hydro_playground::logging::Log::logMessage( \
-    __FILENAME__, \
-    __FUNCTION__, \
-    __LINE__, \
-    msg, \
-    hydro_playground::logging::LogLevel::Undefined, \
-    stage \
+  logging::Log::logMessage( \
+    FILENAME_, __FUNCTION__, __LINE__, msg, logging::LogLevel::Undefined, stage \
   );
 
 #define MESSAGE_1_ARG(msg) \
-  hydro_playground::logging::Log::logMessage( \
-    __FILENAME__, \
+  logging::Log::logMessage( \
+    FILENAME_, \
     __FUNCTION__, \
     __LINE__, \
     msg, \
-    hydro_playground::logging::LogLevel::Undefined, \
-    hydro_playground::logging::LogStage::Undefined \
+    logging::LogLevel::Undefined, \
+    logging::LogStage::Undefined \
   );
 
 #define MESSAGE_GET_4TH_ARG(arg1, arg2, arg3, arg4, ...) arg4
@@ -160,12 +155,9 @@ namespace hydro_playground {
 #define message(...) MESSAGE_STRING_MACRO_CHOOSER(__VA_ARGS__)(__VA_ARGS__)
 
 
-#define error(msg) \
-  hydro_playground::logging::Log::logError(__FILENAME__, __FUNCTION__, __LINE__, msg);
+#define error(msg) logging::Log::logError(FILENAME_, __FUNCTION__, __LINE__, msg);
 
-#define warning(msg) \
-  hydro_playground::logging::Log::logWarning(__FILENAME__, __FUNCTION__, __LINE__, msg);
+#define warning(msg) logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, msg);
 
 
-  } // namespace logging
-} // namespace hydro_playground
+} // namespace logging

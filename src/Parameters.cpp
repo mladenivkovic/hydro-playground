@@ -1,101 +1,245 @@
 #include "Parameters.h"
 
+#include "Logging.h"
+
 
 // TODO: These definitions are temporary and need to go.
 // #define BC 2
-// #define BOXLEN 1.
+#define BOXLEN 1.
 // #define BCTOT 2 * BC
 
-namespace hydro_playground {
-  namespace parameters {
+namespace parameters {
 
-    // need to define it as well...
-    Parameters Parameters::Instance;
+  // need to define it as well...
+  Parameters Parameters::Instance;
 
-    Parameters::Parameters() :
-    _nstepsLog(0), _nsteps(0),
-    _tmax(0), _nx(100),
-    _ccfl(0.9), _boundary(Parameters::BoundaryCondition::Periodic),
-    _dx(1.0 / _nx), _bc(2), 
-    _nxTot(100 + 2*_bc)
+  Parameters::Parameters():
+    _verbose(logging::LogLevel::Quiet),
+    _nstepsLog(0),
+    _nsteps(0),
+    _tmax(0),
+    _nx(1),
+    _ccfl(0.),
+    _boundaryType(Parameters::BoundaryCondition::Periodic),
+    _nxTot(0),
+    _dx(1.0),
+    _nbc(0),
+    _locked(false)
 
-    // nxtot used to be 100 + BCTOT = 100 + 2*BC. Fixing BC to be 2 and BCTOT to be 
-    // 2*BC
+  // nxtot used to be 100 + BCTOT = 100 + 2*BC. Fixing BC to be 2 and BCTOT to be
+  // 2*BC
 
-    {/* empty body */}
+  { /* empty body */
+  }
 
 
-    // output related parameters
-    // -------------------------
+  // output related parameters
+  // -------------------------
 
-    // _foutput = 0;
-    // _dt_out = 0;
-    // strcpy(_outputfilename, "");
+  // _foutput = 0;
+  // _dt_out = 0;
+  // strcpy(_outputfilename, "");
 
-    // strcpy(_toutfilename, "");
-    // _use_toutfile = 0;
-    // _noutput_tot = 0;
-    // _noutput = 0;
-    // _outputtimes = NULL;
+  // strcpy(_toutfilename, "");
+  // _use_toutfile = 0;
+  // _noutput_tot = 0;
+  // _noutput = 0;
+  // _outputtimes = NULL;
 
-    // IC related parameters
-    // ---------------------
-    // _twostate_ic = 0;
-    // _ndim_ic = -1;
-    // strcpy(_datafilename, "");
+  // IC related parameters
+  // ---------------------
+  // _twostate_ic = 0;
+  // _ndim_ic = -1;
+  // strcpy(_datafilename, "");
 
-    // strcpy(_paramfilename, "");
+  // strcpy(_paramfilename, "");
 
-    // Sources related parameters
-    // --------------------------
-    // _src_const_acc_x = 0.;
-    // _src_const_acc_y = 0.;
-    // _src_const_acc_r = 0.;
-    // _constant_acceleration = 0;
-    // _constant_acceleration_computed = 0;
-    // _sources_are_read = 0;
 
-    /**
-     * Initialize parameters to default values
-     */
-    void Parameters::init() {
-      // TODO
+  // Sources related parameters
+  // --------------------------
+  // _src_const_acc_x = 0.;
+  // _src_const_acc_y = 0.;
+  // _src_const_acc_r = 0.;
+  // _constant_acceleration = 0;
+  // _constant_acceleration_computed = 0;
+  // _sources_are_read = 0;
+
+
+  void Parameters::init(
+    logging::LogLevel verbose,
+    size_t            nstepsLog,
+    size_t            nsteps,
+    float_t           tmax,
+    size_t            nx,
+    float_t           Ccfl,
+    BoundaryCondition boundaryType,
+    size_t            nbc
+  ) {
+
+    setVerbose(verbose);
+    setNstepsLog(nstepsLog);
+    setTmax(tmax);
+    setNx(nx);
+    setDx(BOXLEN / static_cast<float_t>(nx));
+    setCcfl(Ccfl);
+    setBoundaryType(boundaryType);
+    setNBC(nbc);
+
+#if DEBUG_LEVEL > 0
+    _locked = true;
+#endif
+  }
+
+  logging::LogLevel Parameters::getVerbose() const {
+    return _verbose;
+  }
+
+  void Parameters::setVerbose(const logging::LogLevel logLevel) {
+    _verbose = logLevel;
+
+#if DEBUG_LEVEL > 0
+    if (_locked) {
+      error("Trying to overwrite parameter values after init!");
     }
+#endif
+  }
 
-    int Parameters::getNstepsLog() const { return _nstepsLog; }
-    void Parameters::setNstepsLog(const int nstepsLog) { _nstepsLog = nstepsLog; }
+  void Parameters::setOutputFilename(std::string ofname) {
+    _outputfilename=ofname;
+  }
 
-    int Parameters::getNsteps() const { return _nsteps; }
-    void Parameters::setNsteps(const int nsteps) { _nsteps = nsteps; }
+  std::string Parameters::getOutputFilename() const {
+    return _outputfilename;
+  }
 
-    float Parameters::getTmax() const { return _tmax; }
-    void Parameters::setTmax(const float tmax) { _tmax = tmax; }
+  void Parameters::setIcDataFilename(std::string icfname) {
+    _icdatafilename=icfname;
+  }
 
-    int Parameters::getNx() const { return _nx; }
-    void Parameters::setNx(const int nx) { _nx = nx; }
+  std::string Parameters::getIcDataFilename() const {
+    return _icdatafilename;
+  }
 
-    float Parameters::getCcfl() const { return _ccfl; }
-    void Parameters::setCcfl(const float ccfl) { _ccfl = ccfl; }
+  size_t Parameters::getNstepsLog() const {
+    return _nstepsLog;
+  }
 
-    Parameters::BoundaryCondition Parameters::getBoundary() const { return _boundary; }
-    void Parameters::setBoundary(Parameters::BoundaryCondition boundary) { _boundary = boundary; }
+  void Parameters::setNstepsLog(const size_t nstepsLog) {
+    _nstepsLog = nstepsLog;
 
-    int Parameters::getNxTot() const { return _nxTot; }
-    void Parameters::setNxTot(const int nxTot) { _nxTot = nxTot; }
+#if DEBUG_LEVEL > 0
+    if (_locked) {
+      error("Trying to overwrite parameter values after init!");
+    }
+#endif
+  }
 
-    float Parameters::getDx() const { return _dx; }
-    void Parameters::setDx(const float dx) { _dx = dx; }
+  size_t Parameters::getNsteps() const {
+    return _nsteps;
+  }
 
-    int Parameters::getBc() const { return _bc; }
+  void Parameters::setNsteps(const size_t nsteps) {
+    _nsteps = nsteps;
 
-    void Parameters::setBc(const int bc) {_bc = bc;}
-    int Parameters::getBcTot() const {return 2*getBc();}
+#if DEBUG_LEVEL > 0
+    if (_locked) {
+      error("Trying to overwrite parameter values after init!");
+    }
+#endif
+  }
 
-    void Parameters::setOutputFilename(std::string ofname) {_outputfilename=ofname;}
-    std::string Parameters::getOutputFilename() const {return _outputfilename;}
+  float_t Parameters::getTmax() const {
+    return _tmax;
+  }
 
-    void Parameters::setIcDataFilename(std::string icfname) {_icdatafilename=icfname;}
-    std::string Parameters::getIcDataFilename() const {return _icdatafilename;}
+  void Parameters::setTmax(const float tmax) {
+    _tmax = tmax;
 
-  } // namespace parameters
-} // namespace hydro_playground
+#if DEBUG_LEVEL > 0
+    if (_locked) {
+      error("Trying to overwrite parameter values after init!");
+    }
+#endif
+  }
+
+  size_t Parameters::getNx() const {
+    return _nx;
+  }
+
+  void Parameters::setNx(const size_t nx) {
+    _nx = nx;
+
+#if DEBUG_LEVEL > 0
+    if (_locked) {
+      error("Trying to overwrite parameter values after init!");
+    }
+#endif
+  }
+
+  float_t Parameters::getCcfl() const {
+    return _ccfl;
+  }
+
+  void Parameters::setCcfl(const float ccfl) {
+    _ccfl = ccfl;
+
+#if DEBUG_LEVEL > 0
+    if (_locked) {
+      error("Trying to overwrite parameter values after init!");
+    }
+#endif
+  }
+
+  size_t Parameters::getNxTot() const {
+    return getNx() + 2 * getNBC();
+  }
+
+  float_t Parameters::getDx() const {
+    return _dx;
+  }
+
+  void Parameters::setDx(const float_t dx) {
+    _dx = dx;
+
+
+#if DEBUG_LEVEL > 0
+    if (_locked) {
+      error("Trying to overwrite parameter values after init!");
+    }
+#endif
+  }
+
+  Parameters::BoundaryCondition Parameters::getBoundaryType() const {
+    return _boundaryType;
+  }
+
+  void Parameters::setBoundaryType(Parameters::BoundaryCondition boundaryType) {
+    _boundaryType = boundaryType;
+
+#if DEBUG_LEVEL > 0
+    if (_locked) {
+      error("Trying to overwrite parameter values after init!");
+    }
+#endif
+  }
+
+  size_t Parameters::getNBC() const {
+    return _nbc;
+  }
+
+  void Parameters::setNBC(const size_t bc) {
+    _nbc = bc;
+
+#if DEBUG_LEVEL > 0
+    if (_locked) {
+      error("Trying to overwrite parameter values after init!");
+    }
+#endif
+  }
+
+  size_t Parameters::getNBCTot() const {
+    return 2 * getNBC();
+  }
+
+
+} // namespace parameters

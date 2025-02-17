@@ -1,4 +1,7 @@
+#include <cassert>
+
 #include "IO.h"
+
 
 // i don't see why we need more than this many args
 static constexpr int argc_max    = 20;
@@ -22,7 +25,7 @@ bool isWhitespace( char* const line, int len=lineLength )
   char* ptr   = line;
   for (int i=0; i<len; i++)
   {
-    if ( ( *(ptr+i)!=' ' ) and ( *(ptr+i)!='\n' ) and ( *(ptr+i)!=EOF) and (bool)(*(ptr+i)) ) 
+    if ( ( *(ptr+i)!=' ' ) and ( *(ptr+i)!='\n' ) and ( *(ptr+i)!=EOF) and (bool)(*(ptr+i)) )
     {
       output = false;
       break;
@@ -35,7 +38,7 @@ bool isComment( char* const line, int len=lineLength)
 {
   // Scan past all the spaces, if the first non-space
   // chars you see are // or /*, then return true.
-  // beware of dereferencing over the end of the 
+  // beware of dereferencing over the end of the
   // array.
   char* ptr = line;
   while( *ptr == ' ' )
@@ -64,7 +67,7 @@ bool lineIsInvalid(char* const line, int len=lineLength)
 namespace hydro_playground{
   namespace IO
   {
-    
+
     const std::vector< std::string > InputParse::requiredArgs = {
       // {"--help",        "-h"},
       "--config-file",
@@ -123,10 +126,10 @@ namespace hydro_playground{
           output = false;
         }
       }
-      
+
       return output;
     }
-    
+
     void InputParse::readCommandOptions()
     {
       // check it first...
@@ -151,12 +154,12 @@ namespace hydro_playground{
 
       // Buffer to fill with data from the file
       char  lineBuffer[lineLength] = {0};
-      // Pointer to move across the buffer. We 
+      // Pointer to move across the buffer. We
       // use this to fill the buffer with data
       char* lineptr(lineBuffer);
 
-      // lambda to advance our file pointer. Would do this with 
-      // aux function but i wanna keep the pointers in the 
+      // lambda to advance our file pointer. Would do this with
+      // aux function but i wanna keep the pointers in the
       // stack frame
       auto readUntil = [&]( const char& ch ){
         resetBuffer(lineBuffer);
@@ -213,16 +216,16 @@ namespace hydro_playground{
 
       // loop over remaining lines and store results
       int valsToFetchPerLine = 2 + dims;
-      
+
       /*
-      Warning - make sure we don't place these 
+      Warning - make sure we don't place these
       outside of the boundary!
-      
+
       start at bc etc!
 
       bytesToRead is decremented inside readUntil
       */
-      while ( bytesToRead > 0 )      
+      while ( bytesToRead > 0 )
       {
         // fill the line buffer with some data
         readUntil('\n');
@@ -238,18 +241,18 @@ namespace hydro_playground{
         ptr0 = lineBuffer; ptr1 = lineBuffer;
 
         // Send these off to the grid - handle indexing in the grid class
-        Grid::Instance.SetInitialConditions(valuesFetched, initialValuesToPassOver);
+        cell::Grid::Instance.SetInitialConditions(valuesFetched, initialValuesToPassOver);
 
         valuesFetched++;
       }
-      
+
       // validation - does valuesFetched match nx?
       assert(valuesFetched==nx);
 
 
       fclose(icfile);
     }
-    
+
   } // namespace IO
-  
+
 } // namespace hydro_playground
