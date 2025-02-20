@@ -1,28 +1,28 @@
 #pragma once
 
 #include <string>
-#include <vector>
 
 #include "Config.h"
 #include "Gas.h"
 
 
 namespace cell {
-  class Cell;
 
   class Cell {
+
   public:
+
     //! Standard constructor
     Cell();
+
     //! copy assignment, for copying boundary data
     //! Return reference to this, for chaining calls
     // TODO: This doesn't compile
     // Cell& operator=(const Cell& other) = default;
 
-    //! Should be called from within the ghost
     void CopyBoundaryData(const Cell* real);
-    //! Should be called from within the ghost
-    void CopyBoundaryDataReflective(const Cell* real, const int dimension);
+
+    void CopyBoundaryDataReflective(const Cell* real, const size_t dimension);
 
     //! Calls conserved to primitive on the members
     void ConservedToPrimitive() {
@@ -34,25 +34,33 @@ namespace cell {
     };
 
   private:
+    //! Cell ID
     int _id;
 
-    /*
-    Positions of centres
-    */
+    //! x position of cell centre
     float_t _x;
+
+    //! y position of cell centre
     float_t _y;
 
+    //! Primitive gas state
     IdealGas::PrimitiveState _prim;
+
+    //! Conserved gas state
     IdealGas::ConservedState _cons;
 
+    //! Fluxes of primitive state
     IdealGas::PrimitiveState _pflux;
+
+    //! Fluxes of conserved state
     IdealGas::ConservedState _cflux;
 
+    //! Acceleration
     std::array<float_t, Dimensions> _acc;
 
   public:
     // leaving these for now
-    std::string getIndexString();
+    // std::string getIndexString();
 
     // getters and setters
     void setX(float_t x);
@@ -60,10 +68,12 @@ namespace cell {
 
     void                      setId(const int id);
     int                       getID() const;
+
+    //! Get cell index(es) in grid
     std::pair<size_t, size_t> getIJ();
 
 
-    // return refs to the above
+    //! return refs to the above
     IdealGas::PrimitiveState& getPrim() {
       return _prim;
     }

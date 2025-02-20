@@ -17,25 +17,38 @@ cell::Cell::Cell():
   _cons(),
   _pflux(),
   _cflux(),
-  _acc({0, 0}) { /* Empty body. */
+  _acc({0, 0}) {
+    /* Empty body. */
 }
 
 
+/**
+ * @brief Copies the actual data needed for boundaries from a real
+ * cell to a ghost cell.
+ * Should be called from within the ghost cell.
+ *
+ * @param real the "real" cell, which we are copying data from
+ */
 void cell::Cell::CopyBoundaryData(const cell::Cell* real) {
   // This should be called from within the ghost
 
-  // copy everything from the other!
+  // copy everything from the other
   _prim = real->getPrim();
   _cons = real->getCons();
-  // check this is taking a deep copy for real!
+  // TODO(mivkov): check this is taking a deep copy for real!
 }
 
 
-void cell::Cell::CopyBoundaryDataReflective(const cell::Cell* real, const int dimension) {
-  /*
-   * Copies the data we need. Dimension indiciates which dimension
-   * We flip the velocities
-   */
+/**
+ * @brief Copies the actual data needed for boundaries from a real
+ * cell to a ghost cell. Here for a reflective boundary
+ * condition, where we need to invert the velocities.
+ * Should be called from within the ghost cell.
+ *
+ * @param cell* real: pointer to real cell from which we take data
+ * @param dimension: in which dimension the reflection is supposed to be
+ */
+void cell::Cell::CopyBoundaryDataReflective(const cell::Cell* real, const size_t dimension) {
 
   // This should be called from within the ghost
   _prim = real->getPrim();
@@ -50,6 +63,9 @@ void cell::Cell::CopyBoundaryDataReflective(const cell::Cell* real, const int di
 }
 
 
+/**
+ * Compute the i and j indexes of a cell in the grid
+ */
 std::pair<size_t, size_t> cell::Cell::getIJ() {
   std::pair<size_t, size_t> output;
   size_t                    nxtot = parameters::Parameters::Instance.getNxTot();
@@ -67,7 +83,6 @@ std::pair<size_t, size_t> cell::Cell::getIJ() {
 }
 
 
-// Getters and setters for cell!
 void cell::Cell::setX(float_t x) {
   _x = x;
 }
