@@ -4,7 +4,7 @@
 
 cmake_minimum_required(VERSION 3.21)
 
-project(hydro_playground VERSION 1.0)
+project(hydro_playground VERSION 0.1)
 set(LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -31,9 +31,9 @@ if(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_BUILD_TYPE)
 
 # Notes:
-#   - Wno-unused-parameter: 
+#   - Wno-unused-parameter:
 #       Ignore warnings about unused function parameters.
-#   - Wno-string-plus-int: 
+#   - Wno-string-plus-int:
 #       Avoid warning "adding 'int' to a string does not append to the string"
 #       That occurs all the time because of my __FILENAME__ = __FILE__ + SOURCE_PATH_SIZE trick.
 
@@ -56,8 +56,8 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(DEBUG_LEVEL 2)
 
 else()
-    message(FATAL_ERROR 
-        "Invalid CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}. " 
+    message(FATAL_ERROR
+        "Invalid CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}. "
         "Options are [Release, RelWithDebInfo, Debug]. "
         "Pick one of those."
         )
