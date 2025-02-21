@@ -1,7 +1,8 @@
-#include "Cell.h"
 #include "Grid.h"
+
 #include <cassert>
 
+#include "Cell.h"
 #include "Parameters.h"
 
 // define the static copy. Calls the default constructor but
@@ -27,7 +28,7 @@ void grid::Grid::initGrid() {
   // log_extra("Initializing grid; ndim=%d, nx=%d", NDIM, pars.nx);
 
   size_t  nxTot = parameters::Parameters::Instance.getNxTot();
-  size_t  nbc    = parameters::Parameters::Instance.getNBC();
+  size_t  nbc   = parameters::Parameters::Instance.getNBC();
   float_t dx    = parameters::Parameters::Instance.getDx();
 
   if (Dimensions == 1) {
@@ -63,22 +64,16 @@ void grid::Grid::initGrid() {
 /**
  * [density, velocity, pressure]
  */
-void grid::Grid::setInitialConditions(size_t position, std::vector<float_t> vals)
-{
-  assert(
-    (vals.size() == 4 and Dimensions==2)
-    or
-    (vals.size() == 3 and Dimensions==1)
-  );
+void grid::Grid::setInitialConditions(size_t position, std::vector<float_t> vals) {
+  assert((vals.size() == 4 and Dimensions == 2) or (vals.size() == 3 and Dimensions == 1));
   // Let's set i,j based on the position in the array we passed in
   size_t i;
   size_t j;
-  if ( Dimensions == 1 ) {
-    i=position;
-    j=0;
+  if (Dimensions == 1) {
+    i = position;
+    j = 0;
   }
-  if ( Dimensions == 2 )
-  {
+  if (Dimensions == 2) {
     i = position % parameters::Parameters::Instance.getNx();
     j = position / parameters::Parameters::Instance.getNx();
   }
@@ -86,16 +81,14 @@ void grid::Grid::setInitialConditions(size_t position, std::vector<float_t> vals
   // alias the bc value
   size_t nbc = parameters::Parameters::Instance.getNBC();
 
-  getCell(i+nbc, j+nbc).getPrim().setRho( vals[0] );
-  getCell(i+nbc, j+nbc).getPrim().setU(0, vals[1]);
-  if(Dimensions==1)
-  {
-    getCell(i+nbc, j+nbc).getPrim().setP(vals[2]);
+  getCell(i + nbc, j + nbc).getPrim().setRho(vals[0]);
+  getCell(i + nbc, j + nbc).getPrim().setU(0, vals[1]);
+  if (Dimensions == 1) {
+    getCell(i + nbc, j + nbc).getPrim().setP(vals[2]);
   }
-  if(Dimensions==2)
-  {
-    getCell(i+nbc, j+nbc).getPrim().setU(1,vals[2]);
-    getCell(i+nbc, j+nbc).getPrim().setP(vals[3]);
+  if (Dimensions == 2) {
+    getCell(i + nbc, j + nbc).getPrim().setU(1, vals[2]);
+    getCell(i + nbc, j + nbc).getPrim().setP(vals[3]);
   }
 }
 
@@ -164,7 +157,7 @@ float_t grid::Grid::getTotalMass() {
  */
 void grid::Grid::resetFluxes() {
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
-  size_t         nbc   = parameters::Parameters::Instance.getNBC();
+  size_t         nbc  = parameters::Parameters::Instance.getNBC();
   size_t         nx   = parameters::Parameters::Instance.getNx();
 
   for (size_t i = nbc; i < nbc + nx; i++) {
@@ -183,7 +176,7 @@ void grid::Grid::resetFluxes() {
  */
 void grid::Grid::getCStatesFromPstates() {
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
-  size_t         nbc   = parameters::Parameters::Instance.getNBC();
+  size_t         nbc  = parameters::Parameters::Instance.getNBC();
   size_t         nx   = parameters::Parameters::Instance.getNx();
 
   for (size_t i = nbc; i < nbc + nx; i++) {
@@ -201,7 +194,7 @@ void grid::Grid::getCStatesFromPstates() {
  */
 void grid::Grid::getPStatesFromCstates() {
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
-  size_t         nbc   = parameters::Parameters::Instance.getNBC();
+  size_t         nbc  = parameters::Parameters::Instance.getNBC();
   size_t         nx   = parameters::Parameters::Instance.getNx();
 
   for (size_t i = nbc; i < nbc + nx; i++) {
@@ -219,7 +212,7 @@ void grid::Grid::getPStatesFromCstates() {
  * calls the function that actually copies the data.
  */
 void grid::Grid::setBoundary() {
-  const size_t nbc    = parameters::Parameters::Instance.getNBC();
+  const size_t nbc   = parameters::Parameters::Instance.getNBC();
   const size_t nx    = parameters::Parameters::Instance.getNx();
   const size_t bctot = parameters::Parameters::Instance.getNBCTot();
 
@@ -289,35 +282,32 @@ void grid::Grid::realToGhost(
 ) // dimension defaults to 0
 {
   // prevents crowding down there
-  using BC = parameters::Parameters::BoundaryCondition;
-  auto pars = parameters::Parameters::Instance;
-  size_t nbc = pars.getNBC();
+  using BC    = parameters::Parameters::BoundaryCondition;
+  auto   pars = parameters::Parameters::Instance;
+  size_t nbc  = pars.getNBC();
 
   switch (pars.getBoundaryType()) {
-    case BC::Periodic: {
-      for (size_t i = 0; i < nbc; i++) {
-        ghostLeft[i]->CopyBoundaryData(realLeft[i]);
-        ghostRight[i]->CopyBoundaryData(realRight[i]);
-      }
+  case BC::Periodic: {
+    for (size_t i = 0; i < nbc; i++) {
+      ghostLeft[i]->CopyBoundaryData(realLeft[i]);
+      ghostRight[i]->CopyBoundaryData(realRight[i]);
     }
-    break;
+  } break;
 
-    case BC::Reflective: {
-      for (size_t i = 0; i < nbc; i++) {
-        ghostLeft[i]->CopyBoundaryDataReflective(realLeft[i], dimension);
-        ghostRight[i]->CopyBoundaryDataReflective(realRight[i], dimension);
-      }
+  case BC::Reflective: {
+    for (size_t i = 0; i < nbc; i++) {
+      ghostLeft[i]->CopyBoundaryDataReflective(realLeft[i], dimension);
+      ghostRight[i]->CopyBoundaryDataReflective(realRight[i], dimension);
     }
-    break;
+  } break;
 
-    case BC::Transmissive: {
-      for (size_t i = 0; i < nbc; i++) {
-        ghostLeft[i]->CopyBoundaryData(realLeft[i]);
+  case BC::Transmissive: {
+    for (size_t i = 0; i < nbc; i++) {
+      ghostLeft[i]->CopyBoundaryData(realLeft[i]);
 
-        // assumption that this vector has length "bc".
-        ghostRight[i]->CopyBoundaryData(realRight[nbc - i - 1]);
-      }
+      // assumption that this vector has length "bc".
+      ghostRight[i]->CopyBoundaryData(realRight[nbc - i - 1]);
     }
-    break;
+  } break;
   }
 }

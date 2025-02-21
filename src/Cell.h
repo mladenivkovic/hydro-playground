@@ -11,7 +11,6 @@ namespace cell {
   class Cell {
 
   public:
-
     //! Standard constructor
     Cell();
 
@@ -66,8 +65,8 @@ namespace cell {
     void setX(float_t x);
     void setY(float_t y);
 
-    void                      setId(const int id);
-    int                       getID() const;
+    void setId(const int id);
+    int  getID() const;
 
     //! Get cell index(es) in grid
     std::pair<size_t, size_t> getIJ();

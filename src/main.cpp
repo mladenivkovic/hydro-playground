@@ -5,11 +5,10 @@
 
 #include "Grid.h"
 // #include "Config.h" // todo: necessary?
+#include "IO.h"
 #include "Logging.h"
 #include "Parameters.h"
 #include "Utils.h"
-#include "IO.h"
-
 
 
 int main(int argc, char* argv[]) {
@@ -20,7 +19,7 @@ int main(int argc, char* argv[]) {
 
   // Fire up IO
   IO::InputParse input(argc, argv);
-  if ( not input.inputIsValid() ) {
+  if (not input.inputIsValid()) {
     return 1;
   }
 

@@ -28,8 +28,8 @@ namespace parameters {
 
   public:
     enum class BoundaryCondition {
-      Periodic = 0,
-      Reflective = 1,
+      Periodic     = 0,
+      Reflective   = 1,
       Transmissive = 2
     };
 
@@ -224,12 +224,11 @@ namespace parameters {
     float_t getDx() const;
     void    setDx(const float_t dx);
 
-    void setOutputFilename(std::string);
+    void        setOutputFilename(std::string);
     std::string getOutputFilename() const;
 
-    void setIcDataFilename(std::string);
+    void        setIcDataFilename(std::string);
     std::string getIcDataFilename() const;
-
 
 
     //! single copy of the global variables

@@ -14,11 +14,11 @@ namespace grid {
   public:
     // Constructors et al.
     // Forbid copying and moving - we want a singleton.
-    Grid() = default; // constructor
-    Grid(const Grid& ) = delete; // copy constructor
-    Grid(const Grid&& ) = delete; // move constructor
-    Grid operator=(const Grid&) = delete; // copy operator
-    Grid& operator=(const Grid&& ) = delete; // move assignment operator
+    Grid()                        = default; // constructor
+    Grid(const Grid&)             = delete;  // copy constructor
+    Grid(const Grid&&)            = delete;  // move constructor
+    Grid  operator=(const Grid&)  = delete;  // copy operator
+    Grid& operator=(const Grid&&) = delete;  // move assignment operator
     // TODO(mivkov): Deallocate grid here
     ~Grid() = default;
 
@@ -72,4 +72,3 @@ namespace grid {
   };
 
 } // namespace grid
-

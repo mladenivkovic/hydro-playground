@@ -105,7 +105,7 @@ namespace parameters {
   }
 
   void Parameters::setOutputFilename(std::string ofname) {
-    _outputfilename=ofname;
+    _outputfilename = ofname;
   }
 
   std::string Parameters::getOutputFilename() const {
@@ -113,7 +113,7 @@ namespace parameters {
   }
 
   void Parameters::setIcDataFilename(std::string icfname) {
-    _icdatafilename=icfname;
+    _icdatafilename = icfname;
   }
 
   std::string Parameters::getIcDataFilename() const {

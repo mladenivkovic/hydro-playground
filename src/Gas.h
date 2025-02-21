@@ -96,16 +96,16 @@ namespace IdealGas {
     //! Compute the conserved state vector of a given primitive state.
     void PrimitiveToConserved(const PrimitiveState& primState);
 
-   /**
-    * Compute the flux of conserved variables of the Euler
-    * equations given a primitive state vector
-    */
+    /**
+     * Compute the flux of conserved variables of the Euler
+     * equations given a primitive state vector
+     */
     void GetCFluxFromPstate(const PrimitiveState& pstate, const std::size_t dimension);
 
-   /**
-    * Compute the flux of conserved variables of the Euler
-    * equations given a conserved state vector
-    */
+    /**
+     * Compute the flux of conserved variables of the Euler
+     * equations given a conserved state vector
+     */
     void GetCFluxFromCstate(const ConservedState& cstate, const std::size_t dimension);
 
     // Getters and setters!

@@ -1,8 +1,8 @@
+#include "Gas.h"
+
 #include <cmath>
 
 #include "Constants.h"
-#include "Gas.h"
-
 
 
 // Stuff for primitive state
@@ -12,7 +12,7 @@ IdealGas::PrimitiveState::PrimitiveState():
   u({0., 0.}),
   p(0.) {
     // empty body...
-};
+  };
 
 
 /**
@@ -101,7 +101,7 @@ IdealGas::ConservedState::ConservedState():
   rhou({0., 0.}),
   E(0.) {
     // empty body...
-};
+  };
 
 
 /**
@@ -137,11 +137,11 @@ void IdealGas::ConservedState::GetCFluxFromPstate(const PrimitiveState& p, const
   setRhou(dimension, momentum_dim);
 
   // momentum flux along the other dimension
-  float_t momentum_other =  p.getRho() * p.getU(0) * p.getU(1);
+  float_t momentum_other = p.getRho() * p.getU(0) * p.getU(1);
   setRhou((dimension + 1) % 2, momentum_other);
 
   // gas energy
-  float_t E = 0.5 * p.getRho() * p.getUSquared() + p.getP() / GM1;
+  float_t E     = 0.5 * p.getRho() * p.getUSquared() + p.getP() / GM1;
   float_t Eflux = (E + p.getP()) * p.getU(dimension);
   setE(Eflux);
 }
@@ -177,7 +177,7 @@ void IdealGas::ConservedState::GetCFluxFromCstate(const ConservedState& c, const
     setRhou(dimension, momentum_dim);
 
     // momentum flux along the other dimension
-    size_t other_index = (dimension + 1) % 2;
+    size_t  other_index    = (dimension + 1) % 2;
     float_t momentum_other = c.getRhou(other_index) * v;
     setRhou(other_index, momentum_other);
 
@@ -189,7 +189,6 @@ void IdealGas::ConservedState::GetCFluxFromCstate(const ConservedState& c, const
     setRhou(0, 0.);
     setRhou(1, 0.);
     setE(0.);
-
   }
 }
 
