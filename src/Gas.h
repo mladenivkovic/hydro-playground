@@ -26,11 +26,11 @@ namespace IdealGas {
 
 
   public:
-    // Standard constructor, init variables to 0
+    //! Standard constructor, init variables to 0
     PrimitiveState();
 
     // copy assignment
-    // TODO(mivkov): This doesn't compile
+    // TODO(mivkov): This doesn't compile. Check with boundary conditions
     // PrimitiveState& operator=(const PrimitiveState& other) = default;
 
     // putting this in just in case it's needed
@@ -38,24 +38,28 @@ namespace IdealGas {
       *this = PrimitiveState();
     }
 
-    // Convert a conserved state to a (this) primitive state.
-    // Overwrites the contents of this primitive state.
-    // TODO(mivkov): implementation
+    /**
+     * Convert a conserved state to a (this) primitive state.
+     * Overwrites the contents of this primitive state.
+     */
     void ConservedToPrimitive(const ConservedState& conservedState);
 
+    //! Get the local soundspeed given a primitive state
     float_t getSoundSpeed();
+
+    //! Get the total gas energy from a primitive state
     float_t getEnergy();
 
+
     // Getters and setters!
-    //
 
     // Setter for Rho
     void    setRho(const float_t val);
     float_t getRho() const;
 
     // same for u
-    void    setU(const int index, const float_t val);
-    float_t getU(const int index) const;
+    void    setU(const std::size_t index, const float_t val);
+    float_t getU(const std::size_t index) const;
 
     // used a lot, made a function for it
     float_t getUSquared() const;
@@ -84,13 +88,25 @@ namespace IdealGas {
     ConservedState();
 
     // putting this in in case it's needed
+    // TODO(mivkov): is this needed?
     void resetToInitialState() {
       *this = ConservedState();
     }
 
+    //! Compute the conserved state vector of a given primitive state.
     void PrimitiveToConserved(const PrimitiveState& primState);
-    void GetCFluxFromPstate(const PrimitiveState& pstate, int dimension);
-    void GetCFluxFromCstate(const ConservedState& cstate, int dimension);
+
+   /**
+    * Compute the flux of conserved variables of the Euler
+    * equations given a primitive state vector
+    */
+    void GetCFluxFromPstate(const PrimitiveState& pstate, const std::size_t dimension);
+
+   /**
+    * Compute the flux of conserved variables of the Euler
+    * equations given a conserved state vector
+    */
+    void GetCFluxFromCstate(const ConservedState& cstate, const std::size_t dimension);
 
     // Getters and setters!
     void    setRho(const float_t val);
