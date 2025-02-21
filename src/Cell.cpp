@@ -10,14 +10,11 @@
  */
 cell::Cell::Cell():
   _id(0),
-  _x(0),
-  _y(0),
+  _x(0.),
+  _y(0.)
   // and the ideal gasses too
-  _prim(),
-  _cons(),
-  _pflux(),
-  _cflux(),
-  _acc({0, 0}) {
+  // _acc({0, 0})
+{
     /* Empty body. */
 }
 

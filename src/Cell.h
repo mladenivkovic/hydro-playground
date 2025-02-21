@@ -56,7 +56,7 @@ namespace cell {
     IdealGas::ConservedState _cflux;
 
     //! Acceleration
-    std::array<float_t, Dimensions> _acc;
+    // std::array<float_t, Dimensions> _acc;
 
   public:
     // leaving these for now
