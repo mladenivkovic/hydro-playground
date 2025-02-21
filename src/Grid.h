@@ -7,27 +7,32 @@
 
 namespace grid {
 
-  // template <int Dimensions>
   class Grid {
   private:
     std::vector<cell::Cell> _cells;
 
   public:
-    Grid() = default;
-    // Forbid copying and moving.
-    Grid(const Grid& ) = delete;
-    void operator=(const Grid&) = delete;
-    Grid(const Grid&& ) = delete;
+    // Constructors et al.
+    // Forbid copying and moving - we want a singleton.
+    Grid() = default; // constructor
+    Grid(const Grid& ) = delete; // copy constructor
+    Grid(const Grid&& ) = delete; // move constructor
+    Grid operator=(const Grid&) = delete; // copy operator
+    Grid& operator=(const Grid&& ) = delete; // move assignment operator
+    // TODO(mivkov): Deallocate grid here
     ~Grid() = default;
 
+    //! Get a cell by its index. Here 1D and 2D versions.
     cell::Cell& getCell(size_t i);
     cell::Cell& getCell(size_t i, size_t j);
 
-    void InitGrid();
+    //! Initialise the grid.
+    void initGrid();
+
     /**
      * @brief get the total mass of the grid.
      */
-    float_t GetTotalMass();
+    float_t getTotalMass();
 
     /**
      * @brief Pass in vector of initial vals, to be read from IC file.
@@ -36,19 +41,27 @@ namespace grid {
      * In 2d this should be:
      * [density, velocity_x, velocity_y, pressure]
      */
-    void SetInitialConditions(int position, std::vector<float_t> vals);
+    void setInitialConditions(size_t position, std::vector<float_t> vals);
 
+    //! Run through the grid and get cstates from pstates
     void getCStatesFromPstates();
+
+    //! Run through the grid and get pstates from cstates
     void getPStatesFromCstates();
+
+    //! Reset all fluxes
     void resetFluxes();
 
+    //! enforce boundary conditions.
     void setBoundary();
-    void realToGhost(
+
+    //! Apply the boundary conditions from real to ghost cells.
+    static void realToGhost(
       std::vector<cell::Cell*>,
       std::vector<cell::Cell*>,
       std::vector<cell::Cell*>,
       std::vector<cell::Cell*>,
-      int dimension = 0
+      const size_t dimension = 0
     );
 
     // static copy for global access

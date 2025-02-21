@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
   parameters::Parameters::Instance.init();
 
   // initialise the grid of cells
-  grid::Grid::Instance.InitGrid();
+  grid::Grid::Instance.initGrid();
 
   input.readICFile();
 

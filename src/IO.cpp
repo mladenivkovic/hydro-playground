@@ -242,7 +242,7 @@ namespace IO {
       ptr0 = lineBuffer; ptr1 = lineBuffer;
 
       // Send these off to the grid - handle indexing in the grid class
-      grid::Grid::Instance.SetInitialConditions(valuesFetched, initialValuesToPassOver);
+      grid::Grid::Instance.setInitialConditions(valuesFetched, initialValuesToPassOver);
 
       valuesFetched++;
     }
