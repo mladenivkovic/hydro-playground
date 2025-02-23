@@ -33,7 +33,7 @@ TODO.
 
 ### Requirements
 
-- A good old C++ compiler. Code is written in C++11 standard.
+- A good old C++ compiler. Code is written in C++17 standard.
 - `cmake` 3.21 or above
 - `python 3` with `numpy` and `matplotlib` for plotting and generating ICs.
 - LaTeX to create the TeX files. I hardcoded the `pdflatex` command in the scripts. It doesn't
