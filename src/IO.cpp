@@ -1,87 +1,120 @@
-#include "IO.h"
-
+#include <algorithm> // std::find
 #include <cassert>
+#include <filesystem>
+// #include <sstream>
 
+#include "Cell.h"
 #include "Grid.h"
+#include "IO.h"
+#include "Logging.h"
+#include "Parameters.h"
 
 
-// I don't see why we need more than this many args
-static constexpr int argc_max   = 20;
-static constexpr int lineLength = 256;
-
-
-template <typename T>
-void resetBuffer(T* buffer, int len = lineLength) {
-  for (int i = 0; i < len; i++) {
-    buffer[i] = 0;
-  }
-}
-
-
-bool isWhitespace(char* const line, int len = lineLength) {
-  // Scan through the line buffer. if we see
-  // any character that isn't \n, space, EOF or null
-  // then return false
-
-  bool  output = true;
-  char* ptr    = line;
-  for (int i = 0; i < len; i++) {
-    if ((*(ptr + i) != ' ') and (*(ptr + i) != '\n') and (*(ptr + i) != EOF)
-        and (bool)(*(ptr + i))) {
-      output = false;
-      break;
-    }
-  }
-  return output;
-}
-
-bool isComment(char* const line, int len = lineLength) {
-  // Scan past all the spaces, if the first non-space
-  // chars you see are // or /*, then return true.
-  // beware of dereferencing over the end of the
-  // array.
-  char* ptr = line;
-  while (*ptr == ' ') {
-    if (std::distance(line, ptr) > len - 2)
-      return false;
-    ptr++;
-  }
-
-  return ((*ptr == '/' and *(ptr + 1) == '/') or (*ptr == '/' and *(ptr + 1) == '*'));
-}
-
-bool lineIsInvalid(char* const line, int len = lineLength) {
-  bool output = false;
-  output |= isWhitespace(line);
-  output |= isComment(line);
-  // room for other stuff...
-
-  return output;
-}
+#include <iostream>
 
 namespace IO {
 
+  namespace internal {
+
+    // I don't see why we need more than this many args
+    static constexpr int argc_max   = 20;
+    static constexpr int lineLength = 256;
+
+
+    template <typename T>
+    void resetBuffer(T* buffer, const size_t len = lineLength) {
+      for (size_t i = 0; i < len; i++) {
+        buffer[i] = 0;
+      }
+    }
+
+
+    /**
+     * Scan through the line buffer. If we see any character that isn't `\n`,
+     * space, EOF or null then return false
+     */
+     bool isWhitespace(const char* line, const size_t len = lineLength) {
+      for (size_t i = 0; i < len; i++) {
+        if ((line[i] != ' ') and (line[i] != '\n') and (line[i] != EOF)
+            and (bool)(line[i])) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+
+    bool isComment(char* const line, int len = lineLength) {
+      // Scan past all the spaces, if the first non-space
+      // chars you see are // or /*, then return true.
+      // beware of dereferencing over the end of the
+      // array.
+      char* ptr = line;
+      while (*ptr == ' ') {
+        if (std::distance(line, ptr) > len - 2)
+          return false;
+        ptr++;
+      }
+
+      return ((*ptr == '/' and *(ptr + 1) == '/') or (*ptr == '/' and *(ptr + 1) == '*'));
+    }
+
+
+    bool lineIsInvalid(char* const line, int len = lineLength) {
+      bool output = false;
+      output |= isWhitespace(line);
+      output |= isComment(line);
+      // room for other stuff...
+
+      return output;
+    }
+
+
+    /**
+     * Does a file exist?
+     */
+    bool fileExists(const std::string& filename){
+      return std::filesystem::exists(filename);
+    }
+
+  }  // namespace internal
+
+
   const std::vector<std::string> InputParse::requiredArgs = {
-    // {"--help",        "-h"},
     "--config-file",
     "--ic-file",
-    "--output-file",
   };
 
-  const std::string InputParse::helpMessage = "This is the help message!\n";
 
-  //! Consutrctor
-  InputParse::InputParse(int argc, char* argv[]) {
+  const std::string InputParse::helpMessage =
+    std::string("This is the hydro code help message.\n\nUsage: \n\n") +
+    "Default run:\n  ./hydro --config-file <config-file> --ic-file <ic-file>\n" +
+    "    <config-file>: file containing your run parameter configuration. See README for details.\n"+
+    "    <ic-file>: file containing your initial conditions. See README for details.\n\n"+
+    "Get this help message:\n  ./hydro -h\n  ./hydro --help\n"
+    ;
+
+
+  /**
+   * Constructor
+   */
+  InputParse::InputParse(const int argc, char* argv[]) {
     // push all the argv into the vector to hold them
-    // start at 1; don't care about the binary name
-    for (int i = 1; i < std::min(argc, argc_max); i++)
-      clArguments.push_back(std::string(argv[i]));
+    // start at 1; ignore the binary name
+    for (int i = 1; i < std::min(argc, internal::argc_max); i++) {
+      clArguments.emplace_back(argv[i]);
+    }
   }
 
+
+  /**
+   * Get the value provided by the command option @param option.
+   */
   std::string InputParse::getCommandOption(const std::string& option) {
     auto iter = std::find(clArguments.begin(), clArguments.end(), option);
     // make sure we aren't at the end, and that there's something to read...
-    // mind the sneaky increment in the "if" clause...
+    // mind the sneaky increment in the "if" clause... That's how we get
+    // the actual value, and not the cmdline option itself.
     if (iter != clArguments.end() and ++iter != clArguments.end()) {
       return *iter;
     }
@@ -91,35 +124,59 @@ namespace IO {
     return emptyString;
   }
 
+
+  /**
+   * Has a cmdline option been provided?
+   */
   bool InputParse::commandOptionExists(const std::string& option) {
     auto iter = std::find(clArguments.begin(), clArguments.end(), option);
     return (iter != clArguments.end());
   }
 
-  bool InputParse::inputIsValid() {
-    bool output = true;
 
+  /**
+   * Verify that the provided command line arguments are valid.
+   */
+  void InputParse::checkCmdLineArgsAreValid() {
+
+    // If help is requested, print help and exit.
     if (commandOptionExists("-h") or commandOptionExists("--help")) {
-      message(helpMessage);
-      output = false;
+      message(helpMessage, logging::LogStage::Init);
+      std::exit(0);
     }
 
     // check all the required options
     for (const auto& opt : requiredArgs) {
       if (std::find(clArguments.begin(), clArguments.end(), opt) == clArguments.end()) {
         std::string msg = "missing option: " + opt;
-        message(msg);
-        output = false;
+        message(msg, logging::LogStage::Init);
       }
     }
 
-    return output;
+    // Check whether the files we should have are fine
+    std::string icfile = getCommandOption("--ic-file");
+    if (not (internal::fileExists(icfile))){
+      std::stringstream msg;
+      msg << "Provided initial conditions file '" << icfile << "' doesn't exist.";
+      error(msg.str());
+    }
+    std::string configfile = getCommandOption("--config-file");
+    if (not (internal::fileExists(configfile))){
+      std::stringstream msg;
+      msg << "Provided parameter file '" << configfile << "' doesn't exist.";
+      error(msg.str());
+    }
   }
 
-  void InputParse::readCommandOptions() {
-    // check it first...
-    // readICFile( getCommandOption("--ic-file") );
+
+  /**
+   * Read the configuration file and fill out the parameters singleton.
+   */
+  void InputParse::readConfigFile(){
+
   }
+
+
 
   /*
   This method is a bit of a mess
@@ -137,7 +194,7 @@ namespace IO {
     fseek(icfile, 0, SEEK_SET);
 
     // Buffer to fill with data from the file
-    char lineBuffer[lineLength] = {0};
+    char lineBuffer[internal::lineLength] = {0};
     // Pointer to move across the buffer. We
     // use this to fill the buffer with data
     char* lineptr(lineBuffer);
@@ -146,7 +203,7 @@ namespace IO {
     // aux function but i wanna keep the pointers in the
     // stack frame
     auto readUntil = [&](const char& ch) {
-      resetBuffer(lineBuffer);
+      internal::resetBuffer(lineBuffer);
       // reset pointer to start of buffer
       lineptr = lineBuffer;
       while ((*lineptr = fgetc(icfile)) != EOF) {
@@ -216,7 +273,7 @@ namespace IO {
     while (bytesToRead > 0) {
       // fill the line buffer with some data
       readUntil('\n');
-      if (lineIsInvalid(lineBuffer))
+      if (internal::lineIsInvalid(lineBuffer))
         continue;
 
       std::vector<float> initialValuesToPassOver(valsToFetchPerLine, 0);

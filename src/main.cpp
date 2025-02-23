@@ -13,18 +13,14 @@
 
 int main(int argc, char* argv[]) {
 
+  // using namespace logging;
 
   // Useless things first :)
   utils::print_header();
 
   // Fire up IO
   IO::InputParse input(argc, argv);
-  if (not input.inputIsValid()) {
-    return 1;
-  }
-
-  // all is good, let's keep going
-  input.readCommandOptions();
+  input.checkCmdLineArgsAreValid();
 
   // Initialise global paramters.
   parameters::Parameters::Instance.init();

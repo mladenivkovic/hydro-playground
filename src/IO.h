@@ -1,12 +1,9 @@
 #pragma once
-#include <algorithm>
-#include <map>
+/* #include <algorithm> */
+/* #include <map> */
 #include <string>
 #include <vector>
 
-#include "Cell.h"
-#include "Logging.h"
-#include "Parameters.h"
 
 /* Routines to read in IC file */
 
@@ -18,16 +15,14 @@ namespace IO {
     InputParse() = delete;
 
     //! Constructor with argc and argv
-    InputParse(int argc, char* argv[]);
+    InputParse(const int argc, char* argv[]);
 
     std::string getCommandOption(const std::string& option);
 
+    //! Has a cmdline option been provided?
     bool commandOptionExists(const std::string& option);
 
-    //! Drive everything from this function. This is
-    //! what we expose to main.
-    void readCommandOptions();
-
+    //! Read the config file and fill out the configuration parameters
     void readConfigFile();
 
     void readICFile();
@@ -36,9 +31,10 @@ namespace IO {
       return helpMessage;
     }
 
-    //! Use this to return early from main if the input
-    //! is invalid.
-    bool inputIsValid();
+    /**
+     * Check whether cmdline args are valid.
+     */
+    void checkCmdLineArgsAreValid();
 
   private:
     //! Vector to hold incoming command line args
