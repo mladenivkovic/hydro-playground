@@ -8,15 +8,14 @@
 
 // #include <sstream>
 
+#include <iostream>
+#include <utility>
+
 #include "Cell.h"
 #include "Grid.h"
 #include "IO.h"
 #include "Logging.h"
 #include "Parameters.h"
-
-
-#include <iostream>
-#include <utility>
 
 namespace IO {
 
@@ -39,9 +38,9 @@ namespace IO {
      * Scan through the line buffer. If we see any character that isn't `\n`,
      * space, EOF or null then return false
      */
-     bool isWhitespace(std::string& line) {
-      for (const auto s: line){
-        if ((std::isspace(s) == 0) and (s != EOF) and static_cast<bool>(s) ){
+    bool isWhitespace(std::string& line) {
+      for (const auto s : line) {
+        if ((std::isspace(s) == 0) and (s != EOF) and static_cast<bool>(s)) {
           return false;
         }
       }
@@ -53,15 +52,15 @@ namespace IO {
      * Scan past all the spaces, if the first non-space chars you see are // or
      * / *, then return true.
      */
-     bool isComment(std::string& line) {
+    bool isComment(std::string& line) {
 
-      for (auto s = line.cbegin(); s != line.cend(); s++){
+      for (auto s = line.cbegin(); s != line.cend(); s++) {
         if (std::isspace(*s) != 0) {
           // skip leading spaces
           continue;
         }
-        if (*s == '/'){
-          auto next = s+1;
+        if (*s == '/') {
+          auto next = s + 1;
           return ((next != line.cend()) and ((*next == '/') or (*next == '*')));
         }
         return false;
@@ -83,7 +82,7 @@ namespace IO {
     /**
      * Does a file exist?
      */
-    bool fileExists(const std::string& filename){
+    bool fileExists(const std::string& filename) {
       return std::filesystem::exists(filename);
     }
 
@@ -93,17 +92,16 @@ namespace IO {
   /**
    * configEntry constructors
    */
-  configEntry::configEntry(std::string parameter) :
+  configEntry::configEntry(std::string parameter):
     param(std::move(parameter)),
     value(""),
     // optional(false),
-    used(false) { };
-  configEntry::configEntry(std::string parameter, std::string value) :
+    used(false) {};
+  configEntry::configEntry(std::string parameter, std::string value):
     param(std::move(parameter)),
     value(std::move(value)),
     // optional(false),
-    used(false) { };
-
+    used(false) {};
 
 
   const std::vector<std::string> InputParse::_requiredArgs = {
@@ -112,13 +110,12 @@ namespace IO {
   };
 
 
-  const std::string InputParse::_helpMessage =
-    std::string("This is the hydro code help message.\n\nUsage: \n\n") +
-    "Default run:\n  ./hydro --config-file <config-file> --ic-file <ic-file>\n" +
-    "    <config-file>: file containing your run parameter configuration. See README for details.\n"+
-    "    <ic-file>: file containing your initial conditions. See README for details.\n\n"+
-    "Get this help message:\n  ./hydro -h\n  ./hydro --help\n"
-    ;
+  const std::string InputParse::_helpMessage
+    = std::string("This is the hydro code help message.\n\nUsage: \n\n")
+      + "Default run:\n  ./hydro --config-file <config-file> --ic-file <ic-file>\n"
+      + "    <config-file>: file containing your run parameter configuration. See README for details.\n"
+      + "    <ic-file>: file containing your initial conditions. See README for details.\n\n"
+      + "Get this help message:\n  ./hydro -h\n  ./hydro --help\n";
 
 
   /**
@@ -129,7 +126,8 @@ namespace IO {
 #if DEBUG_LEVEL > 0
     if (argc > internal::argc_max) {
       std::stringstream msg;
-      msg << "Passed " << argc << " arguments, which is higher than the max: " << internal::argc_max << ", ignoring everything past it.";
+      msg << "Passed " << argc << " arguments, which is higher than the max: " << internal::argc_max
+          << ", ignoring everything past it.";
       warning(msg.str())
     }
 #endif
@@ -190,7 +188,7 @@ namespace IO {
 
     // Check whether the files we should have are fine
     std::string icfile = _getCommandOption("--ic-file");
-    if (not (internal::fileExists(icfile))){
+    if (not(internal::fileExists(icfile))) {
       std::stringstream msg;
       msg << "Provided initial conditions file '" << icfile << "' doesn't exist.";
       error(msg.str());
@@ -200,7 +198,7 @@ namespace IO {
     }
 
     std::string configfile = _getCommandOption("--config-file");
-    if (not (internal::fileExists(configfile))){
+    if (not(internal::fileExists(configfile))) {
       std::stringstream msg;
       msg << "Provided parameter file '" << configfile << "' doesn't exist.";
       error(msg.str());
@@ -213,15 +211,15 @@ namespace IO {
   /**
    * Read the configuration file and fill out the parameters singleton.
    */
-  void InputParse::readConfigFile(){
+  void InputParse::readConfigFile() {
 
 #if DEBUG_LEVEL > 0
-    if (_configfile.size() == 0 ){
+    if (_configfile.size() == 0) {
       error("No config file specified?")
     }
 #endif
 
-    std::string line;
+    std::string   line;
     std::ifstream conf_ifs(_configfile);
 
     // Read in line by line
@@ -230,9 +228,7 @@ namespace IO {
         continue;
       }
     }
-
   }
-
 
 
   /*

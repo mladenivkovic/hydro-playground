@@ -1,9 +1,9 @@
+#include <string>
+
 #include "IO.h"
 #include "Logging.h"
 
-#include <string>
-
-void testIsWhitespace(){
+void testIsWhitespace() {
 
   message("-- Running testIsComment()");
 
@@ -52,38 +52,29 @@ void testIsComment() {
   // if (IO::internal::isComment(line_empty))
   //   error("Wrong.")
   if (IO::internal::isComment(line_eof))
-    error("Wrong.")
-  if (IO::internal::isComment(line_something))
-    error("Wrong.")
-  if (not IO::internal::isComment(line_comment1))
-    error("Wrong.")
-  if (not IO::internal::isComment(line_comment2))
-    error("Wrong.")
-  if (not IO::internal::isComment(line_comment3))
-    error("Wrong.")
-  if (not IO::internal::isComment(line_comment4))
-    error("Wrong.")
-  if (not IO::internal::isComment(line_comment5))
-    error("Wrong.")
-  if (not IO::internal::isComment(line_comment6))
-    error("Wrong.")
+    error("Wrong.") if (IO::internal::isComment(line_something)) error("Wrong."
+    ) if (not IO::internal::isComment(line_comment1)) error("Wrong."
+    ) if (not IO::internal::isComment(line_comment2)) error("Wrong."
+    ) if (not IO::internal::isComment(line_comment3)) error("Wrong."
+    ) if (not IO::internal::isComment(line_comment4)) error("Wrong."
+    ) if (not IO::internal::isComment(line_comment5)) error("Wrong."
+    ) if (not IO::internal::isComment(line_comment6)) error("Wrong.")
 
-  message("-- finished.")
+      message("-- finished.")
 }
 
 
 /**
  * Runs unit tests on internals
  */
-void unit_tests(){
+void unit_tests() {
   message("Running unit tests.")
 
-  testIsWhitespace();
+    testIsWhitespace();
   testIsComment();
 
   message("Finished unit tests.")
 }
-
 
 
 int main() {

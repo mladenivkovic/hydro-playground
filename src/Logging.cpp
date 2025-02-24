@@ -9,7 +9,7 @@
 namespace logging {
 
   // Initialise the verbosity as debug.
-  LogLevel Log::_verbosity = LogLevel::Debug;
+  LogLevel Log::_verbosity    = LogLevel::Debug;
   LogStage Log::_currentStage = LogStage::Undefined;
 
 
@@ -131,7 +131,7 @@ namespace logging {
     Log::_currentStage = stage;
   }
 
-   LogStage Log::getCurrentStage() {
+  LogStage Log::getCurrentStage() {
     return Log::_currentStage;
   }
 

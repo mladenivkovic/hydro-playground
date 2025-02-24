@@ -34,11 +34,11 @@ namespace IO {
 
   namespace internal {
 
-     //! Is the line whitespace only?
-     bool isWhitespace(std::string& line);
+    //! Is the line whitespace only?
+    bool isWhitespace(std::string& line);
 
-     //! Is this line a comment?
-     bool isComment(std::string& line);
+    //! Is this line a comment?
+    bool isComment(std::string& line);
   } // namespace internal
 
 
@@ -60,7 +60,6 @@ namespace IO {
     void checkCmdLineArgsAreValid();
 
   private:
-
     //! Help message
     static const std::string _helpMessage;
 
