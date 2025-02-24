@@ -21,19 +21,6 @@ namespace IO {
 
   namespace internal {
 
-    // I don't see why we need more than this many args
-    static constexpr int argc_max   = 20;
-    static constexpr int lineLength = 256;
-
-    // TODO: do we need this?
-    template <typename T>
-    void resetBuffer(T* buffer, const size_t len = lineLength) {
-      for (size_t i = 0; i < len; i++) {
-        buffer[i] = 0;
-      }
-    }
-
-
     /**
      * Scan through the line buffer. If we see any character that isn't `\n`,
      * space, EOF or null then return false
@@ -123,10 +110,12 @@ namespace IO {
    */
   InputParse::InputParse(const int argc, char* argv[]) {
 
+    constexpr int argc_max = 20;
+
 #if DEBUG_LEVEL > 0
-    if (argc > internal::argc_max) {
+    if (argc > argc_max) {
       std::stringstream msg;
-      msg << "Passed " << argc << " arguments, which is higher than the max: " << internal::argc_max
+      msg << "Passed " << argc << " arguments, which is higher than the max: " << argc_max
           << ", ignoring everything past it.";
       warning(msg.str())
     }
@@ -134,7 +123,7 @@ namespace IO {
 
     // push all the argv into the vector to hold them
     // start at 1; ignore the binary name
-    for (int i = 1; i < std::min(argc, internal::argc_max); i++) {
+    for (int i = 1; i < std::min(argc, argc_max); i++) {
       _clArguments.emplace_back(argv[i]);
     }
   }
@@ -235,85 +224,85 @@ namespace IO {
   This method is a bit of a mess
   */
   void InputParse::readICFile() {
-    std::string filename = _getCommandOption("--ic-file");
-    FILE*       icfile   = fopen(filename.c_str(), "rb");
-    if (icfile == nullptr)
-      throw std::runtime_error("Invalid IC File!\n");
-
-    // Let's find how many bytes we have in the file
-    fseek(icfile, 0, SEEK_END);
-    auto bytesToRead = ftell(icfile);
-    // seek back to the start...
-    fseek(icfile, 0, SEEK_SET);
+    // std::string filename = _getCommandOption("--ic-file");
+    // FILE*       icfile   = fopen(filename.c_str(), "rb");
+    // if (icfile == nullptr)
+    //   throw std::runtime_error("Invalid IC File!\n");
+    //
+    // // Let's find how many bytes we have in the file
+    // fseek(icfile, 0, SEEK_END);
+    // auto bytesToRead = ftell(icfile);
+    // // seek back to the start...
+    // fseek(icfile, 0, SEEK_SET);
 
     // Buffer to fill with data from the file
-    char lineBuffer[internal::lineLength] = {0};
+    // char lineBuffer[internal::lineLength] = {0};
     // Pointer to move across the buffer. We
     // use this to fill the buffer with data
-    char* lineptr(lineBuffer);
+    // char* lineptr(lineBuffer);
 
     // lambda to advance our file pointer. Would do this with
     // aux function but i wanna keep the pointers in the
     // stack frame
-    auto readUntil = [&](const char& ch) {
-      internal::resetBuffer(lineBuffer);
+    // auto readUntil = [&](const char& ch) {
+      // internal::resetBuffer(lineBuffer);
       // reset pointer to start of buffer
-      lineptr = lineBuffer;
-      while ((*lineptr = fgetc(icfile)) != EOF) {
+      // lineptr = lineBuffer;
+      // while ((*lineptr = fgetc(icfile)) != EOF) {
         // Decrement the number of bytes we have to read...
-        bytesToRead--;
-        if (*lineptr == ch)
-          return true;
-        lineptr++;
-      }
-      return false;
-    };
+        // bytesToRead--;
+        // if (*lineptr == ch)
+          // return true;
+        // lineptr++;
+      // }
+      // return false;
+    // };
 
-    // define another lambda to fetch a float
-    // value that falls between two pointers
-    char* ptr0;
-    char* ptr1;
-    auto  readVal = [&]() {
-      // bring ptr0 up to speed with ptr0
-      ptr0 = ptr1;
-      // find the start of the number
-      while (*ptr0 == ' ')
-        ptr0++;
-      ptr1 = ptr0;
-      while (*ptr1 != ' ' and *ptr1 != '\n') {
-        ptr1++;
-      }
-      if (std::distance(ptr0, ptr1) < 2)
-        throw std::runtime_error("Invalid line!\n");
-      return strtod(ptr0, &ptr1);
-    };
-
-    // read filetype
-    readUntil('=');
-    readUntil('\n');
-    message(lineBuffer);
-
-    // check ndim matches parameters dims
-    // read ndims
-    readUntil('=');
-    readUntil('\n');
-    int dims = strtol(lineBuffer, &lineptr, 10);
-    // parameters::Parameters::Instance.setDims(dims);
-    message(lineBuffer);
-
-    // check nx matches params
-    readUntil('=');
-    readUntil('\n');
-    int nx = strtol(lineBuffer, &lineptr, 10);
-    if (Dimensions == 2)
-      nx = nx * nx;
-    int valuesFetched = 0;
-
-    message("setting nx to ");
-    message(lineBuffer);
-
+    // // define another lambda to fetch a float
+    // // value that falls between two pointers
+    // char* ptr0;
+    // char* ptr1;
+    // auto  readVal = [&]() {
+    //   // bring ptr0 up to speed with ptr0
+    //   ptr0 = ptr1;
+    //   // find the start of the number
+    //   while (*ptr0 == ' ')
+    //     ptr0++;
+    //   ptr1 = ptr0;
+    //   while (*ptr1 != ' ' and *ptr1 != '\n') {
+    //     ptr1++;
+    //   }
+    //   if (std::distance(ptr0, ptr1) < 2)
+    //     throw std::runtime_error("Invalid line!\n");
+    //   return strtod(ptr0, &ptr1);
+    // };
+    //
+    // // read filetype
+    // readUntil('=');
+    // readUntil('\n');
+    // message(lineBuffer);
+    //
+    // // check ndim matches parameters dims
+    // // read ndims
+    // readUntil('=');
+    // readUntil('\n');
+    // int dims = strtol(lineBuffer, &lineptr, 10);
+    // // parameters::Parameters::Instance.setDims(dims);
+    // message(lineBuffer);
+    //
+    // // check nx matches params
+    // readUntil('=');
+    // readUntil('\n');
+    // int nx = strtol(lineBuffer, &lineptr, 10);
+    // if (Dimensions == 2)
+    //   nx = nx * nx;
+    // int valuesFetched = 0;
+    //
+    // message("setting nx to ");
+    // message(lineBuffer);
+    //
     // loop over remaining lines and store results
-    int valsToFetchPerLine = 2 + dims;
+    // int valsToFetchPerLine = 2 + dims;
 
     /*
     Warning - make sure we don't place these
@@ -323,32 +312,32 @@ namespace IO {
 
     bytesToRead is decremented inside readUntil
     */
-    while (bytesToRead > 0) {
-      // fill the line buffer with some data
-      readUntil('\n');
-      if (internal::lineIsInvalid(lineBuffer))
-        continue;
-
-      std::vector<float> initialValuesToPassOver(valsToFetchPerLine, 0);
-      // fetch values from the current line buffer
-      for (int i = 0; i < valsToFetchPerLine; i++) {
-        initialValuesToPassOver[i] = readVal();
-      }
-      // reset the pointers we use to the start of the buffer
-      ptr0 = lineBuffer;
-      ptr1 = lineBuffer;
-
-      // Send these off to the grid - handle indexing in the grid class
-      grid::Grid::Instance.setInitialConditions(valuesFetched, initialValuesToPassOver);
-
-      valuesFetched++;
-    }
+    // while (bytesToRead > 0) {
+    //   // fill the line buffer with some data
+    //   readUntil('\n');
+    //   if (internal::lineIsInvalid(lineBuffer))
+    //     continue;
+    //
+    //   std::vector<float> initialValuesToPassOver(valsToFetchPerLine, 0);
+    //   // fetch values from the current line buffer
+    //   for (int i = 0; i < valsToFetchPerLine; i++) {
+    //     initialValuesToPassOver[i] = readVal();
+    //   }
+    //   // reset the pointers we use to the start of the buffer
+    //   ptr0 = lineBuffer;
+    //   ptr1 = lineBuffer;
+    //
+    //   // Send these off to the grid - handle indexing in the grid class
+    //   grid::Grid::Instance.setInitialConditions(valuesFetched, initialValuesToPassOver);
+    //
+    //   valuesFetched++;
+    // }
 
     // validation - does valuesFetched match nx?
-    assert(valuesFetched == nx);
-
-
-    fclose(icfile);
+    // assert(valuesFetched == nx);
+    //
+    //
+    // fclose(icfile);
   }
 
 } // namespace IO

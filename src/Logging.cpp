@@ -29,7 +29,7 @@ namespace logging {
     std::stringstream str;
     str << "[" << getStageName(stage) << "] ";
 #if DEBUG_LEVEL > 0
-    str << "{" << file << ":" << function << "():" << line << "} ";
+    str << "`" << file << ":" << function << "():" << line << "` ";
 #endif
     str << text << "\n";
 
@@ -70,7 +70,7 @@ namespace logging {
 
     std::stringstream str;
     str << "[WARNING] ";
-    str << "{" << file << ":" << function << "():" << line << "} ";
+    str << "`" << file << ":" << function << "():" << line << "` ";
     str << text << "\n";
 
     std::cerr << str.str();
@@ -91,7 +91,7 @@ namespace logging {
 
     std::stringstream str;
     str << "[ERROR] ";
-    str << "{" << file << ":" << function << "():" << line << "} ";
+    str << "`" << file << ":" << function << "():" << line << "` ";
     str << text << "\n";
 
     std::cerr << str.str();
@@ -100,6 +100,7 @@ namespace logging {
     std::cout << std::flush;
     std::abort();
   }
+
 
   void Log::logError(
     const char* file, const char* function, const int line, std::stringstream& text
@@ -121,6 +122,7 @@ namespace logging {
     Log::_verbosity = verbosity;
   }
 
+
   void Log::setStage(int stage) {
     LogStage stage_t = static_cast<LogStage>(stage);
     setStage(stage_t);
@@ -130,6 +132,7 @@ namespace logging {
     std::cout << "Setting stage" << Log::getStageName(stage) << "\n";
     Log::_currentStage = stage;
   }
+
 
   LogStage Log::getCurrentStage() {
     return Log::_currentStage;
