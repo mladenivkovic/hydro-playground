@@ -10,6 +10,7 @@ namespace logging {
 
   // Initialise the verbosity as debug.
   LogLevel Log::_verbosity = LogLevel::Debug;
+  LogStage Log::_currentStage = LogStage::Undefined;
 
 
   void Log::logMessage(
@@ -120,6 +121,21 @@ namespace logging {
     Log::_verbosity = verbosity;
   }
 
+  void Log::setStage(int stage) {
+    LogStage stage_t = static_cast<LogStage>(stage);
+    setStage(stage_t);
+  }
+
+  void Log::setStage(LogStage stage) {
+    std::cout << "Setting stage" << Log::getStageName(stage) << "\n";
+    Log::_currentStage = stage;
+  }
+
+   LogStage Log::getCurrentStage() {
+    return Log::_currentStage;
+  }
+
+
   const char* Log::getStageName(LogStage stage) {
 
     switch (stage) {
@@ -131,6 +147,8 @@ namespace logging {
       return "Init";
     case LogStage::Step:
       return "Step";
+    case LogStage::Test:
+      return "Test";
     case LogStage::Count:
       return "Count";
     default:

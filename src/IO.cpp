@@ -1,6 +1,11 @@
 #include <algorithm> // std::find
 #include <cassert>
-#include <filesystem>
+#include <cctype>
+#include <filesystem> // std::filesytem::exists
+#include <fstream>
+#include <sstream>
+#include <string>
+
 // #include <sstream>
 
 #include "Cell.h"
@@ -11,6 +16,7 @@
 
 
 #include <iostream>
+#include <utility>
 
 namespace IO {
 
@@ -20,7 +26,7 @@ namespace IO {
     static constexpr int argc_max   = 20;
     static constexpr int lineLength = 256;
 
-
+    // TODO: do we need this?
     template <typename T>
     void resetBuffer(T* buffer, const size_t len = lineLength) {
       for (size_t i = 0; i < len; i++) {
@@ -33,10 +39,9 @@ namespace IO {
      * Scan through the line buffer. If we see any character that isn't `\n`,
      * space, EOF or null then return false
      */
-     bool isWhitespace(const char* line, const size_t len = lineLength) {
-      for (size_t i = 0; i < len; i++) {
-        if ((line[i] != ' ') and (line[i] != '\n') and (line[i] != EOF)
-            and (bool)(line[i])) {
+     bool isWhitespace(std::string& line) {
+      for (const auto s: line){
+        if ((std::isspace(s) == 0) and (s != EOF) and static_cast<bool>(s) ){
           return false;
         }
       }
@@ -44,23 +49,28 @@ namespace IO {
     }
 
 
-    bool isComment(char* const line, int len = lineLength) {
-      // Scan past all the spaces, if the first non-space
-      // chars you see are // or /*, then return true.
-      // beware of dereferencing over the end of the
-      // array.
-      char* ptr = line;
-      while (*ptr == ' ') {
-        if (std::distance(line, ptr) > len - 2)
-          return false;
-        ptr++;
-      }
+    /**
+     * Scan past all the spaces, if the first non-space chars you see are // or
+     * / *, then return true.
+     */
+     bool isComment(std::string& line) {
 
-      return ((*ptr == '/' and *(ptr + 1) == '/') or (*ptr == '/' and *(ptr + 1) == '*'));
+      for (auto s = line.cbegin(); s != line.cend(); s++){
+        if (std::isspace(*s) != 0) {
+          // skip leading spaces
+          continue;
+        }
+        if (*s == '/'){
+          auto next = s+1;
+          return ((next != line.cend()) and ((*next == '/') or (*next == '*')));
+        }
+        return false;
+      }
+      return true;
     }
 
 
-    bool lineIsInvalid(char* const line, int len = lineLength) {
+    bool lineIsInvalid(std::string line) {
       bool output = false;
       output |= isWhitespace(line);
       output |= isComment(line);
@@ -77,16 +87,32 @@ namespace IO {
       return std::filesystem::exists(filename);
     }
 
-  }  // namespace internal
+  } // namespace internal
 
 
-  const std::vector<std::string> InputParse::requiredArgs = {
+  /**
+   * configEntry constructors
+   */
+  configEntry::configEntry(std::string parameter) :
+    param(std::move(parameter)),
+    value(""),
+    // optional(false),
+    used(false) { };
+  configEntry::configEntry(std::string parameter, std::string value) :
+    param(std::move(parameter)),
+    value(std::move(value)),
+    // optional(false),
+    used(false) { };
+
+
+
+  const std::vector<std::string> InputParse::_requiredArgs = {
     "--config-file",
     "--ic-file",
   };
 
 
-  const std::string InputParse::helpMessage =
+  const std::string InputParse::_helpMessage =
     std::string("This is the hydro code help message.\n\nUsage: \n\n") +
     "Default run:\n  ./hydro --config-file <config-file> --ic-file <ic-file>\n" +
     "    <config-file>: file containing your run parameter configuration. See README for details.\n"+
@@ -99,10 +125,19 @@ namespace IO {
    * Constructor
    */
   InputParse::InputParse(const int argc, char* argv[]) {
+
+#if DEBUG_LEVEL > 0
+    if (argc > internal::argc_max) {
+      std::stringstream msg;
+      msg << "Passed " << argc << " arguments, which is higher than the max: " << internal::argc_max << ", ignoring everything past it.";
+      warning(msg.str())
+    }
+#endif
+
     // push all the argv into the vector to hold them
     // start at 1; ignore the binary name
     for (int i = 1; i < std::min(argc, internal::argc_max); i++) {
-      clArguments.emplace_back(argv[i]);
+      _clArguments.emplace_back(argv[i]);
     }
   }
 
@@ -110,12 +145,12 @@ namespace IO {
   /**
    * Get the value provided by the command option @param option.
    */
-  std::string InputParse::getCommandOption(const std::string& option) {
-    auto iter = std::find(clArguments.begin(), clArguments.end(), option);
+  std::string InputParse::_getCommandOption(const std::string& option) {
+    auto iter = std::find(_clArguments.begin(), _clArguments.end(), option);
     // make sure we aren't at the end, and that there's something to read...
     // mind the sneaky increment in the "if" clause... That's how we get
     // the actual value, and not the cmdline option itself.
-    if (iter != clArguments.end() and ++iter != clArguments.end()) {
+    if (iter != _clArguments.end() and ++iter != _clArguments.end()) {
       return *iter;
     }
 
@@ -128,9 +163,9 @@ namespace IO {
   /**
    * Has a cmdline option been provided?
    */
-  bool InputParse::commandOptionExists(const std::string& option) {
-    auto iter = std::find(clArguments.begin(), clArguments.end(), option);
-    return (iter != clArguments.end());
+  bool InputParse::_commandOptionExists(const std::string& option) {
+    auto iter = std::find(_clArguments.begin(), _clArguments.end(), option);
+    return (iter != _clArguments.end());
   }
 
 
@@ -140,31 +175,37 @@ namespace IO {
   void InputParse::checkCmdLineArgsAreValid() {
 
     // If help is requested, print help and exit.
-    if (commandOptionExists("-h") or commandOptionExists("--help")) {
-      message(helpMessage, logging::LogStage::Init);
+    if (_commandOptionExists("-h") or _commandOptionExists("--help")) {
+      message(_helpMessage, logging::LogStage::Init);
       std::exit(0);
     }
 
     // check all the required options
-    for (const auto& opt : requiredArgs) {
-      if (std::find(clArguments.begin(), clArguments.end(), opt) == clArguments.end()) {
+    for (const auto& opt : _requiredArgs) {
+      if (std::find(_clArguments.begin(), _clArguments.end(), opt) == _clArguments.end()) {
         std::string msg = "missing option: " + opt;
         message(msg, logging::LogStage::Init);
       }
     }
 
     // Check whether the files we should have are fine
-    std::string icfile = getCommandOption("--ic-file");
+    std::string icfile = _getCommandOption("--ic-file");
     if (not (internal::fileExists(icfile))){
       std::stringstream msg;
       msg << "Provided initial conditions file '" << icfile << "' doesn't exist.";
       error(msg.str());
+    } else {
+      // Store it.
+      _icfile = icfile;
     }
-    std::string configfile = getCommandOption("--config-file");
+
+    std::string configfile = _getCommandOption("--config-file");
     if (not (internal::fileExists(configfile))){
       std::stringstream msg;
       msg << "Provided parameter file '" << configfile << "' doesn't exist.";
       error(msg.str());
+    } else {
+      _configfile = configfile;
     }
   }
 
@@ -174,6 +215,22 @@ namespace IO {
    */
   void InputParse::readConfigFile(){
 
+#if DEBUG_LEVEL > 0
+    if (_configfile.size() == 0 ){
+      error("No config file specified?")
+    }
+#endif
+
+    std::string line;
+    std::ifstream conf_ifs(_configfile);
+
+    // Read in line by line
+    while (std::getline(conf_ifs, line)) {
+      if (internal::lineIsInvalid(line)) {
+        continue;
+      }
+    }
+
   }
 
 
@@ -182,7 +239,7 @@ namespace IO {
   This method is a bit of a mess
   */
   void InputParse::readICFile() {
-    std::string filename = getCommandOption("--ic-file");
+    std::string filename = _getCommandOption("--ic-file");
     FILE*       icfile   = fopen(filename.c_str(), "rb");
     if (icfile == nullptr)
       throw std::runtime_error("Invalid IC File!\n");

@@ -23,6 +23,7 @@ namespace logging {
     Header    = 0,
     Init      = 1,
     Step      = 2,
+    Test      = 3,
     Count,
   };
 
@@ -106,8 +107,18 @@ namespace logging {
     static void setVerbosity(const int verbosity);
     static void setVerbosity(const LogLevel verbosity);
 
+    /**
+     * Set the global stage.
+     */
+    static void setStage(const LogStage stage);
+    static void setStage(const int stage);
+
+    //! Get the current stage.
+    static LogStage getCurrentStage();
+
   private:
     static LogLevel _verbosity;
+    static LogStage _currentStage;
 
     /**
      * Get the name of the given stage.
@@ -138,7 +149,7 @@ namespace logging {
     __LINE__, \
     msg, \
     logging::LogLevel::Undefined, \
-    logging::LogStage::Undefined \
+    logging::Log::getCurrentStage() \
   );
 
 #define MESSAGE_GET_4TH_ARG(arg1, arg2, arg3, arg4, ...) arg4
