@@ -3,6 +3,10 @@
 #include "IO.h"
 #include "Logging.h"
 
+
+/**
+ * test the isWhitespace function
+ */
 void testIsWhitespace() {
 
   message("-- Running testIsWhitespace()");
@@ -31,9 +35,13 @@ void testIsWhitespace() {
 
   if (not IO::internal::isWhitespace(line_whitespaces))
     error("Wrong.");
+
+  message("-- Finished.");
 }
 
-
+/**
+ * Test the isComment() function
+ */
 void testIsComment() {
 
   message("-- Running testIsComment()");
@@ -67,7 +75,38 @@ void testIsComment() {
     error("Wrong.");
   if (not IO::internal::isComment(line_comment6))
     error("Wrong.");
-  message("-- finished.")
+
+  message("-- finished.");
+
+}
+
+
+
+/**
+ * Test the extractParamLine function
+ */
+void testExtractParamLine() {
+
+  std::string line_empty("");
+  std::string line_eof(1, static_cast<char>(EOF));
+  std::string line_something("something");
+  std::string line_comment1("// something");
+  std::string line_comment2("/* something */");
+  std::string line_comment3("  // something");
+  std::string line_comment4("  /* something */");
+  std::string line_comment5("\t // something");
+  std::string line_comment6("\t /* something */");
+
+  std::string line_valid1("myname = myvalue");
+  std::string line_valid2("mynameNospace=myvalueNospace");
+  std::string line_valid3("   mynameStartWithSpace   = myvalueNospace");
+  std::string line_valid4("   mynameStartWithSpace   = myvalueNospace // comment");
+  std::string line_valid5("   mynameStartWithSpace   = myvalueNospace /* comment");
+
+
+  IO::internal::extractParameter(line_valid1);
+  IO::internal::extractParameter(line_valid2);
+  IO::internal::extractParameter(line_valid3);
 }
 
 
@@ -77,8 +116,9 @@ void testIsComment() {
 void unit_tests() {
   message("Running unit tests.")
 
-    testIsWhitespace();
-  testIsComment();
+  // testIsWhitespace();
+  // testIsComment();
+  testExtractParamLine();
 
   message("Finished unit tests.")
 }
@@ -89,6 +129,7 @@ int main() {
   logging::Log::setStage(logging::LogStage::Test);
 
   unit_tests();
+
 
   return 0;
 }

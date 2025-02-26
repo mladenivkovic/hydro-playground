@@ -39,6 +39,10 @@ namespace IO {
 
     //! Is this line a comment?
     bool isComment(std::string& line);
+
+    //! Get a pair of name,value from a parameter line
+    std::pair<std::string, std::string> extractParameter(std::string& line);
+
   } // namespace internal
 
 
