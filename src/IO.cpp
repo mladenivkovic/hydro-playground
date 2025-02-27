@@ -15,6 +15,8 @@
 #include "Parameters.h"
 
 namespace IO {
+  using std::string;
+
 
   namespace internal {
 
@@ -186,13 +188,10 @@ namespace IO {
    */
   configEntry::configEntry(std::string parameter):
     param(std::move(parameter)),
-    value(""),
-    // optional(false),
     used(false) {};
   configEntry::configEntry(std::string parameter, std::string value):
     param(std::move(parameter)),
     value(std::move(value)),
-    // optional(false),
     used(false) {};
 
 
@@ -202,12 +201,17 @@ namespace IO {
   };
 
 
-  const std::string InputParse::_helpMessage
-    = std::string("This is the hydro code help message.\n\nUsage: \n\n")
-      + "Default run:\n  ./hydro --config-file <config-file> --ic-file <ic-file>\n"
-      + "    <config-file>: file containing your run parameter configuration. See README for details.\n"
-      + "    <ic-file>: file containing your initial conditions. See README for details.\n\n"
-      + "Get this help message:\n  ./hydro -h\n  ./hydro --help\n";
+  std::string InputParse::helpMessage() {
+
+    std::stringstream msg;
+    msg << "This is the hydro code help message.\n\nUsage: \n\n";
+    msg << "Default run:\n  ./hydro --config-file <config-file> --ic-file <ic-file>\n";
+    msg << "    <config-file>: file containing your run parameter configuration. See README for details.\n";
+    msg << "    <ic-file>: file containing your initial conditions. See README for details.\n\n";
+    msg << "Get this help message:\n  ./hydro -h\n  ./hydro --help\n";
+
+    return msg.str();
+  }
 
 
   /**
@@ -268,7 +272,7 @@ namespace IO {
 
     // If help is requested, print help and exit.
     if (_commandOptionExists("-h") or _commandOptionExists("--help")) {
-      message(_helpMessage, logging::LogStage::Init);
+      message(helpMessage(), logging::LogStage::Init);
       std::exit(0);
     }
 
@@ -325,6 +329,9 @@ namespace IO {
       if (name == internal::somethingWrong() or value == internal::somethingWrong()){
         warning("Something wrong with config file line '" + line + "'; skipping it");
       }
+
+      configEntry newEntry = configEntry(name, value);
+      _config_params.insert(std::make_pair(name, newEntry));
     }
   }
 

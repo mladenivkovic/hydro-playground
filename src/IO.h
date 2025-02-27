@@ -13,19 +13,17 @@ namespace IO {
    * A container for read in parameters.
    */
   struct configEntry {
+
     //! constructors
     configEntry() = delete;
-    configEntry(std::string parameter);
+    explicit configEntry(std::string parameter);
     configEntry(std::string parameter, std::string value);
-    // configEntry(std::string parameter, std::string value, std::string default_val);
 
     //! Parameter name
     std::string param;
 
     //! Parameter value
     std::string value;
-
-    // bool optional;
 
     //! Whether parameter has been used
     bool used;
@@ -76,8 +74,9 @@ namespace IO {
     void checkCmdLineArgsAreValid();
 
   private:
+
     //! Help message
-    static const std::string _helpMessage;
+    static std::string helpMessage();
 
     /**
      * Vector containing all the valid options we accept. Iterate over this to
@@ -93,7 +92,6 @@ namespace IO {
     //! Storage for all read-in configuration parameters
     std::map<std::string, configEntry> _config_params;
 
-
     //! Config file name. Verified that file exists.
     std::string _configfile;
 
@@ -106,8 +104,5 @@ namespace IO {
     //! Retreive an option passed by cmdline args
     std::string _getCommandOption(const std::string& option);
 
-    static std::string _getHelpMessage() {
-      return _helpMessage;
-    }
   }; // class InputParse
 } // namespace IO
