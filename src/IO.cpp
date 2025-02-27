@@ -3,12 +3,9 @@
 #include <cctype>
 #include <filesystem> // std::filesytem::exists
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <string>
-
-// #include <sstream>
-
-#include <iostream>
 #include <utility>
 
 #include "Cell.h"
@@ -250,7 +247,7 @@ namespace IO {
     }
 
     // no luck. return the empty string
-    static const std::string emptyString("");
+    static const std::string emptyString;
     return emptyString;
   }
 
@@ -321,9 +318,13 @@ namespace IO {
 
     // Read in line by line
     while (std::getline(conf_ifs, line)) {
-      // if (internal::lineIsInvalid(line)) {
-      //   continue;
-      // }
+      auto pair = internal::extractParameter(line);
+      std::string name = pair.first;
+      std::string value = pair.second;
+      if (name == "") continue;
+      if (name == internal::somethingWrong() or value == internal::somethingWrong()){
+        warning("Something wrong with config file line '" + line + "'; skipping it");
+      }
     }
   }
 

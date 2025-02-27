@@ -237,28 +237,75 @@ void testExtractParamLine() {
 
   message("-- Running testExtractParamLine()");
 
-  std::string line_empty("");
-  std::string line_eof(1, static_cast<char>(EOF));
-  std::string line_something("something");
-  std::string line_comment1("// something");
-  std::string line_comment2("/* something */");
-  std::string line_comment3("  // something");
-  std::string line_comment4("  /* something */");
-  std::string line_comment5("\t // something");
-  std::string line_comment6("\t /* something */");
-
   std::string line_valid1("myname = myvalue");
   std::string line_valid2("mynameNospace=myvalueNospace");
   std::string line_valid3("   mynameStartWithSpace   = myvalueNospace");
   std::string line_valid4("   mynameStartWithSpace   = myvalueNospace // comment");
   std::string line_valid5("   mynameStartWithSpace   = myvalueNospace /* comment");
+  std::string line_1("//  mynameStartWithSpace   = myvalueNospace");
+  std::string line_2("/*  mynameStartWithSpace   = myvalueNospace");
+  std::string line_3(" mynameStartWithSpace   = myvalueNospace = secondValue");
+  std::string line_4("");
 
+  std::pair<std::string, std::string> out;
+  std::string name;
+  std::string value;
+  std::string no = IO::internal::somethingWrong();
 
-  IO::internal::extractParameter(line_valid1);
-  IO::internal::extractParameter(line_valid2);
-  IO::internal::extractParameter(line_valid3);
-  IO::internal::extractParameter(line_valid4);
-  IO::internal::extractParameter(line_valid5);
+  out = IO::internal::extractParameter(line_valid1);
+  name = out.first;
+  value = out.second;
+  if (name != "myname" or value != "myvalue")
+    error("Wrong: '" + name + "', '" + value + "'")
+
+  out = IO::internal::extractParameter(line_valid2);
+  name = out.first;
+  value = out.second;
+  if (name != "mynameNospace" or value != "myvalueNospace")
+    error("Wrong: '" + name + "', '" + value + "'")
+
+  out = IO::internal::extractParameter(line_valid3);
+  name = out.first;
+  value = out.second;
+  if (name != "mynameStartWithSpace" or value != "myvalueNospace")
+    error("Wrong: '" + name + "', '" + value + "'")
+
+  out = IO::internal::extractParameter(line_valid4);
+  name = out.first;
+  value = out.second;
+  if (name != "mynameStartWithSpace" or value != "myvalueNospace")
+    error("Wrong: '" + name + "', '" + value + "'")
+
+  out = IO::internal::extractParameter(line_valid5);
+  name = out.first;
+  value = out.second;
+  if (name != "mynameStartWithSpace" or value != "myvalueNospace")
+    error("Wrong: '" + name + "', '" + value + "'")
+
+  out = IO::internal::extractParameter(line_1);
+  name = out.first;
+  value = out.second;
+  if (name != "" or value != "")
+    error("Wrong: '" + name + "', '" + value + "'")
+
+  out = IO::internal::extractParameter(line_2);
+  name = out.first;
+  value = out.second;
+  if (name != "" or value != "")
+    error("Wrong: '" + name + "', '" + value + "'")
+
+  out = IO::internal::extractParameter(line_3);
+  name = out.first;
+  value = out.second;
+  if (name != no or value != no)
+    error("Wrong: '" + name + "', '" + value + "'")
+
+  out = IO::internal::extractParameter(line_4);
+  name = out.first;
+  value = out.second;
+  if (name != "" or value != "")
+    error("Wrong: '" + name + "', '" + value + "'")
+
 
   message("-- finished.");
 }
