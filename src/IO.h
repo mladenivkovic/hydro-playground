@@ -74,7 +74,6 @@ namespace IO {
     void checkCmdLineArgsAreValid();
 
   private:
-
     //! Help message
     static std::string helpMessage();
 

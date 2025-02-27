@@ -1,3 +1,5 @@
+#include "IO.h"
+
 #include <algorithm> // std::find
 #include <cassert>
 #include <cctype>
@@ -10,7 +12,6 @@
 
 #include "Cell.h"
 #include "Grid.h"
-#include "IO.h"
 #include "Logging.h"
 #include "Parameters.h"
 
@@ -59,7 +60,7 @@ namespace IO {
     /**
      * Remove leading and trailing whitespaces from a string.
      */
-    std::string removeWhitespace(std::string& str){
+    std::string removeWhitespace(std::string& str) {
 
       std::string ltrim;
       std::string rtrim;
@@ -72,7 +73,7 @@ namespace IO {
       }
 
       size_t last = ltrim.find_last_not_of(" \t\n\r\f\v");
-      if (last < str.size()){
+      if (last < str.size()) {
         // last + 1: start at index after last non-whitespace
         rtrim = ltrim.erase(last + 1, ltrim.size() - last);
       } else {
@@ -88,35 +89,36 @@ namespace IO {
      * Returns a pair of strings of the content (before, after)
      * the equality sign.
      */
-    std::pair<std::string, std::string> splitEquals(std::string& str){
+    std::pair<std::string, std::string> splitEquals(std::string& str) {
 
       // Find where the equals sign is
       size_t equals_ind = 0;
-      int count = 0;
-      for (size_t i = 0; i < str.size(); i++){
-        if (str[i] == '='){
+      int    count      = 0;
+      for (size_t i = 0; i < str.size(); i++) {
+        if (str[i] == '=') {
           count++;
-          if (equals_ind == 0) equals_ind = i;
+          if (equals_ind == 0)
+            equals_ind = i;
         }
       }
 
-      if (count > 1){
-        warning("Got more than 1 equality sign in line '"+str+"'");
+      if (count > 1) {
+        warning("Got more than 1 equality sign in line '" + str + "'");
         return std::make_pair(internal::somethingWrong(), internal::somethingWrong());
       }
 
-      if (equals_ind == 0){
-        warning("No equality sign or no var name in line '"+str+"'");
+      if (equals_ind == 0) {
+        warning("No equality sign or no var name in line '" + str + "'");
         return std::make_pair(internal::somethingWrong(), internal::somethingWrong());
       }
 
-      if (equals_ind == str.size()){
-        warning("No var value in line '"+str+"'");
+      if (equals_ind == str.size()) {
+        warning("No var value in line '" + str + "'");
         return std::make_pair(internal::somethingWrong(), internal::somethingWrong());
       }
 
       std::string name = str.substr(0, equals_ind);
-      std::string val = str.substr(equals_ind+1, str.size() - equals_ind - 1);
+      std::string val  = str.substr(equals_ind + 1, str.size() - equals_ind - 1);
 
       return std::make_pair(removeWhitespace(name), removeWhitespace(val));
     }
@@ -126,7 +128,7 @@ namespace IO {
      * Remove trailing comment from line.
      * Comment is / * or //.
      */
-    std::string removeTrailingComment(std::string& line){
+    std::string removeTrailingComment(std::string& line) {
 
       size_t comm1 = line.find("//");
       size_t comm2 = line.find("/*");
@@ -151,18 +153,20 @@ namespace IO {
      * If something goes wrong during the partising, name and value will be
      * internal::somethingWrong().
      */
-    std::pair<std::string, std::string> extractParameter(std::string& line){
+    std::pair<std::string, std::string> extractParameter(std::string& line) {
 
       std::string name;
       std::string value;
 
-      if (isComment(line)) return std::make_pair(name, value);
-      if (isWhitespace(line)) return std::make_pair(name, value);
+      if (isComment(line))
+        return std::make_pair(name, value);
+      if (isWhitespace(line))
+        return std::make_pair(name, value);
 
       std::string nocomment = internal::removeTrailingComment(line);
-      auto pair = internal::splitEquals(nocomment);
-      name = pair.first;
-      value = pair.second;
+      auto        pair      = internal::splitEquals(nocomment);
+      name                  = pair.first;
+      value                 = pair.second;
 
       return std::make_pair(name, value);
     }
@@ -176,7 +180,7 @@ namespace IO {
     }
 
 
-    std::string somethingWrong(){
+    std::string somethingWrong() {
       return std::string("__something_wrong__");
     }
 
@@ -206,7 +210,8 @@ namespace IO {
     std::stringstream msg;
     msg << "This is the hydro code help message.\n\nUsage: \n\n";
     msg << "Default run:\n  ./hydro --config-file <config-file> --ic-file <ic-file>\n";
-    msg << "    <config-file>: file containing your run parameter configuration. See README for details.\n";
+    msg
+      << "    <config-file>: file containing your run parameter configuration. See README for details.\n";
     msg << "    <ic-file>: file containing your initial conditions. See README for details.\n\n";
     msg << "Get this help message:\n  ./hydro -h\n  ./hydro --help\n";
 
@@ -322,11 +327,12 @@ namespace IO {
 
     // Read in line by line
     while (std::getline(conf_ifs, line)) {
-      auto pair = internal::extractParameter(line);
-      std::string name = pair.first;
+      auto        pair  = internal::extractParameter(line);
+      std::string name  = pair.first;
       std::string value = pair.second;
-      if (name == "") continue;
-      if (name == internal::somethingWrong() or value == internal::somethingWrong()){
+      if (name == "")
+        continue;
+      if (name == internal::somethingWrong() or value == internal::somethingWrong()) {
         warning("Something wrong with config file line '" + line + "'; skipping it");
       }
 
@@ -361,17 +367,17 @@ namespace IO {
     // aux function but i wanna keep the pointers in the
     // stack frame
     // auto readUntil = [&](const char& ch) {
-      // internal::resetBuffer(lineBuffer);
-      // reset pointer to start of buffer
-      // lineptr = lineBuffer;
-      // while ((*lineptr = fgetc(icfile)) != EOF) {
-        // Decrement the number of bytes we have to read...
-        // bytesToRead--;
-        // if (*lineptr == ch)
-          // return true;
-        // lineptr++;
-      // }
-      // return false;
+    // internal::resetBuffer(lineBuffer);
+    // reset pointer to start of buffer
+    // lineptr = lineBuffer;
+    // while ((*lineptr = fgetc(icfile)) != EOF) {
+    // Decrement the number of bytes we have to read...
+    // bytesToRead--;
+    // if (*lineptr == ch)
+    // return true;
+    // lineptr++;
+    // }
+    // return false;
     // };
 
     // // define another lambda to fetch a float
