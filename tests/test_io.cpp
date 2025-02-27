@@ -235,6 +235,8 @@ void testRemoveTrailingComments(){
  */
 void testExtractParamLine() {
 
+  message("-- Running testExtractParamLine()");
+
   std::string line_empty("");
   std::string line_eof(1, static_cast<char>(EOF));
   std::string line_something("something");
@@ -255,6 +257,10 @@ void testExtractParamLine() {
   IO::internal::extractParameter(line_valid1);
   IO::internal::extractParameter(line_valid2);
   IO::internal::extractParameter(line_valid3);
+  IO::internal::extractParameter(line_valid4);
+  IO::internal::extractParameter(line_valid5);
+
+  message("-- finished.");
 }
 
 
@@ -269,7 +275,7 @@ void unit_tests() {
   testRemoveWhitespace();
   testRemoveTrailingComments();
   testSplitEquals();
-  // testExtractParamLine();
+  testExtractParamLine();
 
   message("Finished unit tests.")
 }

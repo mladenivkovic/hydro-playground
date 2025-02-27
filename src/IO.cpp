@@ -146,18 +146,13 @@ namespace IO {
      *  name = value // possible comment
      * ```
      *
-     * Returns a pair of strings, the name (before = sign) and value (after = sign)
+     * Returns a pair of strings, the name (before = sign) and value (after =
+     * sign). If both these strings are empty, we're skipping this line
+     * deliberately. This could be because it's a comment or empty.
+     * If something goes wrong during the partising, name and value will be
+     * internal::somethingWrong().
      */
     std::pair<std::string, std::string> extractParameter(std::string& line){
-
-      // TODO: Rewrite this.
-      // First check whether a line contains a comment.
-      // Trim the line down such that it contains no comment.
-      // Extract that into a single function.
-      // Next, split the line between an equals sign.
-      // Check that the line only contains 1 equals sign.
-      // Then clear whitespaces in both splits.
-      // Extract whitespace removal into single function.
 
       std::string name;
       std::string value;
@@ -165,70 +160,10 @@ namespace IO {
       if (isComment(line)) return std::make_pair(name, value);
       if (isWhitespace(line)) return std::make_pair(name, value);
 
-      // std::string namestring = line.substr(0, equals_ind);
-      // std::string valuestring = line.substr(equals_ind+1, line.size());
-
-      // if (equals_ind == 0){
-      //   warning("Invalid line in parameters: Missing equals sign or parameter name:" + line);
-      //   return std::make_pair(name, value);
-      // }
-      // if (equals_ind == line.size()){
-      //   warning("Invalid line in parameters: Missing parameter value:" + line);
-      //   return std::make_pair(name, value);
-      // }
-
-
-      // size_t first = 0;
-      // size_t last = namestring.size();
-      // for (size_t i = 0; i < namestring.size(); i++){
-      //   if (std::isspace(namestring[i]) == 0){
-      //     first = i;
-      //     break;
-      //   }
-      // }
-      // for (size_t i = namestring.size(); i ==0; i--){
-      //   if (std::isspace(namestring[i]) == 0){
-      //     last = i;
-      //     break;
-      //   }
-      // }
-      // name = namestring.substr(first, last-first);
-      //
-      // std::cout << namestring << "\n" << name << "\n";
-
-      // remove whitespaces and comments from valuestring
-      // first = 0;
-      // last = valuestring.size();
-
-      // for (size_t i = 0; i < valuestring.size(); i++){
-      //   // std::cout << "1checking: i="<<i <<"c=" << valuestring[i] << "\n";
-      //   if (std::isspace(valuestring[i]) == 0){
-      //     first = i;
-      //     // std::cout << "first:" << first << "/" << valuestring[i] << "\n";
-      //     break;
-      //   }
-      // }
-      // for (size_t i = first; i < valuestring.size(); i++){
-      //   // If we reach a space before a comment, we're done.
-      //   // std::cout << "2checking: i="<<i <<"c=" << valuestring[i] << "\n";
-      //   if (std::isspace(valuestring[i]) == 1){
-      //     last = i;
-      //     // std::cout << "last:" << last << "/" << valuestring[i] << "\n";
-      //     break;
-      //   }
-      //   if (valuestring[i] == '/' and (i < valuestring.size() - 1)){
-      //    // Have we reached a comment?
-      //     if ((valuestring[i+1] == '/') or (valuestring[i+1] == '*')){
-      //       last = i;
-      //       break;
-      //     }
-      //   }
-      // }
-      //
-      // // extract the relevant substring
-      // value = valuestring.substr(first, last-first);
-      //
-      // std::cout << "vstr:" << valuestring << "\nv:" << value << "\n";
+      std::string nocomment = internal::removeTrailingComment(line);
+      auto pair = internal::splitEquals(nocomment);
+      name = pair.first;
+      value = pair.second;
 
       return std::make_pair(name, value);
     }

@@ -29,7 +29,7 @@ namespace logging {
     std::stringstream str;
     str << "[" << getStageName(stage) << "] ";
 #if DEBUG_LEVEL > 0
-    str << "`" << file << ":" << function << "():" << line << "` ";
+    str << "`" << file << ":" << function << "():" << line << "`: ";
 #endif
     str << text << "\n";
 
@@ -70,7 +70,7 @@ namespace logging {
 
     std::stringstream str;
     str << "[WARNING] ";
-    str << "`" << file << ":" << function << "():" << line << "` ";
+    str << "`" << file << ":" << function << "():" << line << "`: ";
     str << text << "\n";
 
     std::cerr << str.str();
@@ -91,7 +91,7 @@ namespace logging {
 
     std::stringstream str;
     str << "[ERROR] ";
-    str << "`" << file << ":" << function << "():" << line << "` ";
+    str << "`" << file << ":" << function << "():" << line << "`: ";
     str << text << "\n";
 
     std::cerr << str.str();
