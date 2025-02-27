@@ -40,8 +40,20 @@ namespace IO {
     //! Is this line a comment?
     bool isComment(std::string& line);
 
+    //! Remove leading and trailing whitespaces from a string.
+    std::string removeWhitespace(std::string& str);
+
+    //! Split a line at an = char
+    std::pair<std::string, std::string> splitEquals(std::string& str);
+
+    //! Remove trailing comment from a line
+    std::string removeTrailingComment(std::string& line);
+
     //! Get a pair of name,value from a parameter line
     std::pair<std::string, std::string> extractParameter(std::string& line);
+
+    //! Get a string representing something gone wrong in parsing/evaluation
+    std::string somethingWrong();
 
   } // namespace internal
 
