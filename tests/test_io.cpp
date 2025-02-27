@@ -140,7 +140,6 @@ void testRemoveWhitespace(){
  */
 void testSplitEquals(){
 
-
   message("-- Running testSplitEquals()");
 
   std::string in;
@@ -162,15 +161,19 @@ void testSplitEquals(){
   if (name != "a") error("Wrong:'" + name + "'");
   if (val != "n") error("Wrong:'" + val + "'");
 
+  in = " myname =    myValue    \n";
+  out = IO::internal::splitEquals(in);
+  name = out.first;
+  val = out.second;
+  if (name != "myname") error("Wrong:'" + name + "'");
+  if (val != "myValue") error("Wrong:'" + val + "'");
+
   in = "a = b = c";
   out = IO::internal::splitEquals(in);
   name = out.first;
   val = out.second;
   if (name != no) error("Wrong:'" + name + "'");
   if (val != no) error("Wrong:'" + val + "'");
-
-
-
 
 
   message("-- finished.");
@@ -184,6 +187,44 @@ void testSplitEquals(){
  */
 void testRemoveTrailingComments(){
 
+  message("-- Running testRemoveTrailingComments()");
+
+  std::string in;
+  std::string out;
+
+  in = "";
+  out = IO::internal::removeTrailingComment(in);
+  if (out != "") error("Wrong:'" + out + "'");
+
+  in = "word";
+  out = IO::internal::removeTrailingComment(in);
+  if (out != "word") error("Wrong:'" + out + "'");
+
+  in = "// word";
+  out = IO::internal::removeTrailingComment(in);
+  if (out != "") error("Wrong:'" + out + "'");
+
+  in = "/* word";
+  out = IO::internal::removeTrailingComment(in);
+  if (out != "") error("Wrong:'" + out + "'");
+
+  in = " some text  // comment";
+  out = IO::internal::removeTrailingComment(in);
+  if (out != " some text  ") error("Wrong:'" + out + "'");
+
+  in = " some text  /* comment";
+  out = IO::internal::removeTrailingComment(in);
+  if (out != " some text  ") error("Wrong:'" + out + "'");
+
+  in = " some text  // /* comment";
+  out = IO::internal::removeTrailingComment(in);
+  if (out != " some text  ") error("Wrong:'" + out + "'");
+
+  in = " some text  /* // /* comment";
+  out = IO::internal::removeTrailingComment(in);
+  if (out != " some text  ") error("Wrong:'" + out + "'");
+
+  message("-- finished.");
 }
 
 
@@ -223,9 +264,10 @@ void testExtractParamLine() {
 void unit_tests() {
   message("Running unit tests.")
 
-  // testIsWhitespace();"
-  // testIsComment();
+  testIsWhitespace();
+  testIsComment();
   testRemoveWhitespace();
+  testRemoveTrailingComments();
   testSplitEquals();
   // testExtractParamLine();
 

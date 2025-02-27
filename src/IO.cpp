@@ -129,15 +129,14 @@ namespace IO {
      */
     std::string removeTrailingComment(std::string& line){
 
-      size_t comm_ind = 0;
-      for (size_t i = 0; i < line.size() - 1; i++){
-        if (line[i] == '/' and (line[i+1] == '/' or line[i+1] == '*')){
-          comm_ind = i;
-          break;
-        }
-      }
+      size_t comm1 = line.find("//");
+      size_t comm2 = line.find("/*");
+      // get the earlier of both
+      size_t comm = std::min(comm1, comm2);
+      // make sure we found at least one
+      comm = std::min(comm, line.size());
 
-      return line.substr(0, comm_ind);
+      return line.substr(0, comm);
     }
 
 
