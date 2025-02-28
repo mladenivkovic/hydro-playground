@@ -14,7 +14,6 @@ namespace parameters {
   Parameters Parameters::Instance;
 
   Parameters::Parameters():
-    _verbose(logging::LogLevel::Quiet),
     _nstepsLog(0),
     _nsteps(0),
     _tmax(0),
@@ -66,7 +65,6 @@ namespace parameters {
 
 
   void Parameters::init(
-    logging::LogLevel verbose,
     size_t            nstepsLog,
     size_t            nsteps,
     float_t           tmax,
@@ -75,8 +73,6 @@ namespace parameters {
     BoundaryCondition boundaryType,
     size_t            nbc
   ) {
-
-    setVerbose(verbose);
     setNstepsLog(nstepsLog);
     setTmax(tmax);
     setNx(nx);
@@ -90,19 +86,6 @@ namespace parameters {
 #endif
   }
 
-  logging::LogLevel Parameters::getVerbose() const {
-    return _verbose;
-  }
-
-  void Parameters::setVerbose(const logging::LogLevel logLevel) {
-    _verbose = logLevel;
-
-#if DEBUG_LEVEL > 0
-    if (_locked) {
-      error("Trying to overwrite parameter values after init!");
-    }
-#endif
-  }
 
   void Parameters::setOutputFilename(std::string ofname) {
     _outputfilename = ofname;

@@ -13,8 +13,16 @@
 
 int main(int argc, char* argv[]) {
 
-  // Were' in the header phase.
+  // Set the logging stage. Were' in the header phase.
   logging::Log::setStage(logging::LogStage::Header);
+
+  // Set default verbosity levels.
+  // Note that this can be changed through cmdline flags.
+#if DEBUG_LEVEL == 0
+  logging::Log::setVerbosity(logging::LogLevel::Quiet);
+#else
+  logging::Log::setVerbosity(logging::LogLevel::Debug);
+#endif
 
   // Useless things first :)
   utils::print_header();
@@ -25,13 +33,15 @@ int main(int argc, char* argv[]) {
   // Fire up IO
   IO::InputParse input(argc, argv);
 
-  // Initialise global paramters.
+  // Initialise global paramters...
   parameters::Parameters::Instance.init();
+  // ... and read the parameters from the config file
+  input.parseConfigFile();
 
   // initialise the grid of cells
   grid::Grid::Instance.initGrid();
 
-  input.readICFile();
+  // input.readICFile();
 
   grid::Grid::Instance.setBoundary();
 

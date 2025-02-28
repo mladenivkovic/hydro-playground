@@ -37,9 +37,6 @@ namespace parameters {
     // Talking related parameters
     // --------------------------
 
-    //! how verbose are we?
-    logging::LogLevel _verbose;
-
     //! interval between steps to write current state to screen
     size_t _nstepsLog;
 
@@ -145,7 +142,6 @@ namespace parameters {
      * @brief Sets up parameters.
      */
     void init(
-      logging::LogLevel verbose      = logging::LogLevel::Quiet,
       size_t            nstepsLog    = 1,
       size_t            nsteps       = 1,
       float_t           tmax         = 1.,
@@ -157,12 +153,6 @@ namespace parameters {
 
     // ToDo: Move to destructor
     void cleanup();
-
-    /**
-     * @brief Get the logging level
-     */
-    logging::LogLevel getVerbose() const;
-    void              setVerbose(const logging::LogLevel logLevel);
 
     /**
      * @brief Get number of steps between writing log to screen

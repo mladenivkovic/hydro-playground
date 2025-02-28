@@ -41,30 +41,30 @@ void utils::print_header() {
   const int version_major = version::Version::MAJOR;
   const int version_minor = version::Version::MINOR;
 
-  logging::LogStage stage = logging::LogStage::Header;
+  // Print this out even for the quiet runs.
   logging::LogLevel level = logging::LogLevel::Quiet;
 
   std::stringstream version_txt;
   version_txt << "Version:     " << version_major << "." << version_minor;
-  message(version_txt, level, stage);
+  message(version_txt, level);
 
   std::stringstream git_branch_txt;
   git_branch_txt << "Git branch:  " << version::Version::GIT_BRANCH;
-  message(git_branch_txt, level, stage);
+  message(git_branch_txt, level);
 
   std::stringstream git_comm_txt;
   git_comm_txt << "Git commit:  " << version::Version::GIT_SHA1;
-  message(git_comm_txt, level, stage);
+  message(git_comm_txt, level);
 
   std::stringstream build_type;
   build_type << "Build type:  " << CMAKE_BUILD_TYPE;
-  message(build_type, level, stage);
+  message(build_type, level);
 
-  message("Build date:  " __DATE__ " - " __TIME__, level, stage);
+  message("Build date:  " __DATE__ " - " __TIME__, level);
 
   std::stringstream debug;
   debug << "Debug level: " << DEBUG_LEVEL;
-  message(debug, level, stage);
+  message(debug, level);
 
 #if DEBUG_LEVEL > 0
   warning("Code compiled with debugging enabled.");

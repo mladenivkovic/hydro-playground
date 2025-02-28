@@ -120,17 +120,19 @@ namespace logging {
 
   void Log::setVerbosity(LogLevel verbosity) {
     Log::_verbosity = verbosity;
-    message("Setting verbosity", LogLevel::Verbose);
+    std::stringstream msg;
+    msg << "Setting verbosity to " << static_cast<int>(verbosity);
+    // only print this if we're talky
+    message(msg.str(), LogLevel::Verbose);
   }
 
 
   void Log::setStage(int stage) {
-    LogStage stage_t = static_cast<LogStage>(stage);
+    auto stage_t = static_cast<LogStage>(stage);
     setStage(stage_t);
   }
 
   void Log::setStage(LogStage stage) {
-    // TODO: make this a verbose message
     std::stringstream msg;
     msg << "Setting stage " << Log::getStageName(stage);
     message(msg.str(), LogLevel::Verbose);

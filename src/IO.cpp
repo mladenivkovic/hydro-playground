@@ -210,7 +210,10 @@ namespace IO {
     msg << "                     See README for details.\n";
     msg << "      <ic-file>:     file containing your initial conditions.\n";
     msg << "                     See README for details.\n\n";
-    msg << "Get this help message:\n  ./hydro -h\n  ./hydro --help\n";
+    msg << "Get this help message:\n  ./hydro -h\n  ./hydro --help\n\n";
+    msg << "Optional flags:\n";
+    msg << "  -v,--verbose:         Be talkative.\n";
+    msg << "  -vv,--very-verbose:   Be very talkative (intended for debugging).\n";
 
     return msg.str();
   }
@@ -234,22 +237,32 @@ namespace IO {
 
     for (int i = 1; i < std::min(argc, argc_max); i++) {
 
-      // Do we have an arg=value situation?
       std::string arg = std::string(argv[i]);
+
+      // Allow flags without values
+      if (arg == "-h" or arg == "--help" or arg == "-v" or arg =="--verbose" or arg == "-vv" or arg =="--very-verbose"){
+        _clArguments.insert(std::make_pair(arg, ""));
+        continue;
+      }
+
+      // Do we have an arg=value situation?
       auto split_pair = internal::splitEquals(arg);
       std::string name = split_pair.first;
       std::string value = split_pair.second;
+
       if (name != internal::somethingWrong()){
+
+        // We have an arg=value situation.
         _clArguments.insert(std::make_pair(name, value));
+
       } else {
+
         // value is next arg, if it exists. Otherwise, empty string.
-        // (it doesn't e.g. when running ./hydro --help)
         std::string val;
-        if (i+1 < argc){
-          val = argv[i+1];
-        }
+        if (i+1 < argc) val = argv[i+1];
         _clArguments.insert(std::make_pair(arg, val));
         i++;
+
       }
     }
 
@@ -293,6 +306,15 @@ namespace IO {
       message(helpMessage(), logging::LogLevel::Quiet);
       std::exit(0);
     }
+
+    if (_commandOptionExists("-v") or _commandOptionExists("--verbose")) {
+      logging::Log::setVerbosity(logging::LogLevel::Verbose);
+    }
+
+    if (_commandOptionExists("-vv") or _commandOptionExists("--very-verbose")){
+      logging::Log::setVerbosity(logging::LogLevel::Debug);
+    }
+
 
     // Vector containing all the valid options we accept. Iterate over this to
     // check if the cmd options we expect to see are present This is defined in
