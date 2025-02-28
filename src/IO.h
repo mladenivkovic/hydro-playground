@@ -41,8 +41,8 @@ namespace IO {
     //! Remove leading and trailing whitespaces from a string.
     std::string removeWhitespace(std::string& str);
 
-    //! Split a line at an = char
-    std::pair<std::string, std::string> splitEquals(std::string& str);
+    //! Split a line at an = char. Raise warnings if warn=true and something is amiss.
+    std::pair<std::string, std::string> splitEquals(std::string& str, bool warn=false);
 
     //! Remove trailing comment from a line
     std::string removeTrailingComment(std::string& line);
@@ -65,7 +65,7 @@ namespace IO {
     InputParse(const int argc, char* argv[]);
 
     //! Read the config file and fill out the configuration parameters
-    void readConfigFile();
+    void parseConfigFile();
 
     //! Read the initial conditions file.
     void readICFile();
@@ -77,16 +77,8 @@ namespace IO {
     //! Help message
     static std::string helpMessage();
 
-    /**
-     * Vector containing all the valid options we accept. Iterate over this to
-     * check if the cmd options we expect to see are present This is defined in
-     * the cpp file.
-     */
-    static const std::vector<std::string> _requiredArgs;
-    // static const std::vector<std::string> optionalArgs;
-
-    //! Vector to hold incoming command line args
-    std::vector<std::string> _clArguments;
+    //! Map holding incoming command line args
+    std::map<std::string, std::string> _clArguments;
 
     //! Storage for all read-in configuration parameters
     std::map<std::string, configEntry> _config_params;

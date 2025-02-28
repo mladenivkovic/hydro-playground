@@ -120,6 +120,7 @@ namespace logging {
 
   void Log::setVerbosity(LogLevel verbosity) {
     Log::_verbosity = verbosity;
+    message("Setting verbosity", LogLevel::Verbose);
   }
 
 
@@ -129,7 +130,10 @@ namespace logging {
   }
 
   void Log::setStage(LogStage stage) {
-    std::cout << "Setting stage" << Log::getStageName(stage) << "\n";
+    // TODO: make this a verbose message
+    std::stringstream msg;
+    msg << "Setting stage " << Log::getStageName(stage);
+    message(msg.str(), LogLevel::Verbose);
     Log::_currentStage = stage;
   }
 

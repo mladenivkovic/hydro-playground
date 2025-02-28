@@ -21,6 +21,9 @@ namespace IO {
 
   namespace internal {
 
+    std::string somethingWrong() {
+      return std::string("__something_wrong__");
+    }
 
     /**
      * Scan through the line buffer. If we see any character that isn't `\n`,
@@ -88,8 +91,10 @@ namespace IO {
      * Split a string at an equality character.
      * Returns a pair of strings of the content (before, after)
      * the equality sign.
+     * Returns internal::somethingWrong() if there is no or more than
+     * one equality sign in the string.
      */
-    std::pair<std::string, std::string> splitEquals(std::string& str) {
+    std::pair<std::string, std::string> splitEquals(std::string& str, bool warn) {
 
       // Find where the equals sign is
       size_t equals_ind = 0;
@@ -103,17 +108,17 @@ namespace IO {
       }
 
       if (count > 1) {
-        warning("Got more than 1 equality sign in line '" + str + "'");
+        if (warn) warning("Got more than 1 equality sign in line '" + str + "'");
         return std::make_pair(internal::somethingWrong(), internal::somethingWrong());
       }
 
       if (equals_ind == 0) {
-        warning("No equality sign or no var name in line '" + str + "'");
+        if (warn) warning("No equality sign or no var name in line '" + str + "'");
         return std::make_pair(internal::somethingWrong(), internal::somethingWrong());
       }
 
       if (equals_ind == str.size()) {
-        warning("No var value in line '" + str + "'");
+        if (warn) warning("No var value in line '" + str + "'");
         return std::make_pair(internal::somethingWrong(), internal::somethingWrong());
       }
 
@@ -164,7 +169,7 @@ namespace IO {
         return std::make_pair(name, value);
 
       std::string nocomment = internal::removeTrailingComment(line);
-      auto        pair      = internal::splitEquals(nocomment);
+      auto        pair      = internal::splitEquals(nocomment, /*warn=*/true);
       name                  = pair.first;
       value                 = pair.second;
 
@@ -177,11 +182,6 @@ namespace IO {
      */
     bool fileExists(const std::string& filename) {
       return std::filesystem::exists(filename);
-    }
-
-
-    std::string somethingWrong() {
-      return std::string("__something_wrong__");
     }
 
   } // namespace internal
@@ -199,20 +199,17 @@ namespace IO {
     used(false) {};
 
 
-  const std::vector<std::string> InputParse::_requiredArgs = {
-    "--config-file",
-    "--ic-file",
-  };
-
 
   std::string InputParse::helpMessage() {
 
     std::stringstream msg;
     msg << "This is the hydro code help message.\n\nUsage: \n\n";
     msg << "Default run:\n  ./hydro --config-file <config-file> --ic-file <ic-file>\n";
-    msg
-      << "    <config-file>: file containing your run parameter configuration. See README for details.\n";
-    msg << "    <ic-file>: file containing your initial conditions. See README for details.\n\n";
+    msg << "or:\n  ./hydro --config-file=<config-file> --ic-file=<ic-file>\n\n";
+    msg << "      <config-file>: file containing your run parameter configuration.\n";
+    msg << "                     See README for details.\n";
+    msg << "      <ic-file>:     file containing your initial conditions.\n";
+    msg << "                     See README for details.\n\n";
     msg << "Get this help message:\n  ./hydro -h\n  ./hydro --help\n";
 
     return msg.str();
@@ -235,11 +232,28 @@ namespace IO {
     }
 #endif
 
-    // push all the argv into the vector to hold them
-    // start at 1; ignore the binary name
     for (int i = 1; i < std::min(argc, argc_max); i++) {
-      _clArguments.emplace_back(argv[i]);
+
+      // Do we have an arg=value situation?
+      std::string arg = std::string(argv[i]);
+      auto split_pair = internal::splitEquals(arg);
+      std::string name = split_pair.first;
+      std::string value = split_pair.second;
+      if (name != internal::somethingWrong()){
+        _clArguments.insert(std::make_pair(name, value));
+      } else {
+        // value is next arg, if it exists. Otherwise, empty string.
+        // (it doesn't e.g. when running ./hydro --help)
+        std::string val;
+        if (i+1 < argc){
+          val = argv[i+1];
+        }
+        _clArguments.insert(std::make_pair(arg, val));
+        i++;
+      }
     }
+
+    checkCmdLineArgsAreValid();
   }
 
 
@@ -247,17 +261,15 @@ namespace IO {
    * Get the value provided by the command option @param option.
    */
   std::string InputParse::_getCommandOption(const std::string& option) {
-    auto iter = std::find(_clArguments.begin(), _clArguments.end(), option);
-    // make sure we aren't at the end, and that there's something to read...
-    // mind the sneaky increment in the "if" clause... That's how we get
-    // the actual value, and not the cmdline option itself.
-    if (iter != _clArguments.end() and ++iter != _clArguments.end()) {
-      return *iter;
+
+    auto search = _clArguments.find(option);
+    if (search == _clArguments.end()){
+      warning("No option '" + option + "' available");
+      const std::string emptyString;
+      return emptyString;
     }
 
-    // no luck. return the empty string
-    static const std::string emptyString;
-    return emptyString;
+    return search->second;
   }
 
 
@@ -265,8 +277,9 @@ namespace IO {
    * Has a cmdline option been provided?
    */
   bool InputParse::_commandOptionExists(const std::string& option) {
-    auto iter = std::find(_clArguments.begin(), _clArguments.end(), option);
-    return (iter != _clArguments.end());
+
+    auto search = _clArguments.find(option);
+    return (search != _clArguments.end());
   }
 
 
@@ -277,15 +290,24 @@ namespace IO {
 
     // If help is requested, print help and exit.
     if (_commandOptionExists("-h") or _commandOptionExists("--help")) {
-      message(helpMessage(), logging::LogStage::Init);
+      message(helpMessage(), logging::LogLevel::Quiet);
       std::exit(0);
     }
 
+    // Vector containing all the valid options we accept. Iterate over this to
+    // check if the cmd options we expect to see are present This is defined in
+    // the cpp file.
+    const std::vector<std::string> _requiredArgs = {
+      "--config-file",
+      "--ic-file",
+    };
+
     // check all the required options
     for (const auto& opt : _requiredArgs) {
-      if (std::find(_clArguments.begin(), _clArguments.end(), opt) == _clArguments.end()) {
-        std::string msg = "missing option: " + opt;
-        message(msg, logging::LogStage::Init);
+      if (not _commandOptionExists(opt)){
+        std::stringstream msg;
+        msg << "missing option: " << opt;
+        error(msg);
       }
     }
 
@@ -297,6 +319,7 @@ namespace IO {
       error(msg.str());
     } else {
       // Store it.
+      message("Found IC file " + icfile, logging::LogLevel::Debug);
       _icfile = icfile;
     }
 
@@ -306,7 +329,9 @@ namespace IO {
       msg << "Provided parameter file '" << configfile << "' doesn't exist.";
       error(msg.str());
     } else {
+      // Store it.
       _configfile = configfile;
+      message("Found config file " + configfile, logging::LogLevel::Debug);
     }
   }
 
@@ -314,14 +339,15 @@ namespace IO {
   /**
    * Read the configuration file and fill out the parameters singleton.
    */
-  void InputParse::readConfigFile() {
+  void InputParse::parseConfigFile() {
 
 #if DEBUG_LEVEL > 0
     if (_configfile.size() == 0) {
-      error("No config file specified?")
+      error("No config file specified?");
     }
 #endif
 
+    // First, we read the config file
     std::string   line;
     std::ifstream conf_ifs(_configfile);
 
@@ -339,6 +365,11 @@ namespace IO {
       configEntry newEntry = configEntry(name, value);
       _config_params.insert(std::make_pair(name, newEntry));
     }
+
+
+    // Now we parse each argument
+
+
   }
 
 

@@ -13,14 +13,17 @@
 
 int main(int argc, char* argv[]) {
 
-  // using namespace logging;
+  // Were' in the header phase.
+  logging::Log::setStage(logging::LogStage::Header);
 
   // Useless things first :)
   utils::print_header();
 
+  // Were' in the initialisation phase.
+  logging::Log::setStage(logging::LogStage::Init);
+
   // Fire up IO
   IO::InputParse input(argc, argv);
-  input.checkCmdLineArgsAreValid();
 
   // Initialise global paramters.
   parameters::Parameters::Instance.init();
