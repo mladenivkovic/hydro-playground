@@ -168,56 +168,56 @@ namespace parameters {
     /**
      * @brief Get number of steps between writing log to screen
      */
-    [[nodiscard]] size_t getNstepsLog() const;
+    static size_t getNstepsLog() ;
     void                 setNstepsLog(const size_t nstepsLog);
 
 
     /**
      * @brief Get max nr of simulation steps to run
      */
-    [[nodiscard]] size_t getNsteps() const;
+    static size_t getNsteps();
     void                 setNsteps(const size_t nsteps);
 
 
     /**
      * @brief get simulation end time
      */
-    [[nodiscard]] float_t getTmax() const;
+    static float_t getTmax() ;
     void                  setTmax(const float_t tmax);
 
 
     /**
      * @brief Get the number of cells with actual content per dimension
      */
-    [[nodiscard]] size_t getNx() const;
+    static size_t getNx() ;
     void                 setNx(const size_t nx);
 
 
     /**
      * @brief Get the CFL constant
      */
-    [[nodiscard]] float_t getCcfl() const;
+    static float_t getCcfl() ;
     void                  setCcfl(float_t ccfl);
 
 
     /**
      * @brief Get the type of boundary condition used
      */
-    [[nodiscard]] BoundaryCondition getBoundaryType() const;
-    void                            setBoundaryType(BoundaryCondition boundary);
+    static BoundaryCondition getBoundaryType();
+    void    setBoundaryType(BoundaryCondition boundary);
 
 
     /**
      * @brief Get the number of boundary cells on each side of the box
      */
-    [[nodiscard]] size_t getNBC() const;
-    void                 setNBC(size_t nbc);
+    static size_t getNBC();
+    void          setNBC(size_t nbc);
 
 
     /**
      * @brief get the total number of boundary cells per dimension.
      */
-    [[nodiscard]] size_t getNBCTot() const;
+    static size_t getNBCTot();
 
 
     /**
@@ -225,28 +225,21 @@ namespace parameters {
      * boundary cells.
      * @TODO: what to do with replication
      */
-    [[nodiscard]] size_t getNxTot() const;
+    static size_t getNxTot();
 
 
     /**
      * @brief Get the cell size
      */
-    [[nodiscard]] float_t getDx() const;
+    static float_t getDx();
     void                  setDx(const float_t dx);
 
 
     /**
      * @brief Get the output file name base
      */
-    [[nodiscard]] std::string getOutputFileBase() const;
+    static std::string getOutputFileBase();
     void                      setOutputFileBase(std::string& ofname);
-
-
-    /**
-     * Get the IC file name.
-     */
-    [[nodiscard]] std::string getIcDataFilename() const;
-    void                      setIcDataFilename(std::string& icfname);
 
 
     //! single copy of the global variables
@@ -261,3 +254,169 @@ namespace parameters {
     }
   };
 } // namespace parameters
+
+
+
+//! Print out argument and its value with Debug verbosity
+#define paramSetLog(arg) \
+  { \
+    std::stringstream msg; \
+    msg << "Parameters: Setting '" << #arg << "' = " << arg << "'"; \
+    message(msg, logging::LogLevel::Debug); \
+  }
+
+
+inline size_t parameters::Parameters::getNstepsLog() {
+  return Instance._nstepsLog;
+}
+
+
+inline void parameters::Parameters::setNstepsLog(const size_t nstepsLog) {
+  auto inst = getInstance();
+  inst._nstepsLog = nstepsLog;
+  paramSetLog(nstepsLog);
+#if DEBUG_LEVEL > 0
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
+#endif
+}
+
+
+inline size_t parameters::Parameters::getNsteps()  {
+  return Instance._nsteps;
+}
+
+
+inline void parameters::Parameters::setNsteps(const size_t nsteps) {
+  auto inst = getInstance();
+  inst._nsteps = nsteps;
+  paramSetLog(nsteps);
+#if DEBUG_LEVEL > 0
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
+#endif
+}
+
+
+ inline float_t parameters::Parameters::getTmax()  {
+  return Instance._tmax;
+}
+
+
+inline void parameters::Parameters::setTmax(const float tmax) {
+  auto inst = getInstance();
+  inst._tmax = tmax;
+  paramSetLog(tmax);
+#if DEBUG_LEVEL > 0
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
+#endif
+}
+
+
+inline size_t parameters::Parameters::getNx()  {
+  return Instance._nx;
+}
+
+
+inline void parameters::Parameters::setNx(const size_t nx) {
+  auto inst = getInstance();
+  inst._nx = nx;
+  paramSetLog(nx);
+#if DEBUG_LEVEL > 0
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
+#endif
+}
+
+
+inline float_t parameters::Parameters::getCcfl() {
+  return Instance._ccfl;
+}
+
+
+inline void parameters::Parameters::setCcfl(const float ccfl) {
+  auto inst = getInstance();
+  inst._ccfl = ccfl;
+  paramSetLog(ccfl);
+#if DEBUG_LEVEL > 0
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
+#endif
+}
+
+
+inline parameters::BoundaryCondition parameters::Parameters::getBoundaryType() {
+  return Instance._boundaryType;
+}
+
+
+inline void parameters::Parameters::setBoundaryType(BoundaryCondition boundaryType) {
+  auto inst = getInstance();
+  inst._boundaryType = boundaryType;
+  paramSetLog((int)boundaryType);
+#if DEBUG_LEVEL > 0
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
+#endif
+}
+
+
+inline size_t parameters::Parameters::getNBC(){
+  return Instance._nbc;
+}
+
+
+inline void parameters::Parameters::setNBC(const size_t bc) {
+  auto inst = getInstance();
+  inst._nbc = bc;
+  paramSetLog(bc);
+#if DEBUG_LEVEL > 0
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
+#endif
+}
+
+
+inline size_t parameters::Parameters::getNBCTot() {
+  return 2 * getNBC();
+}
+
+
+inline size_t parameters::Parameters::getNxTot() {
+  return getNx() + 2 * getNBC();
+}
+
+
+inline float_t parameters::Parameters::getDx() {
+  return Instance._dx;
+}
+
+
+inline void parameters::Parameters::setDx(const float_t dx) {
+  auto inst = getInstance();
+  inst._dx = dx;
+  paramSetLog(dx);
+#if DEBUG_LEVEL > 0
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
+#endif
+}
+
+
+inline std::string parameters::Parameters::getOutputFileBase() {
+  return Instance._outputfilebase;
+}
+
+
+inline void parameters::Parameters::setOutputFileBase(std::string& ofname) {
+  auto inst = getInstance();
+  inst._outputfilebase = ofname;
+  paramSetLog(ofname);
+#if DEBUG_LEVEL > 0
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
+#endif
+}
+
+

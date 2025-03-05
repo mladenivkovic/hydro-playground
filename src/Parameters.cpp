@@ -11,15 +11,6 @@
 #define BOXLEN 1.
 // #define BCTOT 2 * BC
 
-
-//! Print out argument and its value with Debug verbosity
-#define paramSetLog(arg) \
-  { \
-    std::stringstream msg; \
-    msg << "Parameters: Setting '" << #arg << "' = " << arg << "'"; \
-    message(msg, logging::LogLevel::Debug); \
-  }
-
 namespace parameters {
 
   // need to define it as well...
@@ -86,6 +77,9 @@ namespace parameters {
   }
 
 
+  /**
+   * Initialise derived global quantities/parameters.
+   */
   void Parameters::initDerived() {
     size_t  nx = getNx();
     float_t dx = static_cast<float_t>(BOXLEN) / static_cast<float_t>(nx);
@@ -123,148 +117,6 @@ namespace parameters {
     out << std::setw(20) << getNBC() << "\n";
 
     return out.str();
-  }
-
-
-  void Parameters::setOutputFileBase(std::string& ofname) {
-    Instance._outputfilebase = ofname;
-    paramSetLog(ofname);
-#if DEBUG_LEVEL > 0
-    if (_locked)
-      error("Trying to overwrite locked parameters!");
-#endif
-  }
-
-
-  std::string Parameters::getOutputFileBase() const {
-    return Instance._outputfilebase;
-  }
-
-
-  size_t Parameters::getNstepsLog() const {
-    return Instance._nstepsLog;
-  }
-
-
-  void Parameters::setNstepsLog(const size_t nstepsLog) {
-    Instance._nstepsLog = nstepsLog;
-    paramSetLog(nstepsLog);
-#if DEBUG_LEVEL > 0
-    if (_locked)
-      error("Trying to overwrite locked parameters!");
-#endif
-  }
-
-
-  size_t Parameters::getNsteps() const {
-    return Instance._nsteps;
-  }
-
-
-  void Parameters::setNsteps(const size_t nsteps) {
-    Instance._nsteps = nsteps;
-    paramSetLog(nsteps);
-#if DEBUG_LEVEL > 0
-    if (_locked)
-      error("Trying to overwrite locked parameters!");
-#endif
-  }
-
-
-  float_t Parameters::getTmax() const {
-    return Instance._tmax;
-  }
-
-
-  void Parameters::setTmax(const float tmax) {
-    Instance._tmax = tmax;
-    paramSetLog(tmax);
-#if DEBUG_LEVEL > 0
-    if (_locked)
-      error("Trying to overwrite locked parameters!");
-#endif
-  }
-
-
-  size_t Parameters::getNx() const {
-    return Instance._nx;
-  }
-
-
-  void Parameters::setNx(const size_t nx) {
-    Instance._nx = nx;
-    paramSetLog(nx);
-#if DEBUG_LEVEL > 0
-    if (_locked)
-      error("Trying to overwrite locked parameters!");
-#endif
-  }
-
-
-  float_t Parameters::getCcfl() const {
-    return Instance._ccfl;
-  }
-
-
-  void Parameters::setCcfl(const float ccfl) {
-    Instance._ccfl = ccfl;
-    paramSetLog(ccfl);
-#if DEBUG_LEVEL > 0
-    if (_locked)
-      error("Trying to overwrite locked parameters!");
-#endif
-  }
-
-
-  size_t Parameters::getNxTot() const {
-    return getNx() + 2 * getNBC();
-  }
-
-
-  float_t Parameters::getDx() const {
-    return Instance._dx;
-  }
-
-
-  void Parameters::setDx(const float_t dx) {
-    Instance._dx = dx;
-    paramSetLog(dx);
-#if DEBUG_LEVEL > 0
-    if (_locked)
-      error("Trying to overwrite locked parameters!");
-#endif
-  }
-
-
-  BoundaryCondition Parameters::getBoundaryType() const {
-    return Instance._boundaryType;
-  }
-
-
-  void Parameters::setBoundaryType(BoundaryCondition boundaryType) {
-    Instance._boundaryType = boundaryType;
-    paramSetLog((int)boundaryType);
-#if DEBUG_LEVEL > 0
-    if (_locked)
-      error("Trying to overwrite locked parameters!");
-#endif
-  }
-
-  size_t Parameters::getNBC() const {
-    return Instance._nbc;
-  }
-
-  void Parameters::setNBC(const size_t bc) {
-    Instance._nbc = bc;
-    paramSetLog(bc);
-#if DEBUG_LEVEL > 0
-    if (_locked)
-      error("Trying to overwrite locked parameters!");
-#endif
-  }
-
-  size_t Parameters::getNBCTot() const {
-    return 2 * getNBC();
   }
 
 

@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
 #endif
 
   // Get a handle on singletons
-  auto params = parameters::Parameters::Instance;
+  auto params = parameters::Parameters::getInstance();
 
   // Useless things first :)
   utils::printHeader();
