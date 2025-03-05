@@ -2,8 +2,8 @@
 #include <string>
 
 #include "IO.h"
-#include "Utils.h"
 #include "Logging.h"
+#include "Utils.h"
 
 
 /**

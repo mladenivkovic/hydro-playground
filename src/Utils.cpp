@@ -64,7 +64,6 @@ void utils::printHeader() {
 #if DEBUG_LEVEL > 0
   warning("Code compiled with debugging enabled.");
 #endif
-
 }
 
 
@@ -210,7 +209,6 @@ std::string utils::removeTrailingComment(std::string& line) {
 }
 
 
-
 /**
  * Does a file exist?
  */
@@ -303,4 +301,3 @@ std::string utils::string2string(std::string val) {
 
   return v;
 }
-

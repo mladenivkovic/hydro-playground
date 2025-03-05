@@ -168,43 +168,43 @@ namespace parameters {
     /**
      * @brief Get number of steps between writing log to screen
      */
-    static size_t getNstepsLog() ;
-    void                 setNstepsLog(const size_t nstepsLog);
+    static size_t getNstepsLog();
+    void          setNstepsLog(const size_t nstepsLog);
 
 
     /**
      * @brief Get max nr of simulation steps to run
      */
     static size_t getNsteps();
-    void                 setNsteps(const size_t nsteps);
+    void          setNsteps(const size_t nsteps);
 
 
     /**
      * @brief get simulation end time
      */
-    static float_t getTmax() ;
-    void                  setTmax(const float_t tmax);
+    static float_t getTmax();
+    void           setTmax(const float_t tmax);
 
 
     /**
      * @brief Get the number of cells with actual content per dimension
      */
-    static size_t getNx() ;
-    void                 setNx(const size_t nx);
+    static size_t getNx();
+    void          setNx(const size_t nx);
 
 
     /**
      * @brief Get the CFL constant
      */
-    static float_t getCcfl() ;
-    void                  setCcfl(float_t ccfl);
+    static float_t getCcfl();
+    void           setCcfl(float_t ccfl);
 
 
     /**
      * @brief Get the type of boundary condition used
      */
     static BoundaryCondition getBoundaryType();
-    void    setBoundaryType(BoundaryCondition boundary);
+    void                     setBoundaryType(BoundaryCondition boundary);
 
 
     /**
@@ -232,14 +232,14 @@ namespace parameters {
      * @brief Get the cell size
      */
     static float_t getDx();
-    void                  setDx(const float_t dx);
+    void           setDx(const float_t dx);
 
 
     /**
      * @brief Get the output file name base
      */
     static std::string getOutputFileBase();
-    void                      setOutputFileBase(std::string& ofname);
+    void               setOutputFileBase(std::string& ofname);
 
 
     //! single copy of the global variables
@@ -254,7 +254,6 @@ namespace parameters {
     }
   };
 } // namespace parameters
-
 
 
 //! Print out argument and its value with Debug verbosity
@@ -272,7 +271,7 @@ inline size_t parameters::Parameters::getNstepsLog() {
 
 
 inline void parameters::Parameters::setNstepsLog(const size_t nstepsLog) {
-  auto inst = getInstance();
+  auto inst       = getInstance();
   inst._nstepsLog = nstepsLog;
   paramSetLog(nstepsLog);
 #if DEBUG_LEVEL > 0
@@ -282,13 +281,13 @@ inline void parameters::Parameters::setNstepsLog(const size_t nstepsLog) {
 }
 
 
-inline size_t parameters::Parameters::getNsteps()  {
+inline size_t parameters::Parameters::getNsteps() {
   return Instance._nsteps;
 }
 
 
 inline void parameters::Parameters::setNsteps(const size_t nsteps) {
-  auto inst = getInstance();
+  auto inst    = getInstance();
   inst._nsteps = nsteps;
   paramSetLog(nsteps);
 #if DEBUG_LEVEL > 0
@@ -298,13 +297,13 @@ inline void parameters::Parameters::setNsteps(const size_t nsteps) {
 }
 
 
- inline float_t parameters::Parameters::getTmax()  {
+inline float_t parameters::Parameters::getTmax() {
   return Instance._tmax;
 }
 
 
 inline void parameters::Parameters::setTmax(const float tmax) {
-  auto inst = getInstance();
+  auto inst  = getInstance();
   inst._tmax = tmax;
   paramSetLog(tmax);
 #if DEBUG_LEVEL > 0
@@ -314,14 +313,14 @@ inline void parameters::Parameters::setTmax(const float tmax) {
 }
 
 
-inline size_t parameters::Parameters::getNx()  {
+inline size_t parameters::Parameters::getNx() {
   return Instance._nx;
 }
 
 
 inline void parameters::Parameters::setNx(const size_t nx) {
   auto inst = getInstance();
-  inst._nx = nx;
+  inst._nx  = nx;
   paramSetLog(nx);
 #if DEBUG_LEVEL > 0
   if (_locked)
@@ -336,7 +335,7 @@ inline float_t parameters::Parameters::getCcfl() {
 
 
 inline void parameters::Parameters::setCcfl(const float ccfl) {
-  auto inst = getInstance();
+  auto inst  = getInstance();
   inst._ccfl = ccfl;
   paramSetLog(ccfl);
 #if DEBUG_LEVEL > 0
@@ -352,7 +351,7 @@ inline parameters::BoundaryCondition parameters::Parameters::getBoundaryType() {
 
 
 inline void parameters::Parameters::setBoundaryType(BoundaryCondition boundaryType) {
-  auto inst = getInstance();
+  auto inst          = getInstance();
   inst._boundaryType = boundaryType;
   paramSetLog((int)boundaryType);
 #if DEBUG_LEVEL > 0
@@ -362,7 +361,7 @@ inline void parameters::Parameters::setBoundaryType(BoundaryCondition boundaryTy
 }
 
 
-inline size_t parameters::Parameters::getNBC(){
+inline size_t parameters::Parameters::getNBC() {
   return Instance._nbc;
 }
 
@@ -395,7 +394,7 @@ inline float_t parameters::Parameters::getDx() {
 
 inline void parameters::Parameters::setDx(const float_t dx) {
   auto inst = getInstance();
-  inst._dx = dx;
+  inst._dx  = dx;
   paramSetLog(dx);
 #if DEBUG_LEVEL > 0
   if (_locked)
@@ -410,7 +409,7 @@ inline std::string parameters::Parameters::getOutputFileBase() {
 
 
 inline void parameters::Parameters::setOutputFileBase(std::string& ofname) {
-  auto inst = getInstance();
+  auto inst            = getInstance();
   inst._outputfilebase = ofname;
   paramSetLog(ofname);
 #if DEBUG_LEVEL > 0
@@ -418,5 +417,3 @@ inline void parameters::Parameters::setOutputFileBase(std::string& ofname) {
     error("Trying to overwrite locked parameters!");
 #endif
 }
-
-
