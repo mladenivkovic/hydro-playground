@@ -13,8 +13,6 @@
 
 namespace parameters {
 
-  // need to define it as well...
-  Parameters Parameters::Instance;
 
   Parameters::Parameters() {
 
@@ -81,6 +79,7 @@ namespace parameters {
    * Initialise derived global quantities/parameters.
    */
   void Parameters::initDerived() {
+
     size_t  nx = getNx();
     float_t dx = static_cast<float_t>(BOXLEN) / static_cast<float_t>(nx);
     setDx(dx);

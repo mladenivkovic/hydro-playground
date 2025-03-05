@@ -7,6 +7,7 @@
 
 // define the static copy. Calls the default constructor but
 // the user has to call InitCells()
+// TODO: do the same as for parameters
 grid::Grid grid::Grid::Instance;
 
 
@@ -113,7 +114,7 @@ float_t grid::Grid::getTotalMass() {
       total += getCell(i).getPrim().getRho();
     }
 
-    total *= parameters::Parameters::Instance.getDx();
+    total *= pars.getDx();
   }
 
   else if (Dimensions == 2) {
@@ -123,7 +124,7 @@ float_t grid::Grid::getTotalMass() {
       }
     }
 
-    total *= parameters::Parameters::Instance.getDx() * parameters::Parameters::Instance.getDx();
+    total *= pars.getDx() * pars.getDx();
   }
   return total;
 }
@@ -272,7 +273,7 @@ void grid::Grid::realToGhost(
 {
   // prevents crowding down there
   using BC    = parameters::BoundaryCondition;
-  auto   pars = parameters::Parameters::Instance;
+  auto   pars = parameters::Parameters::getInstance();
   size_t nbc  = pars.getNBC();
 
   switch (pars.getBoundaryType()) {

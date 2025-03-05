@@ -25,10 +25,10 @@ namespace parameters {
   /**
    * @brief Holds global simulation parameters. There should be only one
    * instance of this globally, so this class is set up as a singleton. To use
-   * it and its contents, get hold of an instance:
+   * it and its contents, get hold of the instance:
    *
    * ```
-   *    parameters::Parameters::Instance
+   *    auto params = parameters::Parameters::getInstance();
    * ```
    *
    * It is accessible for all files which include `Parameters.h`.
@@ -242,14 +242,14 @@ namespace parameters {
     void               setOutputFileBase(std::string& ofname);
 
 
-    //! single copy of the global variables
-    static Parameters Instance;
-
-
     /**
      * @brief getter for the single global copy
      */
     static Parameters& getInstance() {
+      // keep static instance in here.
+      // a) Memory cleanup should work better at the end of program, and
+      // b) nobody gets any bright ideas about accessing the Instance directly.
+      static Parameters Instance;
       return Instance;
     }
   };
@@ -265,18 +265,19 @@ namespace parameters {
 #define paramSetLog(arg) \
   { \
     std::stringstream msg; \
-    msg << "Parameters: Setting '" << #arg << "' = " << arg << "'"; \
+    msg << "Parameters: Setting '" << #arg << "' = " << (arg) << "'"; \
     message(msg, logging::LogLevel::Debug); \
   }
 
 
 inline size_t parameters::Parameters::getNstepsLog() const {
-  return Instance._nstepsLog;
+  auto& inst = getInstance();
+  return inst._nstepsLog;
 }
 
 
 inline void parameters::Parameters::setNstepsLog(const size_t nstepsLog) {
-  auto inst       = getInstance();
+  auto& inst       = getInstance();
   inst._nstepsLog = nstepsLog;
   paramSetLog(nstepsLog);
 #if DEBUG_LEVEL > 0
@@ -287,12 +288,13 @@ inline void parameters::Parameters::setNstepsLog(const size_t nstepsLog) {
 
 
 inline size_t parameters::Parameters::getNsteps() const {
-  return Instance._nsteps;
+  auto& inst = getInstance();
+  return inst._nsteps;
 }
 
 
 inline void parameters::Parameters::setNsteps(const size_t nsteps) {
-  auto inst    = getInstance();
+  auto& inst    = getInstance();
   inst._nsteps = nsteps;
   paramSetLog(nsteps);
 #if DEBUG_LEVEL > 0
@@ -303,12 +305,13 @@ inline void parameters::Parameters::setNsteps(const size_t nsteps) {
 
 
 inline float_t parameters::Parameters::getTmax() const {
-  return Instance._tmax;
+  auto& inst = getInstance();
+  return inst._tmax;
 }
 
 
 inline void parameters::Parameters::setTmax(const float tmax) {
-  auto inst  = getInstance();
+  auto& inst  = getInstance();
   inst._tmax = tmax;
   paramSetLog(tmax);
 #if DEBUG_LEVEL > 0
@@ -319,12 +322,13 @@ inline void parameters::Parameters::setTmax(const float tmax) {
 
 
 inline size_t parameters::Parameters::getNx() const {
-  return Instance._nx;
+  auto& inst = getInstance();
+  return inst._nx;
 }
 
 
 inline void parameters::Parameters::setNx(const size_t nx) {
-  auto inst = getInstance();
+  auto& inst = getInstance();
   inst._nx  = nx;
   paramSetLog(nx);
 #if DEBUG_LEVEL > 0
@@ -335,12 +339,13 @@ inline void parameters::Parameters::setNx(const size_t nx) {
 
 
 inline float_t parameters::Parameters::getCcfl() const {
-  return Instance._ccfl;
+  auto& inst = getInstance();
+  return inst._ccfl;
 }
 
 
 inline void parameters::Parameters::setCcfl(const float ccfl) {
-  auto inst  = getInstance();
+  auto& inst  = getInstance();
   inst._ccfl = ccfl;
   paramSetLog(ccfl);
 #if DEBUG_LEVEL > 0
@@ -351,12 +356,13 @@ inline void parameters::Parameters::setCcfl(const float ccfl) {
 
 
 inline parameters::BoundaryCondition parameters::Parameters::getBoundaryType() const {
-  return Instance._boundaryType;
+  auto& inst = getInstance();
+  return inst._boundaryType;
 }
 
 
 inline void parameters::Parameters::setBoundaryType(BoundaryCondition boundaryType) {
-  auto inst          = getInstance();
+  auto& inst          = getInstance();
   inst._boundaryType = boundaryType;
   paramSetLog((int)boundaryType);
 #if DEBUG_LEVEL > 0
@@ -367,12 +373,13 @@ inline void parameters::Parameters::setBoundaryType(BoundaryCondition boundaryTy
 
 
 inline size_t parameters::Parameters::getNBC() const {
-  return Instance._nbc;
+  auto& inst = getInstance();
+  return inst._nbc;
 }
 
 
 inline void parameters::Parameters::setNBC(const size_t bc) {
-  auto inst = getInstance();
+  auto& inst = getInstance();
   inst._nbc = bc;
   paramSetLog(bc);
 #if DEBUG_LEVEL > 0
@@ -393,12 +400,13 @@ inline size_t parameters::Parameters::getNxTot() const {
 
 
 inline float_t parameters::Parameters::getDx() const {
-  return Instance._dx;
+  auto& inst = getInstance();
+  return inst._dx;
 }
 
 
 inline void parameters::Parameters::setDx(const float_t dx) {
-  auto inst = getInstance();
+  auto& inst = getInstance();
   inst._dx  = dx;
   paramSetLog(dx);
 #if DEBUG_LEVEL > 0
@@ -409,12 +417,13 @@ inline void parameters::Parameters::setDx(const float_t dx) {
 
 
 inline std::string parameters::Parameters::getOutputFileBase() {
-  return Instance._outputfilebase;
+  auto& inst = getInstance();
+  return inst._outputfilebase;
 }
 
 
 inline void parameters::Parameters::setOutputFileBase(std::string& ofname) {
-  auto inst            = getInstance();
+  auto& inst           = getInstance();
   inst._outputfilebase = ofname;
   paramSetLog(ofname);
 #if DEBUG_LEVEL > 0

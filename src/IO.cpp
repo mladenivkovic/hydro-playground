@@ -247,6 +247,8 @@ void IO::InputParse::_checkCmdLineArgsAreValid() {
  */
 void IO::InputParse::parseConfigFile() {
 
+  message("Parsing config file.", logging::LogLevel::Verbose);
+
 #if DEBUG_LEVEL > 0
   if (_configfile.size() == 0) {
     error("No config file specified?");
@@ -274,8 +276,7 @@ void IO::InputParse::parseConfigFile() {
 
 
   // Now we parse each argument
-
-  auto pars = parameters::Parameters::Instance;
+  auto pars = parameters::Parameters::getInstance();
 
   size_t nstepsLog = _convertParameterString(
     "nstep_log",
