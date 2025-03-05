@@ -125,6 +125,7 @@ namespace logging {
      */
     static const char* getStageName(LogStage stage);
   };
+} // namespace logging
 
 
 // This macro truncates the full path from the __FILE__ macro.
@@ -171,4 +172,3 @@ namespace logging {
 #define warning(msg) logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, msg);
 
 
-} // namespace logging

@@ -256,6 +256,11 @@ namespace parameters {
 } // namespace parameters
 
 
+// --------------------------------------------------------
+// Definitions
+// --------------------------------------------------------
+
+
 //! Print out argument and its value with Debug verbosity
 #define paramSetLog(arg) \
   { \

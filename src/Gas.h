@@ -1,8 +1,10 @@
 #pragma once
 
 #include <array>
+#include <cmath>
 
 #include "Config.h"
+#include "Constants.h"
 
 
 namespace IdealGas {
@@ -121,3 +123,100 @@ namespace IdealGas {
     float_t getE() const;
   };
 } // namespace IdealGas
+
+
+// --------------------------------------------------------
+// Definitions
+// --------------------------------------------------------
+
+// Primitive State Stuff
+// --------------------------
+
+inline void IdealGas::PrimitiveState::setRho(const float_t val) {
+  rho = val;
+}
+
+
+inline float_t IdealGas::PrimitiveState::getRho() const {
+  return rho;
+}
+
+
+inline void IdealGas::PrimitiveState::setU(const size_t index, const float_t val) {
+  u[index] = val;
+}
+
+
+inline float_t IdealGas::PrimitiveState::getU(const size_t index) const {
+  return u[index];
+}
+
+
+inline float_t IdealGas::PrimitiveState::getUSquared() const {
+  return u[0] * u[0] + u[1] * u[1];
+}
+
+
+inline void IdealGas::PrimitiveState::setP(const float_t val) {
+  p = val;
+}
+
+
+inline float_t IdealGas::PrimitiveState::getP() const {
+  return p;
+}
+
+
+/**
+ * Compute the local sound speed given a primitive state
+ */
+inline float_t IdealGas::PrimitiveState::getSoundSpeed() {
+  return std::sqrt(GAMMA * getP() / getRho());
+}
+
+
+/**
+ * Get the total gas energy from a primitive state
+ */
+inline float_t IdealGas::PrimitiveState::getEnergy() {
+  return 0.5 * getRho() * getUSquared() + getP() / GM1;
+}
+
+
+
+// Conserved State Stuff
+// --------------------------
+
+inline void IdealGas::ConservedState::setRhou(const size_t index, const float_t val) {
+  rhou[index] = val;
+}
+
+
+inline float_t IdealGas::ConservedState::getRhou(const size_t index) const {
+  return rhou[index];
+}
+
+
+inline float_t IdealGas::ConservedState::getRhoUSquared() const {
+  return rhou[0] * rhou[0] + rhou[1] * rhou[1];
+}
+
+
+inline void IdealGas::ConservedState::setE(const float_t val) {
+  E = val;
+}
+
+
+inline float_t IdealGas::ConservedState::getE() const {
+  return E;
+}
+
+
+inline float_t IdealGas::ConservedState::getRho() const {
+  return rho;
+}
+
+
+inline void IdealGas::ConservedState::setRho(const float_t val) {
+  rho = val;
+}

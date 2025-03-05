@@ -1,9 +1,5 @@
 #include "Gas.h"
 
-#include <cmath>
-
-#include "Constants.h"
-
 
 // Stuff for primitive state
 
@@ -39,58 +35,6 @@ void IdealGas::PrimitiveState::ConservedToPrimitive(const ConservedState& c) {
   }
 }
 
-
-/**
- * Compute the local sound speed given a primitive state
- */
-float_t IdealGas::PrimitiveState::getSoundSpeed() {
-  return std::sqrt(GAMMA * getP() / getRho());
-}
-
-
-/**
- * Get the total gas energy from a primitive state
- */
-float_t IdealGas::PrimitiveState::getEnergy() {
-  return 0.5 * getRho() * getUSquared() + getP() / GM1;
-}
-
-
-// getters and setters for PrimitiveState
-
-void IdealGas::PrimitiveState::setRho(const float_t val) {
-  rho = val;
-}
-
-
-float_t IdealGas::PrimitiveState::getRho() const {
-  return rho;
-}
-
-
-void IdealGas::PrimitiveState::setU(const size_t index, const float_t val) {
-  u[index] = val;
-}
-
-
-float_t IdealGas::PrimitiveState::getU(const size_t index) const {
-  return u[index];
-}
-
-
-float_t IdealGas::PrimitiveState::getUSquared() const {
-  return u[0] * u[0] + u[1] * u[1];
-}
-
-
-void IdealGas::PrimitiveState::setP(const float_t val) {
-  p = val;
-}
-
-
-float_t IdealGas::PrimitiveState::getP() const {
-  return p;
-}
 
 
 // Stuff for conserved state
@@ -192,39 +136,3 @@ void IdealGas::ConservedState::GetCFluxFromCstate(const ConservedState& c, const
   }
 }
 
-
-// Getters and Setters
-
-void IdealGas::ConservedState::setRhou(const size_t index, const float_t val) {
-  rhou[index] = val;
-}
-
-
-float_t IdealGas::ConservedState::getRhou(const size_t index) const {
-  return rhou[index];
-}
-
-
-float_t IdealGas::ConservedState::getRhoUSquared() const {
-  return rhou[0] * rhou[0] + rhou[1] * rhou[1];
-}
-
-
-void IdealGas::ConservedState::setE(const float_t val) {
-  E = val;
-}
-
-
-float_t IdealGas::ConservedState::getE() const {
-  return E;
-}
-
-
-float_t IdealGas::ConservedState::getRho() const {
-  return rho;
-}
-
-
-void IdealGas::ConservedState::setRho(const float_t val) {
-  rho = val;
-}

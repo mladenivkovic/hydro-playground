@@ -26,10 +26,11 @@ void grid::Grid::initGrid() {
 
   // TODO: write out what you're doing
   // log_extra("Initializing grid; ndim=%d, nx=%d", NDIM, pars.nx);
+  auto pars = parameters::Parameters::getInstance();
 
-  size_t  nxTot = parameters::Parameters::Instance.getNxTot();
-  size_t  nbc   = parameters::Parameters::Instance.getNBC();
-  float_t dx    = parameters::Parameters::Instance.getDx();
+  size_t  nxTot = pars.getNxTot();
+  size_t  nbc   = pars.getNBC();
+  float_t dx    = pars.getDx();
 
   if (Dimensions == 1) {
     // make some room in the vector...
@@ -65,6 +66,9 @@ void grid::Grid::initGrid() {
  * [density, velocity, pressure]
  */
 void grid::Grid::setInitialConditions(size_t position, std::vector<float_t> vals) {
+
+  auto pars = parameters::Parameters::getInstance();
+
   assert((vals.size() == 4 and Dimensions == 2) or (vals.size() == 3 and Dimensions == 1));
   // Let's set i,j based on the position in the array we passed in
   size_t i;
@@ -74,12 +78,12 @@ void grid::Grid::setInitialConditions(size_t position, std::vector<float_t> vals
     j = 0;
   }
   if (Dimensions == 2) {
-    i = position % parameters::Parameters::Instance.getNx();
-    j = position / parameters::Parameters::Instance.getNx();
+    i = position % pars.getNx();
+    j = position / pars.getNx();
   }
 
   // alias the bc value
-  size_t nbc = parameters::Parameters::Instance.getNBC();
+  size_t nbc = pars.getNBC();
 
   getCell(i + nbc, j + nbc).getPrim().setRho(vals[0]);
   getCell(i + nbc, j + nbc).getPrim().setU(0, vals[1]);
@@ -94,43 +98,15 @@ void grid::Grid::setInitialConditions(size_t position, std::vector<float_t> vals
 
 
 /**
- * Get (reference to) a cell by its index.
- * This is for the 1D grid.
- */
-cell::Cell& grid::Grid::getCell(size_t i) {
-
-#if DEBUG_LEVEL > 0
-  if (Dimensions != 1) {
-    error("This function is for 1D only!")
-  }
-#endif
-  return _cells[i];
-}
-
-
-/**
- * Get (reference to) a cell by its index.
- * This is for the 2D grid.
- */
-cell::Cell& grid::Grid::getCell(size_t i, size_t j) {
-  static size_t nxTot = parameters::Parameters::Instance.getNxTot();
-
-#if DEBUG_LEVEL > 0
-  if (Dimensions != 2) {
-    error("This function is for 2D only!")
-  }
-#endif
-  return _cells[i + j * nxTot];
-}
-
-
-/**
  * @brief get the total mass of the grid.
  */
 float_t grid::Grid::getTotalMass() {
+
+  auto pars = parameters::Parameters::getInstance();
+
   float_t total = 0;
-  size_t  bc    = parameters::Parameters::Instance.getNBC();
-  size_t  nx    = parameters::Parameters::Instance.getNx();
+  size_t  bc    = pars.getNBC();
+  size_t  nx    = pars.getNx();
 
   if (Dimensions == 1) {
     for (size_t i = bc; i < bc + nx; i++) {
@@ -152,13 +128,17 @@ float_t grid::Grid::getTotalMass() {
   return total;
 }
 
+
 /**
  * Reset all fluxes of the grid (both primitive and conservative) to zero.
  */
 void grid::Grid::resetFluxes() {
+
+  auto pars = parameters::Parameters::getInstance();
+
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
-  size_t         nbc  = parameters::Parameters::Instance.getNBC();
-  size_t         nx   = parameters::Parameters::Instance.getNx();
+  size_t         nbc  = pars.getNBC();
+  size_t         nx   = pars.getNx();
 
   for (size_t i = nbc; i < nbc + nx; i++) {
     for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
@@ -175,9 +155,12 @@ void grid::Grid::resetFluxes() {
  * on each.
  */
 void grid::Grid::getCStatesFromPstates() {
+
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
-  size_t         nbc  = parameters::Parameters::Instance.getNBC();
-  size_t         nx   = parameters::Parameters::Instance.getNx();
+
+  auto pars = parameters::Parameters::getInstance();
+  size_t         nbc  = pars.getNBC();
+  size_t         nx   = pars.getNx();
 
   for (size_t i = nbc; i < nbc + nx; i++) {
     for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
@@ -193,9 +176,12 @@ void grid::Grid::getCStatesFromPstates() {
  * on each.
  */
 void grid::Grid::getPStatesFromCstates() {
+
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
-  size_t         nbc  = parameters::Parameters::Instance.getNBC();
-  size_t         nx   = parameters::Parameters::Instance.getNx();
+
+  auto pars = parameters::Parameters::getInstance();
+  size_t         nbc  = pars.getNBC();
+  size_t         nx   = pars.getNx();
 
   for (size_t i = nbc; i < nbc + nx; i++) {
     for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
@@ -212,9 +198,12 @@ void grid::Grid::getPStatesFromCstates() {
  * calls the function that actually copies the data.
  */
 void grid::Grid::setBoundary() {
-  const size_t nbc   = parameters::Parameters::Instance.getNBC();
-  const size_t nx    = parameters::Parameters::Instance.getNx();
-  const size_t bctot = parameters::Parameters::Instance.getNBCTot();
+
+  auto pars = parameters::Parameters::getInstance();
+
+  const size_t nbc   = pars.getNBC();
+  const size_t nx    = pars.getNx();
+  const size_t bctot = pars.getNBCTot();
 
   // Make space to store pointers to real and ghost cells.
   std::vector<cell::Cell*> realLeft(nbc);

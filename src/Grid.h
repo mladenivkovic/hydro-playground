@@ -3,6 +3,8 @@
 #include <vector>
 
 #include "Cell.h"
+#include "Logging.h"
+#include "Parameters.h"
 
 
 namespace grid {
@@ -72,3 +74,44 @@ namespace grid {
   };
 
 } // namespace grid
+
+
+// --------------------------------------------------------
+// Definitions
+// --------------------------------------------------------
+
+
+/**
+ * Get (reference to) a cell by its index.
+ * This is for the 1D grid.
+ */
+inline cell::Cell& grid::Grid::getCell(size_t i) {
+
+#if DEBUG_LEVEL > 0
+  if (Dimensions != 1) {
+    error("This function is for 1D only!")
+  }
+#endif
+  return _cells[i];
+}
+
+
+/**
+ * Get (reference to) a cell by its index.
+ * This is for the 2D grid.
+ */
+inline cell::Cell& grid::Grid::getCell(size_t i, size_t j) {
+
+  auto pars = parameters::Parameters::getInstance();
+  static size_t nxTot = pars.getNxTot();
+
+#if DEBUG_LEVEL > 0
+  if (Dimensions != 2) {
+    error("This function is for 2D only!")
+  }
+#endif
+  return _cells[i + j * nxTot];
+}
+
+
+
