@@ -7,6 +7,8 @@ target_include_directories(test_logging PUBLIC "${CMAKE_SOURCE_DIR}/src")
 
 add_executable(test_io test_io.cpp)
 target_link_libraries(test_io IO)
+target_link_libraries(test_io Utils)
+target_link_libraries(test_io Version)
 target_link_libraries(test_io Logging)
 target_link_libraries(test_io Grid)
 target_link_libraries(test_io Cell)

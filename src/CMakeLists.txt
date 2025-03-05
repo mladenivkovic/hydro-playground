@@ -31,6 +31,7 @@ target_link_libraries(Grid Logging)
 add_library(IO OBJECT IO.cpp IO.h)
 target_include_directories(IO PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 target_link_libraries(IO Logging)
+target_link_libraries(IO Utils)
 
 
 # Linking to the main executable

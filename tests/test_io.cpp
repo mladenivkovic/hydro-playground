@@ -2,6 +2,7 @@
 #include <string>
 
 #include "IO.h"
+#include "Utils.h"
 #include "Logging.h"
 
 
@@ -19,22 +20,22 @@ void testIsWhitespace() {
   std::string line_whitespace(" ");
   std::string line_whitespaces(" \t\n\r");
 
-  if (not IO::internal::isWhitespace(line_empty))
+  if (not utils::isWhitespace(line_empty))
     error("Wrong.");
 
-  if (not IO::internal::isWhitespace(line_eof))
+  if (not utils::isWhitespace(line_eof))
     error("Wrong.");
 
-  if (IO::internal::isWhitespace(line_something))
+  if (utils::isWhitespace(line_something))
     error("Wrong.");
 
-  if (IO::internal::isWhitespace(line_start_whitespace))
+  if (utils::isWhitespace(line_start_whitespace))
     error("Wrong.");
 
-  if (not IO::internal::isWhitespace(line_whitespace))
+  if (not utils::isWhitespace(line_whitespace))
     error("Wrong.");
 
-  if (not IO::internal::isWhitespace(line_whitespaces))
+  if (not utils::isWhitespace(line_whitespaces))
     error("Wrong.");
 
   message("-- Finished.");
@@ -58,23 +59,23 @@ void testIsComment() {
   std::string line_comment6("\t /* something */");
 
 
-  if (IO::internal::isComment(line_empty))
+  if (utils::isComment(line_empty))
     error("Wrong.");
-  if (IO::internal::isComment(line_eof))
+  if (utils::isComment(line_eof))
     error("Wrong.");
-  if (IO::internal::isComment(line_something))
+  if (utils::isComment(line_something))
     error("Wrong.");
-  if (not IO::internal::isComment(line_comment1))
+  if (not utils::isComment(line_comment1))
     error("Wrong.");
-  if (not IO::internal::isComment(line_comment2))
+  if (not utils::isComment(line_comment2))
     error("Wrong.");
-  if (not IO::internal::isComment(line_comment3))
+  if (not utils::isComment(line_comment3))
     error("Wrong.");
-  if (not IO::internal::isComment(line_comment4))
+  if (not utils::isComment(line_comment4))
     error("Wrong.");
-  if (not IO::internal::isComment(line_comment5))
+  if (not utils::isComment(line_comment5))
     error("Wrong.");
-  if (not IO::internal::isComment(line_comment6))
+  if (not utils::isComment(line_comment6))
     error("Wrong.");
 
   message("-- finished.");
@@ -92,58 +93,58 @@ void testRemoveWhitespace() {
   std::string out;
 
   in  = "";
-  out = IO::internal::removeWhitespace(in);
+  out = utils::removeWhitespace(in);
   if (out != "")
     error("Wrong:'" + out + "'");
 
   in  = " ";
-  out = IO::internal::removeWhitespace(in);
+  out = utils::removeWhitespace(in);
   if (out != "")
     error("Wrong:'" + out + "'");
 
   in  = "\t";
-  out = IO::internal::removeWhitespace(in);
+  out = utils::removeWhitespace(in);
   if (out != "")
     error("Wrong:'" + out + "'");
 
   in  = "word";
-  out = IO::internal::removeWhitespace(in);
+  out = utils::removeWhitespace(in);
   if (out != "word")
     error("Wrong:'" + out + "'");
 
   in  = " heading";
-  out = IO::internal::removeWhitespace(in);
+  out = utils::removeWhitespace(in);
   if (out != "heading")
     error("Wrong:'" + out + "'");
 
   in  = "       heading2";
-  out = IO::internal::removeWhitespace(in);
+  out = utils::removeWhitespace(in);
   if (out != "heading2")
     error("Wrong:'" + out + "'");
 
   in  = "trailing ";
-  out = IO::internal::removeWhitespace(in);
+  out = utils::removeWhitespace(in);
   if (out != "trailing")
     error("Wrong:'" + out + "'");
   message("-- finished.");
 
   in  = "trailing2       \n";
-  out = IO::internal::removeWhitespace(in);
+  out = utils::removeWhitespace(in);
   if (out != "trailing2")
     error("Wrong:'" + out + "'");
 
   in  = "  two words       \n";
-  out = IO::internal::removeWhitespace(in);
+  out = utils::removeWhitespace(in);
   if (out != "two words")
     error("Wrong:'" + out + "'");
 
   in  = "  three words or more            \n";
-  out = IO::internal::removeWhitespace(in);
+  out = utils::removeWhitespace(in);
   if (out != "three words or more")
     error("Wrong:'" + out + "'");
 
   in  = "\n\n heading newlines  \n";
-  out = IO::internal::removeWhitespace(in);
+  out = utils::removeWhitespace(in);
   if (out != "heading newlines")
     error("Wrong:'" + out + "'");
 
@@ -161,10 +162,10 @@ void testSplitEquals() {
   std::string in;
   std::string name;
   std::string val;
-  std::string no = IO::internal::somethingWrong();
+  std::string no = utils::somethingWrong();
 
   in       = "";
-  auto out = IO::internal::splitEquals(in);
+  auto out = utils::splitEquals(in);
   name     = out.first;
   val      = out.second;
   if (name != no)
@@ -173,7 +174,7 @@ void testSplitEquals() {
     error("Wrong:'" + val + "'");
 
   in   = "a = n";
-  out  = IO::internal::splitEquals(in);
+  out  = utils::splitEquals(in);
   name = out.first;
   val  = out.second;
   if (name != "a")
@@ -182,7 +183,7 @@ void testSplitEquals() {
     error("Wrong:'" + val + "'");
 
   in   = " myname =    myValue    \n";
-  out  = IO::internal::splitEquals(in);
+  out  = utils::splitEquals(in);
   name = out.first;
   val  = out.second;
   if (name != "myname")
@@ -191,7 +192,7 @@ void testSplitEquals() {
     error("Wrong:'" + val + "'");
 
   in   = "a = b = c";
-  out  = IO::internal::splitEquals(in);
+  out  = utils::splitEquals(in);
   name = out.first;
   val  = out.second;
   if (name != no)
@@ -215,42 +216,42 @@ void testRemoveTrailingComments() {
   std::string out;
 
   in  = "";
-  out = IO::internal::removeTrailingComment(in);
+  out = utils::removeTrailingComment(in);
   if (out != "")
     error("Wrong:'" + out + "'");
 
   in  = "word";
-  out = IO::internal::removeTrailingComment(in);
+  out = utils::removeTrailingComment(in);
   if (out != "word")
     error("Wrong:'" + out + "'");
 
   in  = "// word";
-  out = IO::internal::removeTrailingComment(in);
+  out = utils::removeTrailingComment(in);
   if (out != "")
     error("Wrong:'" + out + "'");
 
   in  = "/* word";
-  out = IO::internal::removeTrailingComment(in);
+  out = utils::removeTrailingComment(in);
   if (out != "")
     error("Wrong:'" + out + "'");
 
   in  = " some text  // comment";
-  out = IO::internal::removeTrailingComment(in);
+  out = utils::removeTrailingComment(in);
   if (out != " some text  ")
     error("Wrong:'" + out + "'");
 
   in  = " some text  /* comment";
-  out = IO::internal::removeTrailingComment(in);
+  out = utils::removeTrailingComment(in);
   if (out != " some text  ")
     error("Wrong:'" + out + "'");
 
   in  = " some text  // /* comment";
-  out = IO::internal::removeTrailingComment(in);
+  out = utils::removeTrailingComment(in);
   if (out != " some text  ")
     error("Wrong:'" + out + "'");
 
   in  = " some text  /* // /* comment";
-  out = IO::internal::removeTrailingComment(in);
+  out = utils::removeTrailingComment(in);
   if (out != " some text  ")
     error("Wrong:'" + out + "'");
 
@@ -278,57 +279,57 @@ void testExtractParamLine() {
   std::pair<std::string, std::string> out;
   std::string                         name;
   std::string                         value;
-  std::string                         no = IO::internal::somethingWrong();
+  std::string                         no = utils::somethingWrong();
 
-  out   = IO::internal::extractParameter(line_valid1);
+  out   = IO::InputParse::_extractParameter(line_valid1);
   name  = out.first;
   value = out.second;
   if (name != "myname" or value != "myvalue")
     error("Wrong: '" + name + "', '" + value + "'");
 
-  out   = IO::internal::extractParameter(line_valid2);
+  out   = IO::InputParse::_extractParameter(line_valid2);
   name  = out.first;
   value = out.second;
   if (name != "mynameNospace" or value != "myvalueNospace")
     error("Wrong: '" + name + "', '" + value + "'");
 
-  out   = IO::internal::extractParameter(line_valid3);
+  out   = IO::InputParse::_extractParameter(line_valid3);
   name  = out.first;
   value = out.second;
   if (name != "mynameStartWithSpace" or value != "myvalueNospace")
     error("Wrong: '" + name + "', '" + value + "'");
 
-  out   = IO::internal::extractParameter(line_valid4);
+  out   = IO::InputParse::_extractParameter(line_valid4);
   name  = out.first;
   value = out.second;
   if (name != "mynameStartWithSpace" or value != "myvalueNospace")
     error("Wrong: '" + name + "', '" + value + "'");
 
-  out   = IO::internal::extractParameter(line_valid5);
+  out   = IO::InputParse::_extractParameter(line_valid5);
   name  = out.first;
   value = out.second;
   if (name != "mynameStartWithSpace" or value != "myvalueNospace")
     error("Wrong: '" + name + "', '" + value + "'");
 
-  out   = IO::internal::extractParameter(line_1);
+  out   = IO::InputParse::_extractParameter(line_1);
   name  = out.first;
   value = out.second;
   if (name != "" or value != "")
     error("Wrong: '" + name + "', '" + value + "'");
 
-  out   = IO::internal::extractParameter(line_2);
+  out   = IO::InputParse::_extractParameter(line_2);
   name  = out.first;
   value = out.second;
   if (name != "" or value != "")
     error("Wrong: '" + name + "', '" + value + "'");
 
-  out   = IO::internal::extractParameter(line_3);
+  out   = IO::InputParse::_extractParameter(line_3);
   name  = out.first;
   value = out.second;
   if (name != no or value != no)
     error("Wrong: '" + name + "', '" + value + "'");
 
-  out   = IO::internal::extractParameter(line_4);
+  out   = IO::InputParse::_extractParameter(line_4);
   name  = out.first;
   value = out.second;
   if (name != "" or value != "")
@@ -349,30 +350,30 @@ void testStringConversions() {
 
   // int
   val = "2";
-  if (IO::internal::string2int(val) != 2)
+  if (utils::string2int(val) != 2)
     error("Wrong.");
 
   val = "-17";
-  if (IO::internal::string2int(val) != -17)
+  if (utils::string2int(val) != -17)
     error("Wrong.");
 
   // val = " ";
-  // IO::internal::string2int(val);
+  // utils::string2int(val);
 
   val = "1.0";
-  if (IO::internal::string2float(val) != 1.)
+  if (utils::string2float(val) != 1.)
     error("Wrong.");
 
   val = "-2.0";
-  if (IO::internal::string2float(val) != -2.)
+  if (utils::string2float(val) != -2.)
     error("Wrong.");
 
   val = "true";
-  if (not IO::internal::string2bool(val))
+  if (not utils::string2bool(val))
     error("Wrong.");
 
   val = "0";
-  if (IO::internal::string2bool(val))
+  if (utils::string2bool(val))
     error("Wrong.");
 
   message("-- finished.");

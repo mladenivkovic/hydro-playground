@@ -1,13 +1,16 @@
+/**
+ * @file IO.h
+ * Classes to deal with Reading/Writing files
+ */
+
 #pragma once
-/* #include <algorithm> */
+
 #include <map>
+#include <sstream>
 #include <string>
-// #include <vector>
 
 #include "Parameters.h"
-
-
-/* Routines to read in IC file */
+#include "Utils.h"
 
 namespace IO {
 
@@ -32,47 +35,9 @@ namespace IO {
   };
 
 
-  namespace internal {
-
-    //! Is the line whitespace only?
-    bool isWhitespace(std::string& line);
-
-    //! Is this line a comment?
-    bool isComment(std::string& line);
-
-    //! Remove leading and trailing whitespaces from a string.
-    std::string removeWhitespace(std::string& str);
-
-    //! Split a line at an = char. Raise warnings if warn=true and something is amiss.
-    std::pair<std::string, std::string> splitEquals(std::string& str, bool warn = false);
-
-    //! Remove trailing comment from a line
-    std::string removeTrailingComment(std::string& line);
-
-    //! Get a pair of name,value from a parameter line
-    std::pair<std::string, std::string> extractParameter(std::string& line);
-
-    //! Get a string representing something gone wrong in parsing/evaluation
-    std::string somethingWrong();
-
-    //! Convert value string to integer. Do some additional sanity checks too.
-    int string2int(std::string& val);
-
-    //! Convert value string to size_t. Do some additional sanity checks too.
-    size_t string2size_t(std::string& val);
-
-    //! Convert value string to float/double. Do some additional sanity checks too.
-    float_t string2float(std::string& val);
-
-    //! Convert value string to integer. Do some additional sanity checks too.
-    bool string2bool(std::string& val);
-
-    //! "Convert" value string to string. Basically just do some additional sanity checks.
-    std::string string2string(std::string val);
-
-  } // namespace internal
-
-
+  /**
+   * @brief Class parsing input arguments and files.
+   */
   class InputParse {
     // private vars
   private:
@@ -101,6 +66,9 @@ namespace IO {
     //! Read the initial conditions file.
     void readICFile();
 
+    //! Get a pair of name, value from a parameter line
+    static std::pair<std::string, std::string> _extractParameter(std::string& line);
+
     // private methods
   private:
     //! Help message
@@ -127,4 +95,112 @@ namespace IO {
   }; // class InputParse
 } // namespace IO
 
-#include "IO.cpph"
+
+// -----------------------
+// Definitions
+// -----------------------
+
+
+/**
+ * Convert a provided parameter from a string value into a native type
+ *
+ * @param param string containing the parameter name.
+ * @param type type of the argument to convert into.
+ * @param optional whether this argument is optional. If true, should the
+ * parameter not be available in the internal "database", the defaultVal will
+ * be returned.
+ * @param defaultVal the default value to use if this parameter
+ * has not been explicitly provided.
+ */
+template <typename T>
+T IO::InputParse::_convertParameterString(
+  std::string param, parameters::ArgType argtype, bool optional, T defaultVal
+) {
+
+#if DEBUG_LEVEL > 0
+  if (argtype == parameters::ArgType::String)
+    error("Got type string, should be using its own specialisation");
+#endif
+
+  // Grab parameter from storage
+  auto search = _config_params.find(param);
+  if (search == _config_params.end()) {
+    // we didn't find it.
+    std::stringstream msg;
+    msg << "No parameter '" << param << "' provided";
+    if (optional) {
+      // just raise warning, not error
+      msg << "; Using default=" << defaultVal;
+      return defaultVal;
+    }
+    error(msg);
+  }
+
+  configEntry& entry = search->second;
+  std::string  val   = entry.value;
+  entry.used         = true;
+
+  switch (argtype) {
+  case parameters::ArgType::Integer:
+    return static_cast<T>(utils::string2int(val));
+    break;
+  case parameters::ArgType::Size_t:
+    return static_cast<T>(utils::string2size_t(val));
+    break;
+  case parameters::ArgType::Float:
+    return static_cast<T>(utils::string2float(val));
+    break;
+  case parameters::ArgType::Bool:
+    return static_cast<T>(utils::string2bool(val));
+    break;
+    // case parameters::ArgType::String:
+    //   return static_cast<T>(val);
+    //   break;
+  default:
+    std::stringstream msg;
+    msg << "Unknown type " << static_cast<int>(argtype);
+    error(msg);
+    return defaultVal;
+  }
+}
+
+/**
+ * explicit specialization for T = std::string.
+ * Specialisation needs to be either inlined or in the .cpp file, otherwise
+ * you're violating the One Definition Rule.
+ */
+template <>
+inline std::string IO::InputParse::_convertParameterString<std::string>(
+  std::string param, parameters::ArgType argtype, bool optional, std::string defaultVal
+) {
+
+#if DEBUG_LEVEL > 0
+  if (argtype != parameters::ArgType::String) {
+    std::stringstream msg;
+    msg << "Wrong type passed? type=";
+    msg << static_cast<int>(argtype);
+    error(msg);
+  }
+#endif
+
+  // Grab parameter from storage
+  auto search = _config_params.find(param);
+  if (search == _config_params.end()) {
+    // we didn't find it.
+    std::stringstream msg;
+    msg << "No parameter '" << param << "' provided";
+    if (optional) {
+      // just raise warning, not error
+      msg << "; Using default=" << defaultVal;
+      return defaultVal;
+    }
+    error(msg);
+  }
+
+  configEntry& entry = search->second;
+  std::string  val   = entry.value;
+  entry.used         = true;
+
+  return val;
+}
+

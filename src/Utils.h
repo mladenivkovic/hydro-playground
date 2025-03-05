@@ -1,26 +1,57 @@
-// Misc utils that don't fit anywhere else
-
-/* Written by Mladen Ivkovic, JAN 2024
- * mladen.ivkovic@hotmail.com           */
+/**
+ * @file Utils.h
+ * @brief Misc utils that don't fit anywhere else
+ */
 
 #pragma once
 
 #include <sstream>
+#include <string>
+
+#include "Config.h"
 
 namespace utils {
 
-  /* stuff that doesn't fit anywhere else */
-  std::stringstream get_banner();
-  void              print_header();
+  //! Stores the actual string of the banner image
+  std::stringstream banner();
 
-  /* void print_compile_defines(); */
-  /* void utils_get_macro_strings(char *solver, char *riemann, char *limiter); */
+  //! Prints out the header and banner
+  void printHeader();
 
-  /* helper functions */
-  /* void log_message(const char *format, ...); */
-  /* void debugmessage(const char *format, ...); */
-  /* void log_extra(const char *format, ...); */
-  /* void throw_error(const char *format, ...); */
-  /* void printbool(int boolean); */
+  //! Is the line whitespace only?
+  bool isWhitespace(std::string& line);
+
+  //! Is this line a comment?
+  bool isComment(std::string& line);
+
+  //! Remove leading and trailing whitespaces from a string.
+  std::string removeWhitespace(std::string& str);
+
+  //! Split a line at an = char. Raise warnings if warn=true and something is amiss.
+  std::pair<std::string, std::string> splitEquals(std::string& str, bool warn = false);
+
+  //! Remove trailing comment from a line
+  std::string removeTrailingComment(std::string& line);
+
+  //! Get a string representing something gone wrong in parsing/evaluation
+  std::string somethingWrong();
+
+  //! Does a file exist?
+  bool fileExists(const std::string& filename);
+
+  //! Convert value string to integer. Do some additional sanity checks too.
+  int string2int(std::string& val);
+
+  //! Convert value string to size_t. Do some additional sanity checks too.
+  size_t string2size_t(std::string& val);
+
+  //! Convert value string to float/double. Do some additional sanity checks too.
+  float_t string2float(std::string& val);
+
+  //! Convert value string to integer. Do some additional sanity checks too.
+  bool string2bool(std::string& val);
+
+  //! "Convert" value string to string. Basically just do some additional sanity checks.
+  std::string string2string(std::string val);
 
 } // namespace utils

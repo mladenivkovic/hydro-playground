@@ -27,11 +27,8 @@ int main(int argc, char* argv[]) {
   // Get a handle on singletons
   auto params = parameters::Parameters::Instance;
 
-  message("Init params");
-  message(params.toString());
-
   // Useless things first :)
-  utils::print_header();
+  utils::printHeader();
 
   // Were' in the initialisation phase.
   logging::Log::setStage(logging::LogStage::Init);
