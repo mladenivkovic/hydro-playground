@@ -123,6 +123,9 @@ namespace IO {
     //! Retreive an option passed by cmdline args
     std::string _getCommandOption(const std::string& option);
 
+    //! Check whether some of read in parameters are unused
+    void _checkUnusedParameters();
+
   }; // class InputParse
 } // namespace IO
 

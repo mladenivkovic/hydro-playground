@@ -393,6 +393,26 @@ namespace IO {
   }
 
 
+  void InputParse::_checkUnusedParameters(){
+
+    for (auto & _config_param : _config_params){
+      configEntry& entry = _config_param.second;
+      if (not entry.used){
+        std::stringstream msg;
+        msg << "Unused parameter: " << entry.param << "=" << entry.value;
+        warning(msg);
+      }
+#if DEBUG_LEVEL > 1
+      else {
+        std::stringstream msg;
+        msg << "USED parameter: " << entry.param << "=" << entry.value;
+        warning(msg);
+      }
+#endif
+    }
+  }
+
+
   /**
    * Has a cmdline option been provided?
    */
@@ -503,7 +523,7 @@ namespace IO {
     auto pars = parameters::Parameters::Instance;
 
     size_t nstepsLog = _convertParameterString(
-        "nstepsLog",
+        "nstep_log",
         parameters::ArgType::Size_t,
         /*optional=*/true,
         /*defaultVal=*/pars.getNstepsLog()
@@ -527,7 +547,7 @@ namespace IO {
     pars.setNx(nx);
 
     int boundary = _convertParameterString(
-        "nx",
+        "boundary",
         parameters::ArgType::Integer,
         /*optional=*/true,
         /*defaultVal=*/static_cast<int>(pars.getBoundaryType())
@@ -543,7 +563,7 @@ namespace IO {
     pars.setTmax(tmax);
 
     float_t ccfl = _convertParameterString(
-        "Ccfl",
+        "ccfl",
         parameters::ArgType::Float,
         /*optional=*/true,
         /*defaultVal=*/pars.getCcfl()
@@ -551,11 +571,8 @@ namespace IO {
     pars.setCcfl(ccfl);
 
 
-
-
-
-
-
+    // Let me know if we missed something
+    _checkUnusedParameters();
   }
 
 

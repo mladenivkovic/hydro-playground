@@ -37,7 +37,9 @@ namespace parameters {
    *   - Add private variable in class
    *   - Add getter and setters in class
    *   - Add default value in constructor
+   *   - Does it need some computation? If so, add to initDerived
    *   - Add read in IO::InputParse::parseConfigFile()
+   *   - Add entry in toString()
    */
   class Parameters {
 
@@ -89,7 +91,7 @@ namespace parameters {
     // double _dt_out;
 
     //! Output file name basename
-    std::string _outputfilename;
+    std::string _outputfilebase;
 
     //! file name containing output times
     // char _toutfilename[MAX_FNAME_SIZE];
@@ -112,12 +114,6 @@ namespace parameters {
 
     //! dimension of IC file
     // size_t _ndim_ic;
-
-    //! IC data filename
-    std::string _icdatafilename;
-
-    //! parameter filename
-    std::string _paramfilename;
 
 
     // Sources related parameters
@@ -160,6 +156,10 @@ namespace parameters {
      * modifications.
      */
     void initDerived();
+
+
+    //! Get a sring of all parameters for printouts.
+    std::string toString();
 
 
     // ToDo: Move to destructor

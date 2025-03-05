@@ -27,6 +27,9 @@ int main(int argc, char* argv[]) {
   // Get a handle on singletons
   auto params = parameters::Parameters::Instance;
 
+  message("Init params");
+  message(params.toString());
+
   // Useless things first :)
   utils::print_header();
 
@@ -39,6 +42,10 @@ int main(int argc, char* argv[]) {
   // Read the parameters from the config file and initialise global paramters...
   input.parseConfigFile();
   params.initDerived();
+
+  // When very verbose, print out used parameters
+  message("Running with parameters:", logging::LogLevel::Debug);
+  message(params.toString(), logging::LogLevel::Debug);
 
   // initialise the grid of cells
   grid::Grid::Instance.initGrid();

@@ -1,6 +1,7 @@
 #include "Parameters.h"
 
 #include "Logging.h"
+#include <iomanip>
 #include <iostream>
 
 
@@ -23,23 +24,36 @@ namespace parameters {
   // need to define it as well...
   Parameters Parameters::Instance;
 
-  Parameters::Parameters():
-    _nstepsLog(0),
-    _nsteps(0),
-    _tmax(0),
-    _nx(1),
-    _ccfl(0.),
-    _boundaryType(BoundaryCondition::Periodic),
-    _nxTot(0),
-    _dx(1.0),
-    _nbc(0),
-    _locked(false)
+  Parameters::Parameters() {
+
+    // Set up default values here.
+    // "Proper" cpp prefers these members initialised in an initialiser
+    // list, but here, I find it more practical this way. So to avoid the
+    // linter screaming at me, not linting this bit.
+
+    // NOLINTBEGIN
+
+    _nstepsLog = 0;
+
+    _nsteps = 0;
+    _tmax = 0.;
+    _nx = 1;
+    _ccfl = 0.9;
+    _boundaryType = BoundaryCondition::Periodic;
+    _nxTot = 0;
+    _dx = 1.0;
+    _nbc = 2;
+
+    _outputfilebase = "";
+
+    _locked = false;
+
+    // NOLINTEND
 
     // nxtot used to be 100 + BCTOT = 100 + 2*BC. Fixing BC to be 2 and BCTOT to be
   // 2*BC
 
-  { /* empty body */
-  }
+
 
 
   // output related parameters
@@ -61,8 +75,6 @@ namespace parameters {
   // _ndim_ic = -1;
   // strcpy(_datafilename, "");
 
-  // strcpy(_paramfilename, "");
-
 
   // Sources related parameters
   // --------------------------
@@ -72,14 +84,12 @@ namespace parameters {
   // _constant_acceleration = 0;
   // _constant_acceleration_computed = 0;
   // _sources_are_read = 0;
+  }
 
 
   void Parameters::initDerived() {
     size_t nx = getNx();
     float_t dx = static_cast<float_t>(BOXLEN) / static_cast<float_t>(nx);
-    std::cout << "--------------------------" << dx << std::endl;
-    std::cout << "--------------------------" << BOXLEN << std::endl;
-    std::cout << "--------------------------" << nx << std::endl;
     setDx(dx);
 
 #if DEBUG_LEVEL > 0
@@ -88,8 +98,37 @@ namespace parameters {
   }
 
 
+  /**
+   * Get a sring of all parameters for printouts.
+   */
+  std::string Parameters::toString(){
+
+    std::stringstream out;
+    out << "\nParameter List\n";
+    out << std::setw(20) << "nstepsLog:" << std::setw(20) << getNstepsLog() << "\n";
+    out << std::setw(20) << "nsteps:";
+    out << std::setw(20) << getNsteps() << "\n";
+    out << std::setw(20) << "tmax:";
+    out << std::setw(20) << getTmax() << "\n";
+    out << std::setw(20) << "nx:";
+    out << std::setw(20) << getNx() << "\n";
+    out << std::setw(20) << "Ccfl:";
+    out << std::setw(20) << getCcfl() << "\n";
+    out << std::setw(20) << "boundaryType:";
+    out << std::setw(20) << static_cast<int>(getBoundaryType()) << "\n";
+    out << std::setw(20) << "nxTot:";
+    out << std::setw(20) << getNxTot() << "\n";
+    out << std::setw(20) << "dx:";
+    out << std::setw(20) << getDx() << "\n";
+    out << std::setw(20) << "nbc:";
+    out << std::setw(20) << getNBC() << "\n";
+
+    return out.str();
+  }
+
+
   void Parameters::setOutputFileBase(std::string& ofname) {
-    _outputfilename = ofname;
+    Instance._outputfilebase = ofname;
     paramSetLog(ofname);
 #if DEBUG_LEVEL > 0
     if (_locked) error("Trying to overwrite locked parameters!");
@@ -98,31 +137,17 @@ namespace parameters {
 
 
   std::string Parameters::getOutputFileBase() const {
-    return _outputfilename;
-  }
-
-
-  void Parameters::setIcDataFilename(std::string& icfname) {
-    _icdatafilename = icfname;
-    paramSetLog(icfname);
-#if DEBUG_LEVEL > 0
-    if (_locked) error("Trying to overwrite locked parameters!");
-#endif
-  }
-
-
-  std::string Parameters::getIcDataFilename() const {
-    return _icdatafilename;
+    return Instance._outputfilebase;
   }
 
 
   size_t Parameters::getNstepsLog() const {
-    return _nstepsLog;
+    return Instance._nstepsLog;
   }
 
 
   void Parameters::setNstepsLog(const size_t nstepsLog) {
-    _nstepsLog = nstepsLog;
+    Instance._nstepsLog = nstepsLog;
     paramSetLog(nstepsLog);
 #if DEBUG_LEVEL > 0
     if (_locked) error("Trying to overwrite locked parameters!");
@@ -131,11 +156,12 @@ namespace parameters {
 
 
   size_t Parameters::getNsteps() const {
-    return _nsteps;
+    return Instance._nsteps;
   }
 
+
   void Parameters::setNsteps(const size_t nsteps) {
-    _nsteps = nsteps;
+    Instance._nsteps = nsteps;
     paramSetLog(nsteps);
 #if DEBUG_LEVEL > 0
     if (_locked) error("Trying to overwrite locked parameters!");
@@ -144,12 +170,12 @@ namespace parameters {
 
 
   float_t Parameters::getTmax() const {
-    return _tmax;
+    return Instance._tmax;
   }
 
 
   void Parameters::setTmax(const float tmax) {
-    _tmax = tmax;
+    Instance._tmax = tmax;
     paramSetLog(tmax);
 #if DEBUG_LEVEL > 0
     if (_locked) error("Trying to overwrite locked parameters!");
@@ -158,12 +184,12 @@ namespace parameters {
 
 
   size_t Parameters::getNx() const {
-    return _nx;
+    return Instance._nx;
   }
 
 
   void Parameters::setNx(const size_t nx) {
-    _nx = nx;
+    Instance._nx = nx;
     paramSetLog(nx);
 #if DEBUG_LEVEL > 0
     if (_locked) error("Trying to overwrite locked parameters!");
@@ -172,12 +198,12 @@ namespace parameters {
 
 
   float_t Parameters::getCcfl() const {
-    return _ccfl;
+    return Instance._ccfl;
   }
 
 
   void Parameters::setCcfl(const float ccfl) {
-    _ccfl = ccfl;
+    Instance._ccfl = ccfl;
     paramSetLog(ccfl);
 #if DEBUG_LEVEL > 0
     if (_locked) error("Trying to overwrite locked parameters!");
@@ -191,12 +217,12 @@ namespace parameters {
 
 
   float_t Parameters::getDx() const {
-    return _dx;
+    return Instance._dx;
   }
 
 
   void Parameters::setDx(const float_t dx) {
-    _dx = dx;
+    Instance._dx = dx;
     paramSetLog(dx);
 #if DEBUG_LEVEL > 0
     if (_locked) error("Trying to overwrite locked parameters!");
@@ -205,12 +231,12 @@ namespace parameters {
 
 
   BoundaryCondition Parameters::getBoundaryType() const {
-    return _boundaryType;
+    return Instance._boundaryType;
   }
 
 
   void Parameters::setBoundaryType(BoundaryCondition boundaryType) {
-    _boundaryType = boundaryType;
+    Instance._boundaryType = boundaryType;
     paramSetLog((int) boundaryType);
 #if DEBUG_LEVEL > 0
     if (_locked) error("Trying to overwrite locked parameters!");
@@ -218,11 +244,11 @@ namespace parameters {
   }
 
   size_t Parameters::getNBC() const {
-    return _nbc;
+    return Instance._nbc;
   }
 
   void Parameters::setNBC(const size_t bc) {
-    _nbc = bc;
+    Instance._nbc = bc;
     paramSetLog(bc);
 #if DEBUG_LEVEL > 0
     if (_locked) error("Trying to overwrite locked parameters!");
