@@ -94,7 +94,7 @@ namespace parameters {
   /**
    * Get a sring of all parameters for printouts.
    */
-  std::string Parameters::toString() {
+  std::string Parameters::toString() const {
 
     std::stringstream out;
     out << "\nParameter List\n";

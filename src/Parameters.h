@@ -158,7 +158,7 @@ namespace parameters {
 
 
     //! Get a sring of all parameters for printouts.
-    std::string toString();
+    [[nodiscard]] std::string toString() const;
 
 
     // ToDo: Move to destructor
@@ -168,56 +168,56 @@ namespace parameters {
     /**
      * @brief Get number of steps between writing log to screen
      */
-    static size_t getNstepsLog();
+    [[nodiscard]] size_t getNstepsLog() const;
     void          setNstepsLog(const size_t nstepsLog);
 
 
     /**
      * @brief Get max nr of simulation steps to run
      */
-    static size_t getNsteps();
+    [[nodiscard]] size_t getNsteps() const;
     void          setNsteps(const size_t nsteps);
 
 
     /**
      * @brief get simulation end time
      */
-    static float_t getTmax();
+    [[nodiscard]] float_t getTmax() const;
     void           setTmax(const float_t tmax);
 
 
     /**
      * @brief Get the number of cells with actual content per dimension
      */
-    static size_t getNx();
+    [[nodiscard]] size_t getNx() const;
     void          setNx(const size_t nx);
 
 
     /**
      * @brief Get the CFL constant
      */
-    static float_t getCcfl();
+    [[nodiscard]] float_t getCcfl() const;
     void           setCcfl(float_t ccfl);
 
 
     /**
      * @brief Get the type of boundary condition used
      */
-    static BoundaryCondition getBoundaryType();
+    [[nodiscard]] BoundaryCondition getBoundaryType() const;
     void                     setBoundaryType(BoundaryCondition boundary);
 
 
     /**
      * @brief Get the number of boundary cells on each side of the box
      */
-    static size_t getNBC();
+    [[nodiscard]] size_t getNBC() const;
     void          setNBC(size_t nbc);
 
 
     /**
      * @brief get the total number of boundary cells per dimension.
      */
-    static size_t getNBCTot();
+    [[nodiscard]] size_t getNBCTot() const;
 
 
     /**
@@ -225,13 +225,13 @@ namespace parameters {
      * boundary cells.
      * @TODO: what to do with replication
      */
-    static size_t getNxTot();
+    [[nodiscard]] size_t getNxTot() const;
 
 
     /**
      * @brief Get the cell size
      */
-    static float_t getDx();
+    [[nodiscard]] float_t getDx() const;
     void           setDx(const float_t dx);
 
 
@@ -270,7 +270,7 @@ namespace parameters {
   }
 
 
-inline size_t parameters::Parameters::getNstepsLog() {
+inline size_t parameters::Parameters::getNstepsLog() const {
   return Instance._nstepsLog;
 }
 
@@ -286,7 +286,7 @@ inline void parameters::Parameters::setNstepsLog(const size_t nstepsLog) {
 }
 
 
-inline size_t parameters::Parameters::getNsteps() {
+inline size_t parameters::Parameters::getNsteps() const {
   return Instance._nsteps;
 }
 
@@ -302,7 +302,7 @@ inline void parameters::Parameters::setNsteps(const size_t nsteps) {
 }
 
 
-inline float_t parameters::Parameters::getTmax() {
+inline float_t parameters::Parameters::getTmax() const {
   return Instance._tmax;
 }
 
@@ -318,7 +318,7 @@ inline void parameters::Parameters::setTmax(const float tmax) {
 }
 
 
-inline size_t parameters::Parameters::getNx() {
+inline size_t parameters::Parameters::getNx() const {
   return Instance._nx;
 }
 
@@ -334,7 +334,7 @@ inline void parameters::Parameters::setNx(const size_t nx) {
 }
 
 
-inline float_t parameters::Parameters::getCcfl() {
+inline float_t parameters::Parameters::getCcfl() const {
   return Instance._ccfl;
 }
 
@@ -350,7 +350,7 @@ inline void parameters::Parameters::setCcfl(const float ccfl) {
 }
 
 
-inline parameters::BoundaryCondition parameters::Parameters::getBoundaryType() {
+inline parameters::BoundaryCondition parameters::Parameters::getBoundaryType() const {
   return Instance._boundaryType;
 }
 
@@ -366,7 +366,7 @@ inline void parameters::Parameters::setBoundaryType(BoundaryCondition boundaryTy
 }
 
 
-inline size_t parameters::Parameters::getNBC() {
+inline size_t parameters::Parameters::getNBC() const {
   return Instance._nbc;
 }
 
@@ -382,17 +382,17 @@ inline void parameters::Parameters::setNBC(const size_t bc) {
 }
 
 
-inline size_t parameters::Parameters::getNBCTot() {
+inline size_t parameters::Parameters::getNBCTot() const {
   return 2 * getNBC();
 }
 
 
-inline size_t parameters::Parameters::getNxTot() {
+inline size_t parameters::Parameters::getNxTot() const {
   return getNx() + 2 * getNBC();
 }
 
 
-inline float_t parameters::Parameters::getDx() {
+inline float_t parameters::Parameters::getDx() const {
   return Instance._dx;
 }
 

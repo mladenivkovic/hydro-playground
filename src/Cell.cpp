@@ -65,8 +65,11 @@ void cell::Cell::CopyBoundaryDataReflective(const cell::Cell* real, const size_t
  * Compute the i and j indexes of a cell in the grid
  */
 std::pair<size_t, size_t> cell::Cell::getIJ() {
+
   std::pair<size_t, size_t> output;
-  size_t                    nxtot = parameters::Parameters::getNxTot();
+  auto pars = parameters::Parameters::getInstance();
+  size_t                    nxtot = pars.getNxTot();
+
   if (Dimensions == 1) {
     output.first  = getID();
     output.second = 0;
