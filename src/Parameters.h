@@ -238,20 +238,20 @@ namespace parameters {
     /**
      * @brief Get the output file name base
      */
-    static std::string getOutputFileBase();
+    [[nodiscard]] std::string getOutputFileBase() const;
     void               setOutputFileBase(std::string& ofname);
 
 
     /**
      * @brief getter for the single global copy
      */
-    static Parameters& getInstance() {
-      // keep static instance in here.
-      // a) Memory cleanup should work better at the end of program, and
-      // b) nobody gets any bright ideas about accessing the Instance directly.
-      static Parameters Instance;
-      return Instance;
-    }
+    /* static Parameters& getInstance() { */
+    /*   // keep static instance in here. */
+    /*   // a) Memory cleanup should work better at the end of program, and */
+    /*   // b) nobody gets any bright ideas about accessing the Instance directly. */
+    /*   static Parameters Instance; */
+    /*   return Instance; */
+    /* } */
   };
 } // namespace parameters
 
@@ -271,15 +271,19 @@ namespace parameters {
 
 
 inline size_t parameters::Parameters::getNstepsLog() const {
-  auto& inst = getInstance();
-  return inst._nstepsLog;
+  // auto& inst = getInstance();
+  // return inst._nstepsLog;
+  return _nstepsLog;
 }
 
 
 inline void parameters::Parameters::setNstepsLog(const size_t nstepsLog) {
-  auto& inst      = getInstance();
-  inst._nstepsLog = nstepsLog;
+  // auto& inst      = getInstance();
+  // inst._nstepsLog = nstepsLog;
+
+  _nstepsLog = nstepsLog;
   paramSetLog(nstepsLog);
+
 #if DEBUG_LEVEL > 0
   if (_locked)
     error("Trying to overwrite locked parameters!");
@@ -288,14 +292,18 @@ inline void parameters::Parameters::setNstepsLog(const size_t nstepsLog) {
 
 
 inline size_t parameters::Parameters::getNsteps() const {
-  auto& inst = getInstance();
-  return inst._nsteps;
+  // auto& inst = getInstance();
+  // return inst._nsteps;
+  return _nsteps;
 }
 
 
 inline void parameters::Parameters::setNsteps(const size_t nsteps) {
-  auto& inst   = getInstance();
-  inst._nsteps = nsteps;
+
+  // auto& inst   = getInstance();
+  // inst._nsteps = nsteps;
+  _nsteps = nsteps;
+
   paramSetLog(nsteps);
 #if DEBUG_LEVEL > 0
   if (_locked)
@@ -305,15 +313,20 @@ inline void parameters::Parameters::setNsteps(const size_t nsteps) {
 
 
 inline float_t parameters::Parameters::getTmax() const {
-  auto& inst = getInstance();
-  return inst._tmax;
+  // auto& inst = getInstance();
+  // return inst._tmax;
+  return _tmax;
 }
 
 
 inline void parameters::Parameters::setTmax(const float tmax) {
-  auto& inst = getInstance();
-  inst._tmax = tmax;
+
+  // auto& inst = getInstance();
+  // inst._tmax = tmax;
+
+  _tmax = tmax;
   paramSetLog(tmax);
+
 #if DEBUG_LEVEL > 0
   if (_locked)
     error("Trying to overwrite locked parameters!");
@@ -322,15 +335,20 @@ inline void parameters::Parameters::setTmax(const float tmax) {
 
 
 inline size_t parameters::Parameters::getNx() const {
-  auto& inst = getInstance();
-  return inst._nx;
+  // auto& inst = getInstance();
+  // return inst._nx;
+  return _nx;
 }
 
 
 inline void parameters::Parameters::setNx(const size_t nx) {
-  auto& inst = getInstance();
-  inst._nx   = nx;
+
+  // auto& inst = getInstance();
+  // inst._nx   = nx;
+
+  _nx = nx;
   paramSetLog(nx);
+
 #if DEBUG_LEVEL > 0
   if (_locked)
     error("Trying to overwrite locked parameters!");
@@ -339,15 +357,20 @@ inline void parameters::Parameters::setNx(const size_t nx) {
 
 
 inline float_t parameters::Parameters::getCcfl() const {
-  auto& inst = getInstance();
-  return inst._ccfl;
+  // auto& inst = getInstance();
+  // return inst._ccfl;
+  return _ccfl;
 }
 
 
 inline void parameters::Parameters::setCcfl(const float ccfl) {
-  auto& inst = getInstance();
-  inst._ccfl = ccfl;
+
+  // auto& inst = getInstance();
+  // inst._ccfl = ccfl;
+
+  _ccfl = ccfl;
   paramSetLog(ccfl);
+
 #if DEBUG_LEVEL > 0
   if (_locked)
     error("Trying to overwrite locked parameters!");
@@ -356,15 +379,20 @@ inline void parameters::Parameters::setCcfl(const float ccfl) {
 
 
 inline parameters::BoundaryCondition parameters::Parameters::getBoundaryType() const {
-  auto& inst = getInstance();
-  return inst._boundaryType;
+  // auto& inst = getInstance();
+  // return inst._boundaryType;
+  return _boundaryType;
 }
 
 
 inline void parameters::Parameters::setBoundaryType(BoundaryCondition boundaryType) {
-  auto& inst         = getInstance();
-  inst._boundaryType = boundaryType;
+
+  // auto& inst         = getInstance();
+  // inst._boundaryType = boundaryType;
+
+  _boundaryType = boundaryType;
   paramSetLog((int)boundaryType);
+
 #if DEBUG_LEVEL > 0
   if (_locked)
     error("Trying to overwrite locked parameters!");
@@ -373,15 +401,20 @@ inline void parameters::Parameters::setBoundaryType(BoundaryCondition boundaryTy
 
 
 inline size_t parameters::Parameters::getNBC() const {
-  auto& inst = getInstance();
-  return inst._nbc;
+  // auto& inst = getInstance();
+  // return inst._nbc;
+  return _nbc;
 }
 
 
 inline void parameters::Parameters::setNBC(const size_t bc) {
-  auto& inst = getInstance();
-  inst._nbc  = bc;
+
+  // auto& inst = getInstance();
+  // inst._nbc  = bc;
+
+  _nbc = bc;
   paramSetLog(bc);
+
 #if DEBUG_LEVEL > 0
   if (_locked)
     error("Trying to overwrite locked parameters!");
@@ -400,15 +433,20 @@ inline size_t parameters::Parameters::getNxTot() const {
 
 
 inline float_t parameters::Parameters::getDx() const {
-  auto& inst = getInstance();
-  return inst._dx;
+  // auto& inst = getInstance();
+  // return inst._dx;
+  return _dx;
 }
 
 
 inline void parameters::Parameters::setDx(const float_t dx) {
-  auto& inst = getInstance();
-  inst._dx   = dx;
+
+  // auto& inst = getInstance();
+  // inst._dx   = dx;
+
+  _dx = dx;
   paramSetLog(dx);
+
 #if DEBUG_LEVEL > 0
   if (_locked)
     error("Trying to overwrite locked parameters!");
@@ -416,16 +454,21 @@ inline void parameters::Parameters::setDx(const float_t dx) {
 }
 
 
-inline std::string parameters::Parameters::getOutputFileBase() {
-  auto& inst = getInstance();
-  return inst._outputfilebase;
+inline std::string parameters::Parameters::getOutputFileBase() const {
+  // auto& inst = getInstance();
+  // return inst._outputfilebase;
+  return _outputfilebase;
 }
 
 
 inline void parameters::Parameters::setOutputFileBase(std::string& ofname) {
-  auto& inst           = getInstance();
-  inst._outputfilebase = ofname;
+
+  // auto& inst           = getInstance();
+  // inst._outputfilebase = ofname;
+
+  _outputfilebase = ofname;
   paramSetLog(ofname);
+
 #if DEBUG_LEVEL > 0
   if (_locked)
     error("Trying to overwrite locked parameters!");

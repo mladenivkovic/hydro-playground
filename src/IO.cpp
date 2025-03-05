@@ -245,7 +245,7 @@ void IO::InputParse::_checkCmdLineArgsAreValid() {
 /**
  * Read the configuration file and fill out the parameters singleton.
  */
-void IO::InputParse::parseConfigFile() {
+void IO::InputParse::parseConfigFile(parameters::Parameters& params) {
 
   message("Parsing config file.", logging::LogLevel::Verbose);
 
@@ -276,55 +276,54 @@ void IO::InputParse::parseConfigFile() {
 
 
   // Now we parse each argument
-  auto pars = parameters::Parameters::getInstance();
 
   size_t nstepsLog = _convertParameterString(
     "nstep_log",
     parameters::ArgType::Size_t,
     /*optional=*/true,
-    /*defaultVal=*/pars.getNstepsLog()
+    /*defaultVal=*/params.getNstepsLog()
   );
-  pars.setNstepsLog(nstepsLog);
+  params.setNstepsLog(nstepsLog);
 
   size_t nsteps = _convertParameterString(
     "nsteps",
     parameters::ArgType::Size_t,
     /*optional=*/true,
-    /*defaultVal=*/pars.getNsteps()
+    /*defaultVal=*/params.getNsteps()
   );
-  pars.setNsteps(nsteps);
+  params.setNsteps(nsteps);
 
   size_t nx = _convertParameterString(
     "nx",
     parameters::ArgType::Size_t,
     /*optional=*/true,
-    /*defaultVal=*/pars.getNsteps()
+    /*defaultVal=*/params.getNsteps()
   );
-  pars.setNx(nx);
+  params.setNx(nx);
 
   int boundary = _convertParameterString(
     "boundary",
     parameters::ArgType::Integer,
     /*optional=*/true,
-    /*defaultVal=*/static_cast<int>(pars.getBoundaryType())
+    /*defaultVal=*/static_cast<int>(params.getBoundaryType())
   );
-  pars.setBoundaryType(static_cast<parameters::BoundaryCondition>(boundary));
+  params.setBoundaryType(static_cast<parameters::BoundaryCondition>(boundary));
 
   float_t tmax = _convertParameterString(
     "tmax",
     parameters::ArgType::Float,
     /*optional=*/true,
-    /*defaultVal=*/pars.getTmax()
+    /*defaultVal=*/params.getTmax()
   );
-  pars.setTmax(tmax);
+  params.setTmax(tmax);
 
   float_t ccfl = _convertParameterString(
     "ccfl",
     parameters::ArgType::Float,
     /*optional=*/true,
-    /*defaultVal=*/pars.getCcfl()
+    /*defaultVal=*/params.getCcfl()
   );
-  pars.setCcfl(ccfl);
+  params.setCcfl(ccfl);
 
 
   // Let me know if we missed something

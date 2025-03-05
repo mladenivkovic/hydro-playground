@@ -19,7 +19,9 @@ grid::Grid grid::Grid::Instance;
  * _cell(0,nxtot-1)       is the top-left cell
  * _cell(nxtot-1,nxtot-1) is the top-right cell
  */
-void grid::Grid::initGrid() {
+void grid::Grid::initGrid(
+    const parameters::Parameters& pars
+    ) {
 
 #if DEBUG_LEVEL > 0
   // TODO(mivkov): assert sure parameters and IC file has been read.
@@ -27,7 +29,6 @@ void grid::Grid::initGrid() {
 
   // TODO: write out what you're doing
   // log_extra("Initializing grid; ndim=%d, nx=%d", NDIM, pars.nx);
-  auto pars = parameters::Parameters::getInstance();
 
   size_t  nxTot = pars.getNxTot();
   size_t  nbc   = pars.getNBC();
@@ -48,12 +49,12 @@ void grid::Grid::initGrid() {
 
     for (size_t i = 0; i < nxTot; i++) {
       for (size_t j = 0; j < nxTot; j++) {
-        getCell(i, j).setX((i - nbc + 0.5) * dx);
-        getCell(i, j).setY((j - nbc + 0.5) * dx);
+        getCell(i, j, pars).setX((i - nbc + 0.5) * dx);
+        getCell(i, j, pars).setY((j - nbc + 0.5) * dx);
 
         // this used to be i + j * pars.nxtot, but i have altered the
         // convention this time around
-        getCell(i, j).setId(i + j * nxTot);
+        getCell(i, j, pars).setId(i + j * nxTot);
       }
     }
 
@@ -66,9 +67,10 @@ void grid::Grid::initGrid() {
 /**
  * [density, velocity, pressure]
  */
-void grid::Grid::setInitialConditions(size_t position, std::vector<float_t> vals) {
-
-  auto pars = parameters::Parameters::getInstance();
+void grid::Grid::setInitialConditions(
+    size_t position, std::vector<float_t> vals,
+    const parameters::Parameters& pars
+    ) {
 
   assert((vals.size() == 4 and Dimensions == 2) or (vals.size() == 3 and Dimensions == 1));
   // Let's set i,j based on the position in the array we passed in
@@ -86,14 +88,14 @@ void grid::Grid::setInitialConditions(size_t position, std::vector<float_t> vals
   // alias the bc value
   size_t nbc = pars.getNBC();
 
-  getCell(i + nbc, j + nbc).getPrim().setRho(vals[0]);
-  getCell(i + nbc, j + nbc).getPrim().setU(0, vals[1]);
+  getCell(i + nbc, j + nbc, pars).getPrim().setRho(vals[0]);
+  getCell(i + nbc, j + nbc, pars).getPrim().setU(0, vals[1]);
   if (Dimensions == 1) {
-    getCell(i + nbc, j + nbc).getPrim().setP(vals[2]);
+    getCell(i + nbc, j + nbc, pars).getPrim().setP(vals[2]);
   }
   if (Dimensions == 2) {
-    getCell(i + nbc, j + nbc).getPrim().setU(1, vals[2]);
-    getCell(i + nbc, j + nbc).getPrim().setP(vals[3]);
+    getCell(i + nbc, j + nbc, pars).getPrim().setU(1, vals[2]);
+    getCell(i + nbc, j + nbc, pars).getPrim().setP(vals[3]);
   }
 }
 
@@ -101,9 +103,7 @@ void grid::Grid::setInitialConditions(size_t position, std::vector<float_t> vals
 /**
  * @brief get the total mass of the grid.
  */
-float_t grid::Grid::getTotalMass() {
-
-  auto pars = parameters::Parameters::getInstance();
+float_t grid::Grid::getTotalMass(    const parameters::Parameters& pars) {
 
   float_t total = 0;
   size_t  bc    = pars.getNBC();
@@ -120,7 +120,7 @@ float_t grid::Grid::getTotalMass() {
   else if (Dimensions == 2) {
     for (size_t i = bc; i < bc + nx; i++) {
       for (size_t j = bc; j < bc + nx; j++) {
-        total += getCell(i, j).getPrim().getRho();
+        total += getCell(i, j, pars).getPrim().getRho();
       }
     }
 
@@ -133,9 +133,7 @@ float_t grid::Grid::getTotalMass() {
 /**
  * Reset all fluxes of the grid (both primitive and conservative) to zero.
  */
-void grid::Grid::resetFluxes() {
-
-  auto pars = parameters::Parameters::getInstance();
+void grid::Grid::resetFluxes(const parameters::Parameters& pars) {
 
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
   size_t         nbc  = pars.getNBC();
@@ -144,8 +142,8 @@ void grid::Grid::resetFluxes() {
   for (size_t i = nbc; i < nbc + nx; i++) {
     for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
       // if we are in 1d, j will be fixed to zero
-      getCell(i, j).getPrim().resetToInitialState();
-      getCell(i, j).getCons().resetToInitialState();
+      getCell(i, j, pars).getPrim().resetToInitialState();
+      getCell(i, j, pars).getCons().resetToInitialState();
     }
   }
 }
@@ -155,18 +153,17 @@ void grid::Grid::resetFluxes() {
  * runs through interior cells and calls PrimitveToConserved()
  * on each.
  */
-void grid::Grid::getCStatesFromPstates() {
+void grid::Grid::getCStatesFromPstates(const parameters::Parameters& pars) {
 
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
 
-  auto   pars = parameters::Parameters::getInstance();
   size_t nbc  = pars.getNBC();
   size_t nx   = pars.getNx();
 
   for (size_t i = nbc; i < nbc + nx; i++) {
     for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
       // if we are in 1d, j will be fixed to zero
-      getCell(i, j).PrimitiveToConserved();
+      getCell(i, j, pars).PrimitiveToConserved();
     }
   }
 }
@@ -176,18 +173,17 @@ void grid::Grid::getCStatesFromPstates() {
  * runs through interior cells and alls ConservedToPrimitve()
  * on each.
  */
-void grid::Grid::getPStatesFromCstates() {
+void grid::Grid::getPStatesFromCstates(const parameters::Parameters& pars) {
 
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
 
-  auto   pars = parameters::Parameters::getInstance();
   size_t nbc  = pars.getNBC();
   size_t nx   = pars.getNx();
 
   for (size_t i = nbc; i < nbc + nx; i++) {
     for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
       // if we are in 1d, j will be fixed to zero
-      getCell(i, j).ConservedToPrimitive();
+      getCell(i, j, pars).ConservedToPrimitive();
     }
   }
 }
@@ -198,9 +194,7 @@ void grid::Grid::getPStatesFromCstates() {
  * and ghost cells in a row or column and then
  * calls the function that actually copies the data.
  */
-void grid::Grid::setBoundary() {
-
-  auto pars = parameters::Parameters::getInstance();
+void grid::Grid::setBoundary(const parameters::Parameters& pars) {
 
   const size_t nbc   = pars.getNBC();
   const size_t nx    = pars.getNx();
@@ -220,19 +214,19 @@ void grid::Grid::setBoundary() {
       ghostLeft[i]  = &(getCell(i));
       ghostRight[i] = &(getCell(nx + nbc + i));
     }
-    realToGhost(realLeft, realRight, ghostLeft, ghostRight);
+    realToGhost(realLeft, realRight, ghostLeft, ghostRight, pars);
   }
 
   else if (Dimensions == 2) {
     // left-right boundaries
     for (size_t j = 0; j < nx + bctot; j++) {
       for (size_t i = 0; i < nbc; i++) {
-        realLeft[i]   = &(getCell(nbc + i, j));
-        realRight[i]  = &(getCell(nx + i, j));
-        ghostLeft[i]  = &(getCell(i, j));
-        ghostRight[i] = &(getCell(nx + nbc + i, j));
+        realLeft[i]   = &(getCell(nbc + i, j, pars));
+        realRight[i]  = &(getCell(nx + i, j, pars));
+        ghostLeft[i]  = &(getCell(i, j, pars));
+        ghostRight[i] = &(getCell(nx + nbc + i, j, pars));
       }
-      realToGhost(realLeft, realRight, ghostLeft, ghostRight, 0);
+      realToGhost(realLeft, realRight, ghostLeft, ghostRight, pars, 0);
     }
   }
 
@@ -240,12 +234,12 @@ void grid::Grid::setBoundary() {
   // left -> lower, right -> upper
   for (size_t i = 0; i < nx + bctot; i++) {
     for (size_t j = 0; j < nbc; j++) {
-      realLeft[j]   = &(getCell(i, nbc + j));
-      realRight[j]  = &(getCell(i, nx + j));
-      ghostLeft[j]  = &(getCell(i, j));
-      ghostRight[j] = &(getCell(i, nx + nbc + j));
+      realLeft[j]   = &(getCell(i, nbc + j, pars));
+      realRight[j]  = &(getCell(i, nx + j, pars));
+      ghostLeft[j]  = &(getCell(i, j, pars));
+      ghostRight[j] = &(getCell(i, nx + nbc + j, pars));
     }
-    realToGhost(realLeft, realRight, ghostLeft, ghostRight, 1);
+    realToGhost(realLeft, realRight, ghostLeft, ghostRight, pars, 1);
   }
 }
 
@@ -268,12 +262,12 @@ void grid::Grid::realToGhost(
   std::vector<cell::Cell*> realRight,
   std::vector<cell::Cell*> ghostLeft,
   std::vector<cell::Cell*> ghostRight,
+  const parameters::Parameters& pars,
   const size_t             dimension
 ) // dimension defaults to 0
 {
   // prevents crowding down there
   using BC    = parameters::BoundaryCondition;
-  auto   pars = parameters::Parameters::getInstance();
   size_t nbc  = pars.getNBC();
 
   switch (pars.getBoundaryType()) {

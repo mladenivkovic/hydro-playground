@@ -25,16 +25,17 @@ namespace grid {
     ~Grid() = default;
 
     //! Get a cell by its index. Here 1D and 2D versions.
-    cell::Cell& getCell(size_t i);
-    cell::Cell& getCell(size_t i, size_t j);
+    cell::Cell& getCell(const size_t i);
+    cell::Cell& getCell(const size_t i, const size_t j, const parameters::Parameters& pars);
 
     //! Initialise the grid.
-    void initGrid();
+    void initGrid( const parameters::Parameters& pars );
+
 
     /**
      * @brief get the total mass of the grid.
      */
-    float_t getTotalMass();
+    float_t getTotalMass( const parameters::Parameters& pars );
 
     /**
      * @brief Pass in vector of initial vals, to be read from IC file.
@@ -43,19 +44,20 @@ namespace grid {
      * In 2d this should be:
      * [density, velocity_x, velocity_y, pressure]
      */
-    void setInitialConditions(size_t position, std::vector<float_t> vals);
+    void setInitialConditions(size_t position, std::vector<float_t> vals,     const parameters::Parameters& pars);
+
 
     //! Run through the grid and get cstates from pstates
-    void getCStatesFromPstates();
+    void getCStatesFromPstates(const parameters::Parameters& pars);
 
     //! Run through the grid and get pstates from cstates
-    void getPStatesFromCstates();
+    void getPStatesFromCstates(const parameters::Parameters& pars);
 
     //! Reset all fluxes
-    void resetFluxes();
+    void resetFluxes(const parameters::Parameters& pars);
 
     //! enforce boundary conditions.
-    void setBoundary();
+    void setBoundary(const parameters::Parameters& pars);
 
     //! Apply the boundary conditions from real to ghost cells.
     static void realToGhost(
@@ -63,6 +65,7 @@ namespace grid {
       std::vector<cell::Cell*>,
       std::vector<cell::Cell*>,
       std::vector<cell::Cell*>,
+      const parameters::Parameters& pars,
       const size_t dimension = 0
     );
 
@@ -85,7 +88,7 @@ namespace grid {
  * Get (reference to) a cell by its index.
  * This is for the 1D grid.
  */
-inline cell::Cell& grid::Grid::getCell(size_t i) {
+inline cell::Cell& grid::Grid::getCell(const size_t i) {
 
 #if DEBUG_LEVEL > 0
   if (Dimensions != 1) {
@@ -100,9 +103,10 @@ inline cell::Cell& grid::Grid::getCell(size_t i) {
  * Get (reference to) a cell by its index.
  * This is for the 2D grid.
  */
-inline cell::Cell& grid::Grid::getCell(size_t i, size_t j) {
+inline cell::Cell& grid::Grid::getCell(const size_t i, const size_t j,
+    const parameters::Parameters& pars
+    ) {
 
-  auto          pars  = parameters::Parameters::getInstance();
   static size_t nxTot = pars.getNxTot();
 
 #if DEBUG_LEVEL > 0

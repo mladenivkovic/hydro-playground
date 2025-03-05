@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
 #endif
 
   // Get a handle on singletons
-  auto params = parameters::Parameters::getInstance();
+  auto params = parameters::Parameters();
 
   // Useless things first :)
   utils::printHeader();
@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
   IO::InputParse input(argc, argv);
 
   // Read the parameters from the config file and initialise global paramters...
-  input.parseConfigFile();
+  input.parseConfigFile(params);
   params.initDerived();
 
   // When very verbose, print out used parameters
@@ -45,11 +45,11 @@ int main(int argc, char* argv[]) {
   message(params.toString(), logging::LogLevel::Debug);
 
   // initialise the grid of cells
-  grid::Grid::Instance.initGrid();
+  grid::Grid::Instance.initGrid(params);
 
   // input.readICFile();
 
-  grid::Grid::Instance.setBoundary();
+  grid::Grid::Instance.setBoundary(params);
 
   // Initialise global parameters.
   // auto grid   = cell::Grid::Instance;

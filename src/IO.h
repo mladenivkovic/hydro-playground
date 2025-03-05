@@ -61,7 +61,7 @@ namespace IO {
     InputParse(const int argc, char* argv[]);
 
     //! Read the config file and fill out the configuration parameters
-    void parseConfigFile();
+    void parseConfigFile(parameters::Parameters& params);
 
     //! Read the initial conditions file.
     void readICFile();
