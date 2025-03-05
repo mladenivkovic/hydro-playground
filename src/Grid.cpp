@@ -159,9 +159,9 @@ void grid::Grid::getCStatesFromPstates() {
 
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
 
-  auto pars = parameters::Parameters::getInstance();
-  size_t         nbc  = pars.getNBC();
-  size_t         nx   = pars.getNx();
+  auto   pars = parameters::Parameters::getInstance();
+  size_t nbc  = pars.getNBC();
+  size_t nx   = pars.getNx();
 
   for (size_t i = nbc; i < nbc + nx; i++) {
     for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
@@ -180,9 +180,9 @@ void grid::Grid::getPStatesFromCstates() {
 
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
 
-  auto pars = parameters::Parameters::getInstance();
-  size_t         nbc  = pars.getNBC();
-  size_t         nx   = pars.getNx();
+  auto   pars = parameters::Parameters::getInstance();
+  size_t nbc  = pars.getNBC();
+  size_t nx   = pars.getNx();
 
   for (size_t i = nbc; i < nbc + nx; i++) {
     for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {

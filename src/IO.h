@@ -101,7 +101,6 @@ namespace IO {
 // --------------------------------------------------------
 
 
-
 /**
  * Convert a provided parameter from a string value into a native type
  *

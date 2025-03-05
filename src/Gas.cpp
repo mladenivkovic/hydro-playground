@@ -36,7 +36,6 @@ void IdealGas::PrimitiveState::ConservedToPrimitive(const ConservedState& c) {
 }
 
 
-
 // Stuff for conserved state
 
 IdealGas::ConservedState::ConservedState():
@@ -135,4 +134,3 @@ void IdealGas::ConservedState::GetCFluxFromCstate(const ConservedState& c, const
     setE(0.);
   }
 }
-

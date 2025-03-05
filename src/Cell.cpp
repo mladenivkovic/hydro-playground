@@ -67,7 +67,7 @@ void cell::Cell::CopyBoundaryDataReflective(const cell::Cell* real, const size_t
 std::pair<size_t, size_t> cell::Cell::getIJ() {
 
   std::pair<size_t, size_t> output;
-  auto pars = parameters::Parameters::getInstance();
+  auto                      pars  = parameters::Parameters::getInstance();
   size_t                    nxtot = pars.getNxTot();
 
   if (Dimensions == 1) {
@@ -82,5 +82,3 @@ std::pair<size_t, size_t> cell::Cell::getIJ() {
   }
   return output;
 }
-
-

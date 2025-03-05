@@ -63,8 +63,8 @@ namespace cell {
     void setX(float_t x);
     void setY(float_t y);
 
-    void setId(const int id);
-    [[nodiscard]] int  getID() const;
+    void              setId(const int id);
+    [[nodiscard]] int getID() const;
 
     //! Get cell index(es) in grid
     std::pair<std::size_t, std::size_t> getIJ();
@@ -132,5 +132,3 @@ inline const IdealGas::PrimitiveState& cell::Cell::getPrim() const {
 inline const IdealGas::ConservedState& cell::Cell::getCons() const {
   return _cons;
 }
-
-

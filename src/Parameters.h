@@ -169,49 +169,49 @@ namespace parameters {
      * @brief Get number of steps between writing log to screen
      */
     [[nodiscard]] size_t getNstepsLog() const;
-    void          setNstepsLog(const size_t nstepsLog);
+    void                 setNstepsLog(const size_t nstepsLog);
 
 
     /**
      * @brief Get max nr of simulation steps to run
      */
     [[nodiscard]] size_t getNsteps() const;
-    void          setNsteps(const size_t nsteps);
+    void                 setNsteps(const size_t nsteps);
 
 
     /**
      * @brief get simulation end time
      */
     [[nodiscard]] float_t getTmax() const;
-    void           setTmax(const float_t tmax);
+    void                  setTmax(const float_t tmax);
 
 
     /**
      * @brief Get the number of cells with actual content per dimension
      */
     [[nodiscard]] size_t getNx() const;
-    void          setNx(const size_t nx);
+    void                 setNx(const size_t nx);
 
 
     /**
      * @brief Get the CFL constant
      */
     [[nodiscard]] float_t getCcfl() const;
-    void           setCcfl(float_t ccfl);
+    void                  setCcfl(float_t ccfl);
 
 
     /**
      * @brief Get the type of boundary condition used
      */
     [[nodiscard]] BoundaryCondition getBoundaryType() const;
-    void                     setBoundaryType(BoundaryCondition boundary);
+    void                            setBoundaryType(BoundaryCondition boundary);
 
 
     /**
      * @brief Get the number of boundary cells on each side of the box
      */
     [[nodiscard]] size_t getNBC() const;
-    void          setNBC(size_t nbc);
+    void                 setNBC(size_t nbc);
 
 
     /**
@@ -232,7 +232,7 @@ namespace parameters {
      * @brief Get the cell size
      */
     [[nodiscard]] float_t getDx() const;
-    void           setDx(const float_t dx);
+    void                  setDx(const float_t dx);
 
 
     /**
@@ -277,7 +277,7 @@ inline size_t parameters::Parameters::getNstepsLog() const {
 
 
 inline void parameters::Parameters::setNstepsLog(const size_t nstepsLog) {
-  auto& inst       = getInstance();
+  auto& inst      = getInstance();
   inst._nstepsLog = nstepsLog;
   paramSetLog(nstepsLog);
 #if DEBUG_LEVEL > 0
@@ -294,7 +294,7 @@ inline size_t parameters::Parameters::getNsteps() const {
 
 
 inline void parameters::Parameters::setNsteps(const size_t nsteps) {
-  auto& inst    = getInstance();
+  auto& inst   = getInstance();
   inst._nsteps = nsteps;
   paramSetLog(nsteps);
 #if DEBUG_LEVEL > 0
@@ -311,7 +311,7 @@ inline float_t parameters::Parameters::getTmax() const {
 
 
 inline void parameters::Parameters::setTmax(const float tmax) {
-  auto& inst  = getInstance();
+  auto& inst = getInstance();
   inst._tmax = tmax;
   paramSetLog(tmax);
 #if DEBUG_LEVEL > 0
@@ -329,7 +329,7 @@ inline size_t parameters::Parameters::getNx() const {
 
 inline void parameters::Parameters::setNx(const size_t nx) {
   auto& inst = getInstance();
-  inst._nx  = nx;
+  inst._nx   = nx;
   paramSetLog(nx);
 #if DEBUG_LEVEL > 0
   if (_locked)
@@ -345,7 +345,7 @@ inline float_t parameters::Parameters::getCcfl() const {
 
 
 inline void parameters::Parameters::setCcfl(const float ccfl) {
-  auto& inst  = getInstance();
+  auto& inst = getInstance();
   inst._ccfl = ccfl;
   paramSetLog(ccfl);
 #if DEBUG_LEVEL > 0
@@ -362,7 +362,7 @@ inline parameters::BoundaryCondition parameters::Parameters::getBoundaryType() c
 
 
 inline void parameters::Parameters::setBoundaryType(BoundaryCondition boundaryType) {
-  auto& inst          = getInstance();
+  auto& inst         = getInstance();
   inst._boundaryType = boundaryType;
   paramSetLog((int)boundaryType);
 #if DEBUG_LEVEL > 0
@@ -380,7 +380,7 @@ inline size_t parameters::Parameters::getNBC() const {
 
 inline void parameters::Parameters::setNBC(const size_t bc) {
   auto& inst = getInstance();
-  inst._nbc = bc;
+  inst._nbc  = bc;
   paramSetLog(bc);
 #if DEBUG_LEVEL > 0
   if (_locked)
@@ -407,7 +407,7 @@ inline float_t parameters::Parameters::getDx() const {
 
 inline void parameters::Parameters::setDx(const float_t dx) {
   auto& inst = getInstance();
-  inst._dx  = dx;
+  inst._dx   = dx;
   paramSetLog(dx);
 #if DEBUG_LEVEL > 0
   if (_locked)

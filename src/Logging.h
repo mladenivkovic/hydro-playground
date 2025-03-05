@@ -170,5 +170,3 @@ namespace logging {
 #define error(msg) logging::Log::logError(FILENAME_, __FUNCTION__, __LINE__, msg);
 
 #define warning(msg) logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, msg);
-
-

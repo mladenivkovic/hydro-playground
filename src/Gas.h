@@ -183,7 +183,6 @@ inline float_t IdealGas::PrimitiveState::getEnergy() {
 }
 
 
-
 // Conserved State Stuff
 // --------------------------
 

@@ -102,7 +102,7 @@ inline cell::Cell& grid::Grid::getCell(size_t i) {
  */
 inline cell::Cell& grid::Grid::getCell(size_t i, size_t j) {
 
-  auto pars = parameters::Parameters::getInstance();
+  auto          pars  = parameters::Parameters::getInstance();
   static size_t nxTot = pars.getNxTot();
 
 #if DEBUG_LEVEL > 0
@@ -112,6 +112,3 @@ inline cell::Cell& grid::Grid::getCell(size_t i, size_t j) {
 #endif
   return _cells[i + j * nxTot];
 }
-
-
-
