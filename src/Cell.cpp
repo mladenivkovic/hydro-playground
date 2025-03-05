@@ -66,7 +66,7 @@ void cell::Cell::CopyBoundaryDataReflective(const cell::Cell* real, const size_t
  */
 std::pair<size_t, size_t> cell::Cell::getIJ() {
   std::pair<size_t, size_t> output;
-  size_t                    nxtot = parameters::Parameters::Instance.getNxTot();
+  size_t                    nxtot = parameters::Parameters::getNxTot();
   if (Dimensions == 1) {
     output.first  = getID();
     output.second = 0;
@@ -81,20 +81,3 @@ std::pair<size_t, size_t> cell::Cell::getIJ() {
 }
 
 
-void cell::Cell::setX(float_t x) {
-  _x = x;
-}
-
-void cell::Cell::setY(float_t y) {
-  _y = y;
-}
-
-
-void cell::Cell::setId(const int id) {
-  _id = id;
-}
-
-
-int cell::Cell::getID() const {
-  return _id;
-}
