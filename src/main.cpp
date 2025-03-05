@@ -24,6 +24,9 @@ int main(int argc, char* argv[]) {
   logging::Log::setVerbosity(logging::LogLevel::Debug);
 #endif
 
+  // Get a handle on singletons
+  auto params = parameters::Parameters::Instance;
+
   // Useless things first :)
   utils::print_header();
 
@@ -33,10 +36,9 @@ int main(int argc, char* argv[]) {
   // Fire up IO
   IO::InputParse input(argc, argv);
 
-  // Initialise global paramters...
-  parameters::Parameters::Instance.init();
-  // ... and read the parameters from the config file
+  // Read the parameters from the config file and initialise global paramters...
   input.parseConfigFile();
+  params.initDerived();
 
   // initialise the grid of cells
   grid::Grid::Instance.initGrid();
@@ -46,7 +48,6 @@ int main(int argc, char* argv[]) {
   grid::Grid::Instance.setBoundary();
 
   // Initialise global parameters.
-  auto params = parameters::Parameters::Instance;
   // auto grid   = cell::Grid::Instance;
 
 

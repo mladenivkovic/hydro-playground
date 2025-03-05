@@ -282,7 +282,7 @@ void grid::Grid::realToGhost(
 ) // dimension defaults to 0
 {
   // prevents crowding down there
-  using BC    = parameters::Parameters::BoundaryCondition;
+  using BC    = parameters::BoundaryCondition;
   auto   pars = parameters::Parameters::Instance;
   size_t nbc  = pars.getNBC();
 

@@ -2,7 +2,9 @@
 /* #include <algorithm> */
 #include <map>
 #include <string>
-#include <vector>
+// #include <vector>
+
+#include "Parameters.h"
 
 
 /* Routines to read in IC file */
@@ -53,29 +55,27 @@ namespace IO {
     //! Get a string representing something gone wrong in parsing/evaluation
     std::string somethingWrong();
 
+    //! Convert value string to integer. Do some additional sanity checks too.
+    int string2int(std::string& val);
+
+    //! Convert value string to size_t. Do some additional sanity checks too.
+    size_t string2size_t(std::string& val);
+
+    //! Convert value string to float/double. Do some additional sanity checks too.
+    float_t string2float(std::string& val);
+
+    //! Convert value string to integer. Do some additional sanity checks too.
+    bool string2bool(std::string& val);
+
+    //! "Convert" value string to string. Basically just do some additional sanity checks.
+    std::string string2string(std::string val);
+
   } // namespace internal
 
 
   class InputParse {
-  public:
-    //! Deleted default constructor
-    InputParse() = delete;
-
-    //! Constructor with argc and argv
-    InputParse(const int argc, char* argv[]);
-
-    //! Read the config file and fill out the configuration parameters
-    void parseConfigFile();
-
-    //! Read the initial conditions file.
-    void readICFile();
-
-    //! Check whether cmdline args are valid.
-    void checkCmdLineArgsAreValid();
-
+    // private vars
   private:
-    //! Help message
-    static std::string helpMessage();
 
     //! Map holding incoming command line args
     std::map<std::string, std::string> _clArguments;
@@ -89,6 +89,34 @@ namespace IO {
     //! Initial Conditions file name. Verified that file exists.
     std::string _icfile;
 
+  public:
+    //! Deleted default constructor
+    InputParse() = delete;
+
+    //! Constructor with argc and argv
+    InputParse(const int argc, char* argv[]);
+
+    //! Read the config file and fill out the configuration parameters
+    void parseConfigFile();
+
+    //! Read the initial conditions file.
+    void readICFile();
+
+  // private methods
+  private:
+    //! Help message
+    static std::string _helpMessage();
+
+    //! Check whether cmdline args are valid.
+    void _checkCmdLineArgsAreValid();
+
+    //! convert a parameter from read-in strings to a native type
+    template <typename T>
+    T _convertParameterString( std::string param,
+        parameters::ArgType type,
+        bool optional = false,
+        T defaultVal = 0);
+
     //! Has a cmdline option been provided?
     bool _commandOptionExists(const std::string& option);
 
@@ -97,3 +125,5 @@ namespace IO {
 
   }; // class InputParse
 } // namespace IO
+
+#include "IO.cpph"

@@ -4,36 +4,45 @@
 #include "Config.h"
 #include "Logging.h" // for verbosity level
 
-/*
-
-Turning this class into singleton pattern. In any file where you
-include Parameters.h, you can call
-hydro_playground::parameters::Parameters::Instance._nstepsLog (for example)
-and it will be this single global copy.
-
-Since the member variables are nonstatic now i've un-deleted the default
-constructor. This will be called by default on the static member anyhow
-
-We could remove the namespaceing
-here as it is a bit of a mouthful to type...
-
-It's up to us whether we make the instance itself private and use the
-getter or just make it public. It doesn't make a difference, since we
-need to return a reference anyway...
-*/
-
 namespace parameters {
 
+  //! Boundary condition types
+  enum class BoundaryCondition {
+    Periodic     = 0,
+    Reflective   = 1,
+    Transmissive = 2
+  };
+
+  //! parameter file argument types
+  enum class ArgType {
+    Integer     = 0,
+    Size_t      = 1,
+    Float       = 2,
+    Bool        = 3,
+    String      = 4
+  };
+
+  /**
+   * @brief Holds global simulation parameters. There should be only one
+   * instance of this globally, so this class is set up as a singleton. To use
+   * it and its contents, get hold of an instance:
+   *
+   * ```
+   *    parameters::Parameters::Instance
+   * ```
+   *
+   * It is accessible for all files which include `Parameters.h`.
+   *
+   * Note: Adding new parameters:
+   *   - Add private variable in class
+   *   - Add getter and setters in class
+   *   - Add default value in constructor
+   *   - Add read in IO::InputParse::parseConfigFile()
+   */
   class Parameters {
 
-  public:
-    enum class BoundaryCondition {
-      Periodic     = 0,
-      Reflective   = 1,
-      Transmissive = 2
-    };
-
   private:
+
     // Talking related parameters
     // --------------------------
 
@@ -51,6 +60,7 @@ namespace parameters {
     float_t _tmax;
 
     //! number of cells to use (in each dimension)
+    // TODO(mivkov): Do we still need this if we're not doing twostate ICs?
     size_t _nx;
 
     //! CFL coefficient
@@ -131,6 +141,10 @@ namespace parameters {
     //! whether sources have been read in
     // bool _sources_are_read;
 
+
+    // Others
+    // --------------------------
+
     // Lock params after initial setup and throw errors if somebody
     // tries to modify them.
     bool _locked;
@@ -139,90 +153,106 @@ namespace parameters {
     Parameters();
 
     /**
-     * @brief Sets up parameters.
+     * @brief Sets up derived parameters: Things that need computation etc after
+     * default values have been set (in the constructor) and parameter file has
+     * been read.
+     * In debug mode, this also "locks" the parameters and watches for future
+     * modifications.
      */
-    void init(
-      size_t            nstepsLog    = 1,
-      size_t            nsteps       = 1,
-      float_t           tmax         = 1.,
-      size_t            nx           = 100,
-      float_t           Ccfl         = 0.9,
-      BoundaryCondition boundaryType = BoundaryCondition::Periodic,
-      size_t            nbc          = 2
-    );
+    void initDerived();
+
 
     // ToDo: Move to destructor
     void cleanup();
 
+
     /**
      * @brief Get number of steps between writing log to screen
      */
-    size_t getNstepsLog() const;
+    [[nodiscard]] size_t getNstepsLog() const;
     void   setNstepsLog(const size_t nstepsLog);
+
 
     /**
      * @brief Get max nr of simulation steps to run
      */
-    size_t getNsteps() const;
+    [[nodiscard]] size_t getNsteps() const;
     void   setNsteps(const size_t nsteps);
+
 
     /**
      * @brief get simulation end time
      */
-    float_t getTmax() const;
+    [[nodiscard]] float_t getTmax() const;
     void    setTmax(const float_t tmax);
+
 
     /**
      * @brief Get the number of cells with actual content per dimension
      */
-    size_t getNx() const;
+    [[nodiscard]] size_t getNx() const;
     void   setNx(const size_t nx);
+
 
     /**
      * @brief Get the CFL constant
      */
-    float_t getCcfl() const;
+    [[nodiscard]] float_t getCcfl() const;
     void    setCcfl(float_t ccfl);
+
 
     /**
      * @brief Get the type of boundary condition used
      */
-    BoundaryCondition getBoundaryType() const;
+    [[nodiscard]] BoundaryCondition getBoundaryType() const;
     void              setBoundaryType(BoundaryCondition boundary);
+
 
     /**
      * @brief Get the number of boundary cells on each side of the box
      */
-    size_t getNBC() const;
+    [[nodiscard]] size_t getNBC() const;
     void   setNBC(size_t nbc);
+
 
     /**
      * @brief get the total number of boundary cells per dimension.
      */
-    size_t getNBCTot() const;
+    [[nodiscard]] size_t getNBCTot() const;
+
 
     /**
      * @brief get the total number of cells per dimension. This includes
      * boundary cells.
      * @TODO: what to do with replication
      */
-    size_t getNxTot() const;
+    [[nodiscard]] size_t getNxTot() const;
+
 
     /**
      * @brief Get the cell size
      */
-    float_t getDx() const;
+    [[nodiscard]] float_t getDx() const;
     void    setDx(const float_t dx);
 
-    void        setOutputFilename(std::string);
-    std::string getOutputFilename() const;
 
-    void        setIcDataFilename(std::string);
-    std::string getIcDataFilename() const;
+    /**
+     * @brief Get the output file name base
+     */
+    [[nodiscard]] std::string getOutputFileBase() const;
+    void        setOutputFileBase(std::string& ofname);
+
+
+    /**
+     * Get the IC file name.
+     */
+    [[nodiscard]] std::string getIcDataFilename() const;
+    void        setIcDataFilename(std::string& icfname);
 
 
     //! single copy of the global variables
     static Parameters Instance;
+
 
     /**
      * @brief getter for the single global copy

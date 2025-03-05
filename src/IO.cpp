@@ -21,9 +21,13 @@ namespace IO {
 
   namespace internal {
 
+    /**
+     * String signifying something's gone wrong.
+     */
     std::string somethingWrong() {
       return std::string("__something_wrong__");
     }
+
 
     /**
      * Scan through the line buffer. If we see any character that isn't `\n`,
@@ -64,6 +68,16 @@ namespace IO {
      * Remove leading and trailing whitespaces from a string.
      */
     std::string removeWhitespace(std::string& str) {
+
+      if (str.size() == 0){
+        return str;
+      }
+      if (str.size() == 1){
+        if (str == " " or str == "\t" or str == "\n" or str == "\r" or str == "\f" or str == "\v"){
+          return "";
+        }
+        return str;
+      }
 
       std::string ltrim;
       std::string rtrim;
@@ -184,6 +198,96 @@ namespace IO {
       return std::filesystem::exists(filename);
     }
 
+
+    /**
+     * Convert value string to integer.
+     * Do some additional sanity checks too.
+     * @TODO: there probably is a better way. This does the trick for now.
+     */
+    size_t string2size_t(std::string& val){
+      return static_cast<size_t>(string2int(val));
+    }
+
+
+    /**
+     * Convert value string to integer.
+     * Do some additional sanity checks too.
+     */
+    int string2int(std::string& val){
+      std::string v = removeWhitespace(val);
+      if (v.size() == 0){
+        std::stringstream msg;
+        msg << "Invalid string to convert to int: '" << val << "'";
+        error(msg);
+      }
+
+      // todo: error catching
+      int out = std::stoi(v);
+      return out;
+    }
+
+
+
+    /**
+     * Convert value string to float/double.
+     * Do some additional sanity checks too.
+     */
+    float_t string2float(std::string& val){
+
+      std::string v = removeWhitespace(val);
+      if (v.size() == 0){
+        std::stringstream msg;
+        msg << "Invalid string to convert to int: '" << val << "'";
+        error(msg);
+      }
+
+      // todo: error catching
+      float_t out = (float_t) std::stof(v);
+      return out;
+    }
+
+
+
+    /**
+     * Convert value string to integer.
+     * Do some additional sanity checks too.
+     */
+    bool string2bool(std::string& val){
+
+      std::string v = removeWhitespace(val);
+
+      if ((v == "true") or (v == "True") or (v == "TRUE") or (v == "1")) {
+        return true;
+      }
+      if ((v == "false") or (v == "False") or (v == "FALSE") or (v == "0")) {
+        return false;
+      }
+
+      std::stringstream msg;
+      msg << "Invalid bool string '" << val << "'";
+      error(msg);
+      return false;
+    }
+
+
+
+    /**
+     * "Convert" value string to string.
+     * Basically just do some additional sanity checks.
+     */
+    std::string string2string(std::string val){
+
+      std::string v = removeWhitespace(val);
+      if (v.size() == 0){
+        std::stringstream msg;
+        msg << "Suspicious string: '" << val << "'";
+        warning(msg);
+      }
+
+      return v;
+    }
+
+
   } // namespace internal
 
 
@@ -199,8 +303,10 @@ namespace IO {
     used(false) {};
 
 
-
-  std::string InputParse::helpMessage() {
+  /**
+   * Returns the help message.
+   */
+  std::string InputParse::_helpMessage() {
 
     std::stringstream msg;
     msg << "This is the hydro code help message.\n\nUsage: \n\n";
@@ -220,7 +326,8 @@ namespace IO {
 
 
   /**
-   * Constructor
+   * @brief Constructor. Takes over cmdline args from main(), checks them,
+   * and stores them internally.
    */
   InputParse::InputParse(const int argc, char* argv[]) {
 
@@ -266,7 +373,7 @@ namespace IO {
       }
     }
 
-    checkCmdLineArgsAreValid();
+    _checkCmdLineArgsAreValid();
   }
 
 
@@ -298,12 +405,14 @@ namespace IO {
 
   /**
    * Verify that the provided command line arguments are valid.
+   * May exit if help flag was raised.
+   * Sets the verbosity level if it was provided.
    */
-  void InputParse::checkCmdLineArgsAreValid() {
+  void InputParse::_checkCmdLineArgsAreValid() {
 
     // If help is requested, print help and exit.
     if (_commandOptionExists("-h") or _commandOptionExists("--help")) {
-      message(helpMessage(), logging::LogLevel::Quiet);
+      message(_helpMessage(), logging::LogLevel::Quiet);
       std::exit(0);
     }
 
@@ -390,6 +499,61 @@ namespace IO {
 
 
     // Now we parse each argument
+
+    auto pars = parameters::Parameters::Instance;
+
+    size_t nstepsLog = _convertParameterString(
+        "nstepsLog",
+        parameters::ArgType::Size_t,
+        /*optional=*/true,
+        /*defaultVal=*/pars.getNstepsLog()
+        );
+    pars.setNstepsLog(nstepsLog);
+
+    size_t nsteps = _convertParameterString(
+        "nsteps",
+        parameters::ArgType::Size_t,
+        /*optional=*/true,
+        /*defaultVal=*/pars.getNsteps()
+        );
+    pars.setNsteps(nsteps);
+
+    size_t nx = _convertParameterString(
+        "nx",
+        parameters::ArgType::Size_t,
+        /*optional=*/true,
+        /*defaultVal=*/pars.getNsteps()
+        );
+    pars.setNx(nx);
+
+    int boundary = _convertParameterString(
+        "nx",
+        parameters::ArgType::Integer,
+        /*optional=*/true,
+        /*defaultVal=*/static_cast<int>(pars.getBoundaryType())
+        );
+    pars.setBoundaryType(static_cast<parameters::BoundaryCondition>(boundary));
+
+    float_t tmax = _convertParameterString(
+        "tmax",
+        parameters::ArgType::Float,
+        /*optional=*/true,
+        /*defaultVal=*/pars.getTmax()
+        );
+    pars.setTmax(tmax);
+
+    float_t ccfl = _convertParameterString(
+        "Ccfl",
+        parameters::ArgType::Float,
+        /*optional=*/true,
+        /*defaultVal=*/pars.getCcfl()
+        );
+    pars.setCcfl(ccfl);
+
+
+
+
+
 
 
   }

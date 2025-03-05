@@ -96,6 +96,16 @@ void testRemoveWhitespace() {
   if (out != "")
     error("Wrong:'" + out + "'");
 
+  in  = " ";
+  out = IO::internal::removeWhitespace(in);
+  if (out != "")
+    error("Wrong:'" + out + "'");
+
+  in  = "\t";
+  out = IO::internal::removeWhitespace(in);
+  if (out != "")
+    error("Wrong:'" + out + "'");
+
   in  = "word";
   out = IO::internal::removeWhitespace(in);
   if (out != "word")
@@ -274,66 +284,98 @@ void testExtractParamLine() {
   name  = out.first;
   value = out.second;
   if (name != "myname" or value != "myvalue")
-    error("Wrong: '" + name + "', '" + value + "'")
+    error("Wrong: '" + name + "', '" + value + "'");
 
-      out
-      = IO::internal::extractParameter(line_valid2);
+  out = IO::internal::extractParameter(line_valid2);
   name  = out.first;
   value = out.second;
   if (name != "mynameNospace" or value != "myvalueNospace")
-    error("Wrong: '" + name + "', '" + value + "'")
+    error("Wrong: '" + name + "', '" + value + "'");
 
-      out
-      = IO::internal::extractParameter(line_valid3);
+  out = IO::internal::extractParameter(line_valid3);
   name  = out.first;
   value = out.second;
   if (name != "mynameStartWithSpace" or value != "myvalueNospace")
-    error("Wrong: '" + name + "', '" + value + "'")
+    error("Wrong: '" + name + "', '" + value + "'");
 
-      out
-      = IO::internal::extractParameter(line_valid4);
+  out = IO::internal::extractParameter(line_valid4);
   name  = out.first;
   value = out.second;
   if (name != "mynameStartWithSpace" or value != "myvalueNospace")
-    error("Wrong: '" + name + "', '" + value + "'")
+    error("Wrong: '" + name + "', '" + value + "'");
 
-      out
-      = IO::internal::extractParameter(line_valid5);
+  out = IO::internal::extractParameter(line_valid5);
   name  = out.first;
   value = out.second;
   if (name != "mynameStartWithSpace" or value != "myvalueNospace")
-    error("Wrong: '" + name + "', '" + value + "'")
+    error("Wrong: '" + name + "', '" + value + "'");
 
-      out
-      = IO::internal::extractParameter(line_1);
+  out = IO::internal::extractParameter(line_1);
   name  = out.first;
   value = out.second;
   if (name != "" or value != "")
-    error("Wrong: '" + name + "', '" + value + "'")
+    error("Wrong: '" + name + "', '" + value + "'");
 
-      out
-      = IO::internal::extractParameter(line_2);
+  out = IO::internal::extractParameter(line_2);
   name  = out.first;
   value = out.second;
   if (name != "" or value != "")
-    error("Wrong: '" + name + "', '" + value + "'")
+    error("Wrong: '" + name + "', '" + value + "'");
 
-      out
-      = IO::internal::extractParameter(line_3);
+  out = IO::internal::extractParameter(line_3);
   name  = out.first;
   value = out.second;
   if (name != no or value != no)
-    error("Wrong: '" + name + "', '" + value + "'")
+    error("Wrong: '" + name + "', '" + value + "'");
 
-      out
-      = IO::internal::extractParameter(line_4);
+  out = IO::internal::extractParameter(line_4);
   name  = out.first;
   value = out.second;
   if (name != "" or value != "")
-    error("Wrong: '" + name + "', '" + value + "'")
+    error("Wrong: '" + name + "', '" + value + "'");
+
+  message("-- finished.");
+}
 
 
-      message("-- finished.");
+/**
+ * Test the extractParamLine function
+ */
+void testStringConversions() {
+
+  message("-- Running testStringConversions()");
+
+  std::string val;
+
+  // int
+  val = "2";
+  if(IO::internal::string2int(val) != 2)
+    error("Wrong.");
+
+  val = "-17";
+  if(IO::internal::string2int(val) != -17)
+    error("Wrong.");
+
+  // val = " ";
+  // IO::internal::string2int(val);
+
+  val = "1.0";
+  if(IO::internal::string2float(val) != 1.)
+    error("Wrong.");
+
+  val = "-2.0";
+  if(IO::internal::string2float(val) != -2.)
+    error("Wrong.");
+
+  val = "true";
+  if(not IO::internal::string2bool(val))
+    error("Wrong.");
+
+  val = "0";
+  if(IO::internal::string2bool(val))
+    error("Wrong.");
+
+  message("-- finished.");
 }
 
 
@@ -341,16 +383,17 @@ void testExtractParamLine() {
  * Runs unit tests on internals
  */
 void unit_tests() {
-  message("Running unit tests.")
+  message("Running unit tests.");
 
-    testIsWhitespace();
+  testIsWhitespace();
   testIsComment();
   testRemoveWhitespace();
   testRemoveTrailingComments();
   testSplitEquals();
+  testStringConversions();
   testExtractParamLine();
 
-  message("Finished unit tests.")
+  message("Finished unit tests.");
 }
 
 

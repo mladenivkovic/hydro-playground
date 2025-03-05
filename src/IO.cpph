@@ -1,0 +1,120 @@
+#include <sstream>
+#include <string>
+
+
+#include "Parameters.h"
+
+
+namespace IO{
+
+  /**
+   * Convert a provided parameter from a string value into a native type
+   *
+   * @param param string containing the parameter name.
+   * @param type type of the argument to convert into.
+   * @param optional whether this argument is optional. If true, should the
+   * parameter not be available in the internal "database", the defaultVal will
+   * be returned.
+   * @param defaultVal the default value to use if this parameter
+   * has not been explicitly provided.
+   */
+  template <typename T>
+    T InputParse::_convertParameterString(
+        std::string param,
+        parameters::ArgType argtype,
+        bool optional,
+        T defaultVal
+        ) {
+
+#if DEBUG_LEVEL > 0
+    if (argtype == parameters::ArgType::String)
+      error("Got type string, should be using its own specialisation");
+#endif
+
+      // Grab parameter from storage
+      auto search = _config_params.find(param);
+      if (search == _config_params.end()){
+        // we didn't find it.
+        std::stringstream msg;
+        msg << "No parameter '" << param << "' provided";
+        if (optional){
+          // just raise warning, not error
+          msg << "; Using default=" << defaultVal;
+          return defaultVal;
+        }
+        error(msg);
+      }
+
+      configEntry& entry = search->second;
+      std::string val = entry.value;
+      entry.used = true;
+
+      switch (argtype) {
+        case parameters::ArgType::Integer:
+          return static_cast<T>(internal::string2int(val));
+          break;
+        case parameters::ArgType::Size_t:
+          return static_cast<T>(internal::string2size_t(val));
+          break;
+        case parameters::ArgType::Float:
+          return static_cast<T>(internal::string2float(val));
+          break;
+        case parameters::ArgType::Bool:
+          return static_cast<T>(internal::string2bool(val));
+          break;
+        // case parameters::ArgType::String:
+        //   return static_cast<T>(val);
+        //   break;
+      default:
+          std::stringstream msg;
+          msg << "Unknown type " << static_cast<int>(argtype);
+          error(msg);
+        return defaultVal;
+      }
+    }
+
+  /**
+   * explicit specialization for T = std::string.
+   * Specialisation needs to be either inlined or in the .cpp file, otherwise
+   * you're violating the One Definition Rule.
+   */
+  template <>
+  inline std::string InputParse::_convertParameterString<std::string>(
+        std::string param,
+        parameters::ArgType argtype,
+        bool optional,
+        std::string defaultVal
+        ) {
+
+#if DEBUG_LEVEL > 0
+    if (argtype != parameters::ArgType::String){
+      std::stringstream msg;
+      msg << "Wrong type passed? type=";
+      msg << static_cast<int>(argtype);
+      error(msg);
+    }
+#endif
+
+      // Grab parameter from storage
+      auto search = _config_params.find(param);
+      if (search == _config_params.end()){
+        // we didn't find it.
+        std::stringstream msg;
+        msg << "No parameter '" << param << "' provided";
+        if (optional){
+          // just raise warning, not error
+          msg << "; Using default=" << defaultVal;
+          return defaultVal;
+        }
+        error(msg);
+      }
+
+      configEntry& entry = search->second;
+      std::string val = entry.value;
+      entry.used = true;
+
+      return val;
+  }
+
+}  // namespace IO
+
