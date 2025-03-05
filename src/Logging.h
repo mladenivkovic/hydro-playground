@@ -135,8 +135,7 @@ namespace logging {
 #endif
 
 #define MESSAGE_3_ARGS(msg, level, stage) \
-  logging::Log::logMessage(FILENAME_, __FUNCTION__, __LINE__, msg, level, stage \
-);
+  logging::Log::logMessage(FILENAME_, __FUNCTION__, __LINE__, msg, level, stage);
 
 #define MESSAGE_2_ARGS(msg, level) \
   logging::Log::logMessage( \

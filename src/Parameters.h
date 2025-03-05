@@ -15,11 +15,11 @@ namespace parameters {
 
   //! parameter file argument types
   enum class ArgType {
-    Integer     = 0,
-    Size_t      = 1,
-    Float       = 2,
-    Bool        = 3,
-    String      = 4
+    Integer = 0,
+    Size_t  = 1,
+    Float   = 2,
+    Bool    = 3,
+    String  = 4
   };
 
   /**
@@ -44,7 +44,6 @@ namespace parameters {
   class Parameters {
 
   private:
-
     // Talking related parameters
     // --------------------------
 
@@ -170,49 +169,49 @@ namespace parameters {
      * @brief Get number of steps between writing log to screen
      */
     [[nodiscard]] size_t getNstepsLog() const;
-    void   setNstepsLog(const size_t nstepsLog);
+    void                 setNstepsLog(const size_t nstepsLog);
 
 
     /**
      * @brief Get max nr of simulation steps to run
      */
     [[nodiscard]] size_t getNsteps() const;
-    void   setNsteps(const size_t nsteps);
+    void                 setNsteps(const size_t nsteps);
 
 
     /**
      * @brief get simulation end time
      */
     [[nodiscard]] float_t getTmax() const;
-    void    setTmax(const float_t tmax);
+    void                  setTmax(const float_t tmax);
 
 
     /**
      * @brief Get the number of cells with actual content per dimension
      */
     [[nodiscard]] size_t getNx() const;
-    void   setNx(const size_t nx);
+    void                 setNx(const size_t nx);
 
 
     /**
      * @brief Get the CFL constant
      */
     [[nodiscard]] float_t getCcfl() const;
-    void    setCcfl(float_t ccfl);
+    void                  setCcfl(float_t ccfl);
 
 
     /**
      * @brief Get the type of boundary condition used
      */
     [[nodiscard]] BoundaryCondition getBoundaryType() const;
-    void              setBoundaryType(BoundaryCondition boundary);
+    void                            setBoundaryType(BoundaryCondition boundary);
 
 
     /**
      * @brief Get the number of boundary cells on each side of the box
      */
     [[nodiscard]] size_t getNBC() const;
-    void   setNBC(size_t nbc);
+    void                 setNBC(size_t nbc);
 
 
     /**
@@ -233,21 +232,21 @@ namespace parameters {
      * @brief Get the cell size
      */
     [[nodiscard]] float_t getDx() const;
-    void    setDx(const float_t dx);
+    void                  setDx(const float_t dx);
 
 
     /**
      * @brief Get the output file name base
      */
     [[nodiscard]] std::string getOutputFileBase() const;
-    void        setOutputFileBase(std::string& ofname);
+    void                      setOutputFileBase(std::string& ofname);
 
 
     /**
      * Get the IC file name.
      */
     [[nodiscard]] std::string getIcDataFilename() const;
-    void        setIcDataFilename(std::string& icfname);
+    void                      setIcDataFilename(std::string& icfname);
 
 
     //! single copy of the global variables

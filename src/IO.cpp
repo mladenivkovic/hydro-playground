@@ -69,11 +69,11 @@ namespace IO {
      */
     std::string removeWhitespace(std::string& str) {
 
-      if (str.size() == 0){
+      if (str.size() == 0) {
         return str;
       }
-      if (str.size() == 1){
-        if (str == " " or str == "\t" or str == "\n" or str == "\r" or str == "\f" or str == "\v"){
+      if (str.size() == 1) {
+        if (str == " " or str == "\t" or str == "\n" or str == "\r" or str == "\f" or str == "\v") {
           return "";
         }
         return str;
@@ -122,17 +122,20 @@ namespace IO {
       }
 
       if (count > 1) {
-        if (warn) warning("Got more than 1 equality sign in line '" + str + "'");
+        if (warn)
+          warning("Got more than 1 equality sign in line '" + str + "'");
         return std::make_pair(internal::somethingWrong(), internal::somethingWrong());
       }
 
       if (equals_ind == 0) {
-        if (warn) warning("No equality sign or no var name in line '" + str + "'");
+        if (warn)
+          warning("No equality sign or no var name in line '" + str + "'");
         return std::make_pair(internal::somethingWrong(), internal::somethingWrong());
       }
 
       if (equals_ind == str.size()) {
-        if (warn) warning("No var value in line '" + str + "'");
+        if (warn)
+          warning("No var value in line '" + str + "'");
         return std::make_pair(internal::somethingWrong(), internal::somethingWrong());
       }
 
@@ -204,7 +207,7 @@ namespace IO {
      * Do some additional sanity checks too.
      * @TODO: there probably is a better way. This does the trick for now.
      */
-    size_t string2size_t(std::string& val){
+    size_t string2size_t(std::string& val) {
       return static_cast<size_t>(string2int(val));
     }
 
@@ -213,9 +216,9 @@ namespace IO {
      * Convert value string to integer.
      * Do some additional sanity checks too.
      */
-    int string2int(std::string& val){
+    int string2int(std::string& val) {
       std::string v = removeWhitespace(val);
-      if (v.size() == 0){
+      if (v.size() == 0) {
         std::stringstream msg;
         msg << "Invalid string to convert to int: '" << val << "'";
         error(msg);
@@ -227,32 +230,30 @@ namespace IO {
     }
 
 
-
     /**
      * Convert value string to float/double.
      * Do some additional sanity checks too.
      */
-    float_t string2float(std::string& val){
+    float_t string2float(std::string& val) {
 
       std::string v = removeWhitespace(val);
-      if (v.size() == 0){
+      if (v.size() == 0) {
         std::stringstream msg;
         msg << "Invalid string to convert to int: '" << val << "'";
         error(msg);
       }
 
       // todo: error catching
-      float_t out = (float_t) std::stof(v);
+      float_t out = (float_t)std::stof(v);
       return out;
     }
-
 
 
     /**
      * Convert value string to integer.
      * Do some additional sanity checks too.
      */
-    bool string2bool(std::string& val){
+    bool string2bool(std::string& val) {
 
       std::string v = removeWhitespace(val);
 
@@ -270,15 +271,14 @@ namespace IO {
     }
 
 
-
     /**
      * "Convert" value string to string.
      * Basically just do some additional sanity checks.
      */
-    std::string string2string(std::string val){
+    std::string string2string(std::string val) {
 
       std::string v = removeWhitespace(val);
-      if (v.size() == 0){
+      if (v.size() == 0) {
         std::stringstream msg;
         msg << "Suspicious string: '" << val << "'";
         warning(msg);
@@ -347,17 +347,18 @@ namespace IO {
       std::string arg = std::string(argv[i]);
 
       // Allow flags without values
-      if (arg == "-h" or arg == "--help" or arg == "-v" or arg =="--verbose" or arg == "-vv" or arg =="--very-verbose"){
+      if (arg == "-h" or arg == "--help" or arg == "-v" or arg == "--verbose" or arg == "-vv"
+          or arg == "--very-verbose") {
         _clArguments.insert(std::make_pair(arg, ""));
         continue;
       }
 
       // Do we have an arg=value situation?
-      auto split_pair = internal::splitEquals(arg);
-      std::string name = split_pair.first;
-      std::string value = split_pair.second;
+      auto        split_pair = internal::splitEquals(arg);
+      std::string name       = split_pair.first;
+      std::string value      = split_pair.second;
 
-      if (name != internal::somethingWrong()){
+      if (name != internal::somethingWrong()) {
 
         // We have an arg=value situation.
         _clArguments.insert(std::make_pair(name, value));
@@ -366,10 +367,10 @@ namespace IO {
 
         // value is next arg, if it exists. Otherwise, empty string.
         std::string val;
-        if (i+1 < argc) val = argv[i+1];
+        if (i + 1 < argc)
+          val = argv[i + 1];
         _clArguments.insert(std::make_pair(arg, val));
         i++;
-
       }
     }
 
@@ -383,7 +384,7 @@ namespace IO {
   std::string InputParse::_getCommandOption(const std::string& option) {
 
     auto search = _clArguments.find(option);
-    if (search == _clArguments.end()){
+    if (search == _clArguments.end()) {
       warning("No option '" + option + "' available");
       const std::string emptyString;
       return emptyString;
@@ -393,11 +394,11 @@ namespace IO {
   }
 
 
-  void InputParse::_checkUnusedParameters(){
+  void InputParse::_checkUnusedParameters() {
 
-    for (auto & _config_param : _config_params){
+    for (auto& _config_param : _config_params) {
       configEntry& entry = _config_param.second;
-      if (not entry.used){
+      if (not entry.used) {
         std::stringstream msg;
         msg << "Unused parameter: " << entry.param << "=" << entry.value;
         warning(msg);
@@ -440,7 +441,7 @@ namespace IO {
       logging::Log::setVerbosity(logging::LogLevel::Verbose);
     }
 
-    if (_commandOptionExists("-vv") or _commandOptionExists("--very-verbose")){
+    if (_commandOptionExists("-vv") or _commandOptionExists("--very-verbose")) {
       logging::Log::setVerbosity(logging::LogLevel::Debug);
     }
 
@@ -455,7 +456,7 @@ namespace IO {
 
     // check all the required options
     for (const auto& opt : _requiredArgs) {
-      if (not _commandOptionExists(opt)){
+      if (not _commandOptionExists(opt)) {
         std::stringstream msg;
         msg << "missing option: " << opt;
         error(msg);
@@ -523,51 +524,51 @@ namespace IO {
     auto pars = parameters::Parameters::Instance;
 
     size_t nstepsLog = _convertParameterString(
-        "nstep_log",
-        parameters::ArgType::Size_t,
-        /*optional=*/true,
-        /*defaultVal=*/pars.getNstepsLog()
-        );
+      "nstep_log",
+      parameters::ArgType::Size_t,
+      /*optional=*/true,
+      /*defaultVal=*/pars.getNstepsLog()
+    );
     pars.setNstepsLog(nstepsLog);
 
     size_t nsteps = _convertParameterString(
-        "nsteps",
-        parameters::ArgType::Size_t,
-        /*optional=*/true,
-        /*defaultVal=*/pars.getNsteps()
-        );
+      "nsteps",
+      parameters::ArgType::Size_t,
+      /*optional=*/true,
+      /*defaultVal=*/pars.getNsteps()
+    );
     pars.setNsteps(nsteps);
 
     size_t nx = _convertParameterString(
-        "nx",
-        parameters::ArgType::Size_t,
-        /*optional=*/true,
-        /*defaultVal=*/pars.getNsteps()
-        );
+      "nx",
+      parameters::ArgType::Size_t,
+      /*optional=*/true,
+      /*defaultVal=*/pars.getNsteps()
+    );
     pars.setNx(nx);
 
     int boundary = _convertParameterString(
-        "boundary",
-        parameters::ArgType::Integer,
-        /*optional=*/true,
-        /*defaultVal=*/static_cast<int>(pars.getBoundaryType())
-        );
+      "boundary",
+      parameters::ArgType::Integer,
+      /*optional=*/true,
+      /*defaultVal=*/static_cast<int>(pars.getBoundaryType())
+    );
     pars.setBoundaryType(static_cast<parameters::BoundaryCondition>(boundary));
 
     float_t tmax = _convertParameterString(
-        "tmax",
-        parameters::ArgType::Float,
-        /*optional=*/true,
-        /*defaultVal=*/pars.getTmax()
-        );
+      "tmax",
+      parameters::ArgType::Float,
+      /*optional=*/true,
+      /*defaultVal=*/pars.getTmax()
+    );
     pars.setTmax(tmax);
 
     float_t ccfl = _convertParameterString(
-        "ccfl",
-        parameters::ArgType::Float,
-        /*optional=*/true,
-        /*defaultVal=*/pars.getCcfl()
-        );
+      "ccfl",
+      parameters::ArgType::Float,
+      /*optional=*/true,
+      /*defaultVal=*/pars.getCcfl()
+    );
     pars.setCcfl(ccfl);
 
 

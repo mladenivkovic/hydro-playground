@@ -1,8 +1,9 @@
 #include "Parameters.h"
 
-#include "Logging.h"
 #include <iomanip>
 #include <iostream>
+
+#include "Logging.h"
 
 
 // TODO: These definitions are temporary and need to go.
@@ -13,10 +14,10 @@
 
 //! Print out argument and its value with Debug verbosity
 #define paramSetLog(arg) \
-  {                                                                 \
-    std::stringstream msg;                                          \
-    msg << "Parameters: Setting '" << #arg << "' = " << arg <<"'";      \
-    message(msg, logging::LogLevel::Debug);                         \
+  { \
+    std::stringstream msg; \
+    msg << "Parameters: Setting '" << #arg << "' = " << arg << "'"; \
+    message(msg, logging::LogLevel::Debug); \
   }
 
 namespace parameters {
@@ -35,14 +36,14 @@ namespace parameters {
 
     _nstepsLog = 0;
 
-    _nsteps = 0;
-    _tmax = 0.;
-    _nx = 1;
-    _ccfl = 0.9;
+    _nsteps       = 0;
+    _tmax         = 0.;
+    _nx           = 1;
+    _ccfl         = 0.9;
     _boundaryType = BoundaryCondition::Periodic;
-    _nxTot = 0;
-    _dx = 1.0;
-    _nbc = 2;
+    _nxTot        = 0;
+    _dx           = 1.0;
+    _nbc          = 2;
 
     _outputfilebase = "";
 
@@ -51,44 +52,42 @@ namespace parameters {
     // NOLINTEND
 
     // nxtot used to be 100 + BCTOT = 100 + 2*BC. Fixing BC to be 2 and BCTOT to be
-  // 2*BC
+    // 2*BC
 
 
+    // output related parameters
+    // -------------------------
+
+    // _foutput = 0;
+    // _dt_out = 0;
+    // strcpy(_outputfilename, "");
+
+    // strcpy(_toutfilename, "");
+    // _use_toutfile = 0;
+    // _noutput_tot = 0;
+    // _noutput = 0;
+    // _outputtimes = NULL;
+
+    // IC related parameters
+    // ---------------------
+    // _twostate_ic = 0;
+    // _ndim_ic = -1;
+    // strcpy(_datafilename, "");
 
 
-  // output related parameters
-  // -------------------------
-
-  // _foutput = 0;
-  // _dt_out = 0;
-  // strcpy(_outputfilename, "");
-
-  // strcpy(_toutfilename, "");
-  // _use_toutfile = 0;
-  // _noutput_tot = 0;
-  // _noutput = 0;
-  // _outputtimes = NULL;
-
-  // IC related parameters
-  // ---------------------
-  // _twostate_ic = 0;
-  // _ndim_ic = -1;
-  // strcpy(_datafilename, "");
-
-
-  // Sources related parameters
-  // --------------------------
-  // _src_const_acc_x = 0.;
-  // _src_const_acc_y = 0.;
-  // _src_const_acc_r = 0.;
-  // _constant_acceleration = 0;
-  // _constant_acceleration_computed = 0;
-  // _sources_are_read = 0;
+    // Sources related parameters
+    // --------------------------
+    // _src_const_acc_x = 0.;
+    // _src_const_acc_y = 0.;
+    // _src_const_acc_r = 0.;
+    // _constant_acceleration = 0;
+    // _constant_acceleration_computed = 0;
+    // _sources_are_read = 0;
   }
 
 
   void Parameters::initDerived() {
-    size_t nx = getNx();
+    size_t  nx = getNx();
     float_t dx = static_cast<float_t>(BOXLEN) / static_cast<float_t>(nx);
     setDx(dx);
 
@@ -101,7 +100,7 @@ namespace parameters {
   /**
    * Get a sring of all parameters for printouts.
    */
-  std::string Parameters::toString(){
+  std::string Parameters::toString() {
 
     std::stringstream out;
     out << "\nParameter List\n";
@@ -131,7 +130,8 @@ namespace parameters {
     Instance._outputfilebase = ofname;
     paramSetLog(ofname);
 #if DEBUG_LEVEL > 0
-    if (_locked) error("Trying to overwrite locked parameters!");
+    if (_locked)
+      error("Trying to overwrite locked parameters!");
 #endif
   }
 
@@ -150,7 +150,8 @@ namespace parameters {
     Instance._nstepsLog = nstepsLog;
     paramSetLog(nstepsLog);
 #if DEBUG_LEVEL > 0
-    if (_locked) error("Trying to overwrite locked parameters!");
+    if (_locked)
+      error("Trying to overwrite locked parameters!");
 #endif
   }
 
@@ -164,7 +165,8 @@ namespace parameters {
     Instance._nsteps = nsteps;
     paramSetLog(nsteps);
 #if DEBUG_LEVEL > 0
-    if (_locked) error("Trying to overwrite locked parameters!");
+    if (_locked)
+      error("Trying to overwrite locked parameters!");
 #endif
   }
 
@@ -178,7 +180,8 @@ namespace parameters {
     Instance._tmax = tmax;
     paramSetLog(tmax);
 #if DEBUG_LEVEL > 0
-    if (_locked) error("Trying to overwrite locked parameters!");
+    if (_locked)
+      error("Trying to overwrite locked parameters!");
 #endif
   }
 
@@ -192,7 +195,8 @@ namespace parameters {
     Instance._nx = nx;
     paramSetLog(nx);
 #if DEBUG_LEVEL > 0
-    if (_locked) error("Trying to overwrite locked parameters!");
+    if (_locked)
+      error("Trying to overwrite locked parameters!");
 #endif
   }
 
@@ -206,7 +210,8 @@ namespace parameters {
     Instance._ccfl = ccfl;
     paramSetLog(ccfl);
 #if DEBUG_LEVEL > 0
-    if (_locked) error("Trying to overwrite locked parameters!");
+    if (_locked)
+      error("Trying to overwrite locked parameters!");
 #endif
   }
 
@@ -225,7 +230,8 @@ namespace parameters {
     Instance._dx = dx;
     paramSetLog(dx);
 #if DEBUG_LEVEL > 0
-    if (_locked) error("Trying to overwrite locked parameters!");
+    if (_locked)
+      error("Trying to overwrite locked parameters!");
 #endif
   }
 
@@ -237,9 +243,10 @@ namespace parameters {
 
   void Parameters::setBoundaryType(BoundaryCondition boundaryType) {
     Instance._boundaryType = boundaryType;
-    paramSetLog((int) boundaryType);
+    paramSetLog((int)boundaryType);
 #if DEBUG_LEVEL > 0
-    if (_locked) error("Trying to overwrite locked parameters!");
+    if (_locked)
+      error("Trying to overwrite locked parameters!");
 #endif
   }
 
@@ -251,7 +258,8 @@ namespace parameters {
     Instance._nbc = bc;
     paramSetLog(bc);
 #if DEBUG_LEVEL > 0
-    if (_locked) error("Trying to overwrite locked parameters!");
+    if (_locked)
+      error("Trying to overwrite locked parameters!");
 #endif
   }
 

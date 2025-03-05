@@ -44,7 +44,7 @@ namespace IO {
     std::string removeWhitespace(std::string& str);
 
     //! Split a line at an = char. Raise warnings if warn=true and something is amiss.
-    std::pair<std::string, std::string> splitEquals(std::string& str, bool warn=false);
+    std::pair<std::string, std::string> splitEquals(std::string& str, bool warn = false);
 
     //! Remove trailing comment from a line
     std::string removeTrailingComment(std::string& line);
@@ -76,7 +76,6 @@ namespace IO {
   class InputParse {
     // private vars
   private:
-
     //! Map holding incoming command line args
     std::map<std::string, std::string> _clArguments;
 
@@ -102,7 +101,7 @@ namespace IO {
     //! Read the initial conditions file.
     void readICFile();
 
-  // private methods
+    // private methods
   private:
     //! Help message
     static std::string _helpMessage();
@@ -112,10 +111,9 @@ namespace IO {
 
     //! convert a parameter from read-in strings to a native type
     template <typename T>
-    T _convertParameterString( std::string param,
-        parameters::ArgType type,
-        bool optional = false,
-        T defaultVal = 0);
+    T _convertParameterString(
+      std::string param, parameters::ArgType type, bool optional = false, T defaultVal = 0
+    );
 
     //! Has a cmdline option been provided?
     bool _commandOptionExists(const std::string& option);
