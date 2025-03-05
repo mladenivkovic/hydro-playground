@@ -29,13 +29,13 @@ namespace grid {
     cell::Cell& getCell(const size_t i, const size_t j, const parameters::Parameters& pars);
 
     //! Initialise the grid.
-    void initGrid( const parameters::Parameters& pars );
+    void initGrid(const parameters::Parameters& pars);
 
 
     /**
      * @brief get the total mass of the grid.
      */
-    float_t getTotalMass( const parameters::Parameters& pars );
+    float_t getTotalMass(const parameters::Parameters& pars);
 
     /**
      * @brief Pass in vector of initial vals, to be read from IC file.
@@ -44,7 +44,9 @@ namespace grid {
      * In 2d this should be:
      * [density, velocity_x, velocity_y, pressure]
      */
-    void setInitialConditions(size_t position, std::vector<float_t> vals,     const parameters::Parameters& pars);
+    void setInitialConditions(
+      size_t position, std::vector<float_t> vals, const parameters::Parameters& pars
+    );
 
 
     //! Run through the grid and get cstates from pstates
@@ -66,7 +68,7 @@ namespace grid {
       std::vector<cell::Cell*>,
       std::vector<cell::Cell*>,
       const parameters::Parameters& pars,
-      const size_t dimension = 0
+      const size_t                  dimension = 0
     );
 
     // static copy for global access
@@ -103,9 +105,9 @@ inline cell::Cell& grid::Grid::getCell(const size_t i) {
  * Get (reference to) a cell by its index.
  * This is for the 2D grid.
  */
-inline cell::Cell& grid::Grid::getCell(const size_t i, const size_t j,
-    const parameters::Parameters& pars
-    ) {
+inline cell::Cell& grid::Grid::getCell(
+  const size_t i, const size_t j, const parameters::Parameters& pars
+) {
 
   static size_t nxTot = pars.getNxTot();
 

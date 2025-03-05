@@ -19,9 +19,7 @@ grid::Grid grid::Grid::Instance;
  * _cell(0,nxtot-1)       is the top-left cell
  * _cell(nxtot-1,nxtot-1) is the top-right cell
  */
-void grid::Grid::initGrid(
-    const parameters::Parameters& pars
-    ) {
+void grid::Grid::initGrid(const parameters::Parameters& pars) {
 
 #if DEBUG_LEVEL > 0
   // TODO(mivkov): assert sure parameters and IC file has been read.
@@ -68,9 +66,8 @@ void grid::Grid::initGrid(
  * [density, velocity, pressure]
  */
 void grid::Grid::setInitialConditions(
-    size_t position, std::vector<float_t> vals,
-    const parameters::Parameters& pars
-    ) {
+  size_t position, std::vector<float_t> vals, const parameters::Parameters& pars
+) {
 
   assert((vals.size() == 4 and Dimensions == 2) or (vals.size() == 3 and Dimensions == 1));
   // Let's set i,j based on the position in the array we passed in
@@ -103,7 +100,7 @@ void grid::Grid::setInitialConditions(
 /**
  * @brief get the total mass of the grid.
  */
-float_t grid::Grid::getTotalMass(    const parameters::Parameters& pars) {
+float_t grid::Grid::getTotalMass(const parameters::Parameters& pars) {
 
   float_t total = 0;
   size_t  bc    = pars.getNBC();
@@ -157,8 +154,8 @@ void grid::Grid::getCStatesFromPstates(const parameters::Parameters& pars) {
 
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
 
-  size_t nbc  = pars.getNBC();
-  size_t nx   = pars.getNx();
+  size_t nbc = pars.getNBC();
+  size_t nx  = pars.getNx();
 
   for (size_t i = nbc; i < nbc + nx; i++) {
     for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
@@ -177,8 +174,8 @@ void grid::Grid::getPStatesFromCstates(const parameters::Parameters& pars) {
 
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
 
-  size_t nbc  = pars.getNBC();
-  size_t nx   = pars.getNx();
+  size_t nbc = pars.getNBC();
+  size_t nx  = pars.getNx();
 
   for (size_t i = nbc; i < nbc + nx; i++) {
     for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
@@ -258,17 +255,17 @@ void grid::Grid::setBoundary(const parameters::Parameters& pars) {
  * lowest array index is also lowest index of cell in grid
  */
 void grid::Grid::realToGhost(
-  std::vector<cell::Cell*> realLeft,
-  std::vector<cell::Cell*> realRight,
-  std::vector<cell::Cell*> ghostLeft,
-  std::vector<cell::Cell*> ghostRight,
+  std::vector<cell::Cell*>      realLeft,
+  std::vector<cell::Cell*>      realRight,
+  std::vector<cell::Cell*>      ghostLeft,
+  std::vector<cell::Cell*>      ghostRight,
   const parameters::Parameters& pars,
-  const size_t             dimension
+  const size_t                  dimension
 ) // dimension defaults to 0
 {
   // prevents crowding down there
-  using BC    = parameters::BoundaryCondition;
-  size_t nbc  = pars.getNBC();
+  using BC   = parameters::BoundaryCondition;
+  size_t nbc = pars.getNBC();
 
   switch (pars.getBoundaryType()) {
   case BC::Periodic: {

@@ -239,7 +239,7 @@ namespace parameters {
      * @brief Get the output file name base
      */
     [[nodiscard]] std::string getOutputFileBase() const;
-    void               setOutputFileBase(std::string& ofname);
+    void                      setOutputFileBase(std::string& ofname);
 
 
     /**
