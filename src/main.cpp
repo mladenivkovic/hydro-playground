@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
 
   // Get a handle on global vars so they're always in scope
   auto params = parameters::Parameters();
-  auto grid = grid::Grid();
+  auto grid   = grid::Grid();
 
   // Useless things first :)
   utils::printHeader();

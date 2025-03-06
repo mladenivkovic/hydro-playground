@@ -9,10 +9,16 @@
 idealGas::PrimitiveState::PrimitiveState():
   rho(0.),
   v({0., 0.}),
-  p(0.) { }
+  p(0.) {
+}
 
-idealGas::PrimitiveState::PrimitiveState(const float_t rho, const std::array<float_t,2> vel, const float_t p) :
-  rho(rho), v({vel[0], vel[1]}), p(p){ }
+idealGas::PrimitiveState::PrimitiveState(
+  const float_t rho, const std::array<float_t, 2> vel, const float_t p
+):
+  rho(rho),
+  v({vel[0], vel[1]}),
+  p(p) {
+}
 
 
 /**

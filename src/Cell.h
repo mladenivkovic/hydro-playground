@@ -60,7 +60,7 @@ namespace cell {
     void setX(float_t x);
     void setY(float_t y);
 
-    void              setId(const size_t id);
+    void                 setId(const size_t id);
     [[nodiscard]] size_t getID() const;
 
     //! Get cell index(es) in grid
@@ -149,11 +149,11 @@ inline const idealGas::ConservedState& cell::Cell::getCons() const {
 }
 
 
-inline void cell::Cell::setPrim(idealGas::PrimitiveState& prim){
+inline void cell::Cell::setPrim(idealGas::PrimitiveState& prim) {
   _prim = prim;
 }
 
 
-inline void cell::Cell::setCons(idealGas::ConservedState& cons){
+inline void cell::Cell::setCons(idealGas::ConservedState& cons) {
   _cons = cons;
 }

@@ -190,7 +190,7 @@ namespace parameters {
      * @brief Get the type of boundary condition used
      */
     [[nodiscard]] BC::BoundaryCondition getBoundaryType() const;
-    void          setBoundaryType(BC::BoundaryCondition boundary);
+    void                                setBoundaryType(BC::BoundaryCondition boundary);
 
 
     /**
@@ -219,7 +219,6 @@ namespace parameters {
      */
     [[nodiscard]] bool getParamFileHasBeenRead() const;
     void               setParamFileHasBeenRead();
-
   };
 } // namespace parameters
 
@@ -390,13 +389,12 @@ inline void parameters::Parameters::setOutputFileBase(std::string& ofname) {
 }
 
 
-
-inline bool parameters::Parameters::getParamFileHasBeenRead() const{
+inline bool parameters::Parameters::getParamFileHasBeenRead() const {
   return _read;
 }
 
 
-inline void parameters::Parameters::setParamFileHasBeenRead(){
+inline void parameters::Parameters::setParamFileHasBeenRead() {
   _read = true;
 }
 

@@ -65,7 +65,6 @@ namespace IO {
     std::string _icfile;
 
   public:
-
     //! Constructor with argc and argv
     InputParse(const int argc, char* argv[]);
 

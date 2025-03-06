@@ -11,7 +11,6 @@ namespace grid {
 
   class Grid {
   private:
-
     //! Cell array.
     cell::Cell* _cells;
 
@@ -43,7 +42,7 @@ namespace grid {
 
   public:
     Grid();
-    ~ Grid();
+    ~Grid();
     // TODO(mivkov): Other constructors/operators needed here for completeness.
     // At least delete.
 
@@ -133,7 +132,7 @@ namespace grid {
      * @brief Get the type of boundary condition used
      */
     [[nodiscard]] BC::BoundaryCondition getBoundaryType() const;
-    void                            setBoundaryType(BC::BoundaryCondition boundary);
+    void                                setBoundaryType(BC::BoundaryCondition boundary);
 
 
     /**
@@ -271,7 +270,6 @@ inline size_t grid::Grid::getReplicate() const {
 inline void grid::Grid::setReplicate(const size_t replicate) {
   _replicate = replicate;
 }
-
 
 
 inline size_t grid::Grid::getNBCTot() const {

@@ -37,7 +37,7 @@ namespace parameters {
     _outputfilebase = "";
 
     _locked = false;
-    _read = false;
+    _read   = false;
 
     // NOLINTEND
 

@@ -21,7 +21,7 @@ namespace idealGas {
     float_t rho;
 
     //! velocity
-    std::array<float_t,2> v;
+    std::array<float_t, 2> v;
 
     //! pressure
     float_t p;
@@ -29,7 +29,7 @@ namespace idealGas {
 
   public:
     PrimitiveState();
-    PrimitiveState(const float_t rho, const std::array<float_t,2> vel, const float_t p);
+    PrimitiveState(const float_t rho, const std::array<float_t, 2> vel, const float_t p);
 
     // copy assignment
     // TODO(mivkov): This doesn't compile. Check with boundary conditions
@@ -56,17 +56,17 @@ namespace idealGas {
     // Getters and setters!
 
     // Setter for Rho
-    void    setRho(const float_t val);
+    void                  setRho(const float_t val);
     [[nodiscard]] float_t getRho() const;
 
     // same for u
-    void    setV(const std::size_t index, const float_t val);
+    void                  setV(const std::size_t index, const float_t val);
     [[nodiscard]] float_t getV(const std::size_t index) const;
 
     // used a lot, made a function for it
     [[nodiscard]] float_t getVSquared() const;
 
-    void    setP(const float_t val);
+    void                  setP(const float_t val);
     [[nodiscard]] float_t getP() const;
   };
 
@@ -80,7 +80,7 @@ namespace idealGas {
     float_t rho;
 
     //! Momentum: rho * v
-    std::array<float_t,2> rhov;
+    std::array<float_t, 2> rhov;
 
     //! Energy
     float_t E;
@@ -111,15 +111,15 @@ namespace idealGas {
     void GetCFluxFromCstate(const ConservedState& cstate, const std::size_t dimension);
 
     // Getters and setters!
-    void    setRho(const float_t val);
+    void                  setRho(const float_t val);
     [[nodiscard]] float_t getRho() const;
 
     // same for u
-    void    setRhov(const std::size_t index, const float_t val);
+    void                  setRhov(const std::size_t index, const float_t val);
     [[nodiscard]] float_t getRhov(const std::size_t index) const;
     [[nodiscard]] float_t getRhoVSquared() const;
 
-    void    setE(const float_t val);
+    void                  setE(const float_t val);
     [[nodiscard]] float_t getE() const;
   };
 } // namespace idealGas

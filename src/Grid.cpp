@@ -11,24 +11,28 @@
 /**
  * Constructor
  */
-grid::Grid::Grid() : _cells(nullptr), _dx(1.), _initialised(false) {
+grid::Grid::Grid():
+  _cells(nullptr),
+  _dx(1.),
+  _initialised(false) {
   // Grab default values from default Parameters object.
-  auto pars = parameters::Parameters();
-  _nx = pars.getNx();
-  _nx_norep = pars.getNx();
+  auto pars     = parameters::Parameters();
+  _nx           = pars.getNx();
+  _nx_norep     = pars.getNx();
   _boundaryType = pars.getBoundaryType();
-  _boxsize = pars.getBoxsize();
-  _replicate = pars.getReplicate();
-  _nbc = pars.getNBC();
+  _boxsize      = pars.getBoxsize();
+  _replicate    = pars.getReplicate();
+  _nbc          = pars.getNBC();
 }
 
 
 /**
  * Destructor
  */
-grid::Grid::~ Grid() {
-  if (_cells == nullptr) error("Where did the cells array go??");
-  delete [] _cells;
+grid::Grid::~Grid() {
+  if (_cells == nullptr)
+    error("Where did the cells array go??");
+  delete[] _cells;
 }
 
 
@@ -79,13 +83,13 @@ void grid::Grid::initCells() {
     error("Trying to alloc cells on uninitialised grid");
 #endif
 
-  size_t  nx = getNx();
-  size_t  nx_norep = getNxNorep();
-  size_t  nxTot = getNxTot();
-  size_t  nbc   = getNBC();
+  size_t nx       = getNx();
+  size_t nx_norep = getNxNorep();
+  size_t nxTot    = getNxTot();
+  size_t nbc      = getNBC();
 
   // TODO(mivkov): in arbitrary ICs, this needs to be set from reading the file first.
-  if (nx == 0 or nxTot == 0)  {
+  if (nx == 0 or nxTot == 0) {
     error("Got nx=0; The grid needs a size.");
   }
 
@@ -97,40 +101,38 @@ void grid::Grid::initCells() {
 
   size_t total_cells = 0;
 
-  if (Dimensions == 1){
+  if (Dimensions == 1) {
 
     // allocate space
     total_cells = nxTot;
-    _cells = new cell::Cell[total_cells];
+    _cells      = new cell::Cell[total_cells];
 
     // set cell positions and IDs
     for (size_t i = 0; i < nxTot; i++) {
       cell::Cell& c = getCell(i);
-      float_t x = (static_cast<float_t>(i - nbc) + 0.5) * dx;
+      float_t     x = (static_cast<float_t>(i - nbc) + 0.5) * dx;
       c.setX(x);
       c.setId(i);
     }
 
-  }
-  else if (Dimensions == 2) {
+  } else if (Dimensions == 2) {
 
     // allocate space
     total_cells = nxTot * nxTot;
-    _cells = new cell::Cell[total_cells];
+    _cells      = new cell::Cell[total_cells];
 
     // set cell positions and IDs
     for (size_t i = 0; i < nxTot; i++) {
       for (size_t j = 0; j < nxTot; j++) {
         cell::Cell& c = getCell(i, j);
-        float_t x = (static_cast<float_t>(i - nbc) + 0.5) * dx;
-        float_t y = (static_cast<float_t>(j - nbc) + 0.5) * dx;
+        float_t     x = (static_cast<float_t>(i - nbc) + 0.5) * dx;
+        float_t     y = (static_cast<float_t>(j - nbc) + 0.5) * dx;
         c.setX(x);
         c.setY(y);
         c.setId(i + j * nxTot);
       }
     }
-  }
-  else {
+  } else {
     error("Not implemented yet");
   }
 
@@ -148,7 +150,6 @@ void grid::Grid::initCells() {
   msg << std::setprecision(3) << std::setw(14) << gridsize / GB << " GB";
 
   message(msg);
-
 }
 
 
@@ -345,17 +346,17 @@ void grid::Grid::setBoundary() {
  * lowest array index is also lowest index of cell in grid
  */
 void grid::Grid::realToGhost(
-  std::vector<cell::Cell*>      realLeft,
-  std::vector<cell::Cell*>      realRight,
-  std::vector<cell::Cell*>      ghostLeft,
-  std::vector<cell::Cell*>      ghostRight,
-  const size_t                  dimension
+  std::vector<cell::Cell*> realLeft,
+  std::vector<cell::Cell*> realRight,
+  std::vector<cell::Cell*> ghostLeft,
+  std::vector<cell::Cell*> ghostRight,
+  const size_t             dimension
 ) // dimension defaults to 0
 {
   size_t nbc = getNBC();
 
   switch (getBoundaryType()) {
-    case BC::BoundaryCondition::Periodic: {
+  case BC::BoundaryCondition::Periodic: {
     for (size_t i = 0; i < nbc; i++) {
       ghostLeft[i]->CopyBoundaryData(realLeft[i]);
       ghostRight[i]->CopyBoundaryData(realRight[i]);

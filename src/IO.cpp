@@ -80,7 +80,6 @@ IO::InputParse::InputParse(const int argc, char* argv[]) {
 }
 
 
-
 /**
  * Read the configuration file and fill out the parameters singleton.
  */
@@ -194,7 +193,7 @@ void IO::InputParse::readConfigFile(parameters::Parameters& params) {
  */
 void IO::InputParse::readICFile(grid::Grid& grid) {
 
-  if (_icIsTwoState()){
+  if (_icIsTwoState()) {
     message("Found two-state IC file.", logging::LogLevel::Verbose);
     _readTwoStateIC(grid);
   } else {
@@ -374,7 +373,7 @@ void IO::InputParse::_checkUnusedParameters() {
 /**
  * Do we have a two-state format for initial conditions?
  */
-bool IO::InputParse::_icIsTwoState(){
+bool IO::InputParse::_icIsTwoState() {
 
   std::string   line;
   std::ifstream conf_ifs(_icfile);
@@ -388,7 +387,7 @@ bool IO::InputParse::_icIsTwoState(){
     std::string name      = pair.first;
     std::string value     = pair.second;
 
-    if (name != "filetype"){
+    if (name != "filetype") {
       std::stringstream msg;
       msg << "Invalid IC file type: first non-comment line must be ";
       msg << "`filetype = [two-state,arbitrary]`\n";
@@ -399,7 +398,7 @@ bool IO::InputParse::_icIsTwoState(){
     bool out = false;
     if (value == "two-state") {
       out = true;
-    } else if (value == "arbitrary"){
+    } else if (value == "arbitrary") {
       out = false;
     } else {
       std::stringstream msg;
@@ -419,14 +418,14 @@ bool IO::InputParse::_icIsTwoState(){
 /**
  * Extract the value from a single line of the two-state IC file.
  */
-float_t IO::InputParse::_extractTwoStateVal(std::string& line, std::string expectedName){
+float_t IO::InputParse::_extractTwoStateVal(std::string& line, std::string expectedName) {
 
   std::string nocomment = utils::removeTrailingComment(line);
-  auto pair             = utils::splitEquals(nocomment);
+  auto        pair      = utils::splitEquals(nocomment);
   std::string name      = pair.first;
   std::string value     = pair.second;
 
-  if (name != expectedName){
+  if (name != expectedName) {
     std::stringstream msg;
     msg << "Something wrong when parsing two-state IC file.\n";
     msg << "Expecting: `" << expectedName << "`\n";
@@ -439,12 +438,11 @@ float_t IO::InputParse::_extractTwoStateVal(std::string& line, std::string expec
 }
 
 
-
 //! Read an IC file with the Two-State format
-void IO::InputParse::_readTwoStateIC(grid::Grid& grid){
+void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
 
   // first, read the file.
-  std::string line;
+  std::string   line;
   std::ifstream conf_ifs(_icfile);
 
   // skip comments first.
@@ -456,11 +454,11 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid){
 
   // once we're out of comments, read in one-by-one.
   std::string nocomment = utils::removeTrailingComment(line);
-  auto pair             = utils::splitEquals(nocomment);
+  auto        pair      = utils::splitEquals(nocomment);
   std::string name      = pair.first;
   std::string value     = pair.second;
 
-  if (name != "filetype" or value != "two-state"){
+  if (name != "filetype" or value != "two-state") {
     std::stringstream msg;
     msg << "Something wrong when parsing two-state IC file. Line:`" << line << "`";
     error(msg);
@@ -484,41 +482,42 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid){
   std::getline(conf_ifs, line);
   float_t p_R = _extractTwoStateVal(line, "p_R");
 
-  std::cout << "IC_READ: GOT " << rho_L << " " << u_L << " " << p_L << " " << rho_R << " " << u_R << " " << p_R << std::endl;
+  std::cout
+    << "IC_READ: GOT " << rho_L << " " << u_L << " " << p_L << " " << rho_R << " " << u_R << " "
+    << p_R << std::endl;
 
 
-  std::array<float_t,2> v_L = {u_L, 0.};
+  std::array<float_t, 2>   v_L = {u_L, 0.};
   idealGas::PrimitiveState left(rho_L, v_L, p_L);
-  std::array<float_t,2> v_R = {u_R, 0.};
+  std::array<float_t, 2>   v_R = {u_R, 0.};
   idealGas::PrimitiveState right(rho_R, v_R, p_R);
 
 
   // Now allocate and fill up the grid.
   grid.initCells();
-  size_t nxtot = grid.getNxTot();
+  size_t nxtot  = grid.getNxTot();
   size_t nxhalf = nxtot / 2;
 
-  if (Dimensions == 1){
+  if (Dimensions == 1) {
 
-    for (size_t i = 0; i < nxhalf; i++){
+    for (size_t i = 0; i < nxhalf; i++) {
       cell::Cell& c = grid.getCell(i);
       c.setPrim(left);
     }
-    for (size_t i = nxhalf; i < nxtot; i++){
+    for (size_t i = nxhalf; i < nxtot; i++) {
       cell::Cell& c = grid.getCell(i);
       c.setPrim(right);
     }
 
-  }
-  else if (Dimensions == 2) {
+  } else if (Dimensions == 2) {
 
-    for (size_t j = 0; j < nxtot; j++){
-      for (size_t i = 0; i < nxhalf; i++){
-        cell::Cell& c = grid.getCell(i,j);
+    for (size_t j = 0; j < nxtot; j++) {
+      for (size_t i = 0; i < nxhalf; i++) {
+        cell::Cell& c = grid.getCell(i, j);
         c.setPrim(left);
       }
-      for (size_t i = nxhalf; i < nxtot; i++){
-        cell::Cell& c = grid.getCell(i,j);
+      for (size_t i = nxhalf; i < nxtot; i++) {
+        cell::Cell& c = grid.getCell(i, j);
         c.setPrim(right);
       }
     }
@@ -526,28 +525,21 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid){
   } else {
     error("Not implemented");
   }
-
 }
 
 
-
-
 //! Read an IC file with the arbitrary format
-void IO::InputParse::_readArbitraryIC(grid::Grid& grid){
+void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
 
   // Read in ICs...
   // Read in nx from ICs, and set grid.setNx(nx);
 
 
-
   // Now allocate and fill up the grid.
-  if (grid.getReplicate() > 1){
+  if (grid.getReplicate() > 1) {
     message("Resizing grid for replications", logging::LogLevel::Verbose);
     grid.setNx(grid.getReplicate() * grid.getNx());
   }
 
   grid.initCells();
-
 }
-
-
