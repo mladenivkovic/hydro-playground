@@ -51,11 +51,11 @@ void cell::Cell::CopyBoundaryDataReflective(const cell::Cell* real, const size_t
   _cons = real->getCons();
 
   // flip the velocities in specified dimension
-  float_t u = getPrim().getU(dimension);
-  getPrim().setU(dimension, -1. * u);
+  float_t u = getPrim().getV(dimension);
+  getPrim().setV(dimension, -1. * u);
 
-  float_t rhou = getCons().getRhou(dimension);
-  getCons().setRhou(dimension, -1. * rhou);
+  float_t rhou = getCons().getRhov(dimension);
+  getCons().setRhov(dimension, -1. * rhou);
 }
 
 

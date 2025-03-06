@@ -145,6 +145,14 @@ Add individual files, like CMakeLists.txt
     This is copy-pasted from mesh-hydro. All of this needs checking.
 }
 
+
+- Grid contains cells array. Cells array is always 1D. Only access it using
+provided getter.
+
+- All default parameters are set in parameters initializer.
+
+
+
 % \begin{itemize} \item 	All the source files are in the \verb|src/| directory.
 %
 %     \item 	The main program file is \verb{src/main.cpp}

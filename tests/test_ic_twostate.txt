@@ -1,0 +1,8 @@
+filetype = two-state
+rho_L   = 1.0
+u_L     = -1.0
+p_L     = 1.0
+rho_R   = 1.0
+u_R     = -1.0
+p_R     = 1.0
+

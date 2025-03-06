@@ -7,7 +7,7 @@
 #include "Constants.h"
 
 
-namespace IdealGas {
+namespace idealGas {
   // forward declaration, ConservedToPrimitive doesn't work without it
   class ConservedState;
   class PrimitiveState;
@@ -21,15 +21,15 @@ namespace IdealGas {
     float_t rho;
 
     //! velocity
-    std::array<float_t, 2> u;
+    std::array<float_t,2> v;
 
     //! pressure
     float_t p;
 
 
   public:
-    //! Standard constructor, init variables to 0
     PrimitiveState();
+    PrimitiveState(const float_t rho, const std::array<float_t,2> vel, const float_t p);
 
     // copy assignment
     // TODO(mivkov): This doesn't compile. Check with boundary conditions
@@ -57,17 +57,17 @@ namespace IdealGas {
 
     // Setter for Rho
     void    setRho(const float_t val);
-    float_t getRho() const;
+    [[nodiscard]] float_t getRho() const;
 
     // same for u
-    void    setU(const std::size_t index, const float_t val);
-    float_t getU(const std::size_t index) const;
+    void    setV(const std::size_t index, const float_t val);
+    [[nodiscard]] float_t getV(const std::size_t index) const;
 
     // used a lot, made a function for it
-    float_t getUSquared() const;
+    [[nodiscard]] float_t getVSquared() const;
 
     void    setP(const float_t val);
-    float_t getP() const;
+    [[nodiscard]] float_t getP() const;
   };
 
 
@@ -79,8 +79,8 @@ namespace IdealGas {
     //! Density
     float_t rho;
 
-    //! Momentum: rho * u
-    std::array<float_t, 2> rhou;
+    //! Momentum: rho * v
+    std::array<float_t,2> rhov;
 
     //! Energy
     float_t E;
@@ -112,17 +112,17 @@ namespace IdealGas {
 
     // Getters and setters!
     void    setRho(const float_t val);
-    float_t getRho() const;
+    [[nodiscard]] float_t getRho() const;
 
     // same for u
-    void    setRhou(const std::size_t index, const float_t val);
-    float_t getRhou(const std::size_t index) const;
-    float_t getRhoUSquared() const;
+    void    setRhov(const std::size_t index, const float_t val);
+    [[nodiscard]] float_t getRhov(const std::size_t index) const;
+    [[nodiscard]] float_t getRhoVSquared() const;
 
     void    setE(const float_t val);
-    float_t getE() const;
+    [[nodiscard]] float_t getE() const;
   };
-} // namespace IdealGas
+} // namespace idealGas
 
 
 // --------------------------------------------------------
@@ -132,37 +132,37 @@ namespace IdealGas {
 // Primitive State Stuff
 // --------------------------
 
-inline void IdealGas::PrimitiveState::setRho(const float_t val) {
+inline void idealGas::PrimitiveState::setRho(const float_t val) {
   rho = val;
 }
 
 
-inline float_t IdealGas::PrimitiveState::getRho() const {
+inline float_t idealGas::PrimitiveState::getRho() const {
   return rho;
 }
 
 
-inline void IdealGas::PrimitiveState::setU(const size_t index, const float_t val) {
-  u[index] = val;
+inline void idealGas::PrimitiveState::setV(const size_t index, const float_t val) {
+  v[index] = val;
 }
 
 
-inline float_t IdealGas::PrimitiveState::getU(const size_t index) const {
-  return u[index];
+inline float_t idealGas::PrimitiveState::getV(const size_t index) const {
+  return v[index];
 }
 
 
-inline float_t IdealGas::PrimitiveState::getUSquared() const {
-  return u[0] * u[0] + u[1] * u[1];
+inline float_t idealGas::PrimitiveState::getVSquared() const {
+  return v[0] * v[0] + v[1] * v[1];
 }
 
 
-inline void IdealGas::PrimitiveState::setP(const float_t val) {
+inline void idealGas::PrimitiveState::setP(const float_t val) {
   p = val;
 }
 
 
-inline float_t IdealGas::PrimitiveState::getP() const {
+inline float_t idealGas::PrimitiveState::getP() const {
   return p;
 }
 
@@ -170,7 +170,7 @@ inline float_t IdealGas::PrimitiveState::getP() const {
 /**
  * Compute the local sound speed given a primitive state
  */
-inline float_t IdealGas::PrimitiveState::getSoundSpeed() {
+inline float_t idealGas::PrimitiveState::getSoundSpeed() {
   return std::sqrt(GAMMA * getP() / getRho());
 }
 
@@ -178,44 +178,44 @@ inline float_t IdealGas::PrimitiveState::getSoundSpeed() {
 /**
  * Get the total gas energy from a primitive state
  */
-inline float_t IdealGas::PrimitiveState::getEnergy() {
-  return 0.5 * getRho() * getUSquared() + getP() / GM1;
+inline float_t idealGas::PrimitiveState::getEnergy() {
+  return 0.5 * getRho() * getVSquared() + getP() / GM1;
 }
 
 
 // Conserved State Stuff
 // --------------------------
 
-inline void IdealGas::ConservedState::setRhou(const size_t index, const float_t val) {
-  rhou[index] = val;
+inline void idealGas::ConservedState::setRhov(const size_t index, const float_t val) {
+  rhov[index] = val;
 }
 
 
-inline float_t IdealGas::ConservedState::getRhou(const size_t index) const {
-  return rhou[index];
+inline float_t idealGas::ConservedState::getRhov(const size_t index) const {
+  return rhov[index];
 }
 
 
-inline float_t IdealGas::ConservedState::getRhoUSquared() const {
-  return rhou[0] * rhou[0] + rhou[1] * rhou[1];
+inline float_t idealGas::ConservedState::getRhoVSquared() const {
+  return rhov[0] * rhov[0] + rhov[1] * rhov[1];
 }
 
 
-inline void IdealGas::ConservedState::setE(const float_t val) {
+inline void idealGas::ConservedState::setE(const float_t val) {
   E = val;
 }
 
 
-inline float_t IdealGas::ConservedState::getE() const {
+inline float_t idealGas::ConservedState::getE() const {
   return E;
 }
 
 
-inline float_t IdealGas::ConservedState::getRho() const {
+inline float_t idealGas::ConservedState::getRho() const {
   return rho;
 }
 
 
-inline void IdealGas::ConservedState::setRho(const float_t val) {
+inline void idealGas::ConservedState::setRho(const float_t val) {
   rho = val;
 }

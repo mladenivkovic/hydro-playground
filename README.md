@@ -127,6 +127,8 @@ Parameter File
 TODO. For now, we do the same as in the [mesh-hydro](https://github.com/mladenivkovic/mesh-hydro)
 code. Look at the top level README.md file there for specifics.
 
+- Added boxsize parameter, which mesh-hydro didn't have.
+- Replicate parameter will be added
 
 
 

@@ -3,11 +3,13 @@
 #include <cassert>
 #include <cctype>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <utility>
 
 #include "BoundaryConditions.h"
+#include "Gas.h"
 #include "Logging.h"
 #include "Utils.h"
 
@@ -116,7 +118,7 @@ void IO::InputParse::readConfigFile(parameters::Parameters& params) {
 
   size_t nstepsLog = _convertParameterString(
     "nstep_log",
-    parameters::ArgType::Size_t,
+    ArgType::Size_t,
     /*optional=*/true,
     /*defaultVal=*/params.getNstepsLog()
   );
@@ -124,7 +126,7 @@ void IO::InputParse::readConfigFile(parameters::Parameters& params) {
 
   size_t nsteps = _convertParameterString(
     "nsteps",
-    parameters::ArgType::Size_t,
+    ArgType::Size_t,
     /*optional=*/true,
     /*defaultVal=*/params.getNsteps()
   );
@@ -132,15 +134,23 @@ void IO::InputParse::readConfigFile(parameters::Parameters& params) {
 
   size_t nx = _convertParameterString(
     "nx",
-    parameters::ArgType::Size_t,
+    ArgType::Size_t,
     /*optional=*/true,
     /*defaultVal=*/params.getNsteps()
   );
   params.setNx(nx);
 
+  size_t rep = _convertParameterString(
+    "replicate",
+    ArgType::Size_t,
+    /*optional=*/true,
+    /*defaultVal=*/params.getReplicate()
+  );
+  params.setReplicate(rep);
+
   int boundary = _convertParameterString(
     "boundary",
-    parameters::ArgType::Integer,
+    ArgType::Integer,
     /*optional=*/true,
     /*defaultVal=*/static_cast<int>(params.getBoundaryType())
   );
@@ -148,15 +158,23 @@ void IO::InputParse::readConfigFile(parameters::Parameters& params) {
 
   float_t tmax = _convertParameterString(
     "tmax",
-    parameters::ArgType::Float,
+    ArgType::Float,
     /*optional=*/true,
     /*defaultVal=*/params.getTmax()
   );
   params.setTmax(tmax);
 
+  float_t boxsize = _convertParameterString(
+    "boxsize",
+    ArgType::Float,
+    /*optional=*/true,
+    /*defaultVal=*/params.getBoxsize()
+  );
+  params.setBoxsize(boxsize);
+
   float_t ccfl = _convertParameterString(
     "ccfl",
-    parameters::ArgType::Float,
+    ArgType::Float,
     /*optional=*/true,
     /*defaultVal=*/params.getCcfl()
   );
@@ -174,14 +192,14 @@ void IO::InputParse::readConfigFile(parameters::Parameters& params) {
 /**
  * Read initial conditions.
  */
-void IO::InputParse::readICFile(grid::Grid& grid, const parameters::Parameters& params) {
-
-  std::string filename = _icfile;
+void IO::InputParse::readICFile(grid::Grid& grid) {
 
   if (_icIsTwoState()){
-    _readTwoStateIC(grid, params);
+    message("Found two-state IC file.", logging::LogLevel::Verbose);
+    _readTwoStateIC(grid);
   } else {
-    _readArbitraryIC(grid, params);
+    message("Found arbitrary IC file.", logging::LogLevel::Verbose);
+    _readArbitraryIC(grid);
   }
 
   message("Finished reading ICs.", logging::LogLevel::Verbose);
@@ -398,11 +416,138 @@ bool IO::InputParse::_icIsTwoState(){
 }
 
 
+/**
+ * Extract the value from a single line of the two-state IC file.
+ */
+float_t IO::InputParse::_extractTwoStateVal(std::string& line, std::string expectedName){
+
+  std::string nocomment = utils::removeTrailingComment(line);
+  auto pair             = utils::splitEquals(nocomment);
+  std::string name      = pair.first;
+  std::string value     = pair.second;
+
+  if (name != expectedName){
+    std::stringstream msg;
+    msg << "Something wrong when parsing two-state IC file.\n";
+    msg << "Expecting: `" << expectedName << "`\n";
+    msg << "Line:`" << line << "`";
+    error(msg);
+  }
+
+  float_t out = utils::string2float(value);
+  return out;
+}
+
+
+
 //! Read an IC file with the Two-State format
-void IO::InputParse::_readTwoStateIC(grid::Grid& grid, const parameters::Parameters& params){}
+void IO::InputParse::_readTwoStateIC(grid::Grid& grid){
+
+  // first, read the file.
+  std::string line;
+  std::ifstream conf_ifs(_icfile);
+
+  // skip comments first.
+  while (std::getline(conf_ifs, line)) {
+    if (utils::isComment(line))
+      continue;
+    break;
+  }
+
+  // once we're out of comments, read in one-by-one.
+  std::string nocomment = utils::removeTrailingComment(line);
+  auto pair             = utils::splitEquals(nocomment);
+  std::string name      = pair.first;
+  std::string value     = pair.second;
+
+  if (name != "filetype" or value != "two-state"){
+    std::stringstream msg;
+    msg << "Something wrong when parsing two-state IC file. Line:`" << line << "`";
+    error(msg);
+  }
+
+  std::getline(conf_ifs, line);
+  float_t rho_L = _extractTwoStateVal(line, "rho_L");
+
+  std::getline(conf_ifs, line);
+  float_t u_L = _extractTwoStateVal(line, "u_L");
+
+  std::getline(conf_ifs, line);
+  float_t p_L = _extractTwoStateVal(line, "p_L");
+
+  std::getline(conf_ifs, line);
+  float_t rho_R = _extractTwoStateVal(line, "rho_R");
+
+  std::getline(conf_ifs, line);
+  float_t u_R = _extractTwoStateVal(line, "u_R");
+
+  std::getline(conf_ifs, line);
+  float_t p_R = _extractTwoStateVal(line, "p_R");
+
+  std::cout << "IC_READ: GOT " << rho_L << " " << u_L << " " << p_L << " " << rho_R << " " << u_R << " " << p_R << std::endl;
+
+
+  std::array<float_t,2> v_L = {u_L, 0.};
+  idealGas::PrimitiveState left(rho_L, v_L, p_L);
+  std::array<float_t,2> v_R = {u_R, 0.};
+  idealGas::PrimitiveState right(rho_R, v_R, p_R);
+
+
+  // Now allocate and fill up the grid.
+  grid.initCells();
+  size_t nxtot = grid.getNxTot();
+  size_t nxhalf = nxtot / 2;
+
+  if (Dimensions == 1){
+
+    for (size_t i = 0; i < nxhalf; i++){
+      cell::Cell& c = grid.getCell(i);
+      c.setPrim(left);
+    }
+    for (size_t i = nxhalf; i < nxtot; i++){
+      cell::Cell& c = grid.getCell(i);
+      c.setPrim(right);
+    }
+
+  }
+  else if (Dimensions == 2) {
+
+    for (size_t j = 0; j < nxtot; j++){
+      for (size_t i = 0; i < nxhalf; i++){
+        cell::Cell& c = grid.getCell(i,j);
+        c.setPrim(left);
+      }
+      for (size_t i = nxhalf; i < nxtot; i++){
+        cell::Cell& c = grid.getCell(i,j);
+        c.setPrim(right);
+      }
+    }
+
+  } else {
+    error("Not implemented");
+  }
+
+}
+
+
 
 
 //! Read an IC file with the arbitrary format
-void IO::InputParse::_readArbitraryIC(grid::Grid& grid, const parameters::Parameters& params){}
+void IO::InputParse::_readArbitraryIC(grid::Grid& grid){
+
+  // Read in ICs...
+  // Read in nx from ICs, and set grid.setNx(nx);
+
+
+
+  // Now allocate and fill up the grid.
+  if (grid.getReplicate() > 1){
+    message("Resizing grid for replications", logging::LogLevel::Verbose);
+    grid.setNx(grid.getReplicate() * grid.getNx());
+  }
+
+  grid.initCells();
+
+}
 
 

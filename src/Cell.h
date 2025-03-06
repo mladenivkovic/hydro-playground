@@ -2,7 +2,6 @@
 
 #include "Config.h"
 #include "Gas.h"
-#include "Parameters.h"
 
 
 namespace cell {
@@ -22,18 +21,15 @@ namespace cell {
 
     void CopyBoundaryDataReflective(const Cell* real, const std::size_t dimension);
 
-    //! Calls conserved to primitive on the members
-    void ConservedToPrimitive() {
-      _prim.ConservedToPrimitive(_cons);
-    };
-    //! Calls primitive to conserved on the members
-    void PrimitiveToConserved() {
-      _cons.PrimitiveToConserved(_prim);
-    };
+    //! Update cell's primitive state to current conserved state
+    void ConservedToPrimitive();
+
+    //! Update cell's conserved state to current primitive state
+    void PrimitiveToConserved();
 
   private:
     //! Cell ID
-    int _id;
+    size_t _id;
 
     //! x position of cell centre
     float_t _x;
@@ -42,16 +38,16 @@ namespace cell {
     float_t _y;
 
     //! Primitive gas state
-    IdealGas::PrimitiveState _prim;
+    idealGas::PrimitiveState _prim;
 
     //! Conserved gas state
-    IdealGas::ConservedState _cons;
+    idealGas::ConservedState _cons;
 
     //! Fluxes of primitive state
-    IdealGas::PrimitiveState _pflux;
+    idealGas::PrimitiveState _pflux;
 
     //! Fluxes of conserved state
-    IdealGas::ConservedState _cflux;
+    idealGas::ConservedState _cflux;
 
     //! Acceleration
     // std::array<float_t, Dimensions> _acc;
@@ -64,21 +60,24 @@ namespace cell {
     void setX(float_t x);
     void setY(float_t y);
 
-    void              setId(const int id);
-    [[nodiscard]] int getID() const;
+    void              setId(const size_t id);
+    [[nodiscard]] size_t getID() const;
 
     //! Get cell index(es) in grid
     std::pair<std::size_t, std::size_t> getIJ(const std::size_t nxtot);
 
-    //! return refs to the above
-    IdealGas::PrimitiveState& getPrim();
-    IdealGas::ConservedState& getCons();
-    IdealGas::PrimitiveState& getPFlux();
-    IdealGas::ConservedState& getCFlux();
+    //! Getters and setters
+    idealGas::PrimitiveState& getPrim();
+    idealGas::ConservedState& getCons();
+    idealGas::PrimitiveState& getPFlux();
+    idealGas::ConservedState& getCFlux();
 
     // const versions to shush the compiler
-    [[nodiscard]] const IdealGas::PrimitiveState& getPrim() const;
-    [[nodiscard]] const IdealGas::ConservedState& getCons() const;
+    [[nodiscard]] const idealGas::PrimitiveState& getPrim() const;
+    [[nodiscard]] const idealGas::ConservedState& getCons() const;
+
+    void setPrim(idealGas::PrimitiveState& prim);
+    void setCons(idealGas::ConservedState& cons);
   };
 
 } // namespace cell
@@ -88,11 +87,21 @@ namespace cell {
 // Definitions
 // --------------------------------------------------------
 
+inline void cell::Cell::ConservedToPrimitive() {
+  _prim.ConservedToPrimitive(_cons);
+};
+
+
+inline void cell::Cell::PrimitiveToConserved() {
+  _cons.PrimitiveToConserved(_prim);
+};
+
 
 //! Set cell centre position X
 inline void cell::Cell::setX(float_t x) {
   _x = x;
 }
+
 
 //! Set cell centre position Y
 inline void cell::Cell::setY(float_t y) {
@@ -100,36 +109,51 @@ inline void cell::Cell::setY(float_t y) {
 }
 
 
-inline void cell::Cell::setId(const int id) {
+inline void cell::Cell::setId(const size_t id) {
   _id = id;
 }
 
 
-inline int cell::Cell::getID() const {
+inline size_t cell::Cell::getID() const {
   return _id;
 }
 
-//! return refs to the above
-inline IdealGas::PrimitiveState& cell::Cell::getPrim() {
+
+inline idealGas::PrimitiveState& cell::Cell::getPrim() {
   return _prim;
 }
 
-inline IdealGas::ConservedState& cell::Cell::getCons() {
+
+inline idealGas::ConservedState& cell::Cell::getCons() {
   return _cons;
 }
 
-inline IdealGas::PrimitiveState& cell::Cell::getPFlux() {
+
+inline idealGas::PrimitiveState& cell::Cell::getPFlux() {
   return _pflux;
 }
 
-inline IdealGas::ConservedState& cell::Cell::getCFlux() {
+
+inline idealGas::ConservedState& cell::Cell::getCFlux() {
   return _cflux;
 }
 
-inline const IdealGas::PrimitiveState& cell::Cell::getPrim() const {
+
+inline const idealGas::PrimitiveState& cell::Cell::getPrim() const {
   return _prim;
 }
 
-inline const IdealGas::ConservedState& cell::Cell::getCons() const {
+
+inline const idealGas::ConservedState& cell::Cell::getCons() const {
   return _cons;
+}
+
+
+inline void cell::Cell::setPrim(idealGas::PrimitiveState& prim){
+  _prim = prim;
+}
+
+
+inline void cell::Cell::setCons(idealGas::ConservedState& cons){
+  _cons = cons;
 }

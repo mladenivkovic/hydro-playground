@@ -36,6 +36,16 @@ namespace IO {
   };
 
 
+  //! parameter file argument types
+  enum class ArgType {
+    Integer = 0,
+    Size_t  = 1,
+    Float   = 2,
+    Bool    = 3,
+    String  = 4
+  };
+
+
   /**
    * @brief Class parsing input arguments and files.
    */
@@ -63,7 +73,7 @@ namespace IO {
     void readConfigFile(parameters::Parameters& params);
 
     //! Read the initial conditions file.
-    void readICFile(grid::Grid& grid, const parameters::Parameters& params);
+    void readICFile(grid::Grid& grid);
 
     //! Get a pair of name, value from a parameter line
     static std::pair<std::string, std::string> _extractParameter(std::string& line);
@@ -87,16 +97,19 @@ namespace IO {
     //! Do we have a two-state format for initial conditions?
     bool _icIsTwoState();
 
+    //! Get a pair of name, value from a parameter line
+    float_t _extractTwoStateVal(std::string& line, std::string expectedName);
+
     //! Read an IC file with the Two-State format
-    void _readTwoStateIC(grid::Grid& grid, const parameters::Parameters& params);
+    void _readTwoStateIC(grid::Grid& grid);
 
     //! Read an IC file with the arbitrary format
-    void _readArbitraryIC(grid::Grid& grid, const parameters::Parameters& params);
+    void _readArbitraryIC(grid::Grid& grid);
 
     //! convert a parameter from read-in strings to a native type
     template <typename T>
     T _convertParameterString(
-      std::string param, parameters::ArgType type, bool optional = false, T defaultVal = 0
+      std::string param, ArgType type, bool optional = false, T defaultVal = 0
     );
 
   }; // class InputParse
@@ -121,11 +134,11 @@ namespace IO {
  */
 template <typename T>
 T IO::InputParse::_convertParameterString(
-  std::string param, parameters::ArgType argtype, bool optional, T defaultVal
+  std::string param, ArgType argtype, bool optional, T defaultVal
 ) {
 
 #if DEBUG_LEVEL > 0
-  if (argtype == parameters::ArgType::String)
+  if (argtype == ArgType::String)
     error("Got type string, should be using its own specialisation");
 #endif
 
@@ -148,19 +161,19 @@ T IO::InputParse::_convertParameterString(
   entry.used         = true;
 
   switch (argtype) {
-  case parameters::ArgType::Integer:
+  case ArgType::Integer:
     return static_cast<T>(utils::string2int(val));
     break;
-  case parameters::ArgType::Size_t:
+  case ArgType::Size_t:
     return static_cast<T>(utils::string2size_t(val));
     break;
-  case parameters::ArgType::Float:
+  case ArgType::Float:
     return static_cast<T>(utils::string2float(val));
     break;
-  case parameters::ArgType::Bool:
+  case ArgType::Bool:
     return static_cast<T>(utils::string2bool(val));
     break;
-    // case parameters::ArgType::String:
+    // case ArgType::String:
     //   return static_cast<T>(val);
     //   break;
   default:
@@ -178,11 +191,11 @@ T IO::InputParse::_convertParameterString(
  */
 template <>
 inline std::string IO::InputParse::_convertParameterString<std::string>(
-  std::string param, parameters::ArgType argtype, bool optional, std::string defaultVal
+  std::string param, ArgType argtype, bool optional, std::string defaultVal
 ) {
 
 #if DEBUG_LEVEL > 0
-  if (argtype != parameters::ArgType::String) {
+  if (argtype != ArgType::String) {
     std::stringstream msg;
     msg << "Wrong type passed? type=";
     msg << static_cast<int>(argtype);

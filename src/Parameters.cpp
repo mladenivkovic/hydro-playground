@@ -30,8 +30,9 @@ namespace parameters {
     _nx           = 1;
     _ccfl         = 0.9;
     _boundaryType = BC::BoundaryCondition::Periodic;
-    _nxTot        = 0;
+    _boxsize      = 1.;
     _nbc          = 2;
+    _replicate    = 1;
 
     _outputfilebase = "";
 
@@ -97,7 +98,8 @@ namespace parameters {
 
     std::stringstream out;
     out << "\nParameter List\n";
-    out << std::setw(20) << "nstepsLog:" << std::setw(20) << getNstepsLog() << "\n";
+    out << std::setw(20) << "nstepsLog:";
+    out << std::setw(20) << getNstepsLog() << "\n";
     out << std::setw(20) << "nsteps:";
     out << std::setw(20) << getNsteps() << "\n";
     out << std::setw(20) << "tmax:";
@@ -108,12 +110,12 @@ namespace parameters {
     out << std::setw(20) << getCcfl() << "\n";
     out << std::setw(20) << "boundaryType:";
     out << std::setw(20) << static_cast<int>(getBoundaryType()) << "\n";
-    // out << std::setw(20) << "nxTot:";
-    // out << std::setw(20) << getNxTot() << "\n";
-    // out << std::setw(20) << "dx:";
-    // out << std::setw(20) << getDx() << "\n";
+    out << std::setw(20) << "boxsize:";
+    out << std::setw(20) << getBoxsize() << "\n";
     out << std::setw(20) << "nbc:";
     out << std::setw(20) << getNBC() << "\n";
+    out << std::setw(20) << "replicate:";
+    out << std::setw(20) << getReplicate() << "\n";
 
     return out.str();
   }

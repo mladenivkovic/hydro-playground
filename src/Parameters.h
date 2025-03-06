@@ -7,15 +7,6 @@
 
 namespace parameters {
 
-  //! parameter file argument types
-  enum class ArgType {
-    Integer = 0,
-    Size_t  = 1,
-    Float   = 2,
-    Bool    = 3,
-    String  = 4
-  };
-
   /**
    * @brief Holds global simulation parameters.
    *
@@ -55,14 +46,14 @@ namespace parameters {
     //! boundary condition
     BC::BoundaryCondition _boundaryType;
 
-    //! number of mesh points, including boundary cells
-    size_t _nxTot;
-
-    //! cell size
-    // float_t _dx;
+    //! box size
+    float_t _boxsize;
 
     //! Number of Ghost cells at each edge
     size_t _nbc;
+
+    //! Do we replicate the box?
+    size_t _replicate;
 
 
     // Output related parameters
@@ -182,6 +173,13 @@ namespace parameters {
 
 
     /**
+     * @brief Get the number of cells with actual content per dimension
+     */
+    [[nodiscard]] float_t getBoxsize() const;
+    void                  setBoxsize(const float_t boxsize);
+
+
+    /**
      * @brief Get the CFL constant
      */
     [[nodiscard]] float_t getCcfl() const;
@@ -192,7 +190,7 @@ namespace parameters {
      * @brief Get the type of boundary condition used
      */
     [[nodiscard]] BC::BoundaryCondition getBoundaryType() const;
-    void                            setBoundaryType(BC::BoundaryCondition boundary);
+    void          setBoundaryType(BC::BoundaryCondition boundary);
 
 
     /**
@@ -200,6 +198,14 @@ namespace parameters {
      */
     [[nodiscard]] size_t getNBC() const;
     void                 setNBC(size_t nbc);
+
+
+    /**
+     * @brief Get the number of boundary cells on each side of the box
+     */
+    [[nodiscard]] size_t getReplicate() const;
+    void                 setReplicate(size_t rep);
+
 
     /**
      * @brief Get the output file name base
@@ -214,17 +220,6 @@ namespace parameters {
     [[nodiscard]] bool getParamFileHasBeenRead() const;
     void               setParamFileHasBeenRead();
 
-
-    /**
-     * @brief getter for the single global copy
-     */
-    /* static Parameters& getInstance() { */
-    /*   // keep static instance in here. */
-    /*   // a) Memory cleanup should work better at the end of program, and */
-    /*   // b) nobody gets any bright ideas about accessing the Instance directly. */
-    /*   static Parameters Instance; */
-    /*   return Instance; */
-    /* } */
   };
 } // namespace parameters
 
@@ -244,15 +239,11 @@ namespace parameters {
 
 
 inline size_t parameters::Parameters::getNstepsLog() const {
-  // auto& inst = getInstance();
-  // return inst._nstepsLog;
   return _nstepsLog;
 }
 
 
 inline void parameters::Parameters::setNstepsLog(const size_t nstepsLog) {
-  // auto& inst      = getInstance();
-  // inst._nstepsLog = nstepsLog;
 
   _nstepsLog = nstepsLog;
   paramSetLog(nstepsLog);
@@ -265,19 +256,15 @@ inline void parameters::Parameters::setNstepsLog(const size_t nstepsLog) {
 
 
 inline size_t parameters::Parameters::getNsteps() const {
-  // auto& inst = getInstance();
-  // return inst._nsteps;
   return _nsteps;
 }
 
 
 inline void parameters::Parameters::setNsteps(const size_t nsteps) {
 
-  // auto& inst   = getInstance();
-  // inst._nsteps = nsteps;
   _nsteps = nsteps;
-
   paramSetLog(nsteps);
+
 #if DEBUG_LEVEL > 0
   if (_locked)
     error("Trying to overwrite locked parameters!");
@@ -286,16 +273,11 @@ inline void parameters::Parameters::setNsteps(const size_t nsteps) {
 
 
 inline float_t parameters::Parameters::getTmax() const {
-  // auto& inst = getInstance();
-  // return inst._tmax;
   return _tmax;
 }
 
 
-inline void parameters::Parameters::setTmax(const float tmax) {
-
-  // auto& inst = getInstance();
-  // inst._tmax = tmax;
+inline void parameters::Parameters::setTmax(const float_t tmax) {
 
   _tmax = tmax;
   paramSetLog(tmax);
@@ -308,16 +290,11 @@ inline void parameters::Parameters::setTmax(const float tmax) {
 
 
 inline size_t parameters::Parameters::getNx() const {
-  // auto& inst = getInstance();
-  // return inst._nx;
   return _nx;
 }
 
 
 inline void parameters::Parameters::setNx(const size_t nx) {
-
-  // auto& inst = getInstance();
-  // inst._nx   = nx;
 
   _nx = nx;
   paramSetLog(nx);
@@ -330,16 +307,11 @@ inline void parameters::Parameters::setNx(const size_t nx) {
 
 
 inline float_t parameters::Parameters::getCcfl() const {
-  // auto& inst = getInstance();
-  // return inst._ccfl;
   return _ccfl;
 }
 
 
-inline void parameters::Parameters::setCcfl(const float ccfl) {
-
-  // auto& inst = getInstance();
-  // inst._ccfl = ccfl;
+inline void parameters::Parameters::setCcfl(const float_t ccfl) {
 
   _ccfl = ccfl;
   paramSetLog(ccfl);
@@ -352,16 +324,11 @@ inline void parameters::Parameters::setCcfl(const float ccfl) {
 
 
 inline BC::BoundaryCondition parameters::Parameters::getBoundaryType() const {
-  // auto& inst = getInstance();
-  // return inst._boundaryType;
   return _boundaryType;
 }
 
 
 inline void parameters::Parameters::setBoundaryType(BC::BoundaryCondition boundaryType) {
-
-  // auto& inst         = getInstance();
-  // inst._boundaryType = boundaryType;
 
   _boundaryType = boundaryType;
   paramSetLog((int)boundaryType);
@@ -374,19 +341,14 @@ inline void parameters::Parameters::setBoundaryType(BC::BoundaryCondition bounda
 
 
 inline size_t parameters::Parameters::getNBC() const {
-  // auto& inst = getInstance();
-  // return inst._nbc;
   return _nbc;
 }
 
 
-inline void parameters::Parameters::setNBC(const size_t bc) {
+inline void parameters::Parameters::setNBC(const size_t nbc) {
 
-  // auto& inst = getInstance();
-  // inst._nbc  = bc;
-
-  _nbc = bc;
-  paramSetLog(bc);
+  _nbc = nbc;
+  paramSetLog(nbc);
 
 #if DEBUG_LEVEL > 0
   if (_locked)
@@ -395,17 +357,28 @@ inline void parameters::Parameters::setNBC(const size_t bc) {
 }
 
 
+inline size_t parameters::Parameters::getReplicate() const {
+  return _replicate;
+}
+
+
+inline void parameters::Parameters::setReplicate(const size_t replicate) {
+
+  _replicate = replicate;
+  paramSetLog(replicate);
+
+#if DEBUG_LEVEL > 0
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
+#endif
+}
+
 inline std::string parameters::Parameters::getOutputFileBase() const {
-  // auto& inst = getInstance();
-  // return inst._outputfilebase;
   return _outputfilebase;
 }
 
 
 inline void parameters::Parameters::setOutputFileBase(std::string& ofname) {
-
-  // auto& inst           = getInstance();
-  // inst._outputfilebase = ofname;
 
   _outputfilebase = ofname;
   paramSetLog(ofname);
@@ -425,4 +398,14 @@ inline bool parameters::Parameters::getParamFileHasBeenRead() const{
 
 inline void parameters::Parameters::setParamFileHasBeenRead(){
   _read = true;
+}
+
+
+inline float_t parameters::Parameters::getBoxsize() const {
+  return _boxsize;
+}
+
+
+inline void parameters::Parameters::setBoxsize(const float_t boxsize) {
+  _boxsize = boxsize;
 }

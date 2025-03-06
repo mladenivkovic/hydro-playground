@@ -15,17 +15,25 @@ namespace grid {
     //! Cell array.
     cell::Cell* _cells;
 
-    //! number of cells to use (in each dimension)
+    //! number of cells to use (i.e. excluding boundaries, including replications)
+    //! (in each dimension)
     size_t _nx;
 
-    //! number of mesh points, including boundary cells
-    size_t _nxTot;
+    //! number of cells to use (i.e. excluding boundaries) in single replicated
+    //! region (in each dimension)
+    size_t _nx_norep;
 
     //! cell size
     float_t _dx;
 
+    //! box size
+    float_t _boxsize;
+
     //! Number of Ghost cells at each edge
     size_t _nbc;
+
+    //! Are we replicating the box?
+    size_t _replicate;
 
     //! boundary condition
     BC::BoundaryCondition _boundaryType;
@@ -51,6 +59,12 @@ namespace grid {
      * @brief Initialise the grid.
      */
     void initGrid(const parameters::Parameters& pars);
+
+
+    /**
+     * @brief Initialise (and allocate) the cells.
+     */
+    void initCells();
 
 
     /**
@@ -98,11 +112,21 @@ namespace grid {
 
     // Getters and setters
 
+
     /**
      * @brief Get the number of cells with actual content per dimension
+     * i.e. excluding boundary cells, including replications
      */
     [[nodiscard]] size_t getNx() const;
     void                 setNx(const size_t nx);
+
+
+    /**
+     * @brief Get the number of cells per dimension
+     * excluding boundaries and excluding replications
+     */
+    [[nodiscard]] size_t getNxNorep() const;
+    void                 setNxNorep(const size_t nx);
 
 
     /**
@@ -120,6 +144,13 @@ namespace grid {
 
 
     /**
+     * @brief Are we replicating the box?
+     */
+    [[nodiscard]] size_t getReplicate() const;
+    void                 setReplicate(size_t replicate);
+
+
+    /**
      * @brief get the total number of boundary cells per dimension.
      */
     [[nodiscard]] size_t getNBCTot() const;
@@ -127,8 +158,7 @@ namespace grid {
 
     /**
      * @brief get the total number of cells per dimension. This includes
-     * boundary cells.
-     * @TODO: what to do with replication
+     * boundary cells and replicated cells.
      */
     [[nodiscard]] size_t getNxTot() const;
 
@@ -139,6 +169,12 @@ namespace grid {
     [[nodiscard]] float_t getDx() const;
     void                  setDx(const float_t dx);
 
+
+    /**
+     * @brief Get the simulation box size
+     */
+    [[nodiscard]] float_t getBoxsize() const;
+    void                  setBoxsize(const float_t boxsize);
   }; // class Grid
 
 } // namespace grid
@@ -176,14 +212,13 @@ inline cell::Cell& grid::Grid::getCell(const size_t i, const size_t j) {
 
 #endif
 
-
-  size_t nxTot = getNxTot();
-
 #if DEBUG_LEVEL > 0
   if (Dimensions != 2) {
     error("This function is for 2D only!")
   }
 #endif
+
+  size_t nxTot = getNxTot();
   return _cells[i + j * nxTot];
 }
 
@@ -195,6 +230,16 @@ inline size_t grid::Grid::getNx() const {
 
 inline void grid::Grid::setNx(const size_t nx) {
   _nx = nx;
+}
+
+
+inline size_t grid::Grid::getNxNorep() const {
+  return _nx_norep;
+}
+
+
+inline void grid::Grid::setNxNorep(const size_t nx) {
+  _nx_norep = nx;
 }
 
 
@@ -218,13 +263,24 @@ inline void grid::Grid::setNBC(const size_t bc) {
 }
 
 
+inline size_t grid::Grid::getReplicate() const {
+  return _replicate;
+}
+
+
+inline void grid::Grid::setReplicate(const size_t replicate) {
+  _replicate = replicate;
+}
+
+
+
 inline size_t grid::Grid::getNBCTot() const {
   return 2 * getNBC();
 }
 
 
 inline size_t grid::Grid::getNxTot() const {
-  return getNx() + 2 * getNBC();
+  return getNx() + getNBCTot();
 }
 
 
@@ -238,3 +294,11 @@ inline void grid::Grid::setDx(const float_t dx) {
 }
 
 
+inline float_t grid::Grid::getBoxsize() const {
+  return _boxsize;
+}
+
+
+inline void grid::Grid::setBoxsize(const float_t boxsize) {
+  _boxsize = boxsize;
+}
