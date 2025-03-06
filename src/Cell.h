@@ -68,7 +68,7 @@ namespace cell {
     [[nodiscard]] int getID() const;
 
     //! Get cell index(es) in grid
-    std::pair<std::size_t, std::size_t> getIJ(const parameters::Parameters& pars);
+    std::pair<std::size_t, std::size_t> getIJ(const std::size_t nxtot);
 
     //! return refs to the above
     IdealGas::PrimitiveState& getPrim();

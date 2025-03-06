@@ -29,14 +29,14 @@ namespace parameters {
     _tmax         = 0.;
     _nx           = 1;
     _ccfl         = 0.9;
-    _boundaryType = BoundaryCondition::Periodic;
+    _boundaryType = BC::BoundaryCondition::Periodic;
     _nxTot        = 0;
-    _dx           = 1.0;
     _nbc          = 2;
 
     _outputfilebase = "";
 
     _locked = false;
+    _read = false;
 
     // NOLINTEND
 
@@ -80,9 +80,9 @@ namespace parameters {
    */
   void Parameters::initDerived() {
 
-    size_t  nx = getNx();
-    float_t dx = static_cast<float_t>(BOXLEN) / static_cast<float_t>(nx);
-    setDx(dx);
+    // size_t  nx = getNx();
+    // float_t dx = static_cast<float_t>(BOXLEN) / static_cast<float_t>(nx);
+    // setDx(dx);
 
 #if DEBUG_LEVEL > 0
     _locked = true;
@@ -108,10 +108,10 @@ namespace parameters {
     out << std::setw(20) << getCcfl() << "\n";
     out << std::setw(20) << "boundaryType:";
     out << std::setw(20) << static_cast<int>(getBoundaryType()) << "\n";
-    out << std::setw(20) << "nxTot:";
-    out << std::setw(20) << getNxTot() << "\n";
-    out << std::setw(20) << "dx:";
-    out << std::setw(20) << getDx() << "\n";
+    // out << std::setw(20) << "nxTot:";
+    // out << std::setw(20) << getNxTot() << "\n";
+    // out << std::setw(20) << "dx:";
+    // out << std::setw(20) << getDx() << "\n";
     out << std::setw(20) << "nbc:";
     out << std::setw(20) << getNBC() << "\n";
 

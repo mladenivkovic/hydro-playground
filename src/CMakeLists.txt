@@ -7,7 +7,7 @@ target_include_directories(Version PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 add_library(Logging OBJECT Logging.cpp Logging.h)
 target_include_directories(Logging PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 
-add_library(Parameters OBJECT Parameters.cpp Parameters.h)
+add_library(Parameters OBJECT Parameters.cpp Parameters.h BoundaryConditions.h)
 target_include_directories(Parameters PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 
 add_library(Utils OBJECT Utils.cpp Utils.h)
@@ -23,12 +23,12 @@ add_library(Cell OBJECT Cell.cpp Cell.h)
 target_include_directories(Cell PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 target_link_libraries(Cell Logging)
 
-add_library(Grid OBJECT Grid.cpp Grid.h)
+add_library(Grid OBJECT Grid.cpp Grid.h BoundaryConditions.h)
 target_include_directories(Grid PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 target_link_libraries(Grid Cell)
 target_link_libraries(Grid Logging)
 
-add_library(IO OBJECT IO.cpp IO.h)
+add_library(IO OBJECT IO.cpp IO.h BoundaryConditions.h)
 target_include_directories(IO PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 target_link_libraries(IO Logging)
 target_link_libraries(IO Utils)

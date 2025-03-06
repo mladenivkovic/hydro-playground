@@ -2,17 +2,39 @@
 
 #include <cassert>
 
+#include "BoundaryConditions.h"
 #include "Cell.h"
+#include "Logging.h"
 #include "Parameters.h"
 
-// define the static copy. Calls the default constructor but
-// the user has to call InitCells()
-// TODO: do the same as for parameters
-grid::Grid grid::Grid::Instance;
+/**
+ * Constructor
+ */
+grid::Grid::Grid() : _cells(nullptr), _dx(1.), _initialised(false) {
+  // Grab default values from default Parameters object.
+  auto pars = parameters::Parameters();
+  _nx = pars.getNx();
+  _nxTot = pars.getNx();
+  _boundaryType = pars.getBoundaryType();
+  _nbc = pars.getNBC();
+}
+
+
+/**
+ * Destructor
+ */
+grid::Grid::~ Grid() {
+  if (_cells == nullptr) error("Where did the cells array go??");
+  delete [] _cells;
+}
 
 
 /**
  * @brief Initialize the grid.
+ * This is mainly copying parameters from the parameters object
+ * into the grid object. The actual grid is allocated later.
+ *
+ * @param pars A Parameters object holding global simulation parameters
  *
  * _cell(0,0)             is the bottom left cell.
  * _cell(nxtot-1,0)       is the bottom right cell
@@ -21,44 +43,53 @@ grid::Grid grid::Grid::Instance;
  */
 void grid::Grid::initGrid(const parameters::Parameters& pars) {
 
+  message("Initialising grid parameters.", logging::LogLevel::Verbose);
+
 #if DEBUG_LEVEL > 0
-  // TODO(mivkov): assert sure parameters and IC file has been read.
+  if (not pars.getParamFileHasBeenRead())
+    error("Parameter file is unread; Need that at this stage!");
 #endif
 
-  // TODO: write out what you're doing
-  // log_extra("Initializing grid; ndim=%d, nx=%d", NDIM, pars.nx);
+  // Copy over relevant data.
+  setNx(pars.getNx());
+  setBoundaryType(pars.getBoundaryType());
+  setNBC(pars.getNBC());
 
-  size_t  nxTot = pars.getNxTot();
-  size_t  nbc   = pars.getNBC();
-  float_t dx    = pars.getDx();
 
-  if (Dimensions == 1) {
-    // make some room in the vector...
-    _cells.resize(nxTot);
+  _initialised = true;
 
-    for (size_t i = 0; i < nxTot; i++) {
-      getCell(i).setX((i - nbc + 0.5) * dx);
-      getCell(i).setId(i);
-    }
 
-  } else if (Dimensions == 2) {
-    // make some room in the vector...
-    _cells.resize(nxTot * nxTot);
-
-    for (size_t i = 0; i < nxTot; i++) {
-      for (size_t j = 0; j < nxTot; j++) {
-        getCell(i, j, pars).setX((i - nbc + 0.5) * dx);
-        getCell(i, j, pars).setY((j - nbc + 0.5) * dx);
-
-        // this used to be i + j * pars.nxtot, but i have altered the
-        // convention this time around
-        getCell(i, j, pars).setId(i + j * nxTot);
-      }
-    }
-
-  } else {
-    error("Not implemented yet");
-  }
+  /* size_t  nxTot = pars.getNxTot(); */
+  /* size_t  nbc   = pars.getNBC(); */
+  /* float_t dx    = pars.getDx(); */
+  /*  */
+  /* if (Dimensions == 1) { */
+  /*   // make some room in the vector... */
+  /*   _cells.resize(nxTot); */
+  /*  */
+  /*   for (size_t i = 0; i < nxTot; i++) { */
+  /*     getCell(i).setX((i - nbc + 0.5) * dx); */
+  /*     getCell(i).setId(i); */
+  /*   } */
+  /*  */
+  /* } else if (Dimensions == 2) { */
+  /*   // make some room in the vector... */
+  /*   _cells.resize(nxTot * nxTot); */
+  /*  */
+  /*   for (size_t i = 0; i < nxTot; i++) { */
+  /*     for (size_t j = 0; j < nxTot; j++) { */
+  /*       getCell(i, j, pars).setX((i - nbc + 0.5) * dx); */
+  /*       getCell(i, j, pars).setY((j - nbc + 0.5) * dx); */
+  /*  */
+  /*       // this used to be i + j * pars.nxtot, but i have altered the */
+  /*       // convention this time around */
+  /*       getCell(i, j, pars).setId(i + j * nxTot); */
+  /*     } */
+  /*   } */
+  /*  */
+  /* } else { */
+  /*   error("Not implemented yet"); */
+  /* } */
 }
 
 
@@ -85,14 +116,14 @@ void grid::Grid::setInitialConditions(
   // alias the bc value
   size_t nbc = pars.getNBC();
 
-  getCell(i + nbc, j + nbc, pars).getPrim().setRho(vals[0]);
-  getCell(i + nbc, j + nbc, pars).getPrim().setU(0, vals[1]);
+  getCell(i + nbc, j + nbc).getPrim().setRho(vals[0]);
+  getCell(i + nbc, j + nbc).getPrim().setU(0, vals[1]);
   if (Dimensions == 1) {
-    getCell(i + nbc, j + nbc, pars).getPrim().setP(vals[2]);
+    getCell(i + nbc, j + nbc).getPrim().setP(vals[2]);
   }
   if (Dimensions == 2) {
-    getCell(i + nbc, j + nbc, pars).getPrim().setU(1, vals[2]);
-    getCell(i + nbc, j + nbc, pars).getPrim().setP(vals[3]);
+    getCell(i + nbc, j + nbc).getPrim().setU(1, vals[2]);
+    getCell(i + nbc, j + nbc).getPrim().setP(vals[3]);
   }
 }
 
@@ -100,28 +131,28 @@ void grid::Grid::setInitialConditions(
 /**
  * @brief get the total mass of the grid.
  */
-float_t grid::Grid::getTotalMass(const parameters::Parameters& pars) {
+float_t grid::Grid::getTotalMass() {
 
   float_t total = 0;
-  size_t  bc    = pars.getNBC();
-  size_t  nx    = pars.getNx();
+  size_t  bc    = getNBC();
+  size_t  nx    = getNx();
 
   if (Dimensions == 1) {
     for (size_t i = bc; i < bc + nx; i++) {
       total += getCell(i).getPrim().getRho();
     }
 
-    total *= pars.getDx();
+    total *= getDx();
   }
 
   else if (Dimensions == 2) {
     for (size_t i = bc; i < bc + nx; i++) {
       for (size_t j = bc; j < bc + nx; j++) {
-        total += getCell(i, j, pars).getPrim().getRho();
+        total += getCell(i, j).getPrim().getRho();
       }
     }
 
-    total *= pars.getDx() * pars.getDx();
+    total *= getDx() * getDx();
   }
   return total;
 }
@@ -130,17 +161,17 @@ float_t grid::Grid::getTotalMass(const parameters::Parameters& pars) {
 /**
  * Reset all fluxes of the grid (both primitive and conservative) to zero.
  */
-void grid::Grid::resetFluxes(const parameters::Parameters& pars) {
+void grid::Grid::resetFluxes() {
 
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
-  size_t         nbc  = pars.getNBC();
-  size_t         nx   = pars.getNx();
+  size_t         nbc  = getNBC();
+  size_t         nx   = getNx();
 
   for (size_t i = nbc; i < nbc + nx; i++) {
     for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
       // if we are in 1d, j will be fixed to zero
-      getCell(i, j, pars).getPrim().resetToInitialState();
-      getCell(i, j, pars).getCons().resetToInitialState();
+      getCell(i, j).getPrim().resetToInitialState();
+      getCell(i, j).getCons().resetToInitialState();
     }
   }
 }
@@ -150,17 +181,17 @@ void grid::Grid::resetFluxes(const parameters::Parameters& pars) {
  * runs through interior cells and calls PrimitveToConserved()
  * on each.
  */
-void grid::Grid::getCStatesFromPstates(const parameters::Parameters& pars) {
+void grid::Grid::getCStatesFromPstates() {
 
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
 
-  size_t nbc = pars.getNBC();
-  size_t nx  = pars.getNx();
+  size_t nbc = getNBC();
+  size_t nx  = getNx();
 
   for (size_t i = nbc; i < nbc + nx; i++) {
     for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
       // if we are in 1d, j will be fixed to zero
-      getCell(i, j, pars).PrimitiveToConserved();
+      getCell(i, j).PrimitiveToConserved();
     }
   }
 }
@@ -170,17 +201,17 @@ void grid::Grid::getCStatesFromPstates(const parameters::Parameters& pars) {
  * runs through interior cells and alls ConservedToPrimitve()
  * on each.
  */
-void grid::Grid::getPStatesFromCstates(const parameters::Parameters& pars) {
+void grid::Grid::getPStatesFromCstates() {
 
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
 
-  size_t nbc = pars.getNBC();
-  size_t nx  = pars.getNx();
+  size_t nbc = getNBC();
+  size_t nx  = getNx();
 
   for (size_t i = nbc; i < nbc + nx; i++) {
     for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
       // if we are in 1d, j will be fixed to zero
-      getCell(i, j, pars).ConservedToPrimitive();
+      getCell(i, j).ConservedToPrimitive();
     }
   }
 }
@@ -191,11 +222,11 @@ void grid::Grid::getPStatesFromCstates(const parameters::Parameters& pars) {
  * and ghost cells in a row or column and then
  * calls the function that actually copies the data.
  */
-void grid::Grid::setBoundary(const parameters::Parameters& pars) {
+void grid::Grid::setBoundary() {
 
-  const size_t nbc   = pars.getNBC();
-  const size_t nx    = pars.getNx();
-  const size_t bctot = pars.getNBCTot();
+  const size_t nbc   = getNBC();
+  const size_t nx    = getNx();
+  const size_t bctot = getNBCTot();
 
   // Make space to store pointers to real and ghost cells.
   std::vector<cell::Cell*> realLeft(nbc);
@@ -211,19 +242,19 @@ void grid::Grid::setBoundary(const parameters::Parameters& pars) {
       ghostLeft[i]  = &(getCell(i));
       ghostRight[i] = &(getCell(nx + nbc + i));
     }
-    realToGhost(realLeft, realRight, ghostLeft, ghostRight, pars);
+    realToGhost(realLeft, realRight, ghostLeft, ghostRight);
   }
 
   else if (Dimensions == 2) {
     // left-right boundaries
     for (size_t j = 0; j < nx + bctot; j++) {
       for (size_t i = 0; i < nbc; i++) {
-        realLeft[i]   = &(getCell(nbc + i, j, pars));
-        realRight[i]  = &(getCell(nx + i, j, pars));
-        ghostLeft[i]  = &(getCell(i, j, pars));
-        ghostRight[i] = &(getCell(nx + nbc + i, j, pars));
+        realLeft[i]   = &(getCell(nbc + i, j));
+        realRight[i]  = &(getCell(nx + i, j));
+        ghostLeft[i]  = &(getCell(i, j));
+        ghostRight[i] = &(getCell(nx + nbc + i, j));
       }
-      realToGhost(realLeft, realRight, ghostLeft, ghostRight, pars, 0);
+      realToGhost(realLeft, realRight, ghostLeft, ghostRight, 0);
     }
   }
 
@@ -231,12 +262,12 @@ void grid::Grid::setBoundary(const parameters::Parameters& pars) {
   // left -> lower, right -> upper
   for (size_t i = 0; i < nx + bctot; i++) {
     for (size_t j = 0; j < nbc; j++) {
-      realLeft[j]   = &(getCell(i, nbc + j, pars));
-      realRight[j]  = &(getCell(i, nx + j, pars));
-      ghostLeft[j]  = &(getCell(i, j, pars));
-      ghostRight[j] = &(getCell(i, nx + nbc + j, pars));
+      realLeft[j]   = &(getCell(i, nbc + j));
+      realRight[j]  = &(getCell(i, nx + j));
+      ghostLeft[j]  = &(getCell(i, j));
+      ghostRight[j] = &(getCell(i, nx + nbc + j));
     }
-    realToGhost(realLeft, realRight, ghostLeft, ghostRight, pars, 1);
+    realToGhost(realLeft, realRight, ghostLeft, ghostRight, 1);
   }
 }
 
@@ -259,30 +290,27 @@ void grid::Grid::realToGhost(
   std::vector<cell::Cell*>      realRight,
   std::vector<cell::Cell*>      ghostLeft,
   std::vector<cell::Cell*>      ghostRight,
-  const parameters::Parameters& pars,
   const size_t                  dimension
 ) // dimension defaults to 0
 {
-  // prevents crowding down there
-  using BC   = parameters::BoundaryCondition;
-  size_t nbc = pars.getNBC();
+  size_t nbc = getNBC();
 
-  switch (pars.getBoundaryType()) {
-  case BC::Periodic: {
+  switch (getBoundaryType()) {
+    case BC::BoundaryCondition::Periodic: {
     for (size_t i = 0; i < nbc; i++) {
       ghostLeft[i]->CopyBoundaryData(realLeft[i]);
       ghostRight[i]->CopyBoundaryData(realRight[i]);
     }
   } break;
 
-  case BC::Reflective: {
+  case BC::BoundaryCondition::Reflective: {
     for (size_t i = 0; i < nbc; i++) {
       ghostLeft[i]->CopyBoundaryDataReflective(realLeft[i], dimension);
       ghostRight[i]->CopyBoundaryDataReflective(realRight[i], dimension);
     }
   } break;
 
-  case BC::Transmissive: {
+  case BC::BoundaryCondition::Transmissive: {
     for (size_t i = 0; i < nbc; i++) {
       ghostLeft[i]->CopyBoundaryData(realLeft[i]);
 

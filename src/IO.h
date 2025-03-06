@@ -9,6 +9,7 @@
 #include <sstream>
 #include <string>
 
+#include "Grid.h"
 #include "Parameters.h"
 #include "Utils.h"
 
@@ -54,34 +55,25 @@ namespace IO {
     std::string _icfile;
 
   public:
-    //! Deleted default constructor
-    InputParse() = delete;
 
     //! Constructor with argc and argv
     InputParse(const int argc, char* argv[]);
 
     //! Read the config file and fill out the configuration parameters
-    void parseConfigFile(parameters::Parameters& params);
+    void readConfigFile(parameters::Parameters& params);
 
     //! Read the initial conditions file.
-    void readICFile();
+    void readICFile(grid::Grid& grid, const parameters::Parameters& params);
 
     //! Get a pair of name, value from a parameter line
     static std::pair<std::string, std::string> _extractParameter(std::string& line);
 
-    // private methods
   private:
     //! Help message
     static std::string _helpMessage();
 
     //! Check whether cmdline args are valid.
     void _checkCmdLineArgsAreValid();
-
-    //! convert a parameter from read-in strings to a native type
-    template <typename T>
-    T _convertParameterString(
-      std::string param, parameters::ArgType type, bool optional = false, T defaultVal = 0
-    );
 
     //! Has a cmdline option been provided?
     bool _commandOptionExists(const std::string& option);
@@ -91,6 +83,21 @@ namespace IO {
 
     //! Check whether some of read in parameters are unused
     void _checkUnusedParameters();
+
+    //! Do we have a two-state format for initial conditions?
+    bool _icIsTwoState();
+
+    //! Read an IC file with the Two-State format
+    void _readTwoStateIC(grid::Grid& grid, const parameters::Parameters& params);
+
+    //! Read an IC file with the arbitrary format
+    void _readArbitraryIC(grid::Grid& grid, const parameters::Parameters& params);
+
+    //! convert a parameter from read-in strings to a native type
+    template <typename T>
+    T _convertParameterString(
+      std::string param, parameters::ArgType type, bool optional = false, T defaultVal = 0
+    );
 
   }; // class InputParse
 } // namespace IO

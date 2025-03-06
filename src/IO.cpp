@@ -7,11 +7,10 @@
 #include <string>
 #include <utility>
 
-#include "Cell.h"
-#include "Grid.h"
+#include "BoundaryConditions.h"
 #include "Logging.h"
-#include "Parameters.h"
 #include "Utils.h"
+
 
 /**
  * configEntry constructors
@@ -24,28 +23,6 @@ IO::configEntry::configEntry(std::string parameter, std::string value):
   param(std::move(parameter)),
   value(std::move(value)),
   used(false) {};
-
-
-/**
- * Returns the help message.
- */
-std::string IO::InputParse::_helpMessage() {
-
-  std::stringstream msg;
-  msg << "This is the hydro code help message.\n\nUsage: \n\n";
-  msg << "Default run:\n  ./hydro --config-file <config-file> --ic-file <ic-file>\n";
-  msg << "or:\n  ./hydro --config-file=<config-file> --ic-file=<ic-file>\n\n";
-  msg << "      <config-file>: file containing your run parameter configuration.\n";
-  msg << "                     See README for details.\n";
-  msg << "      <ic-file>:     file containing your initial conditions.\n";
-  msg << "                     See README for details.\n\n";
-  msg << "Get this help message:\n  ./hydro -h\n  ./hydro --help\n\n";
-  msg << "Optional flags:\n";
-  msg << "  -v,--verbose:         Be talkative.\n";
-  msg << "  -vv,--very-verbose:   Be very talkative (intended for debugging).\n";
-
-  return msg.str();
-}
 
 
 /**
@@ -101,39 +78,113 @@ IO::InputParse::InputParse(const int argc, char* argv[]) {
 }
 
 
-/**
- * Get the value provided by the command option @param option.
- */
-std::string IO::InputParse::_getCommandOption(const std::string& option) {
 
-  auto search = _clArguments.find(option);
-  if (search == _clArguments.end()) {
-    warning("No option '" + option + "' available");
-    const std::string emptyString;
-    return emptyString;
+/**
+ * Read the configuration file and fill out the parameters singleton.
+ */
+void IO::InputParse::readConfigFile(parameters::Parameters& params) {
+
+  message("Parsing config file.", logging::LogLevel::Verbose);
+
+#if DEBUG_LEVEL > 0
+  if (_configfile.size() == 0) {
+    error("No config file specified?");
+  }
+#endif
+
+  // First, we read the config file
+  std::string   line;
+  std::ifstream conf_ifs(_configfile);
+
+  // Read in line by line
+  while (std::getline(conf_ifs, line)) {
+    auto        pair  = _extractParameter(line);
+    std::string name  = pair.first;
+    std::string value = pair.second;
+    if (name == "")
+      continue;
+    if (name == utils::somethingWrong() or value == utils::somethingWrong()) {
+      warning("Something wrong with config file line '" + line + "'; skipping it");
+    }
+
+    configEntry newEntry = configEntry(name, value);
+    _config_params.insert(std::make_pair(name, newEntry));
   }
 
-  return search->second;
+
+  // Now we parse each argument
+
+  size_t nstepsLog = _convertParameterString(
+    "nstep_log",
+    parameters::ArgType::Size_t,
+    /*optional=*/true,
+    /*defaultVal=*/params.getNstepsLog()
+  );
+  params.setNstepsLog(nstepsLog);
+
+  size_t nsteps = _convertParameterString(
+    "nsteps",
+    parameters::ArgType::Size_t,
+    /*optional=*/true,
+    /*defaultVal=*/params.getNsteps()
+  );
+  params.setNsteps(nsteps);
+
+  size_t nx = _convertParameterString(
+    "nx",
+    parameters::ArgType::Size_t,
+    /*optional=*/true,
+    /*defaultVal=*/params.getNsteps()
+  );
+  params.setNx(nx);
+
+  int boundary = _convertParameterString(
+    "boundary",
+    parameters::ArgType::Integer,
+    /*optional=*/true,
+    /*defaultVal=*/static_cast<int>(params.getBoundaryType())
+  );
+  params.setBoundaryType(static_cast<BC::BoundaryCondition>(boundary));
+
+  float_t tmax = _convertParameterString(
+    "tmax",
+    parameters::ArgType::Float,
+    /*optional=*/true,
+    /*defaultVal=*/params.getTmax()
+  );
+  params.setTmax(tmax);
+
+  float_t ccfl = _convertParameterString(
+    "ccfl",
+    parameters::ArgType::Float,
+    /*optional=*/true,
+    /*defaultVal=*/params.getCcfl()
+  );
+  params.setCcfl(ccfl);
+
+
+  // Let me know if we missed something
+  _checkUnusedParameters();
+
+  // Mark that we've read in the param file
+  params.setParamFileHasBeenRead();
 }
 
 
-void IO::InputParse::_checkUnusedParameters() {
+/**
+ * Read initial conditions.
+ */
+void IO::InputParse::readICFile(grid::Grid& grid, const parameters::Parameters& params) {
 
-  for (auto& _config_param : _config_params) {
-    configEntry& entry = _config_param.second;
-    if (not entry.used) {
-      std::stringstream msg;
-      msg << "Unused parameter: " << entry.param << "=" << entry.value;
-      warning(msg);
-    }
-#if DEBUG_LEVEL > 1
-    else {
-      std::stringstream msg;
-      msg << "USED parameter: " << entry.param << "=" << entry.value;
-      warning(msg);
-    }
-#endif
+  std::string filename = _icfile;
+
+  if (_icIsTwoState()){
+    _readTwoStateIC(grid, params);
+  } else {
+    _readArbitraryIC(grid, params);
   }
+
+  message("Finished reading ICs.", logging::LogLevel::Verbose);
 }
 
 
@@ -169,12 +220,24 @@ std::pair<std::string, std::string> IO::InputParse::_extractParameter(std::strin
 
 
 /**
- * Has a cmdline option been provided?
+ * Returns the help message.
  */
-bool IO::InputParse::_commandOptionExists(const std::string& option) {
+std::string IO::InputParse::_helpMessage() {
 
-  auto search = _clArguments.find(option);
-  return (search != _clArguments.end());
+  std::stringstream msg;
+  msg << "This is the hydro code help message.\n\nUsage: \n\n";
+  msg << "Default run:\n  ./hydro --config-file <config-file> --ic-file <ic-file>\n";
+  msg << "or:\n  ./hydro --config-file=<config-file> --ic-file=<ic-file>\n\n";
+  msg << "      <config-file>: file containing your run parameter configuration.\n";
+  msg << "                     See README for details.\n";
+  msg << "      <ic-file>:     file containing your initial conditions.\n";
+  msg << "                     See README for details.\n\n";
+  msg << "Get this help message:\n  ./hydro -h\n  ./hydro --help\n\n";
+  msg << "Optional flags:\n";
+  msg << "  -v,--verbose:         Be talkative.\n";
+  msg << "  -vv,--very-verbose:   Be very talkative (intended for debugging).\n";
+
+  return msg.str();
 }
 
 
@@ -243,210 +306,103 @@ void IO::InputParse::_checkCmdLineArgsAreValid() {
 
 
 /**
- * Read the configuration file and fill out the parameters singleton.
+ * Has a cmdline option been provided?
  */
-void IO::InputParse::parseConfigFile(parameters::Parameters& params) {
+bool IO::InputParse::_commandOptionExists(const std::string& option) {
 
-  message("Parsing config file.", logging::LogLevel::Verbose);
+  auto search = _clArguments.find(option);
+  return (search != _clArguments.end());
+}
 
-#if DEBUG_LEVEL > 0
-  if (_configfile.size() == 0) {
-    error("No config file specified?");
+
+/**
+ * Get the value provided by the command option @param option.
+ */
+std::string IO::InputParse::_getCommandOption(const std::string& option) {
+
+  auto search = _clArguments.find(option);
+  if (search == _clArguments.end()) {
+    warning("No option '" + option + "' available");
+    const std::string emptyString;
+    return emptyString;
   }
+
+  return search->second;
+}
+
+/**
+ * Find and list unused parameters
+ */
+void IO::InputParse::_checkUnusedParameters() {
+
+  for (auto& _config_param : _config_params) {
+    configEntry& entry = _config_param.second;
+    if (not entry.used) {
+      std::stringstream msg;
+      msg << "Unused parameter: " << entry.param << "=" << entry.value;
+      warning(msg);
+    }
+#if DEBUG_LEVEL > 1
+    else {
+      std::stringstream msg;
+      msg << "USED parameter: " << entry.param << "=" << entry.value;
+      warning(msg);
+    }
 #endif
+  }
+}
 
-  // First, we read the config file
+
+/**
+ * Do we have a two-state format for initial conditions?
+ */
+bool IO::InputParse::_icIsTwoState(){
+
   std::string   line;
-  std::ifstream conf_ifs(_configfile);
-
-  // Read in line by line
+  std::ifstream conf_ifs(_icfile);
   while (std::getline(conf_ifs, line)) {
-    auto        pair  = _extractParameter(line);
-    std::string name  = pair.first;
-    std::string value = pair.second;
-    if (name == "")
+
+    if (utils::isComment(line))
       continue;
-    if (name == utils::somethingWrong() or value == utils::somethingWrong()) {
-      warning("Something wrong with config file line '" + line + "'; skipping it");
+
+    std::string nocomment = utils::removeTrailingComment(line);
+    auto        pair      = utils::splitEquals(nocomment, /*warn=*/true);
+    std::string name      = pair.first;
+    std::string value     = pair.second;
+
+    if (name != "filetype"){
+      std::stringstream msg;
+      msg << "Invalid IC file type: first non-comment line must be ";
+      msg << "`filetype = [two-state,arbitrary]`\n";
+      msg << "current line is: `" << line << "`";
+      error(msg);
     }
 
-    configEntry newEntry = configEntry(name, value);
-    _config_params.insert(std::make_pair(name, newEntry));
+    bool out = false;
+    if (value == "two-state") {
+      out = true;
+    } else if (value == "arbitrary"){
+      out = false;
+    } else {
+      std::stringstream msg;
+      msg << "Invalid IC file type specification:";
+      msg << "`filetype` must be either `two-state` or `arbitrary`\n";
+      msg << "I found: `" << value << "`";
+      error(msg);
+    }
+
+    return out;
   }
 
-
-  // Now we parse each argument
-
-  size_t nstepsLog = _convertParameterString(
-    "nstep_log",
-    parameters::ArgType::Size_t,
-    /*optional=*/true,
-    /*defaultVal=*/params.getNstepsLog()
-  );
-  params.setNstepsLog(nstepsLog);
-
-  size_t nsteps = _convertParameterString(
-    "nsteps",
-    parameters::ArgType::Size_t,
-    /*optional=*/true,
-    /*defaultVal=*/params.getNsteps()
-  );
-  params.setNsteps(nsteps);
-
-  size_t nx = _convertParameterString(
-    "nx",
-    parameters::ArgType::Size_t,
-    /*optional=*/true,
-    /*defaultVal=*/params.getNsteps()
-  );
-  params.setNx(nx);
-
-  int boundary = _convertParameterString(
-    "boundary",
-    parameters::ArgType::Integer,
-    /*optional=*/true,
-    /*defaultVal=*/static_cast<int>(params.getBoundaryType())
-  );
-  params.setBoundaryType(static_cast<parameters::BoundaryCondition>(boundary));
-
-  float_t tmax = _convertParameterString(
-    "tmax",
-    parameters::ArgType::Float,
-    /*optional=*/true,
-    /*defaultVal=*/params.getTmax()
-  );
-  params.setTmax(tmax);
-
-  float_t ccfl = _convertParameterString(
-    "ccfl",
-    parameters::ArgType::Float,
-    /*optional=*/true,
-    /*defaultVal=*/params.getCcfl()
-  );
-  params.setCcfl(ccfl);
-
-
-  // Let me know if we missed something
-  _checkUnusedParameters();
+  return false;
 }
 
 
-/*
-This method is a bit of a mess
-*/
-void IO::InputParse::readICFile() {
-  // std::string filename = _getCommandOption("--ic-file");
-  // FILE*       icfile   = fopen(filename.c_str(), "rb");
-  // if (icfile == nullptr)
-  //   throw std::runtime_error("Invalid IC File!\n");
-  //
-  // // Let's find how many bytes we have in the file
-  // fseek(icfile, 0, SEEK_END);
-  // auto bytesToRead = ftell(icfile);
-  // // seek back to the start...
-  // fseek(icfile, 0, SEEK_SET);
+//! Read an IC file with the Two-State format
+void IO::InputParse::_readTwoStateIC(grid::Grid& grid, const parameters::Parameters& params){}
 
-  // Buffer to fill with data from the file
-  // char lineBuffer[utils::lineLength] = {0};
-  // Pointer to move across the buffer. We
-  // use this to fill the buffer with data
-  // char* lineptr(lineBuffer);
 
-  // lambda to advance our file pointer. Would do this with
-  // aux function but i wanna keep the pointers in the
-  // stack frame
-  // auto readUntil = [&](const char& ch) {
-  // utils::resetBuffer(lineBuffer);
-  // reset pointer to start of buffer
-  // lineptr = lineBuffer;
-  // while ((*lineptr = fgetc(icfile)) != EOF) {
-  // Decrement the number of bytes we have to read...
-  // bytesToRead--;
-  // if (*lineptr == ch)
-  // return true;
-  // lineptr++;
-  // }
-  // return false;
-  // };
+//! Read an IC file with the arbitrary format
+void IO::InputParse::_readArbitraryIC(grid::Grid& grid, const parameters::Parameters& params){}
 
-  // // define another lambda to fetch a float
-  // // value that falls between two pointers
-  // char* ptr0;
-  // char* ptr1;
-  // auto  readVal = [&]() {
-  //   // bring ptr0 up to speed with ptr0
-  //   ptr0 = ptr1;
-  //   // find the start of the number
-  //   while (*ptr0 == ' ')
-  //     ptr0++;
-  //   ptr1 = ptr0;
-  //   while (*ptr1 != ' ' and *ptr1 != '\n') {
-  //     ptr1++;
-  //   }
-  //   if (std::distance(ptr0, ptr1) < 2)
-  //     throw std::runtime_error("Invalid line!\n");
-  //   return strtod(ptr0, &ptr1);
-  // };
-  //
-  // // read filetype
-  // readUntil('=');
-  // readUntil('\n');
-  // message(lineBuffer);
-  //
-  // // check ndim matches parameters dims
-  // // read ndims
-  // readUntil('=');
-  // readUntil('\n');
-  // int dims = strtol(lineBuffer, &lineptr, 10);
-  // // parameters::Parameters::Instance.setDims(dims);
-  // message(lineBuffer);
-  //
-  // // check nx matches params
-  // readUntil('=');
-  // readUntil('\n');
-  // int nx = strtol(lineBuffer, &lineptr, 10);
-  // if (Dimensions == 2)
-  //   nx = nx * nx;
-  // int valuesFetched = 0;
-  //
-  // message("setting nx to ");
-  // message(lineBuffer);
-  //
-  // loop over remaining lines and store results
-  // int valsToFetchPerLine = 2 + dims;
 
-  /*
-  Warning - make sure we don't place these
-  outside of the boundary!
-
-  start at bc etc!
-
-  bytesToRead is decremented inside readUntil
-  */
-  // while (bytesToRead > 0) {
-  //   // fill the line buffer with some data
-  //   readUntil('\n');
-  //   if (utils::lineIsInvalid(lineBuffer))
-  //     continue;
-  //
-  //   std::vector<float> initialValuesToPassOver(valsToFetchPerLine, 0);
-  //   // fetch values from the current line buffer
-  //   for (int i = 0; i < valsToFetchPerLine; i++) {
-  //     initialValuesToPassOver[i] = readVal();
-  //   }
-  //   // reset the pointers we use to the start of the buffer
-  //   ptr0 = lineBuffer;
-  //   ptr1 = lineBuffer;
-  //
-  //   // Send these off to the grid - handle indexing in the grid class
-  //   grid::Grid::Instance.setInitialConditions(valuesFetched, initialValuesToPassOver);
-  //
-  //   valuesFetched++;
-  // }
-
-  // validation - does valuesFetched match nx?
-  // assert(valuesFetched == nx);
-  //
-  //
-  // fclose(icfile);
-}

@@ -1,17 +1,11 @@
 #pragma once
 #include <string>
 
+#include "BoundaryConditions.h"
 #include "Config.h"
 #include "Logging.h" // for verbosity level
 
 namespace parameters {
-
-  //! Boundary condition types
-  enum class BoundaryCondition {
-    Periodic     = 0,
-    Reflective   = 1,
-    Transmissive = 2
-  };
 
   //! parameter file argument types
   enum class ArgType {
@@ -23,15 +17,7 @@ namespace parameters {
   };
 
   /**
-   * @brief Holds global simulation parameters. There should be only one
-   * instance of this globally, so this class is set up as a singleton. To use
-   * it and its contents, get hold of the instance:
-   *
-   * ```
-   *    auto params = parameters::Parameters::getInstance();
-   * ```
-   *
-   * It is accessible for all files which include `Parameters.h`.
+   * @brief Holds global simulation parameters.
    *
    * Note: Adding new parameters:
    *   - Add private variable in class
@@ -61,20 +47,19 @@ namespace parameters {
     float_t _tmax;
 
     //! number of cells to use (in each dimension)
-    // TODO(mivkov): Do we still need this if we're not doing twostate ICs?
     size_t _nx;
 
     //! CFL coefficient
     float_t _ccfl;
 
     //! boundary condition
-    BoundaryCondition _boundaryType;
+    BC::BoundaryCondition _boundaryType;
 
     //! number of mesh points, including boundary cells
     size_t _nxTot;
 
     //! cell size
-    float_t _dx;
+    // float_t _dx;
 
     //! Number of Ghost cells at each edge
     size_t _nbc;
@@ -144,6 +129,9 @@ namespace parameters {
     // tries to modify them.
     bool _locked;
 
+    //! Has the parameter file been read?
+    bool _read;
+
   public:
     Parameters();
 
@@ -203,8 +191,8 @@ namespace parameters {
     /**
      * @brief Get the type of boundary condition used
      */
-    [[nodiscard]] BoundaryCondition getBoundaryType() const;
-    void                            setBoundaryType(BoundaryCondition boundary);
+    [[nodiscard]] BC::BoundaryCondition getBoundaryType() const;
+    void                            setBoundaryType(BC::BoundaryCondition boundary);
 
 
     /**
@@ -213,33 +201,18 @@ namespace parameters {
     [[nodiscard]] size_t getNBC() const;
     void                 setNBC(size_t nbc);
 
-
-    /**
-     * @brief get the total number of boundary cells per dimension.
-     */
-    [[nodiscard]] size_t getNBCTot() const;
-
-
-    /**
-     * @brief get the total number of cells per dimension. This includes
-     * boundary cells.
-     * @TODO: what to do with replication
-     */
-    [[nodiscard]] size_t getNxTot() const;
-
-
-    /**
-     * @brief Get the cell size
-     */
-    [[nodiscard]] float_t getDx() const;
-    void                  setDx(const float_t dx);
-
-
     /**
      * @brief Get the output file name base
      */
     [[nodiscard]] std::string getOutputFileBase() const;
     void                      setOutputFileBase(std::string& ofname);
+
+
+    /**
+     * @brief Get the output file name base
+     */
+    [[nodiscard]] bool getParamFileHasBeenRead() const;
+    void               setParamFileHasBeenRead();
 
 
     /**
@@ -378,14 +351,14 @@ inline void parameters::Parameters::setCcfl(const float ccfl) {
 }
 
 
-inline parameters::BoundaryCondition parameters::Parameters::getBoundaryType() const {
+inline BC::BoundaryCondition parameters::Parameters::getBoundaryType() const {
   // auto& inst = getInstance();
   // return inst._boundaryType;
   return _boundaryType;
 }
 
 
-inline void parameters::Parameters::setBoundaryType(BoundaryCondition boundaryType) {
+inline void parameters::Parameters::setBoundaryType(BC::BoundaryCondition boundaryType) {
 
   // auto& inst         = getInstance();
   // inst._boundaryType = boundaryType;
@@ -422,38 +395,6 @@ inline void parameters::Parameters::setNBC(const size_t bc) {
 }
 
 
-inline size_t parameters::Parameters::getNBCTot() const {
-  return 2 * getNBC();
-}
-
-
-inline size_t parameters::Parameters::getNxTot() const {
-  return getNx() + 2 * getNBC();
-}
-
-
-inline float_t parameters::Parameters::getDx() const {
-  // auto& inst = getInstance();
-  // return inst._dx;
-  return _dx;
-}
-
-
-inline void parameters::Parameters::setDx(const float_t dx) {
-
-  // auto& inst = getInstance();
-  // inst._dx   = dx;
-
-  _dx = dx;
-  paramSetLog(dx);
-
-#if DEBUG_LEVEL > 0
-  if (_locked)
-    error("Trying to overwrite locked parameters!");
-#endif
-}
-
-
 inline std::string parameters::Parameters::getOutputFileBase() const {
   // auto& inst = getInstance();
   // return inst._outputfilebase;
@@ -473,4 +414,15 @@ inline void parameters::Parameters::setOutputFileBase(std::string& ofname) {
   if (_locked)
     error("Trying to overwrite locked parameters!");
 #endif
+}
+
+
+
+inline bool parameters::Parameters::getParamFileHasBeenRead() const{
+  return _read;
+}
+
+
+inline void parameters::Parameters::setParamFileHasBeenRead(){
+  _read = true;
 }

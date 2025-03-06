@@ -18,14 +18,11 @@ int main(int argc, char* argv[]) {
 
   // Set default verbosity levels.
   // Note that this can be changed through cmdline flags.
-#if DEBUG_LEVEL == 0
   logging::Log::setVerbosity(logging::LogLevel::Quiet);
-#else
-  logging::Log::setVerbosity(logging::LogLevel::Debug);
-#endif
 
-  // Get a handle on singletons
+  // Get a handle on global vars so they're always in scope
   auto params = parameters::Parameters();
+  auto grid = grid::Grid();
 
   // Useless things first :)
   utils::printHeader();
@@ -37,26 +34,20 @@ int main(int argc, char* argv[]) {
   IO::InputParse input(argc, argv);
 
   // Read the parameters from the config file and initialise global paramters...
-  input.parseConfigFile(params);
+  input.readConfigFile(params);
   params.initDerived();
 
   // When very verbose, print out used parameters
   message("Running with parameters:", logging::LogLevel::Debug);
   message(params.toString(), logging::LogLevel::Debug);
 
-  // initialise the grid of cells
-  grid::Grid::Instance.initGrid(params);
+  // Read initial conditions
+  input.readICFile(grid, params);
 
-  // input.readICFile();
-
-  grid::Grid::Instance.setBoundary(params);
-
-  // Initialise global parameters.
-  // auto grid   = cell::Grid::Instance;
-
+  // grid::Grid::Instance.setBoundary(params);
 
   std::ostringstream msg;
-  msg << "Got params dx=" << params.getDx();
+  msg << "Got params nx=" << params.getNx();
   message(msg.str());
 
   // initialise the grid of cells
