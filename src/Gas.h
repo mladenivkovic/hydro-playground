@@ -52,7 +52,7 @@ namespace idealGas {
     [[nodiscard]] float_t getSoundSpeed() const;
 
     //! Get the total gas energy from a primitive state
-    [[nodiscard]] float_t getEnergy() const;
+    [[nodiscard]] float_t getE() const;
 
     //! Get a string of the state.
     [[nodiscard]] std::string toString() const;
@@ -142,11 +142,17 @@ namespace idealGas {
 // --------------------------
 
 inline void idealGas::PrimitiveState::setRho(const float_t val) {
+#if DEBUG_LEVEL > 0
+  assert(val >= 0.);
+#endif
   rho = val;
 }
 
 
 inline float_t idealGas::PrimitiveState::getRho() const {
+#if DEBUG_LEVEL > 0
+  assert(rho >= 0.);
+#endif
   return rho;
 }
 
@@ -171,11 +177,17 @@ inline float_t idealGas::PrimitiveState::getVSquared() const {
 
 
 inline void idealGas::PrimitiveState::setP(const float_t val) {
+#if DEBUG_LEVEL > 0
+  assert(val >= 0.);
+#endif
   p = val;
 }
 
 
 inline float_t idealGas::PrimitiveState::getP() const {
+#if DEBUG_LEVEL > 0
+  assert(p >= 0.);
+#endif
   return p;
 }
 
@@ -191,7 +203,7 @@ inline float_t idealGas::PrimitiveState::getSoundSpeed() const {
 /**
  * Get the total gas energy from a primitive state
  */
-inline float_t idealGas::PrimitiveState::getEnergy() const {
+inline float_t idealGas::PrimitiveState::getE() const {
   return 0.5 * getRho() * getVSquared() + getP() / GM1;
 }
 
@@ -223,20 +235,32 @@ inline float_t idealGas::ConservedState::getRhoVSquared() const {
 
 
 inline void idealGas::ConservedState::setE(const float_t val) {
+#if DEBUG_LEVEL > 0
+  assert(val >= 0.);
+#endif
   E = val;
 }
 
 
 inline float_t idealGas::ConservedState::getE() const {
+#if DEBUG_LEVEL > 0
+  assert(E >= 0.);
+#endif
   return E;
 }
 
 
 inline float_t idealGas::ConservedState::getRho() const {
+#if DEBUG_LEVEL > 0
+  assert(rho >= 0.);
+#endif
   return rho;
 }
 
 
 inline void idealGas::ConservedState::setRho(const float_t val) {
+#if DEBUG_LEVEL > 0
+  assert(val >= 0.);
+#endif
   rho = val;
 }
