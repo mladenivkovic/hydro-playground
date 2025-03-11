@@ -158,13 +158,17 @@ inline float_t idealGas::PrimitiveState::getRho() const {
 
 
 inline void idealGas::PrimitiveState::setV(const size_t index, const float_t val) {
+#if DEBUG_LEVEL > 0
+  // assert(index >= 0); // always true for unsigned type
+  assert(index < Dimensions);
+#endif
   v[index] = val;
 }
 
 
 inline float_t idealGas::PrimitiveState::getV(const size_t index) const {
 #if DEBUG_LEVEL > 0
-  assert(index >= 0);
+  // assert(index >= 0); // always true for unsigned type
   assert(index < Dimensions);
 #endif
   return v[index];
@@ -213,7 +217,7 @@ inline float_t idealGas::PrimitiveState::getE() const {
 
 inline void idealGas::ConservedState::setRhov(const size_t index, const float_t val) {
 #if DEBUG_LEVEL > 0
-  assert(index >= 0);
+  // assert(index >= 0); // always true for unsigned type
   assert(index < Dimensions);
 #endif
   rhov[index] = val;
@@ -222,7 +226,7 @@ inline void idealGas::ConservedState::setRhov(const size_t index, const float_t 
 
 inline float_t idealGas::ConservedState::getRhov(const size_t index) const {
 #if DEBUG_LEVEL > 0
-  assert(index >= 0);
+  // assert(index >= 0); // always true for unsigned type
   assert(index < Dimensions);
 #endif
   return rhov[index];
