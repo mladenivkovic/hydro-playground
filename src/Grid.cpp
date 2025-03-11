@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <iomanip>
+#include <iostream>
 
 #include "BoundaryConditions.h"
 #include "Cell.h"
@@ -86,7 +87,7 @@ void grid::Grid::initCells() {
   size_t nx       = getNx();
   size_t nx_norep = getNxNorep();
   size_t nxTot    = getNxTot();
-  size_t nbc      = getNBC();
+  size_t first = _getFirstCellIndex();
 
   // TODO(mivkov): in arbitrary ICs, this needs to be set from reading the file first.
   if (nx == 0 or nxTot == 0) {
@@ -110,7 +111,7 @@ void grid::Grid::initCells() {
     // set cell positions and IDs
     for (size_t i = 0; i < nxTot; i++) {
       cell::Cell& c = getCell(i);
-      float_t     x = (static_cast<float_t>(i - nbc) + 0.5) * dx;
+      float_t     x = (static_cast<float_t>(i - first) + 0.5) * dx;
       c.setX(x);
       c.setId(i);
     }
@@ -125,8 +126,8 @@ void grid::Grid::initCells() {
     for (size_t i = 0; i < nxTot; i++) {
       for (size_t j = 0; j < nxTot; j++) {
         cell::Cell& c = getCell(i, j);
-        float_t     x = (static_cast<float_t>(i - nbc) + 0.5) * dx;
-        float_t     y = (static_cast<float_t>(j - nbc) + 0.5) * dx;
+        float_t     x = (static_cast<float_t>(i - first) + 0.5) * dx;
+        float_t     y = (static_cast<float_t>(j - first) + 0.5) * dx;
         c.setX(x);
         c.setY(y);
         c.setId(i + j * nxTot);
@@ -142,12 +143,15 @@ void grid::Grid::initCells() {
   constexpr float_t KB = 1024.;
   constexpr float_t MB = 1024. * 1024.;
   constexpr float_t GB = 1024. * 1024. * 1024.;
+  constexpr size_t prec = 3;
+  constexpr size_t wid = 14;
+
   float_t gridsize = static_cast<float_t>(total_cells) * static_cast<float_t>(sizeof(cell::Cell));
   std::stringstream msg;
   msg << "Grid takes ";
-  msg << std::setprecision(3) << std::setw(14) << gridsize / KB << " KB /";
-  msg << std::setprecision(3) << std::setw(14) << gridsize / MB << " MB /";
-  msg << std::setprecision(3) << std::setw(14) << gridsize / GB << " GB";
+  msg << std::setprecision(prec) << std::setw(wid) << gridsize / KB << " KB /";
+  msg << std::setprecision(prec) << std::setw(wid) << gridsize / MB << " MB /";
+  msg << std::setprecision(prec) << std::setw(wid) << gridsize / GB << " GB";
 
   message(msg);
 }
@@ -160,10 +164,12 @@ void grid::Grid::setInitialConditions(
   size_t position, std::vector<float_t> vals, const parameters::Parameters& pars
 ) {
 
+  // TODO: Remove this?
+
   assert((vals.size() == 4 and Dimensions == 2) or (vals.size() == 3 and Dimensions == 1));
   // Let's set i,j based on the position in the array we passed in
-  size_t i;
-  size_t j;
+  size_t i = 0;
+  size_t j = 0;
   if (Dimensions == 1) {
     i = position;
     j = 0;
@@ -286,7 +292,7 @@ void grid::Grid::setBoundary() {
 
   const size_t nbc   = getNBC();
   const size_t nx    = getNx();
-  const size_t bctot = getNBCTot();
+  const size_t bctot = _getNBCTot();
 
   // Make space to store pointers to real and ghost cells.
   std::vector<cell::Cell*> realLeft(nbc);
@@ -379,4 +385,156 @@ void grid::Grid::realToGhost(
     }
   } break;
   }
+}
+
+
+
+
+/**
+ * @brief print out the grid.
+ *
+ * @param boundaries if true, print out boundary cells too.
+ * @param conserved if true, print out conserved state instead of primitive state.
+ */
+void grid::Grid::printGrid(bool boundaries, bool conserved){
+
+
+  size_t first = _getFirstCellIndex();
+  size_t last = _getLastCellIndex();
+  size_t start = first;
+  size_t end = last;
+
+  if (boundaries){
+    start = 0;
+    end = getNxTot();
+  }
+
+  std::stringstream out;
+
+  if (Dimensions == 1) {
+
+    for (size_t i = start; i < end; i++){
+      if (conserved){
+        out << getCell(i).getCons().toString() << " ";
+      } else {
+        out << getCell(i).getPrim().toString() << " ";
+      }
+
+      bool at_boundary = (i == first - 1) or (i == last - 1);
+      if (boundaries and at_boundary ) {
+        out << " | ";
+      } else {
+        if (i != end - 1) {
+          out << ", ";
+        }
+      }
+
+    }
+
+    out << "\n";
+
+  } else if (Dimensions == 2) {
+
+    // Put the top at the top, and (0, 0) at the bottom left.
+    for (int j = end - 1; j >= 0; j--){
+
+      for (size_t i = start; i < end; i++){
+        if (conserved){
+          out << getCell(i, j).getCons().toString() << " ";
+        } else {
+          out << getCell(i, j).getPrim().toString() << " ";
+        }
+
+        bool at_boundary = (i == first - 1) or (i == last - 1);
+        if (boundaries and at_boundary ) {
+          out << " | ";
+        } else {
+          if (i != end - 1) {
+            out << ", ";
+          }
+        }
+      }
+
+      out << "\n";
+      bool at_boundary = (j == static_cast<int>(first)) or (j == static_cast<int>(last));
+      if (boundaries and at_boundary ) {
+        out << "\n";
+      }
+    }
+
+  } else {
+    error("Not implemented");
+  }
+
+  std::cout << out.str() << std::endl;
+}
+
+
+/**
+ * @brief print out a single quantity over the entire grid.
+ *
+ * @param boundaries if true, print out boundary cells too.
+ */
+void grid::Grid::printGrid(const char* quantity, bool boundaries){
+
+
+  size_t first = _getFirstCellIndex();
+  size_t last = _getLastCellIndex();
+  size_t start = first;
+  size_t end = last;
+
+  if (boundaries){
+    start = 0;
+    end = getNxTot();
+  }
+
+  std::stringstream out;
+
+  if (Dimensions == 1) {
+
+    for (size_t i = start; i < end; i++){
+      out << getCell(i).getQuanityForPrintout(quantity);
+
+      bool at_boundary = (i == first - 1) or (i == last - 1);
+      if (boundaries and at_boundary ) {
+        out << " | ";
+      } else {
+        if (i != end - 1) {
+          out << ", ";
+        }
+      }
+    }
+
+    out << "\n";
+
+  } else if (Dimensions == 2) {
+
+    // Put the top at the top, and (0, 0) at the bottom left.
+    for (int j = end - 1; j >= 0; j--){
+
+      for (size_t i = start; i < end; i++){
+        out << getCell(i, j).getQuanityForPrintout(quantity);
+
+        bool at_boundary = (i == first - 1) or (i == last - 1);
+        if (boundaries and at_boundary ) {
+          out << " | ";
+        } else {
+          if (i != end - 1) {
+            out << ", ";
+          }
+        }
+      }
+
+      out << "\n";
+      bool at_boundary = (j == static_cast<int>(first)) or (j == static_cast<int>(last));
+      if (boundaries and at_boundary ) {
+        out << "\n";
+      }
+    }
+
+  } else {
+    error("Not implemented");
+  }
+
+  std::cout << out.str() << std::endl;
 }

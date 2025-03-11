@@ -40,6 +40,28 @@ namespace grid {
     //! Initialised?
     bool _initialised;
 
+
+    /**
+     * @brief get the total number of boundary cells per dimension.
+     */
+    [[nodiscard]] size_t _getNBCTot() const;
+
+
+    /**
+     * @brief get the index of the first actual (= non boundary/ghost) cell
+     */
+    [[nodiscard]] size_t _getFirstCellIndex() const;
+
+
+    /**
+     * @brief get the index of the first actual (= non boundary/ghost) cell
+     */
+    [[nodiscard]] size_t _getLastCellIndex() const;
+
+    //! Fetch the desired quantity for printing given a cell index
+    float_t _getQuanityForPrintout(cell::Cell& cell, std::string& quantity);
+
+
   public:
     Grid();
     ~Grid();
@@ -109,6 +131,19 @@ namespace grid {
       const size_t             dimension = 0
     );
 
+
+    //! Print out the grid.
+    void printGrid(bool boundaries=true, bool conserved=false);
+    void printGrid(const char* quantity, bool boundaries=true);
+
+
+    /**
+     * @brief get the total number of cells per dimension. This includes
+     * boundary cells and replicated cells.
+     */
+    [[nodiscard]] size_t getNxTot() const;
+
+
     // Getters and setters
 
 
@@ -147,19 +182,6 @@ namespace grid {
      */
     [[nodiscard]] size_t getReplicate() const;
     void                 setReplicate(size_t replicate);
-
-
-    /**
-     * @brief get the total number of boundary cells per dimension.
-     */
-    [[nodiscard]] size_t getNBCTot() const;
-
-
-    /**
-     * @brief get the total number of cells per dimension. This includes
-     * boundary cells and replicated cells.
-     */
-    [[nodiscard]] size_t getNxTot() const;
 
 
     /**
@@ -272,16 +294,6 @@ inline void grid::Grid::setReplicate(const size_t replicate) {
 }
 
 
-inline size_t grid::Grid::getNBCTot() const {
-  return 2 * getNBC();
-}
-
-
-inline size_t grid::Grid::getNxTot() const {
-  return getNx() + getNBCTot();
-}
-
-
 inline float_t grid::Grid::getDx() const {
   return _dx;
 }
@@ -299,4 +311,24 @@ inline float_t grid::Grid::getBoxsize() const {
 
 inline void grid::Grid::setBoxsize(const float_t boxsize) {
   _boxsize = boxsize;
+}
+
+
+inline size_t grid::Grid::_getNBCTot() const {
+  return 2 * getNBC();
+}
+
+
+inline size_t grid::Grid::getNxTot() const {
+  return getNx() + _getNBCTot();
+}
+
+
+inline size_t grid::Grid::_getFirstCellIndex() const {
+  return getNBC();
+}
+
+
+inline size_t grid::Grid::_getLastCellIndex() const {
+  return getNx() + getNBC();
 }

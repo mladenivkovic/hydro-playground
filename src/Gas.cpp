@@ -1,5 +1,12 @@
 #include "Gas.h"
 
+#include <iomanip>
+
+
+static constexpr int gas_print_width = 5;
+static constexpr int gas_print_precision = 2;
+
+
 
 // Stuff for primitive state
 
@@ -43,6 +50,27 @@ void idealGas::PrimitiveState::ConservedToPrimitive(const ConservedState& c) {
       setP(SMALLP);
     }
   }
+}
+
+
+/**
+ * @brief construct a string with the contents.
+ * Format: [rho, vx, vy, P]
+ */
+std::string idealGas::PrimitiveState::toString() const {
+
+  constexpr int w = gas_print_width;
+  constexpr int p = gas_print_precision;
+
+  std::stringstream out;
+  out << "[";
+  out << std::setprecision(p) << std::setw(w) << getRho() << ",";
+  for (size_t i = 0; i < Dimensions; i++){
+    out << std::setprecision(p) << std::setw(w) << getV(i) << ",";
+  }
+  out << std::setprecision(p) << std::setw(w) << getP() << "]";
+
+  return out.str();
 }
 
 
@@ -144,3 +172,26 @@ void idealGas::ConservedState::GetCFluxFromCstate(const ConservedState& c, const
     setE(0.);
   }
 }
+
+
+/**
+ * @brief construct a string with the contents.
+ * Format: [rho, rho * vx, rho * vy, E]
+ */
+std::string idealGas::ConservedState::toString() const {
+
+  constexpr int w = gas_print_width;
+  constexpr int p = gas_print_precision;
+
+  std::stringstream out;
+  out << "[";
+  out << std::setprecision(p) << std::setw(w) << getRho() << ",";
+  for (size_t i = 0; i < Dimensions; i++){
+    out << std::setprecision(p) << std::setw(w) << getRhov(i) << ",";
+  }
+  out << std::setprecision(p) << std::setw(w) << getE() << "]";
+
+  return out.str();
+}
+
+

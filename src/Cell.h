@@ -63,6 +63,9 @@ namespace cell {
     void                 setId(const size_t id);
     [[nodiscard]] size_t getID() const;
 
+    //! Retrieve a specific cell quantity. Intended for printouts.
+    float_t getQuanityForPrintout(const char* quantity) const;
+
     //! Get cell index(es) in grid
     std::pair<std::size_t, std::size_t> getIJ(const std::size_t nxtot);
 

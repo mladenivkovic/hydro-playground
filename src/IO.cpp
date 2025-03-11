@@ -482,10 +482,6 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
   std::getline(conf_ifs, line);
   float_t p_R = _extractTwoStateVal(line, "p_R");
 
-  std::cout
-    << "IC_READ: GOT " << rho_L << " " << u_L << " " << p_L << " " << rho_R << " " << u_R << " "
-    << p_R << std::endl;
-
 
   std::array<float_t, 2>   v_L = {u_L, 0.};
   idealGas::PrimitiveState left(rho_L, v_L, p_L);
@@ -525,6 +521,15 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
   } else {
     error("Not implemented");
   }
+
+  // grid.printGrid(true);
+  grid.printGrid("rho", true);
+  grid.printGrid("vx", true);
+  grid.printGrid("vy", true);
+  grid.printGrid("p", true);
+  grid.printGrid("rhovx", true);
+  grid.printGrid("rhovy", true);
+  grid.printGrid("e", true);
 }
 
 

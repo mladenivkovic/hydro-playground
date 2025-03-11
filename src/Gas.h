@@ -1,7 +1,9 @@
 #pragma once
 
 #include <array>
+#include <cassert>
 #include <cmath>
+#include <string>
 
 #include "Config.h"
 #include "Constants.h"
@@ -47,10 +49,13 @@ namespace idealGas {
     void ConservedToPrimitive(const ConservedState& conservedState);
 
     //! Get the local soundspeed given a primitive state
-    float_t getSoundSpeed();
+    [[nodiscard]] float_t getSoundSpeed() const;
 
     //! Get the total gas energy from a primitive state
-    float_t getEnergy();
+    [[nodiscard]] float_t getEnergy() const;
+
+    //! Get a string of the state.
+    [[nodiscard]] std::string toString() const;
 
 
     // Getters and setters!
@@ -110,6 +115,10 @@ namespace idealGas {
      */
     void GetCFluxFromCstate(const ConservedState& cstate, const std::size_t dimension);
 
+    //! Get a string of the state.
+    [[nodiscard]] std::string toString() const;
+
+
     // Getters and setters!
     void                  setRho(const float_t val);
     [[nodiscard]] float_t getRho() const;
@@ -148,6 +157,10 @@ inline void idealGas::PrimitiveState::setV(const size_t index, const float_t val
 
 
 inline float_t idealGas::PrimitiveState::getV(const size_t index) const {
+#if DEBUG_LEVEL > 0
+  assert(index >= 0);
+  assert(index < Dimensions);
+#endif
   return v[index];
 }
 
@@ -170,7 +183,7 @@ inline float_t idealGas::PrimitiveState::getP() const {
 /**
  * Compute the local sound speed given a primitive state
  */
-inline float_t idealGas::PrimitiveState::getSoundSpeed() {
+inline float_t idealGas::PrimitiveState::getSoundSpeed() const {
   return std::sqrt(GAMMA * getP() / getRho());
 }
 
@@ -178,7 +191,7 @@ inline float_t idealGas::PrimitiveState::getSoundSpeed() {
 /**
  * Get the total gas energy from a primitive state
  */
-inline float_t idealGas::PrimitiveState::getEnergy() {
+inline float_t idealGas::PrimitiveState::getEnergy() const {
   return 0.5 * getRho() * getVSquared() + getP() / GM1;
 }
 
@@ -187,11 +200,19 @@ inline float_t idealGas::PrimitiveState::getEnergy() {
 // --------------------------
 
 inline void idealGas::ConservedState::setRhov(const size_t index, const float_t val) {
+#if DEBUG_LEVEL > 0
+  assert(index >= 0);
+  assert(index < Dimensions);
+#endif
   rhov[index] = val;
 }
 
 
 inline float_t idealGas::ConservedState::getRhov(const size_t index) const {
+#if DEBUG_LEVEL > 0
+  assert(index >= 0);
+  assert(index < Dimensions);
+#endif
   return rhov[index];
 }
 

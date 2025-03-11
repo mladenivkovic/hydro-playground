@@ -1,6 +1,9 @@
 #include "Cell.h"
 
+
 #include <cassert>
+
+#include "Logging.h"
 
 
 /**
@@ -78,3 +81,46 @@ std::pair<size_t, size_t> cell::Cell::getIJ(const size_t nxtot) {
   }
   return output;
 }
+
+
+/**
+ * Retrieve a specific cell quantity. Intended for printouts.
+ */
+float_t cell::Cell::getQuanityForPrintout(const char* quantity) const{
+
+  std::string q(quantity);
+
+  if (q == "rho"){
+    return getPrim().getRho();
+  }
+  if (q == "vx"){
+    return getPrim().getV(0);
+  }
+  if (q == "vy"){
+    return getPrim().getV(1);
+  }
+  if (q == "P"){
+    return getPrim().getP();
+  }
+  if (q == "p"){
+    return getPrim().getP();
+  }
+  if (q == "rhovx"){
+    return getCons().getRhov(0);
+  }
+  if (q == "rhovy"){
+    return getCons().getRhov(1);
+  }
+  if (q == "E"){
+    return getCons().getE();
+  }
+  if (q == "e"){
+    return getCons().getE();
+  }
+
+  error("Unknown quantity " + q);
+  return 0.;
+
+}
+
+
