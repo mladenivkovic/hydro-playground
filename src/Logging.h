@@ -28,10 +28,27 @@ namespace logging {
   };
 
 
+  //! Get/Set the current global code stage.
+  void setStage(const int stage);
+  void setStage(const LogStage stage);
+  LogStage getCurrentStage();
+
+
+  //! Get/Set the current global verbosity level.
+  void setVerbosity(const int level);
+  void setVerbosity(const LogLevel level);
+  LogLevel getCurrentVerbosity();
+
+
   class Log {
   public:
-    // Don't instantiate this class, ever.
-    Log() = delete;
+
+    Log() : _verbosity(LogLevel::Debug), _currentStage(LogStage::Undefined) {}
+
+    static Log& getInstance() {
+      static Log Instance;
+      return Instance;
+    }
 
     /**
      * @brief write a log message to screen.
@@ -43,7 +60,7 @@ namespace logging {
      * @param level "verbosity level" of the log message.
      * @param stage stage of the code where this log is called from.
      */
-    static void logMessage(
+    void logMessage(
       const char* file,
       const char* function,
       const int   line,
@@ -51,7 +68,7 @@ namespace logging {
       LogLevel    level,
       LogStage    stage
     );
-    static void logMessage(
+    void logMessage(
       const char*        file,
       const char*        function,
       const int          line,
@@ -59,7 +76,7 @@ namespace logging {
       LogLevel           level,
       LogStage           stage
     );
-    static void logMessage(
+    void logMessage(
       const char* file,
       const char* function,
       const int   line,
@@ -76,13 +93,13 @@ namespace logging {
      * @param line The current line in the file. Intended to be the __LINE__ macro.
      * @param text The message you want to print out.
      */
-    static void logWarning(
+    void logWarning(
       const char* file, const char* function, const int line, const std::string& text
     );
-    static void logWarning(
+    void logWarning(
       const char* file, const char* function, const int line, const std::stringstream& text
     );
-    static void logWarning(
+    void logWarning(
       const char* file, const char* function, const int line, const char* text
     );
 
@@ -94,39 +111,39 @@ namespace logging {
      * @param line The current line in the file. Intended to be the __LINE__ macro.
      * @param text The message you want to print out.
      */
-    static void logError(const char* file, const char* function, const int line, std::string text);
-    static void logError(
+    void logError(const char* file, const char* function, const int line, std::string text);
+    void logError(
       const char* file, const char* function, const int line, std::stringstream& text
     );
-    static void logError(const char* file, const char* function, const int line, const char* text);
+    void logError(const char* file, const char* function, const int line, const char* text);
 
 
     /**
      * Set the global verbosity level.
      */
-    static void setVerbosity(const int verbosity);
-    static void setVerbosity(const LogLevel verbosity);
+    void setVerbosity(const int verbosity);
+    void setVerbosity(const LogLevel verbosity);
 
     //! Get the current verbosity level.
-    static LogLevel getCurrentVerbosity();
+    LogLevel getCurrentVerbosity();
 
     /**
      * Set the global stage.
      */
-    static void setStage(const LogStage stage);
-    static void setStage(const int stage);
+    void setStage(const LogStage stage);
+    void setStage(const int stage);
 
     //! Get the current stage.
-    static LogStage getCurrentStage();
+    LogStage getCurrentStage();
 
   private:
-    static LogLevel _verbosity;
-    static LogStage _currentStage;
+    LogLevel _verbosity;
+    LogStage _currentStage;
 
     /**
      * Get the name of the given stage.
      */
-    static const char* getStageName(LogStage stage);
+    const char* getStageName(LogStage stage);
   };
 } // namespace logging
 
@@ -139,21 +156,21 @@ namespace logging {
 #endif
 
 #define MESSAGE_3_ARGS(msg, level, stage) \
-  logging::Log::logMessage(FILENAME_, __FUNCTION__, __LINE__, msg, level, stage);
+  logging::Log::getInstance().logMessage(FILENAME_, __FUNCTION__, __LINE__, msg, level, stage);
 
 #define MESSAGE_2_ARGS(msg, level) \
-  logging::Log::logMessage( \
-    FILENAME_, __FUNCTION__, __LINE__, msg, level, logging::Log::getCurrentStage() \
+  logging::Log::getInstance().logMessage( \
+    FILENAME_, __FUNCTION__, __LINE__, msg, level, logging::Log::getInstance().getCurrentStage() \
   );
 
 #define MESSAGE_1_ARG(msg) \
-  logging::Log::logMessage( \
+  logging::Log::getInstance().logMessage( \
     FILENAME_, \
     __FUNCTION__, \
     __LINE__, \
     msg, \
     logging::LogLevel::Undefined, \
-    logging::Log::getCurrentStage() \
+    logging::getCurrentStage() \
   );
 
 #define MESSAGE_GET_4TH_ARG(arg1, arg2, arg3, arg4, ...) arg4
@@ -170,6 +187,6 @@ namespace logging {
 #define message(...) MESSAGE_STRING_MACRO_CHOOSER(__VA_ARGS__)(__VA_ARGS__)
 
 
-#define error(msg) logging::Log::logError(FILENAME_, __FUNCTION__, __LINE__, msg);
+#define error(msg) logging::Log::getInstance().logError(FILENAME_, __FUNCTION__, __LINE__, msg);
 
-#define warning(msg) logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, msg);
+#define warning(msg) logging::Log::getInstance().logWarning(FILENAME_, __FUNCTION__, __LINE__, msg);

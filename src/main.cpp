@@ -9,11 +9,11 @@
 int main(int argc, char* argv[]) {
 
   // Set the logging stage. We're in the header phase.
-  logging::Log::setStage(logging::LogStage::Header);
+  logging::setStage(logging::LogStage::Header);
 
   // Set default verbosity levels.
   // Note that this can be changed through cmdline flags.
-  logging::Log::setVerbosity(logging::LogLevel::Quiet);
+  logging::setVerbosity(logging::LogLevel::Quiet);
 
   // Get a handle on global vars so they're always in scope
   auto params = parameters::Parameters();
@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
   utils::printHeader();
 
   // Were' in the initialisation phase now.
-  logging::Log::setStage(logging::LogStage::Init);
+  logging::setStage(logging::LogStage::Init);
 
   // Fire up IO
   IO::InputParse input(argc, argv);

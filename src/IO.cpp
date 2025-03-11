@@ -280,11 +280,11 @@ void IO::InputParse::_checkCmdLineArgsAreValid() {
   }
 
   if (_commandOptionExists("-v") or _commandOptionExists("--verbose")) {
-    logging::Log::setVerbosity(logging::LogLevel::Verbose);
+    logging::setVerbosity(logging::LogLevel::Verbose);
   }
 
   if (_commandOptionExists("-vv") or _commandOptionExists("--very-verbose")) {
-    logging::Log::setVerbosity(logging::LogLevel::Debug);
+    logging::setVerbosity(logging::LogLevel::Debug);
   }
 
 

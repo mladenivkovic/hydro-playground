@@ -83,10 +83,10 @@ namespace parameters {
    */
   void Parameters::initDerived() {
 
-    int currentLevel = static_cast<int>(logging::Log::getCurrentVerbosity());
+    int currentLevel = static_cast<int>(logging::getCurrentVerbosity());
     int paramVer = getVerbose();
     if (currentLevel < paramVer){
-      logging::Log::setVerbosity(paramVer);
+      logging::setVerbosity(paramVer);
       std::stringstream msg;
       msg << "Set run verbosity level to valueread from config file=" << paramVer;
       message(msg, logging::LogLevel::Verbose);

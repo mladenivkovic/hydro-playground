@@ -400,7 +400,7 @@ void unit_tests() {
 
 int main() {
 
-  logging::Log::setStage(logging::LogStage::Test);
+  logging::setStage(logging::LogStage::Test);
 
   unit_tests();
 

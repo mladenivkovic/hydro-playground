@@ -32,16 +32,18 @@ int main() {
   std::stringstream ss_msg;
   ss_msg << "String stream message";
 
-  logging::Log::logMessage(
+  logging::Log& logger = logging::Log::getInstance();
+
+  logger.logMessage(
     FILENAME_, __FUNCTION__, __LINE__, char_msg, logging::LogLevel::Quiet, logging::LogStage::Init
   );
-  logging::Log::logMessage(
+  logger.logMessage(
     FILENAME_, __FUNCTION__, __LINE__, str_msg, logging::LogLevel::Quiet, logging::LogStage::Init
   );
-  logging::Log::logMessage(
+  logger.logMessage(
     FILENAME_, __FUNCTION__, __LINE__, ss_msg, logging::LogLevel::Quiet, logging::LogStage::Init
   );
-  logging::Log::logMessage(
+  logger.logMessage(
     FILENAME_,
     __FUNCTION__,
     __LINE__,
@@ -50,10 +52,10 @@ int main() {
     logging::LogStage::Init
   );
 
-  logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, char_msg);
-  logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, str_msg);
-  logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, ss_msg);
-  logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, "Directly writing in here");
+  logger.logWarning(FILENAME_, __FUNCTION__, __LINE__, char_msg);
+  logger.logWarning(FILENAME_, __FUNCTION__, __LINE__, str_msg);
+  logger.logWarning(FILENAME_, __FUNCTION__, __LINE__, ss_msg);
+  logger.logWarning(FILENAME_, __FUNCTION__, __LINE__, "Directly writing in here");
 
   // Now try the message() macros
   message(char_msg);
@@ -90,17 +92,17 @@ int main() {
   // Vary verbosity levels
   for (int verb = levelMin; verb <= levelMax; verb++) {
 
-    logging::Log::setVerbosity(verb);
+    logging::setVerbosity(verb);
 
     // vary code stages
     for (int stage = stageMin; stage < stageMax; stage++) {
 
-      logging::LogStage s = static_cast<logging::LogStage>(stage);
+      auto s = static_cast<logging::LogStage>(stage);
 
       // vary verbosity level of messages
       for (int level = levelMin; level < levelMax; level++) {
 
-        logging::LogLevel l = static_cast<logging::LogLevel>(level);
+        auto l = static_cast<logging::LogLevel>(level);
 
         bool expect_print = (verb >= level);
 
