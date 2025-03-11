@@ -123,6 +123,14 @@ void IO::InputParse::readConfigFile(parameters::Parameters& params) {
   );
   params.setNstepsLog(nstepsLog);
 
+  int verbose = _convertParameterString(
+    "verbose",
+    ArgType::Integer,
+    /*optional=*/true,
+    /*defaultVal=*/params.getVerbose()
+  );
+  params.setVerbose(verbose);
+
   size_t nsteps = _convertParameterString(
     "nsteps",
     ArgType::Size_t,
@@ -523,6 +531,7 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
   }
 
   // grid.printGrid(true);
+  // TODO: Remove this again.
   grid.printGrid("rho", true);
   grid.printGrid("vx", true);
   grid.printGrid("vy", true);

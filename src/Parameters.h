@@ -27,6 +27,9 @@ namespace parameters {
     //! interval between steps to write current state to screen
     size_t _nstepsLog;
 
+    //! Verbosity of the run.
+    int _verbose;
+
 
     // simulation related parameters
     // -----------------------------
@@ -152,6 +155,13 @@ namespace parameters {
 
 
     /**
+     * @brief Get number of steps between writing log to screen
+     */
+    [[nodiscard]] int getVerbose() const;
+    void          setVerbose(const int verbose);
+
+
+    /**
      * @brief Get max nr of simulation steps to run
      */
     [[nodiscard]] size_t getNsteps() const;
@@ -246,6 +256,23 @@ inline void parameters::Parameters::setNstepsLog(const size_t nstepsLog) {
 
   _nstepsLog = nstepsLog;
   paramSetLog(nstepsLog);
+
+#if DEBUG_LEVEL > 0
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
+#endif
+}
+
+
+inline int parameters::Parameters::getVerbose() const {
+  return _verbose;
+}
+
+
+inline void parameters::Parameters::setVerbose(const int verbose) {
+
+  _verbose = verbose;
+  paramSetLog(verbose);
 
 #if DEBUG_LEVEL > 0
   if (_locked)

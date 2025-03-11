@@ -24,6 +24,7 @@ namespace parameters {
     // NOLINTBEGIN
 
     _nstepsLog = 0;
+    _verbose = 0;
 
     _nsteps       = 0;
     _tmax         = 0.;
@@ -78,14 +79,21 @@ namespace parameters {
 
   /**
    * Initialise derived global quantities/parameters.
+   * Lock the parameters struct.
    */
   void Parameters::initDerived() {
 
-    // size_t  nx = getNx();
-    // float_t dx = static_cast<float_t>(BOXLEN) / static_cast<float_t>(nx);
-    // setDx(dx);
+    int currentLevel = static_cast<int>(logging::Log::getCurrentVerbosity());
+    int paramVer = getVerbose();
+    if (currentLevel < paramVer){
+      logging::Log::setVerbosity(paramVer);
+      std::stringstream msg;
+      msg << "Set run verbosity level to valueread from config file=" << paramVer;
+      message(msg, logging::LogLevel::Verbose);
+    }
 
 #if DEBUG_LEVEL > 0
+    message("Locking parameters storage.", logging::LogLevel::Debug);
     _locked = true;
 #endif
   }
@@ -96,26 +104,30 @@ namespace parameters {
    */
   std::string Parameters::toString() const {
 
+    constexpr int width = 20;
+
     std::stringstream out;
     out << "\nParameter List\n";
-    out << std::setw(20) << "nstepsLog:";
-    out << std::setw(20) << getNstepsLog() << "\n";
-    out << std::setw(20) << "nsteps:";
-    out << std::setw(20) << getNsteps() << "\n";
-    out << std::setw(20) << "tmax:";
-    out << std::setw(20) << getTmax() << "\n";
-    out << std::setw(20) << "nx:";
-    out << std::setw(20) << getNx() << "\n";
-    out << std::setw(20) << "Ccfl:";
-    out << std::setw(20) << getCcfl() << "\n";
-    out << std::setw(20) << "boundaryType:";
-    out << std::setw(20) << static_cast<int>(getBoundaryType()) << "\n";
-    out << std::setw(20) << "boxsize:";
-    out << std::setw(20) << getBoxsize() << "\n";
-    out << std::setw(20) << "nbc:";
-    out << std::setw(20) << getNBC() << "\n";
-    out << std::setw(20) << "replicate:";
-    out << std::setw(20) << getReplicate() << "\n";
+    out << std::setw(width) << "nstepsLog:";
+    out << std::setw(width) << getNstepsLog() << "\n";
+    out << std::setw(width) << "verbose:";
+    out << std::setw(width) << getVerbose() << "\n";
+    out << std::setw(width) << "nsteps:";
+    out << std::setw(width) << getNsteps() << "\n";
+    out << std::setw(width) << "tmax:";
+    out << std::setw(width) << getTmax() << "\n";
+    out << std::setw(width) << "nx:";
+    out << std::setw(width) << getNx() << "\n";
+    out << std::setw(width) << "Ccfl:";
+    out << std::setw(width) << getCcfl() << "\n";
+    out << std::setw(width) << "boundaryType:";
+    out << std::setw(width) << static_cast<int>(getBoundaryType()) << "\n";
+    out << std::setw(width) << "boxsize:";
+    out << std::setw(width) << getBoxsize() << "\n";
+    out << std::setw(width) << "nbc:";
+    out << std::setw(width) << getNBC() << "\n";
+    out << std::setw(width) << "replicate:";
+    out << std::setw(width) << getReplicate() << "\n";
 
     return out.str();
   }

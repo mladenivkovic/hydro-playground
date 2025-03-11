@@ -107,6 +107,9 @@ namespace logging {
     static void setVerbosity(const int verbosity);
     static void setVerbosity(const LogLevel verbosity);
 
+    //! Get the current verbosity level.
+    static LogLevel getCurrentVerbosity();
+
     /**
      * Set the global stage.
      */
