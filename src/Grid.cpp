@@ -183,7 +183,6 @@ void grid::Grid::replicateICs() {
 
   printGrid("rho");
 
-  size_t nxTot      = getNxTot();
   size_t nxNorep    = getNxNorep();
   size_t first      = getFirstCellIndex();
   size_t last       = nxNorep + first;
@@ -198,9 +197,9 @@ void grid::Grid::replicateICs() {
         size_t target = rep * nxNorep + i;
 
 #if DEBUG_LEVEL > 0
-        if (target >= nxTot) {
+        if (target >= getNxTot()) {
           std::stringstream msg;
-          msg << "Index error: Out of bounds " << target << "/" << nxTot;
+          msg << "Index error: Out of bounds " << target << "/" << getNxTot();
           error(msg);
         }
 #endif
@@ -216,9 +215,9 @@ void grid::Grid::replicateICs() {
       size_t target = rep * nxNorep + j;
 
 #if DEBUG_LEVEL > 0
-      if (target >= nxTot) {
+      if (target >= getNxTot()) {
         std::stringstream msg;
-        msg << "Index error: Out of bounds " << target << "/" << nxTot;
+        msg << "Index error: Out of bounds " << target << "/" << getNxTot();
         error(msg);
       }
 #endif
