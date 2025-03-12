@@ -76,7 +76,10 @@ namespace logging {
    *
    *   message(<msg>, <level>);
    *
-   * where <level> is a logging::LogLevel enum.
+   * where <level> is a logging::LogLevel enum. The default LogLevel is Quiet:
+   * the message will always be printed unless you specify a higher verbosity
+   * level requirement as in the example above.
+   *
    * You can futhermore specify a stage of the message as well:
    *
    *   message(<msg>, <level>, <stage>);
@@ -225,7 +228,7 @@ namespace logging {
     __FUNCTION__, \
     __LINE__, \
     msg, \
-    logging::LogLevel::Undefined, \
+    logging::LogLevel::Quiet, \
     logging::getCurrentStage() \
   );
 

@@ -2,7 +2,9 @@
 
 #include <filesystem> // std::filesytem::exists
 #include <iostream>
+#include <sstream>
 
+#include "Cell.h"
 #include "Logging.h"
 #include "Version.h"
 
@@ -60,6 +62,10 @@ void utils::printHeader() {
   std::stringstream debug;
   debug << "Debug level: " << DEBUG_LEVEL;
   message(debug, level);
+
+  std::stringstream cellsize;
+  cellsize << "sizeof(cell::Cell): " << sizeof(cell::Cell);
+  message(cellsize);
 
 #if DEBUG_LEVEL > 0
   warning("Code compiled with debugging enabled.");
