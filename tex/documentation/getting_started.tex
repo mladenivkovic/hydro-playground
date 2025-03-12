@@ -4,6 +4,26 @@
 %======================================================
 
 
+%======================================================
+\subsection{Requirements}
+%======================================================
+
+\begin{itemize}
+\item   \code{git} to obtain the code.
+\item   A good old \codename{C++} compiler. Code is written in \codename{C++17}
+        standard.
+\item   \cmake 3.21 or above
+\item   (optional) \codename{Python 3} with \codename{numpy} and
+        \codename{matplotlib} for plotting outputs and generating initial
+        conditions.
+\item   (optional) \codename{LaTeX} to create the \jargon{TeX} files. I
+        hardcoded the \jargon{pdflatex} command in the scripts. It doesn't
+        require any fancy \codename{LaTeX} packages.
+\end{itemize}
+
+
+
+
 
 %======================================================
 \subsection{Getting the Code}
@@ -15,14 +35,14 @@ The code is hosted on a github repository:
 cloning the repository using either
 
 \begin{lstlisting}
-$ git clone https://github.com/mladenivkovic/hydro-playground.git
+git clone https://github.com/mladenivkovic/hydro-playground.git
 \end{lstlisting}
 
 
 using the \jargon{https} protocol, or
 
 \begin{lstlisting}
-$ git clone git@github.com:mladenivkovic/hydro-playground.git
+git clone git@github.com:mladenivkovic/hydro-playground.git
 \end{lstlisting}
 
 using \jargon{ssh}.
@@ -35,7 +55,7 @@ using \jargon{ssh}.
 
 
 %======================================================
-\subsection{Getting and Installing the Python Module}
+\subsection{Getting and Installing the Python Module}\label{chap:py}
 %======================================================
 
 
@@ -43,12 +63,12 @@ The entire \mhutils python module is stored within this repository as a git
 submodule of its own
 repository\footnote{\url{https://github.com/mladenivkovic/mesh_hydro_utils}}.
 
-Once you've cloned the mesh-hydro repository, you'll also need to tell git to
-grab the submodules using
+Once you've cloned the \hydro repository, you'll also need to tell git to grab
+the submodules using
 
 \begin{lstlisting}
-$ git submodule init
-$ git submodule update
+git submodule init
+git submodule update
 \end{lstlisting}
 
 When completed successfully, the directory \verb|./python_module| should now
@@ -58,8 +78,8 @@ The easiest way is to navigate into the directory and install it locally using
 e.g. \code{pip}:
 
 \begin{lstlisting}
-$ cd python_module
-$ pip install -e .
+cd python_module
+pip install -e .
 \end{lstlisting}
 
 On your local machine, that should work just fine. If you are trying to install
@@ -68,7 +88,7 @@ cluster or HPC facility, then \code{pip} may be prohibited from installing this
 way. In those cases, you can try
 
 \begin{lstlisting}
-$ pip install --user -e .
+pip install --user -e .
 \end{lstlisting}
 
 first. If that doesn't work, a reliable failsafe is to create a python virtual
@@ -76,17 +96,17 @@ environment and install it there. (In fact, this should be the preferred
 method.) You can do this by:
 
 \begin{lstlisting}
-$ python3 -m venv $HOME/virtualenv/some_name
-$ source $HOME/virtualenv/some_name/bin/activate
-$ cd ./python_module
-$ pip install -e .
+python3 -m venv $HOME/virtualenv/some_name
+source $HOME/virtualenv/some_name/bin/activate
+cd ./python_module
+pip install -e .
 \end{lstlisting}
 
 You may choose the path \verb|$HOME/virtualenv/some_name| freely to your liking.
 Note that every time you start a new session, you'll need to run the command
 
 \begin{lstlisting}
-$ source $HOME/virtualenv/some_name/bin/activate
+source $HOME/virtualenv/some_name/bin/activate
 \end{lstlisting}
 
 to activate the virtual environment again to make \codename{mesh\_hydro\_utils}
@@ -103,7 +123,7 @@ shell's runtime configuration file, which is usually \verb|$HOME/.bashrc| for
 
 
 %======================================================
-\subsection{Compiling This Documentation}
+\subsection{Compiling This Documentation}\label{chap:documentation}
 %======================================================
 
 
@@ -113,8 +133,8 @@ provided \verb|Makefile|, like so:
 
 
 \begin{lstlisting}
-$ cd hydro_playground/tex/documentation
-$ make
+cd hydro_playground/tex/documentation
+make
 \end{lstlisting}
 
 That should leave you with the resulting \verb|documentation.pdf| file.
@@ -122,8 +142,8 @@ That should leave you with the resulting \verb|documentation.pdf| file.
 Alternately, you can run the latex compile command by hand:
 
 \begin{lstlisting}
-$ cd hydro_playground/tex/documentation
-$ pdflatex -jobname=documentation documentation.tex
+cd hydro_playground/tex/documentation
+pdflatex -jobname=documentation documentation.tex
 \end{lstlisting}
 
 Another way yet is to import the documentation directory into your LaTeX editor
@@ -151,19 +171,19 @@ To build the code, navigate into the repository directory and run the usual
 into it, and then run the \cmake commands):
 
 \begin{lstlisting}
-$ cd hydro_playground
-$ mkdir build
-$ cd build
-$ cmake ..
-$ cmake --build .
+cd hydro_playground
+mkdir build
+cd build
+cmake ..
+cmake --build .
 \end{lstlisting}
 
 An alternative, but equivalent workflow, is
 
 \begin{lstlisting}
-$ cd hydro_playground
-$ cmake -B build
-$ cmake --build build/
+cd hydro_playground
+cmake -B build
+cmake --build build/
 \end{lstlisting}
 
 
@@ -173,11 +193,53 @@ That should leave you with an executable file \verb|hydro| in the directory
 
 
 
+
+
+
 %======================================================
-\subsection{Python}
+\subsubsection{Build Options}
 %======================================================
 
-\todo{All of this}
+
+You can pass build options to \cmake by giving it a list of command line
+arguments beginning with \code{-D} at build time, e.g.
+
+\begin{lstlisting}
+cd hyrdo_playground
+mkdir build
+cd build
+cmake .. -DOPTION1 -DOPTION2 ...
+cmake --build .
+\end{lstlisting}
+
+or, if you prefer:
+
+\begin{lstlisting}
+cd hyrdo_playground
+cmake -B build -DOPTION1 -DOPTION2 ...
+cmake --build build
+\end{lstlisting}
+
+
+Currently available build options are:
+
+\begin{itemize}
+\item \verb|-DBUILD_TYPE=| [\code{Release}, \code{RelWithDebInfo}, \code{Debug}]
+    \begin{itemize}
+        \item  \code{Release}: Enables aggressive compiler optimisation. This
+                is the default mode.
+        \item  \code{RelWithDebInfo}: Release mode, but with debugging symbols
+                attached. Also activates some light debugging checks.
+        \item  \code{Debug}: Turns compiler optimisation off and enables
+                extensive debugging checks.
+    \end{itemize}
+\end{itemize}
+
+
+\todo{Precision flag, once it's implemented}
+
+
+
 
 
 
@@ -187,6 +249,32 @@ That should leave you with an executable file \verb|hydro| in the directory
 %======================================================
 
 
-\todo{All of this}
+Once you've compiled the code following the steps in the previous sections,
+you're ready to run your first example.
+
+A successful compilation will leave you with an executable
+\verb|hydro_playground/build/hydro|. To actually run the code, you need to
+provide it with two mandatory command line arguments: A simulation parameter
+file (Section~\ref{chap:paramfile}) and an initial conditions file
+(Section~\ref{chap:icfile}).
+
+You can specify them as follows:
+
+\begin{lstlisting}
+./hydro --ic-file <ic_file> --config-file <config_file>
+\end{lstlisting}
+
+or
+
+\begin{lstlisting}
+./hydro --ic-file=<ic_file> --config-file=<config_file>
+\end{lstlisting}
+
+where \verb|<ic_file>|` is the path to the initial conditions file you want to
+use, and \verb|<config_file>| is the path to the parameter file you want to use.
+
+You may want to look into the \verb|hydro_playground/examples| directory for
+some ready-to-go examples.
+
 
 

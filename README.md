@@ -15,14 +15,15 @@ laws, in particular the advection equation and the Euler equations of ideal gase
 Contents
 ----------------------------
 
-<!-- - `./IC`: A collection of default initial condition files. -->
-- `./src`: contains the actual software.
+- `./examples`: Some ready-to-go example simulations.
 - `./python_module`: A git submodule containing the
   [mesh_hydro_utils](https://github.com/mladenivkovic/mesh_hydro_utils) python module. It contains
   convenience functions to generate initial conditions, plot ICs and outputs, and a Riemann solver.
   Note that you need to install it first for it to work. Instructions are given
   [below](#Getting-And-Installing-The-Python-Module).
+- `./src`: contains the actual software.
 - `./tex`: TeX documentation of the code and theory on the equations being solved.
+- `./tests`: Unit tests and functional tests.
 
 
 
@@ -31,9 +32,11 @@ Getting Started
 
 ### Requirements
 
+- `git` to obtain the code.
 - A good old C++ compiler. Code is written in C++17 standard.
 - `cmake` 3.21 or above
-- (optional) `python 3` with `numpy` and `matplotlib` for plotting and generating ICs.
+- (optional) `python 3` with `numpy` and `matplotlib` for plotting outputs and generating initial
+  conditions.
 - (optional) LaTeX to create the TeX files. I hardcoded the `pdflatex` command in the scripts. It
   doesn't require any fancy LaTeX packages.
 
@@ -87,7 +90,7 @@ Alternatively (***albeit very discouraged***), you can add the directory
 
 
 
-### Getting The Documentation
+### Getting the Documentation
 
 Check the documentation in `tex/documentation`. You can build it using the provided `Makefile`:
 
@@ -111,7 +114,7 @@ favourite TeX IDE/Editor.
 
 
 
-### Building The Project
+### Building the Project
 
 We build the project using `cmake`:
 
@@ -132,6 +135,7 @@ cmake --build build
 ```
 
 That should leave you with an executable file `hydro` in the directory `hydro_playground/build/`.
+
 
 
 
@@ -199,24 +203,19 @@ or
 where `<ic_file>` is the path to the [initial conditions](#initial-conditions) file you want to use,
 and `<config_file>` is the path to the [parameter file](#parameter-file) you want to use.
 
+You may want to look into the `hydro_playground/examples` directory for some ready-to-go examples.
 
 
 
 
 
-
-Format Specifications
-------------------------
+File Format Specifications
+----------------------------
 
 
 ### Parameter File
 
-TODO.
-
-- Added boxsize parameter, which mesh-hydro didn't have.
-- Replicate parameter will be added
-
-#### Behaviour Options and Parameters
+#### Talking Parameters
 
 | name          |  default value    | type  | description                                                                   |
 |---------------|-------------------|-------|-------------------------------------------------------------------------------|
@@ -227,7 +226,7 @@ TODO.
 
 
 
-#### Simulation Related Options and Parameters
+#### Simulation Parameters
 
 | name              |  default value    | type  | description                                                                   |
 |-------------------|-------------------|-------|-------------------------------------------------------------------------------|
@@ -243,10 +242,14 @@ TODO.
 |                   |                   |       |                                                                               |
 | `boundary`        | = 0               | `int` | Boundary conditions  0: periodic. 1: reflective. 2: transmissive. This sets the boundary conditions for all walls. |
 |                   |                   |       |                                                                               |
+| `boxsize`         | = 1.              |`float`| Size of the simulation box in each dimension. Currently unused.               |
+|                   |                   |       |                                                                               |
+| `replicate`       | = 0               | `int` | When running with [arbitrary-type initial conditions](#arbitrary-type-ics), replicate (= copy-paste) the initial conditions this many times in each dimension. This is not used for the [two-state type ICs](#two-state-type-ics) because there you can simply specify the `nx` parameter as you wish. |
+|                   |                   |       |                                                                               |
 
 
 
-#### Output related Options and Parameters
+#### Output Parameters
 
 
 | name          |  default value    | type    | description                                                                   |
@@ -261,8 +264,8 @@ TODO.
 |               |                   |         |                                                                               |
 
 
-
-#### Source Term related Options and Parameters
+<!---
+#### Source Term Parameters
 
 The source term related options will only take effect if the code has been compiled to add source terms.
 
@@ -275,6 +278,7 @@ The source term related options will only take effect if the code has been compi
 |                   |                   |        |                                                                               |
 | `src_const_acc_r` | = 0               | `float`| constant acceleration in radial direction for radial source terms             |
 |                   |                   |        |                                                                               |
+-->
 
 
 
@@ -296,7 +300,7 @@ runs 2D examples, and hence only uses 2D initial conditions.
   [above](#Getting-And-Installing-The-Python-Module).
 
 
-#### Two-state ICs
+#### Two-state Type ICs
 
 You can use a Riemann-problem two-state initial condition file as follows:
 
@@ -315,19 +319,15 @@ The line
 filetype = two-state
 ```
 
-**must** be the first non-comment non-empty line. The order of the other parameters is arbitrary,
-but they must be named `rho_L`, `u_L`, `p_L`, `rho_R`, `u_R`, `p_R`.
+**must** be the first non-comment non-empty line, followed by `rho_L`, `u_L`, `p_L`, `rho_R`, `u_R`,
+`p_R`.
 
-The discontinuity between the changes will be in the middle along the x axis. The coordinates will
-be printed to screen.
-
-If the code is supposed to run in 2D, then the split will be along the x axis as well, and just
-copied along the y axis. Fluid velocity in y direction will be set to zero, `u_L` and `u_R` will be
-set as `u_x`.
+The discontinuity between the changes will be in the middle along the `x`-axis. Fluid velocity in `y`
+direction will be set to zero, `u_L` and `u_R` will be set as `u_x`.
 
 
 
-#### Arbitrary ICs
+#### Arbitrary Type ICs
 
 You can provide an individual value for density, velocity, and pressure for each cell. The IC file
 format is:
@@ -385,8 +385,50 @@ wherever you feel like it.
 
 ### Output Files
 
-TODO. For now, we do the same as in the [mesh-hydro](https://github.com/mladenivkovic/mesh-hydro)
-code. Look at the top level README.md file there for specifics.
+
+If no `basename` is given in the parameter file, the output file name will be generated as follows:
+
+```
+<ICfile-without-suffix>-<SOLVER>-<RIEMANN-SOLVER>-<LIMITER>-<NDIM>D-<snapshot nr>.out
+```
+
+e.g.
+
+`run-ADVECTION-NO_LIMITER-2D-0001.out`
+
+The output files are written in plain text, and their content should be self-explainatory:
+
+
+```
+# ndim =  2
+# nx =    <number of cells used>
+# t =     <current time, float>
+# nsteps =  <current step of the simulation>
+#            x            y          rho          u_x          u_y            p
+<x value of cell (0, 0)> <y value of cell (0, 0)> <density in cell (0, 0)> <x velocity in cell (0, 0)> <y velocity in cell (0, 0)> <pressure in cell (0, 0)>
+<x value of cell (1, 0)> <y value of cell (1, 0)> <density in cell (1, 0)> <x velocity in cell (1, 0)> <y velocity in cell (1, 0)> <pressure in cell (1, 0)>
+                                                 .
+                                                 .
+                                                 .
+<x value of cell (nx-1, 0)> <y value of cell (nx-1, 0)> <density in cell (nx-1, 0)> <x velocity cell (nx-1, 0)> <y velocity in cell (nx-1, 0)> <pressure in cell (nx-1, 0)>
+<x value of cell (0, 1)> <y value of cell (0, 1)> <density in cell (0, 1)> <x velocity in cell (0, 1)> <y velocity in cell (0, 1)> <pressure in cell (0, 1)>
+<x value of cell (1, 1)> <y value of cell (1, 1)> <density in cell (1, 1)> <x velocity in cell (1, 1)> <y velocity in cell (1, 1)> <pressure in cell (1, 1)>
+                                                 .
+                                                 .
+                                                 .
+<x value of cell (nx-1, 1)> <y value of cell (nx-1, 1)> <density in cell (nx-1, 1)> <x velocity cell (nx-1, 1)> <y velocity in cell (nx-1, 1)> <pressure in cell (nx-1, nx-1)>
+                                                 .
+                                                 .
+                                                 .
+<x value of cell (0, nx-1)> <y value of cell (0, nx-1)> <density in cell (0, nx-1)> <x velocity in cell (0, nx-1)> <y velocity in cell (0, nx-1)> <pressure in cell (0, nx-1)>
+<x value of cell (1, nx-1)> <y value of cell (1, nx-1)> <density in cell (1, nx-1)> <x velocity in cell (1, nx-1)> <y velocity in cell (1, nx-1)> <pressure in cell (1, nx-1)>
+                                                 .
+                                                 .
+                                                 .
+<x value of cell (nx-1, nx-1)> <y value of cell (nx-1, nx-1)> <density in cell (nx-1, nx-1)> <x velocity cell (nx-1, nx-1)> <y velocity in cell (nx-1, nx-1)> <pressure in cell (nx-1, nx-1)>
+```
+
+
 
 
 
