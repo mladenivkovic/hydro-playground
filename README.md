@@ -37,7 +37,7 @@ Getting Started
 - `cmake` 3.21 or above
 - (optional) `python 3` with `numpy` and `matplotlib` for plotting outputs and generating initial
   conditions.
-- (optional) LaTeX to create the TeX files. I hardcoded the `pdflatex` command in the scripts. It
+- (optional) LaTeX to create the TeX files. I hard-coded the `pdflatex` command in the scripts. It
   doesn't require any fancy LaTeX packages.
 
 
@@ -232,7 +232,7 @@ File Format Specifications
 |-------------------|-------------------|-------|-------------------------------------------------------------------------------|
 | `nx`              | = 100             | `int` | Number of cells to use if you're running with a two-state type IC file. Otherwise, it needs to be specified in the initial conditions.  If you're not using a two-state IC, the value will be overwritten by the value given in the IC file.  |
 |                   |                   |       |                                                                               |
-| `ccfl`            | = 0.9             |`float`| courant factor; `dt = ccfl * dx / vmax`                                       |
+| `ccfl`            | = 0.9             |`float`| Courant factor; `dt = ccfl * dx / vmax`                                       |
 |                   |                   |       |                                                                               |
 | `nsteps`          | = 1               | `int` | Up to how many steps to do. If = 0, run until `t >= tmax`                     |
 |                   |                   |       |                                                                               |
@@ -373,7 +373,7 @@ ndim = 2
 ```
 
 `cell (0, 0)` is the lower left corner of the box. First index is x direction, second is y. All
-values for density, velocity, and pressure must be floats. You can put comments and empy lines
+values for density, velocity, and pressure must be floats. You can put comments and empty lines
 wherever you feel like it.
 
 
@@ -396,7 +396,7 @@ e.g.
 
 `run-ADVECTION-NO_LIMITER-2D-0001.out`
 
-The output files are written in plain text, and their content should be self-explainatory:
+The output files are written in plain text, and their content should be self-explanatory:
 
 
 ```

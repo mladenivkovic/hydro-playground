@@ -57,7 +57,7 @@ Name & Default & Type & Description \\
 \texttt{ccfl} &
     = 0.9 &
     \texttt{float} &
-    courant factor; \texttt{dt\ =\ ccfl\ *\ dx\ /\ vmax}
+    Courant factor; \texttt{dt\ =\ ccfl\ *\ dx\ /\ vmax}
 \\ \hline
 \texttt{nsteps} &
     = 1 &
@@ -74,8 +74,8 @@ Name & Default & Type & Description \\
 \texttt{force\_dt} &
     = 0 &
     \texttt{float} &
-    force a time step size. If a smaller time step is required, the sim will
-stop.
+    force a time step size. If a smaller time step is required, the simulation
+    will stop.
 \\ \hline
 \texttt{boundary} &
     = 0 &
@@ -269,7 +269,7 @@ ndim = <int>
 \end{lstlisting}
 
 \textbf{must} be the first non-comment non-empty lines, in that order.
-\texttt{ndim} \textbf{must} be 2, as \texttt{hydro-plaground} only runs
+\jargon{ndim} \textbf{must} be 2, as \hydro only runs
 in 2D.
 
 The IC format is as follows:
@@ -303,7 +303,7 @@ ndim = 2
 
 \texttt{cell\ (0,\ 0)} is the lower left corner of the box. First index is x
 direction, second is y. All values for density, velocity, and pressure must be
-floats. You can put comments and empy lines wherever you feel like it.
+floats. You can put comments and empty lines wherever you feel like it.
 
 
 
@@ -341,7 +341,7 @@ run-uniform-MUSCL_HANCOCK-EXACT-MINMOD-2D-0001.out
 \end{lstlisting}
 
 The output files are written in plain text, and their content should be
-self-explainatory:
+self-explanatory:
 
 \begin{lstlisting}
 # ndim =  2
