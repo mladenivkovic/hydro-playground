@@ -2,6 +2,8 @@
 
 #include <iomanip>
 
+#include "Logging.h"
+
 
 static constexpr int gas_print_width = 5;
 static constexpr int gas_print_precision = 2;
@@ -25,6 +27,32 @@ idealGas::PrimitiveState::PrimitiveState(
   rho(rho),
   v({vel[0], vel[1]}),
   p(p) {
+}
+
+idealGas::PrimitiveState::PrimitiveState(
+  const float_t rho, const float_t vx, const float_t p
+):
+  rho(rho),
+  v({vx}),
+  p(p) {
+#if DEBUG_LEVEL > 0
+    if (Dimensions != 1){
+      error("This is a 1D function only!");
+    }
+#endif
+}
+
+idealGas::PrimitiveState::PrimitiveState(
+  const float_t rho, const float_t vx, const float vy, const float_t p
+):
+  rho(rho),
+  v({vx, vy}),
+  p(p) {
+#if DEBUG_LEVEL > 0
+    if (Dimensions != 2){
+      error("This is a 2D function only!");
+    }
+#endif
 }
 
 

@@ -23,7 +23,7 @@ namespace idealGas {
     float_t rho;
 
     //! velocity
-    std::array<float_t, 2> v;
+    std::array<float_t, Dimensions> v;
 
     //! pressure
     float_t p;
@@ -31,7 +31,9 @@ namespace idealGas {
 
   public:
     PrimitiveState();
-    PrimitiveState(const float_t rho, const std::array<float_t, 2> vel, const float_t p);
+    PrimitiveState(const float_t rho, const std::array<float_t, Dimensions> vel, const float_t p);
+    PrimitiveState(const float_t rho, const float_t vx, const float_t p);
+    PrimitiveState(const float_t rho, const float_t vx, const float_t vy, const float_t p);
 
     // copy assignment
     // TODO(mivkov): This doesn't compile. Check with boundary conditions
@@ -85,7 +87,7 @@ namespace idealGas {
     float_t rho;
 
     //! Momentum: rho * v
-    std::array<float_t, 2> rhov;
+    std::array<float_t, Dimensions> rhov;
 
     //! Energy
     float_t E;
