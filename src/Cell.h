@@ -14,7 +14,6 @@ namespace cell {
 
     //! copy assignment, for copying boundary data
     //! Return reference to this, for chaining calls
-    // TODO: This doesn't compile
     // Cell& operator=(const Cell& other) = default;
 
     void CopyBoundaryData(const Cell* real);

@@ -9,6 +9,10 @@
 #include "Logging.h"
 #include "Parameters.h"
 
+
+constexpr size_t grid_print_width = 5;
+constexpr size_t grid_print_precision = 3;
+
 /**
  * Constructor
  */
@@ -156,45 +160,80 @@ void grid::Grid::initCells() {
   msg << std::setprecision(prec) << std::setw(wid) << gridsize / KB << " KB /";
   msg << std::setprecision(prec) << std::setw(wid) << gridsize / MB << " MB /";
   msg << std::setprecision(prec) << std::setw(wid) << gridsize / GB << " GB  ]";
+  msg << " for " << total_cells << " cells";
 
   message(msg);
 }
 
 
 /**
- * [density, velocity, pressure]
+ * @brief replicate (copy-paste) the initial conditions over the entire grid.
  */
-void grid::Grid::setInitialConditions(
-  size_t position, std::vector<float_t> vals, const parameters::Parameters& pars
-) {
+void grid::Grid::replicateICs() {
 
-  // TODO: Remove this?
-
-  assert((vals.size() == 4 and Dimensions == 2) or (vals.size() == 3 and Dimensions == 1));
-  // Let's set i,j based on the position in the array we passed in
-  size_t i = 0;
-  size_t j = 0;
-  if (Dimensions == 1) {
-    i = position;
-    j = 0;
-  }
-  if (Dimensions == 2) {
-    i = position % pars.getNx();
-    j = position / pars.getNx();
+  if (Dimensions != 2) {
+    error("Not Implemented");
   }
 
-  // alias the bc value
-  size_t nbc = pars.getNBC();
+  if (getReplicate() <= 1) {
+    warning("Called IC replication with replicate <=1? Skipping it.");
+    return;
+  }
 
-  getCell(i + nbc, j + nbc).getPrim().setRho(vals[0]);
-  getCell(i + nbc, j + nbc).getPrim().setV(0, vals[1]);
-  if (Dimensions == 1) {
-    getCell(i + nbc, j + nbc).getPrim().setP(vals[2]);
+
+  printGrid("rho");
+
+  size_t nxTot = getNxTot();
+  size_t nxNorep = getNxNorep();
+  size_t first = getFirstCellIndex();
+  size_t last = nxNorep + first;
+  size_t lastInGrid = getLastCellIndex();
+
+  for (size_t j = first; j < last; j++){
+
+    // First, copy in x direction for const j
+    for (size_t rep = 1; rep < getReplicate(); rep++){
+      for (size_t i = first; i < last; i++){
+
+        size_t target = rep * nxNorep + i;
+
+#if DEBUG_LEVEL > 0
+        if (target >= nxTot){
+          std::stringstream msg;
+          msg << "Index error: Out of bounds " << target << "/" << nxTot;
+          error(msg);
+        }
+#endif
+
+        getCell(target, j) = getCell(i, j);
+        printGrid("rho");
+
+      }
+    }
+
+    // Now replicate entire row along y axis
+    for (size_t rep = 1; rep < getReplicate(); rep++){
+
+      size_t target = rep * nxNorep + j;
+
+#if DEBUG_LEVEL > 0
+      if (target >= nxTot){
+        std::stringstream msg;
+        msg << "Index error: Out of bounds " << target << "/" << nxTot;
+        error(msg);
+      }
+#endif
+
+      for (size_t i = first; i < lastInGrid; i++){
+        getCell(i, target) = getCell(i, j);
+      }
+
+    }
+
   }
-  if (Dimensions == 2) {
-    getCell(i + nbc, j + nbc).getPrim().setV(1, vals[2]);
-    getCell(i + nbc, j + nbc).getPrim().setP(vals[3]);
-  }
+
+  // TODO: Make a timer out of this.
+  message("Finished replicating grid.");
 }
 
 
@@ -414,6 +453,18 @@ void grid::Grid::printGrid(bool boundaries, bool conserved){
   }
 
   std::stringstream out;
+  out << "Full grid output of ";
+  if (conserved){
+    out << "conserved states";
+  } else {
+    out << "primitive states";
+  }
+
+  if (boundaries){
+    out << " (including boundaries)";
+  }
+  out << "\n";
+
 
   if (Dimensions == 1) {
 
@@ -493,11 +544,20 @@ void grid::Grid::printGrid(const char* quantity, bool boundaries){
   }
 
   std::stringstream out;
+  out << "Full grid output of " << quantity;
+  if (boundaries){
+    out << " (including boundaries)";
+  }
+  out << "\n";
+
+  constexpr size_t w = grid_print_width;
+  constexpr size_t p = grid_print_precision;
+
 
   if (Dimensions == 1) {
 
     for (size_t i = start; i < end; i++){
-      out << getCell(i).getQuanityForPrintout(quantity);
+      out << std::setw(w) << std::setprecision(p) << getCell(i).getQuanityForPrintout(quantity);
 
       bool at_boundary = (i == first - 1) or (i == last - 1);
       if (boundaries and at_boundary ) {
@@ -517,7 +577,7 @@ void grid::Grid::printGrid(const char* quantity, bool boundaries){
     for (int j = end - 1; j >= 0; j--){
 
       for (size_t i = start; i < end; i++){
-        out << getCell(i, j).getQuanityForPrintout(quantity);
+        out << std::setw(w) << std::setprecision(p) << getCell(i,j).getQuanityForPrintout(quantity);
 
         bool at_boundary = (i == first - 1) or (i == last - 1);
         if (boundaries and at_boundary ) {

@@ -84,15 +84,9 @@ namespace grid {
 
 
     /**
-     * @brief Pass in vector of initial vals, to be read from IC file.
-     * In 1d this should be:
-     *   [density, velocity, pressure]
-     * In 2d this should be:
-     * [density, velocity_x, velocity_y, pressure]
+     * @brief Replicate the initial conditions in every dimension.
      */
-    void setInitialConditions(
-      size_t position, std::vector<float_t> vals, const parameters::Parameters& pars
-    );
+    void replicateICs();
 
 
     //! Run through the grid and get cstates from pstates
@@ -232,7 +226,6 @@ inline cell::Cell& grid::Grid::getCell(const size_t i, const size_t j) {
 #if DEBUG_LEVEL > 1
   if (_cells == nullptr)
     error("Cells array not allocated.");
-
 #endif
 
 #if DEBUG_LEVEL > 0

@@ -463,16 +463,21 @@ idealGas::PrimitiveState IO::InputParse::_extractArbitraryICVal(std::string& lin
   constexpr char delim = ' ';
 
   while (trimmed.size() > 0){
-    trimmed = utils::removeWhitespace(trimmed);
 
-    size_t i = nocomment.find(delim);
+    trimmed = utils::removeWhitespace(trimmed);
+    size_t i = trimmed.find(delim);
+
     if (i == std::string::npos){
       // we're done.
       split.push_back(trimmed);
       break;
     }
+
+    // extract
     chunk = trimmed.substr(0, i);
+    // store this chunk
     split.push_back(chunk);
+    // shorten what we need to process
     trimmed = trimmed.substr(i, trimmed.size()-i);
   }
 
@@ -601,7 +606,7 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
     error("Not implemented");
   }
 
-  // TODO: Remove this again.
+  // TODO: Remove this again. (after boundary check)
   grid.printGrid(true);
   // grid.printGrid("rho", true);
   // grid.printGrid("vx", true);
@@ -615,10 +620,6 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
 
 //! Read an IC file with the arbitrary format
 void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
-
-  // Read in ICs...
-  // Read in nx from ICs, and set grid.setNx(nx);
-
 
   // first, read the file.
   std::string nocomment;
@@ -638,6 +639,7 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
     break;
   }
 
+  // Make sure the first three required lines are correct.
   nocomment = utils::removeTrailingComment(line);
   pair      = utils::splitEquals(nocomment);
   name      = pair.first;
@@ -691,6 +693,8 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
   }
 
   int nx = utils::string2int(value);
+
+  // Tell the grid how big it is.
   grid.setNx(nx);
   grid.setNxNorep(nx);
 
@@ -704,7 +708,7 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
 
   // Read in the rest of the ICs
   const size_t first = grid.getFirstCellIndex();
-  const size_t last = grid.getLastCellIndex();
+  const size_t last = nx + first;
   size_t i = first;
   size_t j = first;
 
@@ -724,11 +728,15 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
       if (i == last) {
         i = first;
         j++;
-        // TODO: replicate here
       }
     }
   }
 
-  grid.printGrid();
+  if (grid.getReplicate() > 1) {
+    grid.replicateICs();
+  }
+
+  // grid.printGrid();
+  grid.printGrid("rho", true);
 
 }
