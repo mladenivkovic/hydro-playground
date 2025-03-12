@@ -34,6 +34,26 @@ logging::LogLevel logging::getCurrentVerbosity(){
 }
 
 
+const char* logging::getStageName(LogStage stage) {
+
+  switch (stage) {
+  case LogStage::Undefined:
+    return "Undefined";
+  case LogStage::Header:
+    return "Header";
+  case LogStage::Init:
+    return "Init";
+  case LogStage::Step:
+    return "Step";
+  case LogStage::Test:
+    return "Test";
+  case LogStage::Count:
+    return "Count";
+  default:
+    return "Unknown";
+  }
+}
+
 
 
 void logging::Log::logMessage(
@@ -162,7 +182,7 @@ void logging::Log::setStage(int stage) {
 
 void logging::Log::setStage(LogStage stage) {
   std::stringstream msg;
-  msg << "Setting stage " << Log::getStageName(stage);
+  msg << "Setting stage " << getStageName(stage);
   message(msg.str(), LogLevel::Verbose);
   getInstance()._currentStage = stage;
 }
@@ -170,27 +190,6 @@ void logging::Log::setStage(LogStage stage) {
 
 logging::LogStage logging::Log::getCurrentStage() {
   return getInstance()._currentStage;
-}
-
-
-const char* logging::Log::getStageName(LogStage stage) {
-
-  switch (stage) {
-  case LogStage::Undefined:
-    return "Undefined";
-  case LogStage::Header:
-    return "Header";
-  case LogStage::Init:
-    return "Init";
-  case LogStage::Step:
-    return "Step";
-  case LogStage::Test:
-    return "Test";
-  case LogStage::Count:
-    return "Count";
-  default:
-    return "Unknown";
-  }
 }
 
 

@@ -40,6 +40,66 @@ namespace logging {
   LogLevel getCurrentVerbosity();
 
 
+  /**
+   * Get the name of the given stage.
+   */
+  const char* getStageName(LogStage stage);
+
+
+  /**
+   * @brief Logger class.
+   *
+   * Logs (messages to screen) are characterised by their "level" and "stage".
+   *
+   *   - "level" determines the verbosity threshold needed to actually print out
+   *     the message. For example, a message marked at "Debug" or "Verbose"
+   *     level won't be printed to screen if the global run setting is "Quiet."
+   *     "Levels" are set by the corresponging enum logging::LogLevel.
+   *
+   *  - "stage" determines at which stage in the code we currently reside. This
+   *    just helps orientation with the output logs."Levels" are set by the
+   *    corresponging enum logging::LogStage. If you want to add a new LogStage,
+   *    don't forget to add an entry in logging::getStageName().
+   *
+   * This class sets up a singleton in the background and is not intended to be
+   * used directly. Instead, use the convenience macros defined below. To write
+   * a log message to screen, use
+   *
+   *   message(<msg>);
+   *
+   * where <msg> is a std::string, string literal (char * like "Hello World"),
+   * or std::stringstream.
+   * Note that any logging printout will add a newline character for you at the
+   * end of your message.
+   *
+   * You can specify the LogLevel of the message too:
+   *
+   *   message(<msg>, <level>);
+   *
+   * where <level> is a logging::LogLevel enum.
+   * You can futhermore specify a stage of the message as well:
+   *
+   *   message(<msg>, <level>, <stage>);
+   *
+   * where <stage> is a logging::LogStage enum.
+   * Additionally, you can raise warnings using the warning macro:
+   *
+   *   warning(<msg>);
+   *
+   * A warning will always be printed, regardless of your verbosity level.
+   * Similarly, you can raise an error using
+   *
+   *   error(<msg>);
+   *
+   * Which prints yout your messages and exits with an errorcode.
+   *
+   * You can set global verbosity levels and code stage states using the
+   * convenience functions
+   *
+   *  logging::setVerbosity(<level>);
+   *  logging::setStage(<stage>);
+   *
+   */
   class Log {
   public:
 
@@ -140,10 +200,6 @@ namespace logging {
     LogLevel _verbosity;
     LogStage _currentStage;
 
-    /**
-     * Get the name of the given stage.
-     */
-    const char* getStageName(LogStage stage);
   };
 } // namespace logging
 
