@@ -191,17 +191,17 @@ conditions file ([see below for format specifications](#initial-conditions)).
 You can specify them as follows:
 
 ```
-./hydro --ic-file <ic_file> --config-file <config_file>
+./hydro --ic-file <ic_file> --param-file <param_file>
 ```
 
 or
 
 ```
-./hydro --ic-file=<ic_file> --config-file=<config_file>
+./hydro --ic-file=<ic_file> --param-file=<param_file>
 ```
 
 where `<ic_file>` is the path to the [initial conditions](#initial-conditions) file you want to use,
-and `<config_file>` is the path to the [parameter file](#parameter-file) you want to use.
+and `<param_file>` is the path to the [parameter file](#parameter-file) you want to use.
 
 You may want to look into the `hydro_playground/examples` directory for some ready-to-go examples.
 

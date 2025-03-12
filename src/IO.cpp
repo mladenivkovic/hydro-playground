@@ -15,15 +15,15 @@
 
 
 /**
- * configEntry constructors
+ * paramEntry constructors
  */
 using idealGas::PrimitiveState;
 
-IO::configEntry::configEntry(std::string parameter):
+IO::paramEntry::paramEntry(std::string parameter):
   param(std::move(parameter)),
   used(false) {};
 
-IO::configEntry::configEntry(std::string parameter, std::string value):
+IO::paramEntry::paramEntry(std::string parameter, std::string value):
   param(std::move(parameter)),
   value(std::move(value)),
   used(false) {};
@@ -83,21 +83,21 @@ IO::InputParse::InputParse(const int argc, char* argv[]) {
 
 
 /**
- * Read the configuration file and fill out the parameters singleton.
+ * Read the parameter file and fill out the parameters object.
  */
-void IO::InputParse::readConfigFile(parameters::Parameters& params) {
+void IO::InputParse::readParamFile(parameters::Parameters& params) {
 
-  message("Parsing config file.", logging::LogLevel::Verbose);
+  message("Parsing param file.", logging::LogLevel::Verbose);
 
 #if DEBUG_LEVEL > 0
-  if (_configfile.size() == 0) {
-    error("No config file specified?");
+  if (_paramfile.size() == 0) {
+    error("No param file specified?");
   }
 #endif
 
-  // First, we read the config file
+  // First, we read the param file
   std::string   line;
-  std::ifstream conf_ifs(_configfile);
+  std::ifstream conf_ifs(_paramfile);
 
   // Read in line by line
   while (std::getline(conf_ifs, line)) {
@@ -107,10 +107,10 @@ void IO::InputParse::readConfigFile(parameters::Parameters& params) {
     if (name == "")
       continue;
     if (name == utils::somethingWrong() or value == utils::somethingWrong()) {
-      warning("Something wrong with config file line '" + line + "'; skipping it");
+      warning("Something wrong with param file line '" + line + "'; skipping it");
     }
 
-    configEntry newEntry = configEntry(name, value);
+    paramEntry newEntry = paramEntry(name, value);
     _config_params.insert(std::make_pair(name, newEntry));
   }
 
@@ -253,9 +253,9 @@ std::string IO::InputParse::_helpMessage() {
 
   std::stringstream msg;
   msg << "This is the hydro code help message.\n\nUsage: \n\n";
-  msg << "Default run:\n  ./hydro --config-file <config-file> --ic-file <ic-file>\n";
-  msg << "or:\n  ./hydro --config-file=<config-file> --ic-file=<ic-file>\n\n";
-  msg << "      <config-file>: file containing your run parameter configuration.\n";
+  msg << "Default run:\n  ./hydro --param-file <param-file> --ic-file <ic-file>\n";
+  msg << "or:\n  ./hydro --param-file=<param-file> --ic-file=<ic-file>\n\n";
+  msg << "      <param-file>: file containing your run parameter configuration.\n";
   msg << "                     See README for details.\n";
   msg << "      <ic-file>:     file containing your initial conditions.\n";
   msg << "                     See README for details.\n\n";
@@ -294,7 +294,7 @@ void IO::InputParse::_checkCmdLineArgsAreValid() {
   // check if the cmd options we expect to see are present This is defined in
   // the cpp file.
   const std::vector<std::string> _requiredArgs = {
-    "--config-file",
+    "--param-file",
     "--ic-file",
   };
 
@@ -319,15 +319,15 @@ void IO::InputParse::_checkCmdLineArgsAreValid() {
     _icfile = icfile;
   }
 
-  std::string configfile = _getCommandOption("--config-file");
-  if (not(utils::fileExists(configfile))) {
+  std::string paramfile = _getCommandOption("--param-file");
+  if (not(utils::fileExists(paramfile))) {
     std::stringstream msg;
-    msg << "Provided parameter file '" << configfile << "' doesn't exist.";
+    msg << "Provided parameter file '" << paramfile << "' doesn't exist.";
     error(msg.str());
   } else {
     // Store it.
-    _configfile = configfile;
-    message("Found config file " + configfile, logging::LogLevel::Debug);
+    _paramfile = paramfile;
+    message("Found param file " + paramfile, logging::LogLevel::Debug);
   }
 }
 
@@ -363,7 +363,7 @@ std::string IO::InputParse::_getCommandOption(const std::string& option) {
 void IO::InputParse::_checkUnusedParameters() {
 
   for (auto& _config_param : _config_params) {
-    configEntry& entry = _config_param.second;
+    paramEntry& entry = _config_param.second;
     if (not entry.used) {
       std::stringstream msg;
       msg << "Unused parameter: " << entry.param << "=" << entry.value;

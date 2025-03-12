@@ -88,7 +88,7 @@ namespace parameters {
     if (currentLevel < paramVer) {
       logging::setVerbosity(paramVer);
       std::stringstream msg;
-      msg << "Set run verbosity level to valueread from config file=" << paramVer;
+      msg << "Set run verbosity level to valueread from parameter file=" << paramVer;
       message(msg, logging::LogLevel::Verbose);
     }
 

@@ -18,12 +18,12 @@ namespace IO {
   /**
    * A container for read in parameters.
    */
-  struct configEntry {
+  struct paramEntry {
 
     //! constructors
-    configEntry() = delete;
-    explicit configEntry(std::string parameter);
-    configEntry(std::string parameter, std::string value);
+    paramEntry() = delete;
+    explicit paramEntry(std::string parameter);
+    paramEntry(std::string parameter, std::string value);
 
     //! Parameter name
     std::string param;
@@ -50,16 +50,16 @@ namespace IO {
    * @brief Class parsing input arguments and files.
    */
   class InputParse {
-    // private vars
+
   private:
     //! Map holding incoming command line args
     std::map<std::string, std::string> _clArguments;
 
     //! Storage for all read-in configuration parameters
-    std::map<std::string, configEntry> _config_params;
+    std::map<std::string, paramEntry> _config_params;
 
-    //! Config file name. Verified that file exists.
-    std::string _configfile;
+    //! Param file name. Verified that file exists.
+    std::string _paramfile;
 
     //! Initial Conditions file name. Verified that file exists.
     std::string _icfile;
@@ -68,8 +68,8 @@ namespace IO {
     //! Constructor with argc and argv
     InputParse(const int argc, char* argv[]);
 
-    //! Read the config file and fill out the configuration parameters
-    void readConfigFile(parameters::Parameters& params);
+    //! Read the param file and fill out the configuration parameters
+    void readParamFile(parameters::Parameters& params);
 
     //! Read the initial conditions file.
     void readICFile(grid::Grid& grid);
@@ -158,7 +158,7 @@ T IO::InputParse::_convertParameterString(
     error(msg);
   }
 
-  configEntry& entry = search->second;
+  paramEntry& entry = search->second;
   std::string  val   = entry.value;
   entry.used         = true;
 
@@ -219,7 +219,7 @@ inline std::string IO::InputParse::_convertParameterString<std::string>(
     error(msg);
   }
 
-  configEntry& entry = search->second;
+  paramEntry& entry = search->second;
   std::string  val   = entry.value;
   entry.used         = true;
 

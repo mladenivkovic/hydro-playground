@@ -28,8 +28,8 @@ int main(int argc, char* argv[]) {
   // Fire up IO
   IO::InputParse input(argc, argv);
 
-  // Read the parameters from the config file and initialise global paramters...
-  input.readConfigFile(params);
+  // Read the parameters from the parameter file and initialise global paramters...
+  input.readParamFile(params);
   params.initDerived();
   grid.initGrid(params);
 
