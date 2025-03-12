@@ -158,7 +158,7 @@ namespace parameters {
      * @brief Get number of steps between writing log to screen
      */
     [[nodiscard]] int getVerbose() const;
-    void          setVerbose(const int verbose);
+    void              setVerbose(const int verbose);
 
 
     /**

@@ -116,8 +116,8 @@ namespace grid {
 
 
     //! Print out the grid.
-    void printGrid(bool boundaries=true, bool conserved=false);
-    void printGrid(const char* quantity, bool boundaries=true);
+    void printGrid(bool boundaries = true, bool conserved = false);
+    void printGrid(const char* quantity, bool boundaries = true);
 
 
     /**
@@ -137,7 +137,6 @@ namespace grid {
      * @brief get the index of the first actual (= non boundary/ghost) cell
      */
     [[nodiscard]] size_t getLastCellIndex() const;
-
 
 
     // Getters and setters

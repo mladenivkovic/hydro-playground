@@ -24,7 +24,7 @@ namespace parameters {
     // NOLINTBEGIN
 
     _nstepsLog = 0;
-    _verbose = 0;
+    _verbose   = 0;
 
     _nsteps       = 0;
     _tmax         = 0.;
@@ -84,8 +84,8 @@ namespace parameters {
   void Parameters::initDerived() {
 
     int currentLevel = static_cast<int>(logging::getCurrentVerbosity());
-    int paramVer = getVerbose();
-    if (currentLevel < paramVer){
+    int paramVer     = getVerbose();
+    if (currentLevel < paramVer) {
       logging::setVerbosity(paramVer);
       std::stringstream msg;
       msg << "Set run verbosity level to valueread from config file=" << paramVer;

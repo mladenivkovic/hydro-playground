@@ -5,9 +5,8 @@
 #include "Logging.h"
 
 
-static constexpr int gas_print_width = 5;
+static constexpr int gas_print_width     = 5;
 static constexpr int gas_print_precision = 2;
-
 
 
 // Stuff for primitive state
@@ -15,8 +14,10 @@ static constexpr int gas_print_precision = 2;
 /**
  * @brief Default constructor.
  */
-idealGas::PrimitiveState::PrimitiveState() : rho(0.), p(0.) {
-  for (size_t i = 0; i < Dimensions; i++){
+idealGas::PrimitiveState::PrimitiveState():
+  rho(0.),
+  p(0.) {
+  for (size_t i = 0; i < Dimensions; i++) {
     v[i] = 0.;
   }
 }
@@ -27,9 +28,9 @@ idealGas::PrimitiveState::PrimitiveState() : rho(0.), p(0.) {
  */
 idealGas::PrimitiveState::PrimitiveState(
   const float_t rho, const std::array<float_t, Dimensions> vel, const float_t p
-){
+) {
   setRho(rho);
-  for (size_t i = 0; i < Dimensions; i++){
+  for (size_t i = 0; i < Dimensions; i++) {
     setV(i, vel[i]);
   }
   setP(p);
@@ -40,13 +41,11 @@ idealGas::PrimitiveState::PrimitiveState(
  * @brief Specialized constructor with initial values for 1D.
  * Using setters instead of initialiser lists so the debugging checks kick in.
  */
-idealGas::PrimitiveState::PrimitiveState(
-  const float_t rho, const float_t vx, const float_t p
-) {
+idealGas::PrimitiveState::PrimitiveState(const float_t rho, const float_t vx, const float_t p) {
 #if DEBUG_LEVEL > 0
-    if (Dimensions != 1){
-      error("This is a 1D function only!");
-    }
+  if (Dimensions != 1) {
+    error("This is a 1D function only!");
+  }
 #endif
   setRho(rho);
   setV(0, vx);
@@ -61,9 +60,9 @@ idealGas::PrimitiveState::PrimitiveState(
   const float_t rho, const float_t vx, const float vy, const float_t p
 ) {
 #if DEBUG_LEVEL > 0
-    if (Dimensions != 2){
-      error("This is a 2D function only!");
-    }
+  if (Dimensions != 2) {
+    error("This is a 2D function only!");
+  }
 #endif
   setRho(rho);
   setV(0, vx);
@@ -109,7 +108,7 @@ std::string idealGas::PrimitiveState::toString() const {
   std::stringstream out;
   out << "[";
   out << std::setprecision(p) << std::setw(w) << getRho() << ",";
-  for (size_t i = 0; i < Dimensions; i++){
+  for (size_t i = 0; i < Dimensions; i++) {
     out << std::setprecision(p) << std::setw(w) << getV(i) << ",";
   }
   out << std::setprecision(p) << std::setw(w) << getP() << "]";
@@ -123,10 +122,10 @@ std::string idealGas::PrimitiveState::toString() const {
 idealGas::ConservedState::ConservedState():
   rho(0.),
   E(0.) {
-    for (size_t i = 0; i < Dimensions; i++){
-      rhov[i] = 0.;
-    }
-  };
+  for (size_t i = 0; i < Dimensions; i++) {
+    rhov[i] = 0.;
+  }
+};
 
 
 /**
@@ -230,12 +229,10 @@ std::string idealGas::ConservedState::toString() const {
   std::stringstream out;
   out << "[";
   out << std::setprecision(p) << std::setw(w) << getRho() << ",";
-  for (size_t i = 0; i < Dimensions; i++){
+  for (size_t i = 0; i < Dimensions; i++) {
     out << std::setprecision(p) << std::setw(w) << getRhov(i) << ",";
   }
   out << std::setprecision(p) << std::setw(w) << getE() << "]";
 
   return out.str();
 }
-
-

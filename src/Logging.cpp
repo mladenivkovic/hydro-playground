@@ -7,29 +7,27 @@
 #include "Config.h"
 
 
-
-void logging::setStage(const int stage){
+void logging::setStage(const int stage) {
   Log::getInstance().setStage(stage);
 }
 
-void logging::setStage(const logging::LogStage stage){
+void logging::setStage(const logging::LogStage stage) {
   Log::getInstance().setStage(stage);
-
 }
 
-logging::LogStage logging::getCurrentStage(){
+logging::LogStage logging::getCurrentStage() {
   return Log::getInstance().getCurrentStage();
 }
 
-void logging::setVerbosity(const int level){
+void logging::setVerbosity(const int level) {
   Log::getInstance().setVerbosity(level);
 }
 
-void logging::setVerbosity(const logging::LogLevel level){
+void logging::setVerbosity(const logging::LogLevel level) {
   Log::getInstance().setVerbosity(level);
 }
 
-logging::LogLevel logging::getCurrentVerbosity(){
+logging::LogLevel logging::getCurrentVerbosity() {
   return Log::getInstance().getCurrentVerbosity();
 }
 
@@ -53,7 +51,6 @@ const char* logging::getStageName(LogStage stage) {
     return "Unknown";
   }
 }
-
 
 
 void logging::Log::logMessage(
@@ -125,12 +122,16 @@ void logging::Log::logWarning(
   logWarning(file, function, line, text.str());
 }
 
-void logging::Log::logWarning(const char* file, const char* function, const int line, const char* text) {
+void logging::Log::logWarning(
+  const char* file, const char* function, const int line, const char* text
+) {
   logWarning(file, function, line, std::string(text));
 }
 
 
-void logging::Log::logError(const char* file, const char* function, const int line, std::string text) {
+void logging::Log::logError(
+  const char* file, const char* function, const int line, std::string text
+) {
 
   std::stringstream str;
   str << "[ERROR] ";
@@ -150,7 +151,9 @@ void logging::Log::logError(
   logError(file, function, line, text.str());
 }
 
-void logging::Log::logError(const char* file, const char* function, const int line, const char* text) {
+void logging::Log::logError(
+  const char* file, const char* function, const int line, const char* text
+) {
   logError(file, function, line, std::string(text));
 }
 
@@ -174,7 +177,6 @@ logging::LogLevel logging::Log::getCurrentVerbosity() {
 }
 
 
-
 void logging::Log::setStage(int stage) {
   auto stage_t = static_cast<LogStage>(stage);
   setStage(stage_t);
@@ -191,5 +193,3 @@ void logging::Log::setStage(LogStage stage) {
 logging::LogStage logging::Log::getCurrentStage() {
   return getInstance()._currentStage;
 }
-
-

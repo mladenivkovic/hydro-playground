@@ -29,14 +29,14 @@ namespace logging {
 
 
   //! Get/Set the current global code stage.
-  void setStage(const int stage);
-  void setStage(const LogStage stage);
+  void     setStage(const int stage);
+  void     setStage(const LogStage stage);
   LogStage getCurrentStage();
 
 
   //! Get/Set the current global verbosity level.
-  void setVerbosity(const int level);
-  void setVerbosity(const LogLevel level);
+  void     setVerbosity(const int level);
+  void     setVerbosity(const LogLevel level);
   LogLevel getCurrentVerbosity();
 
 
@@ -105,8 +105,10 @@ namespace logging {
    */
   class Log {
   public:
-
-    Log() : _verbosity(LogLevel::Debug), _currentStage(LogStage::Undefined) {}
+    Log():
+      _verbosity(LogLevel::Debug),
+      _currentStage(LogStage::Undefined) {
+    }
 
     static Log& getInstance() {
       static Log Instance;
@@ -162,9 +164,7 @@ namespace logging {
     void logWarning(
       const char* file, const char* function, const int line, const std::stringstream& text
     );
-    void logWarning(
-      const char* file, const char* function, const int line, const char* text
-    );
+    void logWarning(const char* file, const char* function, const int line, const char* text);
 
     /**
      * @brief write an error message and abort the run.
@@ -175,9 +175,7 @@ namespace logging {
      * @param text The message you want to print out.
      */
     void logError(const char* file, const char* function, const int line, std::string text);
-    void logError(
-      const char* file, const char* function, const int line, std::stringstream& text
-    );
+    void logError(const char* file, const char* function, const int line, std::stringstream& text);
     void logError(const char* file, const char* function, const int line, const char* text);
 
 
@@ -202,7 +200,6 @@ namespace logging {
   private:
     LogLevel _verbosity;
     LogStage _currentStage;
-
   };
 } // namespace logging
 
@@ -224,12 +221,7 @@ namespace logging {
 
 #define MESSAGE_1_ARG(msg) \
   logging::Log::getInstance().logMessage( \
-    FILENAME_, \
-    __FUNCTION__, \
-    __LINE__, \
-    msg, \
-    logging::LogLevel::Quiet, \
-    logging::getCurrentStage() \
+    FILENAME_, __FUNCTION__, __LINE__, msg, logging::LogLevel::Quiet, logging::getCurrentStage() \
   );
 
 #define MESSAGE_GET_4TH_ARG(arg1, arg2, arg3, arg4, ...) arg4

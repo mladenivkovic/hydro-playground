@@ -10,7 +10,7 @@
 #include "Parameters.h"
 
 
-constexpr size_t grid_print_width = 5;
+constexpr size_t grid_print_width     = 5;
 constexpr size_t grid_print_precision = 3;
 
 /**
@@ -88,10 +88,10 @@ void grid::Grid::initCells() {
     error("Trying to alloc cells on uninitialised grid");
 #endif
 
-  size_t nx       = getNx();
+  size_t nx      = getNx();
   size_t nxNorep = getNxNorep();
-  size_t nxTot    = getNxTot();
-  size_t first = getFirstCellIndex();
+  size_t nxTot   = getNxTot();
+  size_t first   = getFirstCellIndex();
 
   if (nx == 0 or nxTot == 0 or nxNorep == 0) {
     std::stringstream msg;
@@ -148,11 +148,11 @@ void grid::Grid::initCells() {
 
   message("Initialised grid.", logging::LogLevel::Verbose);
 
-  constexpr float_t KB = 1024.;
-  constexpr float_t MB = 1024. * 1024.;
-  constexpr float_t GB = 1024. * 1024. * 1024.;
-  constexpr size_t prec = 3;
-  constexpr size_t wid = 10;
+  constexpr float_t KB   = 1024.;
+  constexpr float_t MB   = 1024. * 1024.;
+  constexpr float_t GB   = 1024. * 1024. * 1024.;
+  constexpr size_t  prec = 3;
+  constexpr size_t  wid  = 10;
 
   float_t gridsize = static_cast<float_t>(total_cells) * static_cast<float_t>(sizeof(cell::Cell));
   std::stringstream msg;
@@ -183,22 +183,22 @@ void grid::Grid::replicateICs() {
 
   printGrid("rho");
 
-  size_t nxTot = getNxTot();
-  size_t nxNorep = getNxNorep();
-  size_t first = getFirstCellIndex();
-  size_t last = nxNorep + first;
+  size_t nxTot      = getNxTot();
+  size_t nxNorep    = getNxNorep();
+  size_t first      = getFirstCellIndex();
+  size_t last       = nxNorep + first;
   size_t lastInGrid = getLastCellIndex();
 
-  for (size_t j = first; j < last; j++){
+  for (size_t j = first; j < last; j++) {
 
     // First, copy in x direction for const j
-    for (size_t rep = 1; rep < getReplicate(); rep++){
-      for (size_t i = first; i < last; i++){
+    for (size_t rep = 1; rep < getReplicate(); rep++) {
+      for (size_t i = first; i < last; i++) {
 
         size_t target = rep * nxNorep + i;
 
 #if DEBUG_LEVEL > 0
-        if (target >= nxTot){
+        if (target >= nxTot) {
           std::stringstream msg;
           msg << "Index error: Out of bounds " << target << "/" << nxTot;
           error(msg);
@@ -207,30 +207,28 @@ void grid::Grid::replicateICs() {
 
         getCell(target, j) = getCell(i, j);
         printGrid("rho");
-
       }
     }
 
     // Now replicate entire row along y axis
-    for (size_t rep = 1; rep < getReplicate(); rep++){
+    for (size_t rep = 1; rep < getReplicate(); rep++) {
 
       size_t target = rep * nxNorep + j;
 
 #if DEBUG_LEVEL > 0
-      if (target >= nxTot){
+      if (target >= nxTot) {
         std::stringstream msg;
         msg << "Index error: Out of bounds " << target << "/" << nxTot;
         error(msg);
       }
 #endif
 
-      for (size_t i = first; i < lastInGrid; i++){
+      for (size_t i = first; i < lastInGrid; i++) {
         getCell(i, target) = getCell(i, j);
       }
-
     }
-
   }
+
 
   // TODO: Make a timer out of this.
   message("Finished replicating grid.");
@@ -431,36 +429,34 @@ void grid::Grid::realToGhost(
 }
 
 
-
-
 /**
  * @brief print out the grid.
  *
  * @param boundaries if true, print out boundary cells too.
  * @param conserved if true, print out conserved state instead of primitive state.
  */
-void grid::Grid::printGrid(bool boundaries, bool conserved){
+void grid::Grid::printGrid(bool boundaries, bool conserved) {
 
 
   size_t first = getFirstCellIndex();
-  size_t last = getLastCellIndex();
+  size_t last  = getLastCellIndex();
   size_t start = first;
-  size_t end = last;
+  size_t end   = last;
 
-  if (boundaries){
+  if (boundaries) {
     start = 0;
-    end = getNxTot();
+    end   = getNxTot();
   }
 
   std::stringstream out;
   out << "Full grid output of ";
-  if (conserved){
+  if (conserved) {
     out << "conserved states";
   } else {
     out << "primitive states";
   }
 
-  if (boundaries){
+  if (boundaries) {
     out << " (including boundaries)";
   }
   out << "\n";
@@ -468,22 +464,21 @@ void grid::Grid::printGrid(bool boundaries, bool conserved){
 
   if (Dimensions == 1) {
 
-    for (size_t i = start; i < end; i++){
-      if (conserved){
+    for (size_t i = start; i < end; i++) {
+      if (conserved) {
         out << getCell(i).getCons().toString() << " ";
       } else {
         out << getCell(i).getPrim().toString() << " ";
       }
 
       bool at_boundary = (i == first - 1) or (i == last - 1);
-      if (boundaries and at_boundary ) {
+      if (boundaries and at_boundary) {
         out << " | ";
       } else {
         if (i != end - 1) {
           out << ", ";
         }
       }
-
     }
 
     out << "\n";
@@ -491,17 +486,17 @@ void grid::Grid::printGrid(bool boundaries, bool conserved){
   } else if (Dimensions == 2) {
 
     // Put the top at the top, and (0, 0) at the bottom left.
-    for (int j = end - 1; j >= 0; j--){
+    for (int j = end - 1; j >= 0; j--) {
 
-      for (size_t i = start; i < end; i++){
-        if (conserved){
+      for (size_t i = start; i < end; i++) {
+        if (conserved) {
           out << getCell(i, j).getCons().toString() << " ";
         } else {
           out << getCell(i, j).getPrim().toString() << " ";
         }
 
         bool at_boundary = (i == first - 1) or (i == last - 1);
-        if (boundaries and at_boundary ) {
+        if (boundaries and at_boundary) {
           out << " | ";
         } else {
           if (i != end - 1) {
@@ -512,7 +507,7 @@ void grid::Grid::printGrid(bool boundaries, bool conserved){
 
       out << "\n";
       bool at_boundary = (j == static_cast<int>(first)) or (j == static_cast<int>(last));
-      if (boundaries and at_boundary ) {
+      if (boundaries and at_boundary) {
         out << "\n";
       }
     }
@@ -530,22 +525,22 @@ void grid::Grid::printGrid(bool boundaries, bool conserved){
  *
  * @param boundaries if true, print out boundary cells too.
  */
-void grid::Grid::printGrid(const char* quantity, bool boundaries){
+void grid::Grid::printGrid(const char* quantity, bool boundaries) {
 
 
   size_t first = getFirstCellIndex();
-  size_t last = getLastCellIndex();
+  size_t last  = getLastCellIndex();
   size_t start = first;
-  size_t end = last;
+  size_t end   = last;
 
-  if (boundaries){
+  if (boundaries) {
     start = 0;
-    end = getNxTot();
+    end   = getNxTot();
   }
 
   std::stringstream out;
   out << "Full grid output of " << quantity;
-  if (boundaries){
+  if (boundaries) {
     out << " (including boundaries)";
   }
   out << "\n";
@@ -556,11 +551,11 @@ void grid::Grid::printGrid(const char* quantity, bool boundaries){
 
   if (Dimensions == 1) {
 
-    for (size_t i = start; i < end; i++){
+    for (size_t i = start; i < end; i++) {
       out << std::setw(w) << std::setprecision(p) << getCell(i).getQuanityForPrintout(quantity);
 
       bool at_boundary = (i == first - 1) or (i == last - 1);
-      if (boundaries and at_boundary ) {
+      if (boundaries and at_boundary) {
         out << " | ";
       } else {
         if (i != end - 1) {
@@ -574,13 +569,14 @@ void grid::Grid::printGrid(const char* quantity, bool boundaries){
   } else if (Dimensions == 2) {
 
     // Put the top at the top, and (0, 0) at the bottom left.
-    for (int j = end - 1; j >= 0; j--){
+    for (int j = end - 1; j >= 0; j--) {
 
-      for (size_t i = start; i < end; i++){
-        out << std::setw(w) << std::setprecision(p) << getCell(i,j).getQuanityForPrintout(quantity);
+      for (size_t i = start; i < end; i++) {
+        out
+          << std::setw(w) << std::setprecision(p) << getCell(i, j).getQuanityForPrintout(quantity);
 
         bool at_boundary = (i == first - 1) or (i == last - 1);
-        if (boundaries and at_boundary ) {
+        if (boundaries and at_boundary) {
           out << " | ";
         } else {
           if (i != end - 1) {
@@ -591,7 +587,7 @@ void grid::Grid::printGrid(const char* quantity, bool boundaries){
 
       out << "\n";
       bool at_boundary = (j == static_cast<int>(first)) or (j == static_cast<int>(last));
-      if (boundaries and at_boundary ) {
+      if (boundaries and at_boundary) {
         out << "\n";
       }
     }
