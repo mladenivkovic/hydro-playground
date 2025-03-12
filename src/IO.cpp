@@ -17,6 +17,8 @@
 /**
  * configEntry constructors
  */
+using idealGas::PrimitiveState;
+
 IO::configEntry::configEntry(std::string parameter):
   param(std::move(parameter)),
   used(false) {};
@@ -446,15 +448,82 @@ float_t IO::InputParse::_extractTwoStateVal(std::string& line, std::string expec
 }
 
 
+idealGas::PrimitiveState IO::InputParse::_extractArbitraryICVal(std::string& line, size_t linenr) {
+
+  float_t rho = 0;
+  float_t vx = 0;
+  float_t vy = 0;
+  float_t p = 0;
+
+  std::string nocomment = utils::removeTrailingComment(line);
+  std::string trimmed = utils::removeWhitespace(nocomment);
+
+  std::vector<std::string> split;
+  std::string chunk;
+  constexpr char delim = ' ';
+
+  while (trimmed.size() > 0){
+    trimmed = utils::removeWhitespace(trimmed);
+
+    size_t i = nocomment.find(delim);
+    if (i == std::string::npos){
+      // we're done.
+      split.push_back(trimmed);
+      break;
+    }
+    chunk = trimmed.substr(0, i);
+    split.push_back(chunk);
+    trimmed = trimmed.substr(i, trimmed.size()-i);
+  }
+
+  if (Dimensions == 1){
+
+    if (split.size() != 3) {
+      std::stringstream msg;
+      msg << "Error parsing IC line " << linenr << ": ";
+      msg << "Found " << split.size() << " entries instead of 3";
+      error(msg);
+    }
+
+    rho = utils::string2float(split[0]);
+    vx = utils::string2float(split[1]);
+    p = utils::string2float(split[2]);
+
+    return PrimitiveState(rho, vx, p);
+  }
+  else if (Dimensions == 2){
+
+    if (split.size() != 4) {
+      std::stringstream msg;
+      msg << "Error parsing IC line " << linenr << ": ";
+      msg << "Found " << split.size() << " entries instead of 4";
+      error(msg);
+    }
+
+    rho = utils::string2float(split[0]);
+    vx = utils::string2float(split[1]);
+    vy = utils::string2float(split[2]);
+    p = utils::string2float(split[3]);
+
+    return PrimitiveState(rho, vx, vy, p);
+
+  } else {
+    error("Not Implemented.");
+  }
+
+  return {};
+}
+
+
 //! Read an IC file with the Two-State format
 void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
 
   // first, read the file.
   std::string   line;
-  std::ifstream conf_ifs(_icfile);
+  std::ifstream icts_ifs(_icfile);
 
   // skip comments first.
-  while (std::getline(conf_ifs, line)) {
+  while (std::getline(icts_ifs, line)) {
     if (utils::isComment(line))
       continue;
     break;
@@ -472,22 +541,22 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
     error(msg);
   }
 
-  std::getline(conf_ifs, line);
+  std::getline(icts_ifs, line);
   float_t rho_L = _extractTwoStateVal(line, "rho_L");
 
-  std::getline(conf_ifs, line);
+  std::getline(icts_ifs, line);
   float_t u_L = _extractTwoStateVal(line, "u_L");
 
-  std::getline(conf_ifs, line);
+  std::getline(icts_ifs, line);
   float_t p_L = _extractTwoStateVal(line, "p_L");
 
-  std::getline(conf_ifs, line);
+  std::getline(icts_ifs, line);
   float_t rho_R = _extractTwoStateVal(line, "rho_R");
 
-  std::getline(conf_ifs, line);
+  std::getline(icts_ifs, line);
   float_t u_R = _extractTwoStateVal(line, "u_R");
 
-  std::getline(conf_ifs, line);
+  std::getline(icts_ifs, line);
   float_t p_R = _extractTwoStateVal(line, "p_R");
 
 
@@ -501,26 +570,28 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
   grid.initCells();
   size_t nxtot  = grid.getNxTot();
   size_t nxhalf = nxtot / 2;
+  size_t first = grid.getFirstCellIndex();
+  size_t last = grid.getLastCellIndex();
 
   if (Dimensions == 1) {
 
-    for (size_t i = 0; i < nxhalf; i++) {
+    for (size_t i = first; i < nxhalf; i++) {
       cell::Cell& c = grid.getCell(i);
       c.setPrim(left);
     }
-    for (size_t i = nxhalf; i < nxtot; i++) {
+    for (size_t i = nxhalf; i < last; i++) {
       cell::Cell& c = grid.getCell(i);
       c.setPrim(right);
     }
 
   } else if (Dimensions == 2) {
 
-    for (size_t j = 0; j < nxtot; j++) {
-      for (size_t i = 0; i < nxhalf; i++) {
+    for (size_t j = first; j < last; j++) {
+      for (size_t i = first; i < nxhalf; i++) {
         cell::Cell& c = grid.getCell(i, j);
         c.setPrim(left);
       }
-      for (size_t i = nxhalf; i < nxtot; i++) {
+      for (size_t i = nxhalf; i < last; i++) {
         cell::Cell& c = grid.getCell(i, j);
         c.setPrim(right);
       }
@@ -530,15 +601,15 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
     error("Not implemented");
   }
 
-  // grid.printGrid(true);
   // TODO: Remove this again.
-  grid.printGrid("rho", true);
-  grid.printGrid("vx", true);
-  grid.printGrid("vy", true);
-  grid.printGrid("p", true);
-  grid.printGrid("rhovx", true);
-  grid.printGrid("rhovy", true);
-  grid.printGrid("e", true);
+  grid.printGrid(true);
+  // grid.printGrid("rho", true);
+  // grid.printGrid("vx", true);
+  // grid.printGrid("vy", true);
+  // grid.printGrid("p", true);
+  // grid.printGrid("rhovx", true);
+  // grid.printGrid("rhovy", true);
+  // grid.printGrid("e", true);
 }
 
 
@@ -549,11 +620,115 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
   // Read in nx from ICs, and set grid.setNx(nx);
 
 
+  // first, read the file.
+  std::string nocomment;
+  std::pair<std::string, std::string> pair;
+  std::string name;
+  std::string value;
+
+  std::string   line;
+  std::ifstream ic_ifs(_icfile);
+  size_t linenr = 0;
+
+  // skip comments first.
+  while (std::getline(ic_ifs, line)) {
+    linenr++;
+    if (utils::isComment(line))
+      continue;
+    break;
+  }
+
+  nocomment = utils::removeTrailingComment(line);
+  pair      = utils::splitEquals(nocomment);
+  name      = pair.first;
+  value     = pair.second;
+
+  if (name != "filetype" or value != "arbitrary") {
+    std::stringstream msg;
+    msg << "Something wrong when parsing arbitrary-type IC file. Line:"
+      << linenr <<"`" << line << "`" << "\n" <<
+      "First line should be `filetype = arbitrary`";
+    error(msg);
+  }
+
+  std::getline(ic_ifs, line);
+  linenr++;
+  nocomment = utils::removeTrailingComment(line);
+  pair      = utils::splitEquals(nocomment);
+  name      = pair.first;
+  value     = pair.second;
+
+  if (name != "ndim") {
+    std::stringstream msg;
+    msg << "Something wrong when parsing arbitrary-type IC file. Line:"
+      << linenr <<"`" << line << "`" <<
+      "Second line should be `ndim = <ndim>`";
+    error(msg);
+  }
+
+  int ndim = utils::string2int(value);
+
+  if (ndim != Dimensions){
+    std::stringstream msg;
+    msg << "Error: Code compiled for ndim=" << Dimensions << " but IC is for ndim=" << ndim;
+    error(msg);
+  }
+
+
+  std::getline(ic_ifs, line);
+  linenr++;
+  nocomment = utils::removeTrailingComment(line);
+  pair      = utils::splitEquals(nocomment);
+  name      = pair.first;
+  value     = pair.second;
+
+  if (name != "nx") {
+    std::stringstream msg;
+    msg << "Something wrong when parsing arbitrary-type IC file. Line:"
+      << linenr <<"`" << line << "`" <<
+      "Third line should be `nx = <nx>`";
+    error(msg);
+  }
+
+  int nx = utils::string2int(value);
+  grid.setNx(nx);
+  grid.setNxNorep(nx);
+
   // Now allocate and fill up the grid.
   if (grid.getReplicate() > 1) {
     message("Resizing grid for replications", logging::LogLevel::Verbose);
     grid.setNx(grid.getReplicate() * grid.getNx());
   }
-
   grid.initCells();
+
+
+  // Read in the rest of the ICs
+  const size_t first = grid.getFirstCellIndex();
+  const size_t last = grid.getLastCellIndex();
+  size_t i = first;
+  size_t j = first;
+
+  if (Dimensions == 1){
+    error("ToDo");
+  }
+  else if (Dimensions == 2){
+    while (std::getline(ic_ifs, line)) {
+      linenr++;
+      if (utils::isComment(line) or utils::isWhitespace(line))
+        continue;
+
+      idealGas::PrimitiveState pstate = _extractArbitraryICVal(line, linenr);
+      grid.getCell(i, j).setPrim(pstate);
+      i++;
+
+      if (i == last) {
+        i = first;
+        j++;
+        // TODO: replicate here
+      }
+    }
+  }
+
+  grid.printGrid();
+
 }

@@ -85,18 +85,22 @@ void grid::Grid::initCells() {
 #endif
 
   size_t nx       = getNx();
-  size_t nx_norep = getNxNorep();
+  size_t nxNorep = getNxNorep();
   size_t nxTot    = getNxTot();
-  size_t first = _getFirstCellIndex();
+  size_t first = getFirstCellIndex();
 
-  // TODO(mivkov): in arbitrary ICs, this needs to be set from reading the file first.
-  if (nx == 0 or nxTot == 0) {
-    error("Got nx=0; The grid needs a size.");
+  if (nx == 0 or nxTot == 0 or nxNorep == 0) {
+    std::stringstream msg;
+    msg << "Got some nx=0; The grid needs a size. ";
+    msg << "nx=" << nx << ", ";
+    msg << "nxTot=" << nxTot << ", ";
+    msg << "nxNorep=" << nxNorep;
+    error(msg);
   }
 
 
   // Compute derived quantities
-  float_t dx = getBoxsize() / static_cast<float_t>(nx_norep);
+  float_t dx = getBoxsize() / static_cast<float_t>(nxNorep);
   setDx(dx);
 
 
@@ -144,14 +148,14 @@ void grid::Grid::initCells() {
   constexpr float_t MB = 1024. * 1024.;
   constexpr float_t GB = 1024. * 1024. * 1024.;
   constexpr size_t prec = 3;
-  constexpr size_t wid = 14;
+  constexpr size_t wid = 10;
 
   float_t gridsize = static_cast<float_t>(total_cells) * static_cast<float_t>(sizeof(cell::Cell));
   std::stringstream msg;
-  msg << "Grid takes ";
+  msg << "Grid memory takes [";
   msg << std::setprecision(prec) << std::setw(wid) << gridsize / KB << " KB /";
   msg << std::setprecision(prec) << std::setw(wid) << gridsize / MB << " MB /";
-  msg << std::setprecision(prec) << std::setw(wid) << gridsize / GB << " GB";
+  msg << std::setprecision(prec) << std::setw(wid) << gridsize / GB << " GB  ]";
 
   message(msg);
 }
@@ -399,8 +403,8 @@ void grid::Grid::realToGhost(
 void grid::Grid::printGrid(bool boundaries, bool conserved){
 
 
-  size_t first = _getFirstCellIndex();
-  size_t last = _getLastCellIndex();
+  size_t first = getFirstCellIndex();
+  size_t last = getLastCellIndex();
   size_t start = first;
   size_t end = last;
 
@@ -478,8 +482,8 @@ void grid::Grid::printGrid(bool boundaries, bool conserved){
 void grid::Grid::printGrid(const char* quantity, bool boundaries){
 
 
-  size_t first = _getFirstCellIndex();
-  size_t last = _getLastCellIndex();
+  size_t first = getFirstCellIndex();
+  size_t last = getLastCellIndex();
   size_t start = first;
   size_t end = last;
 
@@ -536,5 +540,5 @@ void grid::Grid::printGrid(const char* quantity, bool boundaries){
     error("Not implemented");
   }
 
-  std::cout << out.str() << std::endl;
+  std::cout << out.str() << "\n";
 }

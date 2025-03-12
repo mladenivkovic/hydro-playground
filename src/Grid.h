@@ -47,17 +47,6 @@ namespace grid {
     [[nodiscard]] size_t _getNBCTot() const;
 
 
-    /**
-     * @brief get the index of the first actual (= non boundary/ghost) cell
-     */
-    [[nodiscard]] size_t _getFirstCellIndex() const;
-
-
-    /**
-     * @brief get the index of the first actual (= non boundary/ghost) cell
-     */
-    [[nodiscard]] size_t _getLastCellIndex() const;
-
     //! Fetch the desired quantity for printing given a cell index
     float_t _getQuanityForPrintout(cell::Cell& cell, std::string& quantity);
 
@@ -142,6 +131,19 @@ namespace grid {
      * boundary cells and replicated cells.
      */
     [[nodiscard]] size_t getNxTot() const;
+
+
+    /**
+     * @brief get the index of the first actual (= non boundary/ghost) cell
+     */
+    [[nodiscard]] size_t getFirstCellIndex() const;
+
+
+    /**
+     * @brief get the index of the first actual (= non boundary/ghost) cell
+     */
+    [[nodiscard]] size_t getLastCellIndex() const;
+
 
 
     // Getters and setters
@@ -324,11 +326,11 @@ inline size_t grid::Grid::getNxTot() const {
 }
 
 
-inline size_t grid::Grid::_getFirstCellIndex() const {
+inline size_t grid::Grid::getFirstCellIndex() const {
   return getNBC();
 }
 
 
-inline size_t grid::Grid::_getLastCellIndex() const {
+inline size_t grid::Grid::getLastCellIndex() const {
   return getNx() + getNBC();
 }
