@@ -754,7 +754,7 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
   size_t       j     = first;
 
   if (Dimensions == 1) {
-    error("ToDo");
+    error("Not Implemented.");
   } else if (Dimensions == 2) {
     while (std::getline(ic_ifs, line)) {
       linenr++;

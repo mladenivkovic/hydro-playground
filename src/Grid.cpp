@@ -276,8 +276,8 @@ void grid::Grid::resetFluxes() {
   for (size_t i = nbc; i < nbc + nx; i++) {
     for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
       // if we are in 1d, j will be fixed to zero
-      getCell(i, j).getPrim().resetToInitialState();
-      getCell(i, j).getCons().resetToInitialState();
+      getCell(i, j).getPrim().clear();
+      getCell(i, j).getCons().clear();
     }
   }
 }

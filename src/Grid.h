@@ -54,9 +54,11 @@ namespace grid {
   public:
     Grid();
     ~Grid();
-    // TODO(mivkov): Other constructors/operators needed here for completeness.
-    // At least delete.
 
+    // The grid is never intended to be used via several instances.
+    // I could write all of this out, but I see no point.
+    Grid(const Grid& other) = delete;
+    Grid& operator=(const Grid& other) = delete;
 
     /**
      * Get a cell by its index. Here 1D and 2D versions.

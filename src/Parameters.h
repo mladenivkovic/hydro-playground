@@ -141,10 +141,6 @@ namespace parameters {
     [[nodiscard]] std::string toString() const;
 
 
-    // ToDo: Move to destructor
-    void cleanup();
-
-
     /**
      * @brief Get number of steps between writing log to screen
      */

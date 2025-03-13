@@ -35,12 +35,7 @@ namespace idealGas {
     PrimitiveState(const Float rho, const Float vx, const Float p);
     PrimitiveState(const Float rho, const Float vx, const Float vy, const Float p);
 
-    // copy assignment
-    // TODO(mivkov): This doesn't compile. Check with boundary conditions
-    // PrimitiveState& operator=(const PrimitiveState& other) = default;
-
-    // putting this in just in case it's needed
-    void resetToInitialState() {
+    void clear() {
       *this = PrimitiveState();
     }
 
@@ -96,14 +91,15 @@ namespace idealGas {
     // Standard constructor, init variables to 0
     ConservedState();
 
-    // putting this in in case it's needed
-    // TODO(mivkov): is this needed?
-    void resetToInitialState() {
+    //! Clear out contents.
+    void clear() {
       *this = ConservedState();
     }
 
+
     //! Compute the conserved state vector of a given primitive state.
     void PrimitiveToConserved(const PrimitiveState& primState);
+
 
     /**
      * Compute the flux of conserved variables of the Euler
@@ -111,11 +107,13 @@ namespace idealGas {
      */
     void GetCFluxFromPstate(const PrimitiveState& pstate, const std::size_t dimension);
 
+
     /**
      * Compute the flux of conserved variables of the Euler
      * equations given a conserved state vector
      */
     void GetCFluxFromCstate(const ConservedState& cstate, const std::size_t dimension);
+
 
     //! Get a string of the state.
     [[nodiscard]] std::string toString() const;

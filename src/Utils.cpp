@@ -256,12 +256,19 @@ bool utils::fileExists(const std::string& filename) {
 
 
 /**
- * Convert value string to integer.
+ * Convert value string to size_t.
  * Do some additional sanity checks too.
- * @TODO: there probably is a better way. This does the trick for now.
  */
 size_t utils::string2size_t(std::string& val) {
-  return static_cast<size_t>(string2int(val));
+  std::string v = removeWhitespace(val);
+  if (v.size() == 0) {
+    std::stringstream msg;
+    msg << "Invalid string to convert to size_t: '" << val << "'";
+    error(msg.str());
+  }
+
+  size_t out = std::stoull(v);
+  return out;
 }
 
 
