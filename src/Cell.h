@@ -56,8 +56,11 @@ namespace cell {
     // std::string getIndexString();
 
     //! Set cell centre position X,Y
-    void setX(Float x);
-    void setY(Float y);
+    void setX(const Float x);
+    [[nodiscard]] Float getX() const;
+
+    void setY(const Float y);
+    [[nodiscard]] Float getY() const;
 
     void                 setId(const size_t id);
     [[nodiscard]] size_t getID() const;
@@ -104,10 +107,19 @@ inline void cell::Cell::setX(Float x) {
   _x = x;
 }
 
+inline Float cell::Cell::getX() const {
+  return _x;
+}
+
 
 //! Set cell centre position Y
 inline void cell::Cell::setY(Float y) {
   _y = y;
+}
+
+
+inline Float cell::Cell::getY() const {
+  return _y;
 }
 
 

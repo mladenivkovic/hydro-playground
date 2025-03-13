@@ -115,6 +115,44 @@ namespace IO {
     );
 
   }; // class InputParse
+
+
+  class OutputWriter {
+
+  private:
+    size_t _noutputs_written;
+
+    std::string _getOutputFileName(parameters::Parameters& params);
+
+
+  public:
+    OutputWriter():
+      _noutputs_written(0) {};
+
+    /**
+     * Write the current state of the simulation into an output.
+     *
+     * @param params Simulation runtime parameters
+     * @param grid the grid containing your simulation
+     * @param t_current the current simulation time
+     * @param step the current simulation step
+     */
+    void dump(parameters::Parameters& params, grid::Grid& grid, Float t_current, size_t step);
+
+    [[nodiscard]] size_t getNOutputsWritten() const {
+      return _noutputs_written;
+    }
+    void setNOutputsWritten(const size_t n) {
+      if (n > 9999) {
+        error("Can't write more than 10k outputs; Change output file name format");
+      }
+      _noutputs_written = n;
+    }
+    void incNOutputsWritten() {
+      setNOutputsWritten(_noutputs_written+1);
+    }
+
+  };
 } // namespace IO
 
 

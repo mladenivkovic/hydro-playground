@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cctype>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -15,6 +16,10 @@
 
 using idealGas::PrimitiveState;
 
+// -----------------------------------------
+// paramEntry stuff
+// -----------------------------------------
+
 /**
  * paramEntry constructors
  */
@@ -26,6 +31,11 @@ IO::paramEntry::paramEntry(std::string parameter, std::string value):
   param(std::move(parameter)),
   value(std::move(value)),
   used(false) {};
+
+
+// -----------------------------------------
+// InputParse stuff
+// -----------------------------------------
 
 
 /**
@@ -771,4 +781,90 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
 }
 
 
+// -----------------------------------------
+// OutputWriter stuff
+// -----------------------------------------
+
+
+/**
+ * Generate the output file name to write into.
+ */
+std::string IO::OutputWriter::_getOutputFileName(parameters::Parameters& params){
+
+  std::stringstream fname;
+  if (params.getOutputFileBase() == ""){
+    fname << "output";
+  } else {
+    fname << params.getOutputFileBase();
+  }
+  fname << "_";
+  fname << std::setfill('0') << std::setw(4) << getNOutputsWritten();
+  fname << ".dat";
+
+  return fname.str();
+}
+
+/**
+ * Write the output.
+ */
+void IO::OutputWriter::dump(parameters::Parameters& params, grid::Grid& grid, Float t_current, size_t step){
+
+  if (Dimensions != 2){
+    error("Not Implemented Yet");
+  }
+
+
+  constexpr int fwidth = 12;
+  constexpr int fprec = 6;
+
+  // Change the stage we're in
+  logging::LogStage prevStage = logging::getCurrentStage();
+  logging::setStage(logging::LogStage::IO);
+
+  size_t nx = grid.getNxNorep();
+  if (params.getWriteReplications()){
+    nx = grid.getNx();
+  }
+  size_t first = grid.getFirstCellIndex();
+  size_t last = first + nx;
+
+  std::string fname = _getOutputFileName(params);
+  std::ofstream out(fname);
+
+  out << "# ndim = " << Dimensions << "\n";
+  out << "# nx = " << nx << "\n";
+  out << "# t = " << std::setw(fwidth) << std::setprecision(fprec) << t_current << "\n";
+  out << "# nsteps = " << step << "\n";
+  out << "#            x            y          rho          v_x          v_y            p\n";
+
+  for (size_t j = first; j < last; j++){
+    for (size_t i = first; i < last; i++){
+      cell::Cell& c= grid.getCell(i, j);
+      out << std::setw(fwidth) << std::setprecision(fprec) << c.getX();
+      out << " ";
+      out << std::setw(fwidth) << std::setprecision(fprec) << c.getY();
+      out << " ";
+
+      PrimitiveState& p = c.getPrim();
+      out << std::setw(fwidth) << std::setprecision(fprec) << p.getRho();
+      out << " ";
+      out << std::setw(fwidth) << std::setprecision(fprec) << p.getV(0);
+      out << " ";
+      out << std::setw(fwidth) << std::setprecision(fprec) << p.getV(1);
+      out << " ";
+      out << std::setw(fwidth) << std::setprecision(fprec) << p.getP();
+      out << "\n";
+    }
+  }
+
+  out.close();
+
+
+  // We're done, take note of that
+  message("Written output to " + fname, logging::LogLevel::Verbose);
+  incNOutputsWritten();
+
+  // change it back to where we were
+  logging::setStage(prevStage);
+}
 
