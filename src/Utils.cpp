@@ -57,6 +57,7 @@ void utils::printHeader() {
   build_type << "Build type:  " << CMAKE_BUILD_TYPE;
   message(build_type.str(), level);
 
+  // Note this only displays the build date of Utils.cpp.o
   message("Build date:  " __DATE__ " - " __TIME__, level);
 
   std::stringstream debug;

@@ -56,101 +56,11 @@ const char* logging::getStageName(LogStage stage) {
 }
 
 
-void logging::Log::logMessage(
-  const std::string& text,
-  const LogLevel     level,
-  const LogStage     stage,
-  const std::string_view        file,
-  const char*        function,
-  const size_t       line
-) {
-
-  // Are we talkative enough?
-  if (_verbosity < level)
-    return;
-
-  std::stringstream str;
-  str << "[" << getStageName(stage) << "] ";
-#if DEBUG_LEVEL > 0
-  str << "`" << file << ":" << function << ":" << line << "`: ";
-#endif
-  str << text << "\n";
-
-  std::cout << str.str();
-
-  // Do we want the message to be instantly flushed to screen?
-  bool flush = level >= LogLevel::Debug;
-  if (flush)
-    std::cout << std::flush;
-}
-
-void logging::Log::logMessage(
-  const char*    text,
-  const LogLevel level,
-  const LogStage stage,
-  const std::string_view    file,
-  const char*    function,
-  const size_t   line
-) {
-  logMessage(std::string(text), level, stage, file, function, line);
-}
-
-
-void logging::Log::logWarning(
-  const std::string& text,
-  const std::string_view       file,
-  const char* function, const size_t line
-) {
-
-  std::stringstream str;
-  str << "[WARNING] ";
-  str << "`" << file << ":" << function << ":" << line << "`: ";
-  str << text << "\n";
-
-  std::cerr << str.str();
-}
-
-void logging::Log::logWarning(
-  const char* text,
-  const std::string_view file,
-  const char* function, const size_t line
-) {
-  logWarning(std::string(text), file, function, line);
-}
-
-
-void logging::Log::logError(
-  const std::string& text,
-  const std::string_view       file,
-  const char* function,
-  const size_t line
-) {
-
-  std::stringstream str;
-  str << "[ERROR] ";
-  str << "`" << file << ":" << function << ":" << line << "`: ";
-  str << text << "\n";
-
-  std::cerr << str.str();
-
-  std::cerr << std::flush;
-  std::cout << std::flush;
-  std::abort();
-}
-
-void logging::Log::logError(
-  const char* text,
-  const std::string_view file,
-  const char* function, const size_t line
-) {
-  logError(std::string(text), file, function, line );
-}
-
-
 void logging::Log::setVerbosity(const int verbosity) {
   auto vlevel = static_cast<LogLevel>(verbosity);
   setVerbosity(vlevel);
 }
+
 
 void logging::Log::setVerbosity(const LogLevel verbosity) {
   _verbosity = verbosity;

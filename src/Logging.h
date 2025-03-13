@@ -1,7 +1,8 @@
 #pragma once
 
-#include <string>
 #include <source_location>
+#include <sstream>
+#include <string>
 
 #include "Config.h"
 
@@ -11,6 +12,14 @@
  * @file Logging.h
  * @brief Utilities related to logging.
  */
+
+template <typename T>
+  concept AllowedMessageType =
+  std::same_as<T, std::string> ||
+  std::same_as<T, const char*> ||
+  std::same_as<T, char*> ||
+  std::same_as<T, std::string_view>;
+
 
 namespace logging {
 
@@ -98,16 +107,17 @@ namespace logging {
    *    don't forget to add an entry in logging::getStageName().
    *
    * This class sets up a singleton in the background and is not intended to be
-   * used directly. Instead, use the convenience macros defined below. To write
-   * a log message to screen, use
+   * used directly. Instead, use the convenience functions defined below. To
+   * write a log message to screen, use
    *
    *   message(<msg>);
    *
-   * where <msg> is a std::string or string literal (char * like "Hello World").
+   * where <msg> is a std::string or string literal (char * like "Hello World")
+   * or std::string_view.
    *
-   * Note that std::stringstream doesn't work, as they aren't copyable, which is
-   * a requirement for constexpr. We end up tyring to make a constexpr which is
-   * never actually constant, and the compiler complains. Use
+   * !!! Note that std::stringstream doesn't work !!!, as they aren't copyable,
+   * which is a requirement for constexpr. We end up tyring to make a constexpr
+   * which is never actually constant, and the compiler complains. Use
    * std::stringstream.str() instead.
    *
    * Note that any logging printout will add a newline character for you at the
@@ -126,7 +136,7 @@ namespace logging {
    *   message(<msg>, <level>, <stage>);
    *
    * where <stage> is a logging::LogStage enum.
-   * Additionally, you can raise warnings using the warning macro:
+   * Additionally, you can raise warnings using the warning function:
    *
    *   warning(<msg>);
    *
@@ -145,6 +155,10 @@ namespace logging {
    *
    */
   class Log {
+  private:
+    LogLevel _verbosity;
+    LogStage _currentStage;
+
   public:
     Log():
       _verbosity(LogLevel::Debug),
@@ -157,13 +171,8 @@ namespace logging {
     }
 
     /**
-     * @brief write a log message to screen.
-     *
-     * I can probably template this, but I don't think I'm using anything
-     * besides strings or char arrays (string literals), so it's not worth
-     * it at this point.
-     * Also, constexpr doesn't work with constexpr, so we're only left with
-     * 2 options anyway.
+     * @brief write a log message to screen. See the class documentation for an
+     * explanation of the LogLevel and LogStage.
      *
      * @param text The message you want to print out.
      * @param level "verbosity level" of the log message.
@@ -175,22 +184,16 @@ namespace logging {
      * @param line The current line in the file. Intended to be the
      *   (replacement of the) __LINE__ macro.
      */
+    template<AllowedMessageType T>
     void logMessage(
-      const std::string& text,
+      const T text,
       const LogLevel     level,
       const LogStage     stage,
       const std::string_view        file,
       const char*        function,
       const size_t       line
     );
-    void logMessage(
-      const char*    text,
-      const LogLevel level,
-      const LogStage stage,
-      const std::string_view    file,
-      const char*    function,
-      const size_t   line
-    );
+
 
     /**
      * @brief write a warning message.
@@ -203,18 +206,14 @@ namespace logging {
      * @param line The current line in the file. Intended to be the
      *   (replacement of the) __LINE__ macro.
      */
+    template<AllowedMessageType T>
     void logWarning(
-      const std::string& text,
+      const T text,
       const std::string_view file,
       const char* function,
       const size_t line
     );
-    void logWarning(
-        const char* text,
-        const std::string_view file,
-        const char* function,
-        const size_t line
-        );
+
 
     /**
      * @brief write an error message and abort the run.
@@ -227,14 +226,9 @@ namespace logging {
      * @param line The current line in the file. Intended to be the
      *   (replacement of the) __LINE__ macro.
      */
+    template<AllowedMessageType T>
     void logError(
-        const std::string& text,
-        const std::string_view file,
-        const char* function,
-        const size_t line
-        );
-    void logError(
-        const char* text,
+        const T text,
         const std::string_view file,
         const char* function,
         const size_t line
@@ -259,16 +253,13 @@ namespace logging {
     //! Get the current stage.
     LogStage getCurrentStage();
 
-  private:
-    LogLevel _verbosity;
-    LogStage _currentStage;
   };
 } // namespace logging
 
 
 
 
-template <typename T>
+template <AllowedMessageType T>
 constexpr void message(
     const T msg,
     const std::source_location& location = std::source_location::current()
@@ -283,7 +274,8 @@ constexpr void message(
   );
 }
 
-template <typename T>
+
+template <AllowedMessageType T>
 constexpr void message(
     const T msg,
     const logging::LogLevel level,
@@ -299,7 +291,7 @@ constexpr void message(
   );
 }
 
-template <typename T>
+template <AllowedMessageType T>
 constexpr void message(
     const T msg,
     const logging::LogLevel level,
@@ -316,7 +308,7 @@ constexpr void message(
   );
 }
 
-template <typename T>
+template <AllowedMessageType T>
 constexpr void message(
     const T msg,
     const logging::LogStage stage,
@@ -333,7 +325,7 @@ constexpr void message(
 }
 
 
-template <typename T>
+template <AllowedMessageType T>
 constexpr void error(
     const T msg,
     const std::source_location& location = std::source_location::current()
@@ -346,7 +338,7 @@ constexpr void error(
     );
 }
 
-template <typename T>
+template <AllowedMessageType T>
 constexpr void warning(
     const T msg,
     const std::source_location& location = std::source_location::current()
@@ -358,3 +350,97 @@ constexpr void warning(
       location.line()
       );
 }
+
+
+
+
+
+template<AllowedMessageType T>
+void logging::Log::logMessage(
+  const T text,
+  const LogLevel     level,
+  const LogStage     stage,
+  const std::string_view        file,
+  const char*        function,
+  const size_t       line
+) {
+
+  // Are we talkative enough?
+  if (_verbosity < level)
+    return;
+
+  std::string str = "[";
+  str += getStageName(stage);
+  str += "] ";
+#if DEBUG_LEVEL > 0
+  str += file;
+  str += ":";
+  str += function;
+  str += ":";
+  str += std::to_string(line);
+  str += "`: ";
+#endif
+  str += text;
+  str += "\n";
+
+  std::cout << str;
+
+  // Do we want the message to be instantly flushed to screen?
+  bool flush = level >= LogLevel::Debug;
+  if (flush)
+    std::cout << std::flush;
+}
+
+
+template<AllowedMessageType T>
+void logging::Log::logWarning(
+  const T text,
+  const std::string_view       file,
+  const char* function, const size_t line
+) {
+
+  std::string str = "[WARNING] ";
+  str += "`";
+  str += file;
+  str += ":";
+  str += function;
+  str += ":";
+  str += std::to_string(line);
+  str += "`: ";
+  str += text;
+  str += "\n";
+
+  std::cerr << str;
+}
+
+
+
+template<AllowedMessageType T>
+void logging::Log::logError(
+  const T text,
+  const std::string_view       file,
+  const char* function,
+  const size_t line
+) {
+
+  std::string str = "[ERROR] ";
+  str += "`";
+  str += file;
+  str += ":";
+  str += function;
+  str += ":";
+  str += std::to_string(line);
+  str += "`: ";
+  str += text;
+  str += "\n";
+
+
+  std::cerr << str;
+
+  std::cerr << std::flush;
+  std::cout << std::flush;
+  std::abort();
+}
+
+
+
