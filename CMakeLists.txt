@@ -4,10 +4,10 @@
 
 cmake_minimum_required(VERSION 3.21)
 
-project(hydro_playground VERSION 1.0)
+project(hydro_playground VERSION 0.1)
 set(LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS On)
 
@@ -29,35 +29,33 @@ if(NOT CMAKE_BUILD_TYPE)
         CACHE STRING "Choose the type of build : [Debug,Release,RelWithDebInfo]."
         FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
+# TODO: Move this back to release once dev has converged
 
 # Notes:
-#   - Wno-unused-parameter: 
+#   - Wno-unused-parameter:
 #       Ignore warnings about unused function parameters.
-#   - Wno-string-plus-int: 
-#       Avoid warning "adding 'int' to a string does not append to the string"
-#       That occurs all the time because of my __FILENAME__ = __FILE__ + SOURCE_PATH_SIZE trick.
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     add_compile_options(
-        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-string-plus-int -O3
+        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3
     )
     set(DEBUG_LEVEL 0)
 
 elseif (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     add_compile_options(
-        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-string-plus-int -O3 -g
+        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3 -g
     )
     set(DEBUG_LEVEL 1)
 
 elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(
-        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-string-plus-int -O0 -g
+        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O0 -g
     )
     set(DEBUG_LEVEL 2)
 
 else()
-    message(FATAL_ERROR 
-        "Invalid CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}. " 
+    message(FATAL_ERROR
+        "Invalid CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}. "
         "Options are [Release, RelWithDebInfo, Debug]. "
         "Pick one of those."
         )
@@ -67,15 +65,39 @@ endif()
 message("* Current build type is : ${CMAKE_BUILD_TYPE}")
 
 
-# ---------------------------------------
-# Truncate full path from __FILE__ macro
-# ---------------------------------------
 
-# The additional / is important to remove the last character from the path.
-# Note that it does not matter if the OS uses / or \, because we are only
-# saving the path size.
-string(LENGTH "${CMAKE_SOURCE_DIR}/" SOURCE_PATH_SIZE)
-add_definitions("-DSOURCE_PATH_SIZE=${SOURCE_PATH_SIZE}")
+
+
+# ---------------------------
+# Options
+# ---------------------------
+
+option(TERMINAL_COLOR "Enable colour logging outputs" ON)
+if (TERMINAL_COLOR)
+    add_definitions(-DTERMINAL_COLORS)
+endif(TERMINAL_COLOR)
+
+message(STATUS "TERMINAL_COLOR is set to: ${TERMINAL_COLOR}")
+
+
+set(PRECISION "DOUBLE" CACHE STRING "Set floating point precision (SINGLE DOUBLE)")
+set_property(CACHE PRECISION PROPERTY STRINGS "SINGLE" "DOUBLE")
+
+message(STATUS "PRECISION is set to: ${PRECISION}")
+
+if(PRECISION STREQUAL "SINGLE")
+    add_definitions(-DPRECISION=1)
+elseif(PRECISION STREQUAL "DOUBLE")
+    add_definitions(-DPRECISION=2)
+else()
+    message(FATAL_ERROR
+        "Invalid PRECISION=${PRECISION}. "
+        "Options are [SINGLE, DOUBLE]. "
+        "Pick one of those."
+        )
+endif()
+
+
 
 # ---------------------------
 # Main Target

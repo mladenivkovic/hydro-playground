@@ -1,173 +1,238 @@
 #include "Gas.h"
 
-#include <cmath>
+#include <iomanip>
 
-#include "Constants.h"
+#include "Logging.h"
+
+
+static constexpr int gas_print_width     = 5;
+static constexpr int gas_print_precision = 2;
+
 
 // Stuff for primitive state
 
-IdealGas::PrimitiveState::PrimitiveState():
-  // initialiser list
+/**
+ * @brief Default constructor.
+ */
+idealGas::PrimitiveState::PrimitiveState():
   rho(0.),
-  u({0., 0.}),
-  p(0.) { /* empty body... */ };
-
-void IdealGas::PrimitiveState::ConservedToPrimitive(const ConservedState& c) {
-  if (c.getRho() <= SMALLRHO) {
-    // execption handling for vacuum
-    setRho(SMALLRHO);
-    setU(0, SMALLU);
-    setU(1, SMALLU);
-    setP(SMALLP);
-  } else {
-    setRho(c.getRho());
-    setU(0, c.getRhou(0) / c.getRho());
-    setU(1, c.getRhou(1) / c.getRho());
-    setP(GM1 * c.getE() - 0.5 * c.getRhoUSquared() / c.getRho());
-
-    // handle negative pressure
-    if (getP() <= SMALLP)
-      setP(SMALLP);
+  p(0.) {
+  for (size_t i = 0; i < Dimensions; i++) {
+    v[i] = 0.;
   }
 }
 
-float_t IdealGas::PrimitiveState::getSoundSpeed() {
-  return std::sqrt(GAMMA * getP() / getRho());
+/**
+ * @brief Specialized constructor with initial values.
+ * Using setters instead of initialiser lists so the debugging checks kick in.
+ */
+idealGas::PrimitiveState::PrimitiveState(
+  const Float rho, const std::array<Float, Dimensions> vel, const Float p
+) {
+  setRho(rho);
+  for (size_t i = 0; i < Dimensions; i++) {
+    setV(i, vel[i]);
+  }
+  setP(p);
 }
 
 
-float_t IdealGas::PrimitiveState::getEnergy() {
-  return 0.5 * getRho() * getUSquared() + getP() / GM1;
+/**
+ * @brief Specialized constructor with initial values for 1D.
+ * Using setters instead of initialiser lists so the debugging checks kick in.
+ */
+idealGas::PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float p) {
+#if DEBUG_LEVEL > 0
+  if (Dimensions != 1) {
+    error("This is a 1D function only!");
+  }
+#endif
+  setRho(rho);
+  setV(0, vx);
+  setP(p);
 }
 
-// getters and setters for PrimitiveState
-
-void IdealGas::PrimitiveState::setRho(const float_t val) {
-  rho = val;
+/**
+ * @brief Specialized constructor with initial values for 2D.
+ * Using setters instead of initialiser lists so the debugging checks kick in.
+ */
+idealGas::PrimitiveState::PrimitiveState(
+  const Float rho, const Float vx, const Float vy, const Float p
+) {
+#if DEBUG_LEVEL > 0
+  if (Dimensions != 2) {
+    error("This is a 2D function only!");
+  }
+#endif
+  setRho(rho);
+  setV(0, vx);
+  setV(1, vy);
+  setP(p);
 }
 
-float_t IdealGas::PrimitiveState::getRho() const {
-  return rho;
+
+/**
+ * Convert a conserved state to a (this) primitive state.
+ * Overwrites the contents of this primitive state.
+ */
+void idealGas::PrimitiveState::ConservedToPrimitive(const ConservedState& c) {
+  if (c.getRho() <= SMALLRHO) {
+    // execption handling for vacuum
+    setRho(SMALLRHO);
+    setV(0, SMALLU);
+    setV(1, SMALLU);
+    setP(SMALLP);
+  } else {
+    setRho(c.getRho());
+    setV(0, c.getRhov(0) / c.getRho());
+    setV(1, c.getRhov(1) / c.getRho());
+    setP(GM1 * c.getE() - 0.5 * c.getRhoVSquared() / c.getRho());
+
+    // handle negative pressure
+    if (getP() <= SMALLP) {
+      setP(SMALLP);
+    }
+  }
 }
 
-void IdealGas::PrimitiveState::setU(const int index, const float_t val) {
-  u[index] = val;
-}
 
-float_t IdealGas::PrimitiveState::getU(const int index) const {
-  return u[index];
-}
+/**
+ * @brief construct a string with the contents.
+ * Format: [rho, vx, vy, P]
+ */
+std::string idealGas::PrimitiveState::toString() const {
 
-float_t IdealGas::PrimitiveState::getUSquared() const {
-  return u[0] * u[0] + u[1] * u[1];
-}
+  constexpr int w = gas_print_width;
+  constexpr int p = gas_print_precision;
 
-void IdealGas::PrimitiveState::setP(const float_t val) {
-  p = val;
-}
+  std::stringstream out;
+  out << "[";
+  out << std::setprecision(p) << std::setw(w) << getRho() << ",";
+  for (size_t i = 0; i < Dimensions; i++) {
+    out << std::setprecision(p) << std::setw(w) << getV(i) << ",";
+  }
+  out << std::setprecision(p) << std::setw(w) << getP() << "]";
 
-float_t IdealGas::PrimitiveState::getP() const {
-  return p;
+  return out.str();
 }
 
 
 // Stuff for conserved state
 
-IdealGas::ConservedState::ConservedState():
-  // initialiser list
+idealGas::ConservedState::ConservedState():
   rho(0.),
-  rhou({0., 0.}),
-  E(0.) { /* empty body... */ };
+  E(0.) {
+  for (size_t i = 0; i < Dimensions; i++) {
+    rhov[i] = 0.;
+  }
+};
 
 
-void IdealGas::ConservedState::PrimitiveToConserved(const PrimitiveState& p) {
+/**
+ * Compute the conserved state vector of a given primitive state.
+ */
+void idealGas::ConservedState::PrimitiveToConserved(const PrimitiveState& p) {
   setRho(p.getRho());
-  setRhou(0, p.getRho() * p.getU(0));
-  setRhou(1, p.getRho() * p.getU(1));
-  setE(0.5 * p.getRho() * p.getUSquared() + p.getP() / GM1);
+  setRhov(0, p.getRho() * p.getV(0));
+  setRhov(1, p.getRho() * p.getV(1));
+  setE(0.5 * p.getRho() * p.getVSquared() + p.getP() / GM1);
 }
 
 
-void IdealGas::ConservedState::GetCFluxFromPstate(const PrimitiveState& p, int dimension) {
-  /* -----------------------------------------------------------
-   * Compute the flux of conserved variables of the Euler
-   * equations given a primitive state vector
-   *
-   * The flux is not an entire tensor for 3D Euler equations, but
-   * correpsonds to the dimensionally split vectors F, G as
-   * described in the "Euler equations in 2D" section of the
-   * documentation TeX files.
-   * That's why you need to specify the dimension.
-   *
-   * Everything about this is copied from the original C code.
-   * For now, just need to get the machinery in before making
-   * it C++ style.
-   * ----------------------------------------------------------- */
+/**
+ * @brief Compute the flux of conserved variables of the Euler
+ * equations given a primitive state vector
+ *
+ * The flux is not an entire tensor for 3D Euler equations, but
+ * correpsonds to the dimensionally split vectors F, G as
+ * described in the "Euler equations in 2D" section of the
+ * documentation TeX files.
+ * That's why you need to specify the dimension.
+ *
+ * TODO: make sure latex documentation has these equations
+ */
+void idealGas::ConservedState::GetCFluxFromPstate(const PrimitiveState& p, const size_t dimension) {
 
-  setRho(p.getRho() * p.getU(dimension));
-  setRhou(dimension, p.getRho() * p.getU(dimension) * p.getU(dimension) + p.getP());
-  setRhou((dimension + 1) % 2, p.getRho() * p.getU(0) * p.getU(1));
+  Float rhoflux = p.getRho() * p.getV(dimension);
+  setRho(rhoflux);
 
-  float_t tempE = 0.5 * p.getRho() * p.getUSquared() + p.getP() / GM1;
-  setE(tempE + p.getP() * p.getU(dimension));
+  // momentum flux along the requested dimension
+  Float momentum_dim = p.getRho() * p.getV(dimension) * p.getV(dimension) + p.getP();
+  setRhov(dimension, momentum_dim);
+
+  // momentum flux along the other dimension
+  Float momentum_other = p.getRho() * p.getV(0) * p.getV(1);
+  setRhov((dimension + 1) % 2, momentum_other);
+
+  // gas energy
+  Float E     = 0.5 * p.getRho() * p.getVSquared() + p.getP() / GM1;
+  Float Eflux = (E + p.getP()) * p.getV(dimension);
+  setE(Eflux);
 }
 
-void IdealGas::ConservedState::GetCFluxFromCstate(const ConservedState& c, int dimension) {
-  /* -----------------------------------------------------------
-   * Compute the flux of conserved variables of the Euler
-   * equations given a conserved state vector
-   *
-   * The flux is not an entire tensor for 3D Euler equations, but
-   * correpsonds to the dimensionally split vectors F, G as
-   * described in the "Euler equations in 2D" section of the
-   * documentation TeX files.
-   * That's why you need to specify the dimension.
-   *
-   * Everything about this is copied from the original C code.
-   * For now, just need to get the machinery in before making
-   * it C++ style.
-   * ----------------------------------------------------------- */
-  setRho(c.getRhou(dimension));
-  if (c.getRho() > 0) {
-    float_t v = c.getRhou(dimension) / c.getRho();
-    float_t p = GM1 * c.getRhoUSquared() / c.getRho();
 
-    setRhou(dimension, c.getRho() * v * v + p);
-    setRhou((dimension + 1) % 2, c.getRhou((dimension + 1) % 2) * v);
-    setE((c.getE() + p) * v);
+/**
+ * Compute the flux of conserved variables of the Euler
+ * equations given a conserved state vector
+ *
+ * The flux is not an entire tensor for 3D Euler equations, but
+ * correpsonds to the dimensionally split vectors F, G as
+ * described in the "Euler equations in 2D" section of the
+ * documentation TeX files.
+ * That's why you need to specify the dimension.
+ *
+ * Everything about this is copied from the original C code.
+ * For now, just need to get the machinery in before making
+ * it C++ style.
+ *
+ * TODO: make sure latex documentation has these equations
+ */
+void idealGas::ConservedState::GetCFluxFromCstate(const ConservedState& c, const size_t dimension) {
+
+  // Mass flux
+  setRho(c.getRhov(dimension));
+
+  if (c.getRho() > 0.) {
+    Float v = c.getRhov(dimension) / c.getRho();
+    Float p = c.getE() - 0.5 * c.getRhoVSquared() / c.getRho();
+
+    // momentum flux along the requested dimension
+    Float momentum_dim = c.getRho() * v * v + p;
+    setRhov(dimension, momentum_dim);
+
+    // momentum flux along the other dimension
+    size_t other_index    = (dimension + 1) % 2;
+    Float  momentum_other = c.getRhov(other_index) * v;
+    setRhov(other_index, momentum_other);
+
+    Float E = (c.getE() + p) * v;
+    setE(E);
+
   } else {
-    setRhou(0, 0);
-    setRhou(0, 1);
-    setE(0);
+
+    setRhov(0, 0.);
+    setRhov(1, 0.);
+    setE(0.);
   }
 }
 
-/* Getters and Setters */
 
-void IdealGas::ConservedState::setRhou(const size_t index, const float_t val) {
-  rhou[index] = val;
-}
+/**
+ * @brief construct a string with the contents.
+ * Format: [rho, rho * vx, rho * vy, E]
+ */
+std::string idealGas::ConservedState::toString() const {
 
-float_t IdealGas::ConservedState::getRhou(const size_t index) const {
-  return rhou[index];
-}
+  constexpr int w = gas_print_width;
+  constexpr int p = gas_print_precision;
 
-float_t IdealGas::ConservedState::getRhoUSquared() const {
-  return rhou[0] * rhou[0] + rhou[1] * rhou[1];
-}
+  std::stringstream out;
+  out << "[";
+  out << std::setprecision(p) << std::setw(w) << getRho() << ",";
+  for (size_t i = 0; i < Dimensions; i++) {
+    out << std::setprecision(p) << std::setw(w) << getRhov(i) << ",";
+  }
+  out << std::setprecision(p) << std::setw(w) << getE() << "]";
 
-void IdealGas::ConservedState::setE(const float_t val) {
-  E = val;
-}
-
-float_t IdealGas::ConservedState::getE() const {
-  return E;
-}
-
-float_t IdealGas::ConservedState::getRho() const {
-  return rho;
-}
-
-void IdealGas::ConservedState::setRho(const float_t val) {
-  rho = val;
+  return out.str();
 }

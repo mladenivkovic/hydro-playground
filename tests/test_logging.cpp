@@ -32,28 +32,51 @@ int main() {
   std::stringstream ss_msg;
   ss_msg << "String stream message";
 
-  logging::Log::logMessage(
-    FILENAME_, __FUNCTION__, __LINE__, char_msg, logging::LogLevel::Quiet, logging::LogStage::Init
+  logging::Log& logger = logging::Log::getInstance();
+
+  logger.logMessage(
+    char_msg,
+    logging::LogLevel::Quiet,
+    logging::LogStage::Init,
+    std::source_location::current().file_name(),
+    std::source_location::current().function_name(),
+    std::source_location::current().line()
   );
-  logging::Log::logMessage(
-    FILENAME_, __FUNCTION__, __LINE__, str_msg, logging::LogLevel::Quiet, logging::LogStage::Init
+  logger.logMessage(
+    str_msg,
+    logging::LogLevel::Quiet,
+    logging::LogStage::Init,
+    std::source_location::current().file_name(),
+    std::source_location::current().function_name(),
+    std::source_location::current().line()
   );
-  logging::Log::logMessage(
-    FILENAME_, __FUNCTION__, __LINE__, ss_msg, logging::LogLevel::Quiet, logging::LogStage::Init
-  );
-  logging::Log::logMessage(
-    FILENAME_,
-    __FUNCTION__,
-    __LINE__,
+  logger.logMessage(
     "Directly writing in here",
     logging::LogLevel::Quiet,
-    logging::LogStage::Init
+    logging::LogStage::Init,
+    std::source_location::current().file_name(),
+    std::source_location::current().function_name(),
+    std::source_location::current().line()
   );
 
-  logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, char_msg);
-  logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, str_msg);
-  logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, ss_msg);
-  logging::Log::logWarning(FILENAME_, __FUNCTION__, __LINE__, "Directly writing in here");
+  logger.logWarning(
+    char_msg,
+    std::source_location::current().file_name(),
+    std::source_location::current().function_name(),
+    std::source_location::current().line()
+  );
+  logger.logWarning(
+    str_msg,
+    std::source_location::current().file_name(),
+    std::source_location::current().function_name(),
+    std::source_location::current().line()
+  );
+  logger.logWarning(
+    "Directly writing in here",
+    std::source_location::current().file_name(),
+    std::source_location::current().function_name(),
+    std::source_location::current().line()
+  );
 
   // Now try the message() macros
   message(char_msg);
@@ -62,16 +85,12 @@ int main() {
   message(str_msg);
   message(str_msg, logging::LogLevel::Quiet, logging::LogStage::Undefined);
 
-  message(ss_msg);
-  message(ss_msg, logging::LogLevel::Quiet, logging::LogStage::Undefined);
-
   message("Directly writing in here");
   message("Directly writing in here", logging::LogLevel::Quiet, logging::LogStage::Undefined);
 
   // Now try the warning() macros
   warning(char_msg);
   warning(str_msg);
-  warning(ss_msg);
   warning("Directly writing in here");
 
 
@@ -90,26 +109,27 @@ int main() {
   // Vary verbosity levels
   for (int verb = levelMin; verb <= levelMax; verb++) {
 
-    logging::Log::setVerbosity(verb);
+    logging::setVerbosity(verb);
 
     // vary code stages
     for (int stage = stageMin; stage < stageMax; stage++) {
 
-      logging::LogStage s = static_cast<logging::LogStage>(stage);
+      auto s = static_cast<logging::LogStage>(stage);
 
       // vary verbosity level of messages
       for (int level = levelMin; level < levelMax; level++) {
 
-        logging::LogLevel l = static_cast<logging::LogLevel>(level);
+        auto l = static_cast<logging::LogLevel>(level);
 
         bool expect_print = (verb >= level);
 
         std::stringstream msg;
+        constexpr int     w = 12;
 
-        msg << std::setw(12) << "Verbosity=" << std::setw(3) << verb;
-        msg << std::setw(12) << " msg level=" << std::setw(3) << level;
-        msg << std::setw(12) << " code stage=" << std::setw(3) << stage;
-        msg << std::setw(12) << " should print?=" << expect_print;
+        msg << std::setw(w) << "Verbosity=" << std::setw(3) << verb;
+        msg << std::setw(w) << " msg level=" << std::setw(3) << level;
+        msg << std::setw(w) << " code stage=" << std::setw(3) << stage;
+        msg << std::setw(w) << " should print?=" << expect_print;
         msg << " | ";
 
         std::cout << msg.str();

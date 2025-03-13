@@ -1,32 +1,54 @@
 
-
-#include <iostream> // todo: necessary?
-#include <sstream>
-
-#include "Cell.h"
-// #include "Config.h" // todo: necessary?
+#include "Grid.h"
+#include "IO.h"
 #include "Logging.h"
 #include "Parameters.h"
 #include "Utils.h"
 
 
-int main() {
+int main(int argc, char* argv[]) {
+
+  // Set the logging stage. We're in the header phase.
+  logging::setStage(logging::LogStage::Header);
+
+  // Set default verbosity levels.
+  // Note that this can be changed through cmdline flags.
+  logging::setVerbosity(logging::LogLevel::Quiet);
+
+  // Get a handle on global vars so they're always in scope
+  auto params = parameters::Parameters();
+  auto grid   = grid::Grid();
+  auto writer = IO::OutputWriter();
 
   // Useless things first :)
-  utils::print_header();
+  utils::printHeader();
 
-  // Initialise global parameters.
-  auto params = parameters::Parameters::Instance;
-  auto grid   = cell::Grid::Instance;
+  // Were' in the initialisation phase now.
+  logging::setStage(logging::LogStage::Init);
 
+  // Fire up IO
+  IO::InputParse input(argc, argv);
+
+  // Read the parameters from the parameter file and initialise global paramters...
+  input.readParamFile(params);
+  params.initDerived();
+  grid.initGrid(params);
+
+  // When very verbose, print out used parameters
+  message("Running with parameters:", logging::LogLevel::Debug);
+  message(params.toString(), logging::LogLevel::Debug);
+
+  // Read initial conditions
+  logging::setStage(logging::LogStage::IO);
+  input.readICFile(grid);
 
   std::ostringstream msg;
-  msg << "Got params dx=" << params.getDx();
+  msg << "Got params nx=" << params.getNx();
   message(msg.str());
 
-  // initialise the grid of cells
-  grid.InitGrid();
-  grid.setBoundary();
+  logging::setStage(logging::LogStage::Step);
+  writer.dump(params, grid, 0., 1);
+  writer.dump(params, grid, 1., 2);
 
   return 0;
 }

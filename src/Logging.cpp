@@ -1,142 +1,129 @@
 #include "Logging.h"
 
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
 
-#include "Config.h"
 
-namespace logging {
+void logging::setStage(const int stage) {
+  Log::getInstance().setStage(stage);
+}
 
-  // Initialise the verbosity as debug.
-  LogLevel Log::_verbosity = LogLevel::Debug;
+void logging::setStage(const logging::LogStage stage) {
+  Log::getInstance().setStage(stage);
+}
 
 
-  void Log::logMessage(
-    const char* file,
-    const char* function,
-    const int   line,
-    std::string text,
-    LogLevel    level,
-    LogStage    stage
-  ) {
+logging::LogStage logging::getCurrentStage() {
+  return Log::getInstance().getCurrentStage();
+}
 
-    // Are we talkative enough?
-    if (_verbosity < level)
-      return;
 
-    std::stringstream str;
-    str << "[" << getStageName(stage) << "] ";
-#if DEBUG_LEVEL > 0
-    str << "{" << file << ":" << function << "():" << line << "} ";
-#endif
-    str << text << "\n";
+void logging::setVerbosity(const int level) {
+  Log::getInstance().setVerbosity(level);
+}
 
-    std::cout << str.str();
+void logging::setVerbosity(const logging::LogLevel level) {
+  Log::getInstance().setVerbosity(level);
+}
 
-    // Do we want the message to be instantly flushed to screen?
-    bool flush = level >= LogLevel::Debug;
-    if (flush)
-      std::cout << std::flush;
+
+logging::LogLevel logging::getCurrentVerbosity() {
+  return Log::getInstance().getCurrentVerbosity();
+}
+
+
+std::string logging::getStageNameForOutput(LogStage stage) {
+
+  const char* name = getStageName(stage);
+
+  std::string       s = "[" + std::string(name) + "]";
+  std::stringstream ss;
+  ss << std::left << std::setw(10) << s;
+  return ss.str();
+}
+
+
+const char* logging::getStageName(LogStage stage) {
+
+  switch (stage) {
+  case LogStage::Undefined:
+    return "Undefined";
+  case LogStage::Header:
+    return "Header";
+  case LogStage::Init:
+    return "Init";
+  case LogStage::Step:
+    return "Step";
+  case LogStage::IO:
+    return "IO";
+  case LogStage::Test:
+    return "Test";
+  case LogStage::Count:
+    return "Count";
+  default:
+    return "Unknown";
   }
+}
 
-  void Log::logMessage(
-    const char*        file,
-    const char*        function,
-    const int          line,
-    std::stringstream& text,
-    LogLevel           level,
-    LogStage           stage
-  ) {
-    logMessage(file, function, line, text.str(), level, stage);
+
+const char* logging::getStageNameColour(LogStage stage) {
+
+  switch (stage) {
+  case LogStage::Undefined:
+    return tcols::red;
+  case LogStage::Header:
+  case LogStage::Init:
+    return tcols::green;
+  case LogStage::Step:
+    return tcols::cyan;
+  case LogStage::IO:
+  case LogStage::Test:
+    return tcols::magenta;
+  case LogStage::Count:
+  default:
+    return tcols::reset;
   }
-
-  void Log::logMessage(
-    const char* file,
-    const char* function,
-    const int   line,
-    const char* text,
-    LogLevel    level,
-    LogStage    stage
-  ) {
-    logMessage(file, function, line, std::string(text), level, stage);
-  }
+}
 
 
-  void Log::logWarning(
-    const char* file, const char* function, const int line, const std::string& text
-  ) {
-
-    std::stringstream str;
-    str << "[WARNING] ";
-    str << "{" << file << ":" << function << "():" << line << "} ";
-    str << text << "\n";
-
-    std::cerr << str.str();
-  }
-
-  void Log::logWarning(
-    const char* file, const char* function, const int line, const std::stringstream& text
-  ) {
-    logWarning(file, function, line, text.str());
-  }
-
-  void Log::logWarning(const char* file, const char* function, const int line, const char* text) {
-    logWarning(file, function, line, std::string(text));
-  }
+void logging::Log::setVerbosity(const int verbosity) {
+  auto vlevel = static_cast<LogLevel>(verbosity);
+  setVerbosity(vlevel);
+}
 
 
-  void Log::logError(const char* file, const char* function, const int line, std::string text) {
+void logging::Log::setVerbosity(const LogLevel verbosity) {
+  _verbosity = verbosity;
 
-    std::stringstream str;
-    str << "[ERROR] ";
-    str << "{" << file << ":" << function << "():" << line << "} ";
-    str << text << "\n";
-
-    std::cerr << str.str();
-
-    std::cerr << std::flush;
-    std::cout << std::flush;
-    std::abort();
-  }
-
-  void Log::logError(
-    const char* file, const char* function, const int line, std::stringstream& text
-  ) {
-    logError(file, function, line, text.str());
-  }
-
-  void Log::logError(const char* file, const char* function, const int line, const char* text) {
-    logError(file, function, line, std::string(text));
-  }
+  // only notify me if we're talky
+  std::stringstream msg;
+  msg << "Setting verbosity to " << static_cast<int>(verbosity);
+  message(msg.str(), LogLevel::Verbose);
+}
 
 
-  void Log::setVerbosity(int verbosity) {
-    LogLevel vlevel = static_cast<LogLevel>(verbosity);
-    setVerbosity(vlevel);
-  }
-
-  void Log::setVerbosity(LogLevel verbosity) {
-    Log::_verbosity = verbosity;
-  }
-
-  const char* Log::getStageName(LogStage stage) {
-
-    switch (stage) {
-    case LogStage::Undefined:
-      return "Undefined";
-    case LogStage::Header:
-      return "Header";
-    case LogStage::Init:
-      return "Init";
-    case LogStage::Step:
-      return "Step";
-    case LogStage::Count:
-      return "Count";
-    default:
-      return "Unknown";
-    }
-  }
+logging::LogLevel logging::Log::getCurrentVerbosity() {
+  return _verbosity;
+}
 
 
-} // namespace logging
+void logging::Log::setStage(int stage) {
+  auto stage_t = static_cast<LogStage>(stage);
+  setStage(stage_t);
+}
+
+void logging::Log::setStage(LogStage stage) {
+
+  _currentStage = stage;
+
+  std::stringstream msg;
+  msg << "Setting stage " << getStageName(stage);
+  message(msg.str(), LogLevel::Verbose);
+}
+
+
+logging::LogStage logging::Log::getCurrentStage() {
+  return _currentStage;
+}

@@ -1,0 +1,379 @@
+\newpage
+% ====================================================================
+\section{File Format Specification}
+% ====================================================================
+
+% ====================================================================
+\subsection{Parameter File Specification}\label{chap:paramfile}
+% ====================================================================
+
+\note{
+    An example parameter file containing all recognized parameters is stored as
+    \texttt{hydro\_playground/examples/example\_paramfile.txt}.
+}
+
+
+% ---------------------------------------
+\subsubsection{Talking Parameters}
+% ---------------------------------------
+
+\begin{tabular}[c]{p{2.5cm} p{1.5cm} p{1.cm} p{9.cm}}
+Name & Default & Type & Description \\
+\hline
+\hline
+\texttt{verbose} &
+    = 0 &
+    \texttt{int} &
+    How talkative the code should be. 0 = quiet, 1 = talky, 2 = no secrets, 3 = debugging
+\\ \hline
+\texttt{nstep\_log} &
+    = 0 &
+    \texttt{int} &
+    Write log messages only ever \texttt{nstep\_log} steps. If 0, will write every step.
+\\ \hline
+\end{tabular}
+
+
+
+
+
+
+% ---------------------------------------
+\subsubsection{Simulation Parameters}
+% ---------------------------------------
+
+\begin{tabular}[c]{p{2.5cm} p{1.5cm} p{1.cm} p{9.cm}}
+Name & Default & Type & Description \\
+\hline
+\hline
+\texttt{nx} &
+    = 100 &
+    \texttt{int} &
+    Number of cells to use if you're running with a two-state type IC file.
+    Otherwise, it needs to be specified in the initial conditions. If you're not
+    using a two-state IC, the value will be overwritten by the value given in
+    the IC file.
+\\ \hline
+\texttt{ccfl} &
+    = 0.9 &
+    \texttt{float} &
+    Courant factor; \texttt{dt\ =\ ccfl\ *\ dx\ /\ vmax}
+\\ \hline
+\texttt{nsteps} &
+    = 1 &
+    \texttt{int} &
+    Up to how many steps to do. If = 0, run until \texttt{t}
+    $\geq$ \texttt{tmax}
+\\ \hline
+\texttt{tmax} &
+    = 0 &
+    \texttt{float} &
+    Up to which time to simulate. If \texttt{nsteps} is given, will stop running
+    if \texttt{nsteps} steps are reached before \texttt{tmax} is.
+\\ \hline
+\texttt{force\_dt} &
+    = 0 &
+    \texttt{float} &
+    force a time step size. If a smaller time step is required, the simulation
+    will stop.
+\\ \hline
+\texttt{boundary} &
+    = 0 &
+    \texttt{int} &
+    Boundary conditions 0: periodic. 1: reflective. 2: transmissive. This sets
+    the boundary conditions for all walls.
+\\ \hline
+\texttt{boxsize} &
+    = 1. &
+    \texttt{float} &
+    Size of the simulation box in each dimension.
+\\ \hline
+\texttt{replicate} &
+    = 0 &
+    \texttt{int} &
+    When running with arbitrary-type initial conditions, replicate (=
+    copy-paste) the initial conditions this many times in each dimension. This
+    is not used for the two-state type ICs because there you can simply specify
+    the \texttt{nx} parameter as you wish.
+\\ \hline
+\end{tabular}
+
+
+
+
+
+
+
+% ---------------------------------------
+\subsubsection{Output Parameters}
+% ---------------------------------------
+
+\begin{tabular}[c]{p{2.5cm} p{1.5cm} p{1.cm} p{9.cm}}
+Name & Default & Type & Description
+\\
+\hline
+\hline
+\texttt{foutput} &
+    = 0 &
+    \texttt{int} &
+    Frequency of writing outputs in number of steps. If = 0, will only write
+    initial and final steps.
+\\ \hline
+\texttt{dt\_out} &
+    = 0 &
+    \texttt{float} &
+    Frequency of writing outputs in time intervals. Code will always write
+    initial and final steps as well.
+\\ \hline
+% \texttt{toutfile} &
+%     None &
+%     \texttt{string} &
+%     File name containing desired times (in code units) of output. Syntax of the
+%     file: One float per line with increasing value.
+% \\ \hline
+\texttt{basename} &
+    None &
+    \texttt{string} &
+    Basename for outputs. If not given, a basename will be generated based on
+    compilation parameters and IC filename.
+\\ \hline
+\texttt{write\_replications} &
+    = \texttt{false} &
+    \texttt{bool} &
+    If \texttt{replicate} > 1, setting this to true will write the entire content of the box, including all replications.
+\end{tabular}
+
+
+
+
+
+
+%
+% % ---------------------------------------
+% \subsubsection{Source Term Parameters}
+% % ---------------------------------------
+%
+% \begin{tabular}[c]{p{2.5cm} p{1.5cm} p{1.cm} p{9.cm}}
+% Name & Default & Type & Description \\
+% \hline
+% \hline
+% \texttt{src\_const\_acc\_x} &
+%     = 0 &
+%     \texttt{float} &
+%     constant acceleration in x direction for constant source terms
+% \\ \hline
+% \texttt{src\_const\_acc\_y} &
+%     = 0 &
+%     \texttt{float} &
+%     constant acceleration in y direction for constant source terms
+% \\ \hline
+% \texttt{src\_const\_acc\_r} &
+%     = 0 &
+%     \texttt{float} &
+%     constant acceleration in radial direction for radial source terms
+% \\ \hline
+% \end{tabular}
+%
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% ====================================================================
+\subsection{Initial Conditions}\label{chap:icfile}
+% ====================================================================
+
+
+
+\hydro is able to read two types of IC files. In either case, they're expected
+to be formatted text.
+
+In both IC file types, lines starting with \texttt{//} or \texttt{/*} will be
+recognized as comments and skipped. Empty lines are skipped as well.
+
+Some example python scripts that generate initial conditions are given in
+\verb|./python_module/scripts/IC|. Note that for the directory
+\verb|./python_module/| to contain any files, you first need to initialize the
+submodule. See the instructions Section~\ref{chap:py}.
+
+
+
+
+
+
+
+% ====================================================================
+\subsubsection{Two-State Type ICs}\label{chap:twostate-ic}
+% ====================================================================
+
+You can use a Riemann problem two-state initial condition file as follows:
+
+\begin{lstlisting}
+filetype = two-state
+rho_L   = <float>
+u_L     = <float>
+p_L     = <float>
+rho_R   = <float>
+u_R     = <float>
+p_R     = <float>
+\end{lstlisting}
+
+The line
+
+\begin{lstlisting}
+filetype = two-state
+\end{lstlisting}
+
+\textbf{must} be the first non-comment non-empty line, after which the
+parameters \texttt{rho\_L}, \texttt{u\_L}, \texttt{p\_L}, \texttt{rho\_R},
+\texttt{u\_R}, and \texttt{p\_R} follow.
+
+The discontinuity between the changes will be in the middle along the x-axis.
+Fluid velocity in y direction will be set to zero, \texttt{u\_L} and
+\texttt{u\_R} will be set as \texttt{u\_x}.
+
+
+
+
+
+
+
+
+% ====================================================================
+\subsubsection{Arbitrary Type ICs}\label{chap:arbitrary-ic}
+% ====================================================================
+
+\note{
+    The file format is not really suitable for display on a
+    \code{LaTeX}-generated \jargon{pdf}. You may want to check out the
+    \jargon{README} in the repository's root directory or on github.
+}
+
+
+
+You can provide an individual value for density, velocity, and pressure for each
+cell. The IC file format is as follows:
+
+The lines
+
+\begin{lstlisting}
+filetype = arbitrary
+nx = <int>
+ndim = <int>
+\end{lstlisting}
+
+\textbf{must} be the first non-comment non-empty lines, in that order.
+\jargon{ndim} \textbf{must} be 2, as \hydro only runs
+in 2D.
+
+The IC format is as follows:
+
+\begin{lstlisting}
+filetype = arbitrary
+nx = <integer, number of cells in any dimension>
+ndim = 2
+<density in cell (0, 0)>       <x velocity in cell (0, 0)>      <y velocity in cell (0, 0)>        <pressure in cell (0, 0)>
+<density in cell (1, 0)>       <x velocity in cell (1, 0)>      <y velocity in cell (1, 0)>        <pressure in cell (1, 0)>
+                                     .
+                                     .
+                                     .
+<density in cell (nx-1, 0)>     <x velocity cell (nx-1, 0)>     <y velocity in cell (nx-1, 0)>     <pressure in cell (nx-1, 0)>
+<density in cell (0, 1)>        <x velocity in cell (0, 1)>     <y velocity in cell (0, 1)>        <pressure in cell (0, 1)>
+<density in cell (1, 1)>        <x velocity in cell (1, 1)>     <y velocity in cell (1, 1)>        <pressure in cell (1, 1)>
+                                     .
+                                     .
+                                     .
+<density in cell (nx-1, 1)>     <x velocity cell (nx-1, 1)>     <y velocity in cell (nx-1, 1)>     <pressure in cell (nx-1, nx-1)>
+                                     .
+                                     .
+                                     .
+<density in cell (0, nx-1)>     <x velocity in cell (0, nx-1)>  <y velocity in cell (0, nx-1)>     <pressure in cell (0, nx-1)>
+<density in cell (1, nx-1)>     <x velocity in cell (1, nx-1)>  <y velocity in cell (1, nx-1)>     <pressure in cell (1, nx-1)>
+                                     .
+                                     .
+                                     .
+<density in cell (nx-1, nx-1)>  <x velocity cell (nx-1, nx-1)>  <y velocity in cell (nx-1, nx-1)>  <pressure in cell (nx-1, nx-1)>
+\end{lstlisting}
+
+\texttt{cell\ (0,\ 0)} is the lower left corner of the box. First index is x
+direction, second is y. All values for density, velocity, and pressure must be
+floats. You can put comments and empty lines wherever you feel like it.
+
+
+
+
+
+
+
+
+
+
+
+% ====================================================================
+\subsection{Output}
+% ====================================================================
+
+\note{
+    The file format is not really suitable for display on a
+    \code{LaTeX}-generated \jargon{pdf}. You may want to check out the
+    \jargon{README} in the repository's root directory or on github.
+}
+
+
+
+If no \texttt{basename} is given in the parameter file, the output file
+name will be generated as follows:
+
+\begin{lstlisting}
+<ICfile-without-suffix>-<SOLVER>-<RIEMANN-SOLVER>-<LIMITER>-<NDIM>D-<snapshot nr>.out
+\end{lstlisting}
+
+e.g.
+
+\begin{lstlisting}
+run-uniform-MUSCL_HANCOCK-EXACT-MINMOD-2D-0001.out
+\end{lstlisting}
+
+The output files are written in plain text, and their content should be
+self-explanatory:
+
+\begin{lstlisting}
+# ndim =  2
+# nx =    <number of cells used>
+# t =     <current time, float>
+# nsteps =  <current step of the simulation>
+#            x            y          rho          u_x          u_y            p
+<x value of cell (0, 0)> <y value of cell (0, 0)> <density in cell (0, 0)> <x velocity in cell (0, 0)> <y velocity in cell (0, 0)> <pressure in cell (0, 0)>
+<x value of cell (1, 0)> <y value of cell (1, 0)> <density in cell (1, 0)> <x velocity in cell (1, 0)> <y velocity in cell (1, 0)> <pressure in cell (1, 0)>
+                                                 .
+                                                 .
+                                                 .
+<x value of cell (nx-1, 0)> <y value of cell (nx-1, 0)> <density in cell (nx-1, 0)> <x velocity cell (nx-1, 0)> <y velocity in cell (nx-1, 0)> <pressure in cell (nx-1, 0)>
+<x value of cell (0, 1)> <y value of cell (0, 1)> <density in cell (0, 1)> <x velocity in cell (0, 1)> <y velocity in cell (0, 1)> <pressure in cell (0, 1)>
+<x value of cell (1, 1)> <y value of cell (1, 1)> <density in cell (1, 1)> <x velocity in cell (1, 1)> <y velocity in cell (1, 1)> <pressure in cell (1, 1)>
+                                                 .
+                                                 .
+                                                 .
+<x value of cell (nx-1, 1)> <y value of cell (nx-1, 1)> <density in cell (nx-1, 1)> <x velocity cell (nx-1, 1)> <y velocity in cell (nx-1, 1)> <pressure in cell (nx-1, nx-1)>
+                                                 .
+                                                 .
+                                                 .
+<x value of cell (0, nx-1)> <y value of cell (0, nx-1)> <density in cell (0, nx-1)> <x velocity in cell (0, nx-1)> <y velocity in cell (0, nx-1)> <pressure in cell (0, nx-1)>
+<x value of cell (1, nx-1)> <y value of cell (1, nx-1)> <density in cell (1, nx-1)> <x velocity in cell (1, nx-1)> <y velocity in cell (1, nx-1)> <pressure in cell (1, nx-1)>
+                                                 .
+                                                 .
+                                                 .
+<x value of cell (nx-1, nx-1)> <y value of cell (nx-1, nx-1)> <density in cell (nx-1, nx-1)> <x velocity cell (nx-1, nx-1)> <y velocity in cell (nx-1, nx-1)> <pressure in cell (nx-1, nx-1)>
+\end{lstlisting}
+
+

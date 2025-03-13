@@ -1,125 +1,173 @@
 #pragma once
 
-#include <string>
-#include <vector>
-
 #include "Config.h"
 #include "Gas.h"
 
 
 namespace cell {
-  class Cell;
-
-  // template <int Dimensions>
-  class Grid {
-  private:
-    std::vector<Cell> _cells;
-
-  public:
-    Grid();
-    Cell& getCell(size_t i);
-    Cell& getCell(size_t i, size_t j);
-
-    void InitGrid();
-    /**
-     * @brief get the total mass of the grid.
-     */
-    float_t GetTotalMass();
-
-    void getCStatesFromPstates();
-    void getPStatesFromCstates();
-    void resetFluxes();
-
-    void setBoundary();
-    void realToGhost(
-      std::vector<Cell*>,
-      std::vector<Cell*>,
-      std::vector<Cell*>,
-      std::vector<Cell*>,
-      int dimension = 0
-    );
-
-    // static copy for global access
-    static Grid  Instance;
-    static Grid& getInstance() {
-      return Instance;
-    }
-  };
 
   class Cell {
+
   public:
     //! Standard constructor
     Cell();
+
     //! copy assignment, for copying boundary data
     //! Return reference to this, for chaining calls
-    // TODO: This doesn't compile
     // Cell& operator=(const Cell& other) = default;
 
-    //! Should be called from within the ghost
     void CopyBoundaryData(const Cell* real);
-    //! Should be called from within the ghost
-    void CopyBoundaryDataReflective(const Cell* real, const int dimension);
 
-    //! Calls conserved to primitive on the members
-    void ConservedToPrimitive() {
-      _prim.ConservedToPrimitive(_cons);
-    };
-    //! Calls primitive to conserved on the members
-    void PrimitiveToConserved() {
-      _cons.PrimitiveToConserved(_prim);
-    };
+    void CopyBoundaryDataReflective(const Cell* real, const std::size_t dimension);
+
+    //! Update cell's primitive state to current conserved state
+    void ConservedToPrimitive();
+
+    //! Update cell's conserved state to current primitive state
+    void PrimitiveToConserved();
 
   private:
-    int _id;
+    //! Cell ID
+    size_t _id;
 
-    /*
-    Positions of centres
-    */
-    float_t _x;
-    float_t _y;
+    //! x position of cell centre
+    Float _x;
 
-    IdealGas::PrimitiveState _prim;
-    IdealGas::ConservedState _cons;
+    //! y position of cell centre
+    Float _y;
 
-    IdealGas::PrimitiveState _pflux;
-    IdealGas::ConservedState _cflux;
+    //! Primitive gas state
+    idealGas::PrimitiveState _prim;
 
-    std::array<float_t, Dimensions> _acc;
+    //! Conserved gas state
+    idealGas::ConservedState _cons;
+
+    //! Fluxes of primitive state
+    idealGas::PrimitiveState _pflux;
+
+    //! Fluxes of conserved state
+    idealGas::ConservedState _cflux;
+
+    //! Acceleration
+    // std::array<Float, Dimensions> _acc;
 
   public:
     // leaving these for now
-    std::string getIndexString();
+    // std::string getIndexString();
 
-    // getters and setters
-    void setX(float_t x);
-    void setY(float_t y);
+    //! Set cell centre position X,Y
+    void                setX(const Float x);
+    [[nodiscard]] Float getX() const;
 
-    void                      setId(const int id);
-    int                       getID() const;
-    std::pair<size_t, size_t> getIJ();
+    void                setY(const Float y);
+    [[nodiscard]] Float getY() const;
 
+    void                 setId(const size_t id);
+    [[nodiscard]] size_t getID() const;
 
-    // return refs to the above
-    IdealGas::PrimitiveState& getPrim() {
-      return _prim;
-    }
-    IdealGas::ConservedState& getCons() {
-      return _cons;
-    }
-    IdealGas::PrimitiveState& getPFlux() {
-      return _pflux;
-    }
-    IdealGas::ConservedState& getCFlux() {
-      return _cflux;
-    }
+    //! Retrieve a specific cell quantity. Intended for printouts.
+    Float getQuanityForPrintout(const char* quantity) const;
+
+    //! Get cell index(es) in grid
+    std::pair<std::size_t, std::size_t> getIJ(const std::size_t nxtot);
+
+    //! Getters and setters
+    idealGas::PrimitiveState& getPrim();
+    idealGas::ConservedState& getCons();
+    idealGas::PrimitiveState& getPFlux();
+    idealGas::ConservedState& getCFlux();
 
     // const versions to shush the compiler
-    const IdealGas::PrimitiveState& getPrim() const {
-      return _prim;
-    }
-    const IdealGas::ConservedState& getCons() const {
-      return _cons;
-    }
+    [[nodiscard]] const idealGas::PrimitiveState& getPrim() const;
+    [[nodiscard]] const idealGas::ConservedState& getCons() const;
+
+    void setPrim(idealGas::PrimitiveState& prim);
+    void setCons(idealGas::ConservedState& cons);
   };
 
 } // namespace cell
+
+
+// --------------------------------------------------------
+// Definitions
+// --------------------------------------------------------
+
+inline void cell::Cell::ConservedToPrimitive() {
+  _prim.ConservedToPrimitive(_cons);
+};
+
+
+inline void cell::Cell::PrimitiveToConserved() {
+  _cons.PrimitiveToConserved(_prim);
+};
+
+
+//! Set cell centre position X
+inline void cell::Cell::setX(Float x) {
+  _x = x;
+}
+
+inline Float cell::Cell::getX() const {
+  return _x;
+}
+
+
+//! Set cell centre position Y
+inline void cell::Cell::setY(Float y) {
+  _y = y;
+}
+
+
+inline Float cell::Cell::getY() const {
+  return _y;
+}
+
+
+inline void cell::Cell::setId(const size_t id) {
+  _id = id;
+}
+
+
+inline size_t cell::Cell::getID() const {
+  return _id;
+}
+
+
+inline idealGas::PrimitiveState& cell::Cell::getPrim() {
+  return _prim;
+}
+
+
+inline idealGas::ConservedState& cell::Cell::getCons() {
+  return _cons;
+}
+
+
+inline idealGas::PrimitiveState& cell::Cell::getPFlux() {
+  return _pflux;
+}
+
+
+inline idealGas::ConservedState& cell::Cell::getCFlux() {
+  return _cflux;
+}
+
+
+inline const idealGas::PrimitiveState& cell::Cell::getPrim() const {
+  return _prim;
+}
+
+
+inline const idealGas::ConservedState& cell::Cell::getCons() const {
+  return _cons;
+}
+
+
+inline void cell::Cell::setPrim(idealGas::PrimitiveState& prim) {
+  _prim = prim;
+}
+
+
+inline void cell::Cell::setCons(idealGas::ConservedState& cons) {
+  _cons = cons;
+}
