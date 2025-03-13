@@ -130,20 +130,20 @@ namespace logging {
      * @param stage stage of the code where this log is called from.
      */
     void logMessage(
-      const char* file,
-      const char* function,
-      const int   line,
+      const char*        file,
+      const char*        function,
+      const int          line,
       const std::string& text,
-      const LogLevel    level,
-      const LogStage    stage
+      const LogLevel     level,
+      const LogStage     stage
     );
     void logMessage(
-      const char* file,
-      const char* function,
-      const int   line,
-      const char* text,
-      const LogLevel    level,
-      const LogStage    stage
+      const char*    file,
+      const char*    function,
+      const int      line,
+      const char*    text,
+      const LogLevel level,
+      const LogStage stage
     );
 
     /**
@@ -154,7 +154,9 @@ namespace logging {
      * @param line The current line in the file. Intended to be the __LINE__ macro.
      * @param text The message you want to print out.
      */
-    void logWarning(const char* file, const char* function, const int line, const std::string& text);
+    void logWarning(
+      const char* file, const char* function, const int line, const std::string& text
+    );
     void logWarning(const char* file, const char* function, const int line, const char* text);
 
     /**
@@ -201,36 +203,39 @@ namespace logging {
 #define FILENAME_ __FILE__
 #endif
 
-template<typename T>
-constexpr void message(T msg){
-  logging::Log::getInstance().logMessage( FILENAME_, __FUNCTION__, __LINE__, msg, logging::LogLevel::Quiet, logging::getCurrentStage());
+template <typename T>
+constexpr void message(T msg) {
+  logging::Log::getInstance().logMessage(
+    FILENAME_, __FUNCTION__, __LINE__, msg, logging::LogLevel::Quiet, logging::getCurrentStage()
+  );
 }
 
-template<typename T>
-constexpr void message(T msg, logging::LogLevel level){
-  logging::Log::getInstance().logMessage( FILENAME_, __FUNCTION__, __LINE__, msg, level, logging::getCurrentStage());
+template <typename T>
+constexpr void message(T msg, logging::LogLevel level) {
+  logging::Log::getInstance().logMessage(
+    FILENAME_, __FUNCTION__, __LINE__, msg, level, logging::getCurrentStage()
+  );
 }
 
-template<typename T>
-constexpr void message(T msg, logging::LogLevel level, logging::LogStage stage){
-  logging::Log::getInstance().logMessage( FILENAME_, __FUNCTION__, __LINE__, msg, level, stage);
+template <typename T>
+constexpr void message(T msg, logging::LogLevel level, logging::LogStage stage) {
+  logging::Log::getInstance().logMessage(FILENAME_, __FUNCTION__, __LINE__, msg, level, stage);
 }
 
-template<typename T>
-constexpr void message(T msg, logging::LogStage stage){
-  logging::Log::getInstance().logMessage( FILENAME_, __FUNCTION__, __LINE__, msg, logging::LogLevel::Quiet, stage);
-}
-
-
-
-template<typename T>
-constexpr void error(T msg){
-  logging::Log::getInstance().logError( FILENAME_, __FUNCTION__, __LINE__, msg);
-}
-
-template<typename T>
-constexpr void warning(T msg){
-  logging::Log::getInstance().logWarning( FILENAME_, __FUNCTION__, __LINE__, msg);
+template <typename T>
+constexpr void message(T msg, logging::LogStage stage) {
+  logging::Log::getInstance().logMessage(
+    FILENAME_, __FUNCTION__, __LINE__, msg, logging::LogLevel::Quiet, stage
+  );
 }
 
 
+template <typename T>
+constexpr void error(T msg) {
+  logging::Log::getInstance().logError(FILENAME_, __FUNCTION__, __LINE__, msg);
+}
+
+template <typename T>
+constexpr void warning(T msg) {
+  logging::Log::getInstance().logWarning(FILENAME_, __FUNCTION__, __LINE__, msg);
+}

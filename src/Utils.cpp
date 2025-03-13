@@ -302,7 +302,7 @@ std::string utils::string2string(std::string val) {
     std::stringstream msg;
     msg << "Suspicious string: '" << val << "'";
     warning(msg.str());
-}
+  }
 
   return v;
 }

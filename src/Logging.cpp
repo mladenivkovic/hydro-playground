@@ -57,12 +57,12 @@ const char* logging::getStageName(LogStage stage) {
 
 
 void logging::Log::logMessage(
-  const char* file,
-  const char* function,
-  const int   line,
+  const char*        file,
+  const char*        function,
+  const int          line,
   const std::string& text,
-  const LogLevel    level,
-  const LogStage    stage
+  const LogLevel     level,
+  const LogStage     stage
 ) {
 
   // Are we talkative enough?
@@ -85,12 +85,12 @@ void logging::Log::logMessage(
 }
 
 void logging::Log::logMessage(
-  const char* file,
-  const char* function,
-  const int   line,
-  const char* text,
-  const LogLevel    level,
-  const LogStage    stage
+  const char*    file,
+  const char*    function,
+  const int      line,
+  const char*    text,
+  const LogLevel level,
+  const LogStage stage
 ) {
   logMessage(file, function, line, std::string(text), level, stage);
 }

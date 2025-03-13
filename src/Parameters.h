@@ -1,7 +1,7 @@
 #pragma once
 
-#include <string>
 #include <sstream>
+#include <string>
 
 #include "BoundaryConditions.h"
 #include "Config.h"
@@ -245,7 +245,7 @@ namespace parameters {
 #define paramSetLog(arg) \
   { \
     std::stringstream msg; \
-    msg << "Parameters: Setting '" <<  #arg << "' = " << (arg) << "'"; \
+    msg << "Parameters: Setting '" << #arg << "' = " << (arg) << "'"; \
     message(msg.str(), logging::LogLevel::Debug); \
   }
 

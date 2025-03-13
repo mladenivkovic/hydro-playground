@@ -99,7 +99,7 @@ int main() {
         bool expect_print = (verb >= level);
 
         std::stringstream msg;
-        constexpr int w = 12;
+        constexpr int     w = 12;
 
         msg << std::setw(w) << "Verbosity=" << std::setw(3) << verb;
         msg << std::setw(w) << " msg level=" << std::setw(3) << level;

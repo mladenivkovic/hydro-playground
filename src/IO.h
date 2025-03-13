@@ -159,8 +159,8 @@ T IO::InputParse::_convertParameterString(
   }
 
   paramEntry& entry = search->second;
-  std::string  val   = entry.value;
-  entry.used         = true;
+  std::string val   = entry.value;
+  entry.used        = true;
 
   switch (argtype) {
   case ArgType::Integer:
@@ -220,8 +220,8 @@ inline std::string IO::InputParse::_convertParameterString<std::string>(
   }
 
   paramEntry& entry = search->second;
-  std::string  val   = entry.value;
-  entry.used         = true;
+  std::string val   = entry.value;
+  entry.used        = true;
 
   return val;
 }
