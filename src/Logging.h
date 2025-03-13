@@ -1,7 +1,6 @@
 #pragma once
 
 #include <source_location>
-#include <sstream>
 #include <string>
 
 #include "Config.h"
@@ -59,7 +58,16 @@ namespace logging {
    */
   const char* getStageName(LogStage stage);
 
+  /**
+   * Get the name of the given stage, formatted for output (to screen).
+   */
+  std::string getStageNameForOutput(LogStage stage);
 
+
+  /**
+   * Extract the file name from the path by trimming the project
+   * root directory from the prefix.
+   */
   constexpr std::string_view extractFileName(const char* path) {
 
     // First, get project root prefix
@@ -89,6 +97,28 @@ namespace logging {
     }
 
     return trimmed;
+  }
+
+
+  /**
+   * Extract the function name from func: remove return type and arguments
+   */
+  constexpr std::string_view extractFunctionName(const char* func) {
+
+    auto funcv = std::string_view(func);
+
+    // Trim return type: Everything before space
+    size_t pos = funcv.find_first_of(' ');
+    if (pos != std::string_view::npos) {
+      funcv = funcv.substr(pos + 1, funcv.size()-pos);
+    }
+
+    size_t pos_arg = funcv.find_first_of('(');
+    if (pos_arg != std::string_view::npos) {
+      funcv = funcv.substr(0,pos_arg);
+    }
+
+    return funcv;
   }
 
 
@@ -190,7 +220,7 @@ namespace logging {
       const T text,
       const LogLevel     level,
       const LogStage     stage,
-      const std::string_view        file,
+      const char*        file,
       const char*        function,
       const size_t       line
     );
@@ -210,7 +240,7 @@ namespace logging {
     template<AllowedMessageType T>
     void logWarning(
       const T text,
-      const std::string_view file,
+      const char* file,
       const char* function,
       const size_t line
     );
@@ -230,10 +260,25 @@ namespace logging {
     template<AllowedMessageType T>
     void logError(
         const T text,
-        const std::string_view file,
+        const char* file,
         const char* function,
         const size_t line
         );
+
+
+    /**
+     * The function that actually constructs a message/log/warning/error
+     */
+    template<AllowedMessageType T1, AllowedMessageType T2>
+    std::string constructMessage(
+        const T1 prefix,
+        const T2 text,
+        const char* file,
+        const char* function,
+        const size_t line,
+        const bool debug = false
+        );
+
 
 
     /**
@@ -244,6 +289,7 @@ namespace logging {
 
     //! Get the current verbosity level.
     LogLevel getCurrentVerbosity();
+
 
     /**
      * Set the global stage.
@@ -286,7 +332,7 @@ constexpr void message(
     msg,
     level,
     logging::getCurrentStage(),
-    logging::extractFileName(location.file_name()),
+    location.file_name(),
     location.function_name(),
     location.line()
   );
@@ -303,7 +349,7 @@ constexpr void message(
     msg,
     level,
     stage,
-    logging::extractFileName(location.file_name()),
+    location.file_name(),
     location.function_name(),
     location.line()
   );
@@ -319,7 +365,7 @@ constexpr void message(
     msg,
     logging::LogLevel::Quiet,
     stage,
-    logging::extractFileName(location.file_name()),
+    location.file_name(),
     location.function_name(),
     location.line()
   );
@@ -333,7 +379,7 @@ constexpr void error(
     ) {
   logging::Log::getInstance().logError(
       msg,
-      logging::extractFileName(location.file_name()),
+      location.file_name(),
       location.function_name(),
       location.line()
     );
@@ -346,7 +392,7 @@ constexpr void warning(
     ) {
   logging::Log::getInstance().logWarning(
       msg,
-      logging::extractFileName(location.file_name()),
+      location.file_name(),
       location.function_name(),
       location.line()
       );
@@ -361,7 +407,7 @@ void logging::Log::logMessage(
   const T text,
   const LogLevel     level,
   const LogStage     stage,
-  const std::string_view        file,
+  const char*        file,
   const char*        function,
   const size_t       line
 ) {
@@ -370,22 +416,12 @@ void logging::Log::logMessage(
   if (_verbosity < level)
     return;
 
-  std::string str = "[";
-  str += getStageName(stage);
-  str += "] ";
-#if DEBUG_LEVEL > 0
-  str += "`";
-  str += file;
-  str += ":";
-  str += function;
-  str += ":";
-  str += std::to_string(line);
-  str += "`: ";
-#endif
-  str += text;
-  str += "\n";
+  bool debug=DEBUG_LEVEL > 0;
 
-  std::cout << str;
+  std::string prefix = getStageNameForOutput(stage);
+  std::string out = constructMessage( prefix, text, file, function, line, debug);
+
+  std::cout << out;
 
   // Do we want the message to be instantly flushed to screen?
   bool flush = level >= LogLevel::Debug;
@@ -397,22 +433,14 @@ void logging::Log::logMessage(
 template<AllowedMessageType T>
 void logging::Log::logWarning(
   const T text,
-  const std::string_view       file,
-  const char* function, const size_t line
+  const char* file,
+  const char* function,
+  const size_t line
 ) {
 
-  std::string str = "[WARNING] ";
-  str += "`";
-  str += file;
-  str += ":";
-  str += function;
-  str += ":";
-  str += std::to_string(line);
-  str += "`: ";
-  str += text;
-  str += "\n";
+  std::string out = constructMessage( "[WARNING] ", text, file, function, line, true);
+  std::cerr << out;
 
-  std::cerr << str;
 }
 
 
@@ -420,29 +448,51 @@ void logging::Log::logWarning(
 template<AllowedMessageType T>
 void logging::Log::logError(
   const T text,
-  const std::string_view       file,
+  const char* file,
   const char* function,
   const size_t line
 ) {
 
-  std::string str = "[ERROR] ";
-  str += "`";
-  str += file;
-  str += ":";
-  str += function;
-  str += ":";
-  str += std::to_string(line);
-  str += "`: ";
-  str += text;
-  str += "\n";
+  std::string out = constructMessage( "[ERROR]   ", text, file, function, line, true);
 
-
-  std::cerr << str;
+  std::cerr << out;
 
   std::cerr << std::flush;
   std::cout << std::flush;
   std::abort();
 }
 
+
+template<AllowedMessageType T1, AllowedMessageType T2>
+std::string logging::Log::constructMessage(
+  const T1 prefix,
+  const T2 text,
+  const char* file,
+  const char* function,
+  const size_t line,
+  const bool debug
+) {
+
+  std::string_view file_trimmed = extractFileName(file);
+  std::string_view func_trimmed = extractFunctionName(function);
+
+  std::string out = prefix;
+
+    out += file_trimmed;
+    out += ":";
+    out += std::to_string(line);
+  if (debug){
+    out += " (";
+    out += func_trimmed;
+    out += "): ";
+  } else {
+    out += ": ";
+  }
+
+  out += text;
+  out += "\n";
+
+  return out;
+}
 
 

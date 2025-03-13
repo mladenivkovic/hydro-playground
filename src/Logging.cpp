@@ -1,5 +1,6 @@
 #include "Logging.h"
 
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -33,6 +34,19 @@ void logging::setVerbosity(const logging::LogLevel level) {
 logging::LogLevel logging::getCurrentVerbosity() {
   return Log::getInstance().getCurrentVerbosity();
 }
+
+
+std::string logging::getStageNameForOutput(LogStage stage) {
+
+  const char* name = getStageName(stage);
+
+  std::string s = "[" + std::string(name) + "]";
+  std::stringstream ss;
+  ss << std::left << std::setw(10) << s;
+  return ss.str();
+
+}
+
 
 
 const char* logging::getStageName(LogStage stage) {
