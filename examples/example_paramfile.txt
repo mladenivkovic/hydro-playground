@@ -34,6 +34,11 @@ tmax = 0.20                 // end time for simulation in arbitrary units. Will 
 
 boundary = 2                // boundary conditions. 0: periodic; 1: reflective; 2: transmissive 
 
+replicate = 0               // When running with arbitrary-type initial conditions, replicate (=
+                            // copy-paste) the initial conditions this many times in each dimension.
+                            // This is not used for the two-state type ICs because there you can
+                            // simply specify the nx parameter as you wish.
+
 
 
 // Output Parameters
@@ -47,6 +52,9 @@ foutput = 0                 // Frequency of writing outputs in number of steps. 
 
 basename = None             // Basename for output file names. If not given, a basename will be
                             // based on compilation parameters and IC filename. 
+
+write_replications = false  // If replicate > 1, setting this to true will write the entire content
+                            // of the box, including all replications.
 
 
 

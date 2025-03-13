@@ -125,18 +125,22 @@ Name & Default & Type & Description
     Frequency of writing outputs in time intervals. Code will always write
     initial and final steps as well.
 \\ \hline
-\texttt{toutfile} &
-    None &
-    \texttt{string} &
-    File name containing desired times (in code units) of output. Syntax of the
-    file: One float per line with increasing value.
-\\ \hline
+% \texttt{toutfile} &
+%     None &
+%     \texttt{string} &
+%     File name containing desired times (in code units) of output. Syntax of the
+%     file: One float per line with increasing value.
+% \\ \hline
 \texttt{basename} &
     None &
     \texttt{string} &
     Basename for outputs. If not given, a basename will be generated based on
     compilation parameters and IC filename.
 \\ \hline
+\texttt{write\_replications} &
+    = \texttt{false} &
+    \texttt{bool} &
+    If \texttt{replicate} > 1, setting this to true will write the entire content of the box, including all replications.
 \end{tabular}
 
 

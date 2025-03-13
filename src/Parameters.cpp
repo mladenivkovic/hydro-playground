@@ -6,11 +6,6 @@
 #include "Logging.h"
 
 
-// TODO: These definitions are temporary and need to go.
-// #define BC 2
-#define BOXLEN 1.
-// #define BCTOT 2 * BC
-
 namespace parameters {
 
 
@@ -28,43 +23,29 @@ namespace parameters {
 
     _nsteps       = 0;
     _tmax         = 0.;
-    _nx           = 1;
+    _nx           = 0;
     _ccfl         = 0.9;
     _boundaryType = BC::BoundaryCondition::Periodic;
     _boxsize      = 1.;
     _nbc          = 2;
-    _replicate    = 1;
+    _replicate    = 0;
 
+    _write_replications = false;
     _outputfilebase = "";
+    _foutput = 0;
+    _dt_out = 0;
 
     _locked = false;
     _read   = false;
 
     // NOLINTEND
 
-    // nxtot used to be 100 + BCTOT = 100 + 2*BC. Fixing BC to be 2 and BCTOT to be
-    // 2*BC
-
-
-    // output related parameters
-    // -------------------------
-
-    // _foutput = 0;
-    // _dt_out = 0;
-    // strcpy(_outputfilename, "");
 
     // strcpy(_toutfilename, "");
     // _use_toutfile = 0;
     // _noutput_tot = 0;
     // _noutput = 0;
     // _outputtimes = NULL;
-
-    // IC related parameters
-    // ---------------------
-    // _twostate_ic = 0;
-    // _ndim_ic = -1;
-    // strcpy(_datafilename, "");
-
 
     // Sources related parameters
     // --------------------------
@@ -83,13 +64,29 @@ namespace parameters {
    */
   void Parameters::initDerived() {
 
+    // Update run verbosity level, if necessary
     int currentLevel = static_cast<int>(logging::getCurrentVerbosity());
     int paramVer     = getVerbose();
     if (currentLevel < paramVer) {
       logging::setVerbosity(paramVer);
       std::stringstream msg;
-      msg << "Set run verbosity level to valueread from parameter file=" << paramVer;
+      msg << "Set run verbosity level to value read from parameter file=" << paramVer;
       message(msg.str(), logging::LogLevel::Verbose);
+    }
+
+    // Do we need to resize the box?
+    if (getReplicate() > 1){
+
+      setBoxsize(getBoxsize() * static_cast<float_t>(getReplicate()));
+      std::stringstream msg;
+      msg << "Resizing box to" << getBoxsize() << " to accommodate replications";
+      message(msg.str(), logging::LogLevel::Verbose);
+    }
+
+    // Set to "no value provided"...
+    if (getOutputFileBase() == "None") {
+      std::string empty("");
+      setOutputFileBase(empty);
     }
 
 #if DEBUG_LEVEL > 0
@@ -108,10 +105,12 @@ namespace parameters {
 
     std::stringstream out;
     out << "\nParameter List\n";
+
     out << std::setw(width) << "nstepsLog:";
     out << std::setw(width) << getNstepsLog() << "\n";
     out << std::setw(width) << "verbose:";
     out << std::setw(width) << getVerbose() << "\n";
+
     out << std::setw(width) << "nsteps:";
     out << std::setw(width) << getNsteps() << "\n";
     out << std::setw(width) << "tmax:";
@@ -128,6 +127,15 @@ namespace parameters {
     out << std::setw(width) << getNBC() << "\n";
     out << std::setw(width) << "replicate:";
     out << std::setw(width) << getReplicate() << "\n";
+
+    out << std::setw(width) << "writeReplications:";
+    out << std::setw(width) << getWriteReplications() << "\n";
+    out << std::setw(width) << "output file basename:";
+    out << std::setw(width) << getOutputFileBase() << "\n";
+    out << std::setw(width) << "output frequency:";
+    out << std::setw(width) << getFoutput() << "\n";
+    out << std::setw(width) << "output time intervals:";
+    out << std::setw(width) << getDtOut() << "\n";
 
     return out.str();
   }

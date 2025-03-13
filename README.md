@@ -258,9 +258,13 @@ File Format Specifications
 |               |                   |         |                                                                               |
 | `dt_out`      | = 0               |`float`  | Frequency of writing outputs in time intervals. Code will always write initial and final steps as well.  |
 |               |                   |         |                                                                               |
+<!--
 | `toutfile`    | None              |`string` | File name containing desired times (in code units) of output. Syntax of the file: One float per line with increasing value.  |
 |               |                   |         |                                                                               |
+-->
 | `basename`    | None              |`string` | Basename for outputs.  If not given, a basename will be generated based on compilation parameters and IC filename.       |
+|               |                   |         |                                                                               |
+| `write_replications` | false      | `bool`  | If `replicate > 1`, setting this to true will write the entire content of the box, including all replications. |
 |               |                   |         |                                                                               |
 
 

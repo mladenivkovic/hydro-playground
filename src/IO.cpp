@@ -189,6 +189,38 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
   );
   params.setCcfl(ccfl);
 
+  std::string basename = _convertParameterString(
+    "basename",
+    ArgType::String,
+    /*optional=*/true,
+    /*defaultVal=*/params.getOutputFileBase()
+  );
+  params.setOutputFileBase(basename);
+
+  bool writeReplications = _convertParameterString(
+    "write_replications",
+    ArgType::Bool,
+    /*optional=*/true,
+    /*defaultVal=*/params.getWriteReplications()
+  );
+  params.setWriteReplications(writeReplications);
+
+  float_t dt_out = _convertParameterString(
+    "dt_out",
+    ArgType::Float,
+    /*optional=*/true,
+    /*defaultVal=*/params.getDtOut()
+  );
+  params.setDtOut(dt_out);
+
+  size_t foutput = _convertParameterString(
+    "foutput",
+    ArgType::Size_t,
+    /*optional=*/true,
+    /*defaultVal=*/params.getFoutput()
+  );
+  params.setFoutput(foutput);
+
 
   // Let me know if we missed something
   _checkUnusedParameters();
@@ -373,7 +405,7 @@ void IO::InputParse::_checkUnusedParameters() {
     else {
       std::stringstream msg;
       msg << "Used parameter: " << entry.param << "=" << entry.value;
-      warning(msg.str());
+      message(msg.str(), logging::LogLevel::Verbose);
     }
 #endif
   }
