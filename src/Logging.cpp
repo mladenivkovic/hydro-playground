@@ -5,8 +5,6 @@
 #include <sstream>
 #include <string>
 
-#include "Config.h"
-
 
 void logging::setStage(const int stage) {
   Log::getInstance().setStage(stage);
@@ -66,6 +64,25 @@ const char* logging::getStageName(LogStage stage) {
     return "Count";
   default:
     return "Unknown";
+  }
+}
+
+
+const char* logging::getStageNameColour(LogStage stage) {
+
+  switch (stage) {
+  case LogStage::Undefined:
+    return tcols::red;
+  case LogStage::Header:
+  case LogStage::Init:
+    return tcols::green;
+  case LogStage::Step:
+    return tcols::cyan;
+  case LogStage::IO:
+  case LogStage::Test:
+    return tcols::magenta;
+  case LogStage::Count:
+    return tcols::reset;
   }
 }
 

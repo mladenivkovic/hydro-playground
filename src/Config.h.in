@@ -7,15 +7,37 @@
 
 #define DEBUG_LEVEL @DEBUG_LEVEL@
 
-constexpr char CMAKE_BUILD_TYPE[] ="@CMAKE_BUILD_TYPE@";
+#define SINGLE_PRECISION 1
+#define DOUBLE_PRECISION 2
+
+
+constexpr const char* CMAKE_BUILD_TYPE ="@CMAKE_BUILD_TYPE@";
 
 // make sure to add trailing slash here.
-constexpr char CMAKE_SOURCE_DIR[] ="@CMAKE_SOURCE_DIR@/";
+constexpr const char* CMAKE_SOURCE_DIR ="@CMAKE_SOURCE_DIR@/";
 
 
 // Global dimensions macro; change this to be fetched
 // from CMake in the future...
 static constexpr int Dimensions = 2;
 
-// TODO(mivkov): Make this a compile time define
+
+#if (PRECISION == SINGLE_PRECISION)
 using float_t = float;
+// #pragma message("Using SINGLE precision")
+#elif (PRECISION == DOUBLE_PRECISION)
+using float_t = double;
+// #pragma message("Using DOUBLE precision")
+#else
+#error Invalid precision selected.
+#endif
+
+
+#ifdef TERMINAL_COLORS
+constexpr bool color_term = true;
+// #pragma message("Terminal colors ON")
+#else
+constexpr bool color_term = false;
+// #pragma message("Terminal colors OFF")
+#endif
+

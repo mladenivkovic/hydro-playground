@@ -224,8 +224,10 @@ cmake --build build
 Currently available build options are:
 
 \begin{itemize}
-\item \verb|-DBUILD_TYPE=| [\code{Release}, \code{RelWithDebInfo}, \code{Debug}]
+\item \verb|-DBUILD_TYPE=| [\code{Release}, \code{RelWithDebInfo}, \code{Debug}] :
+    (Default = \code{Release})
     \begin{itemize}
+        \item Build type of the project.
         \item  \code{Release}: Enables aggressive compiler optimisation. This
                 is the default mode.
         \item  \code{RelWithDebInfo}: Release mode, but with debugging symbols
@@ -233,10 +235,19 @@ Currently available build options are:
         \item  \code{Debug}: Turns compiler optimisation off and enables
                 extensive debugging checks.
     \end{itemize}
+
+\item \verb|-DPRECISION=| [\code{SINGLE}, \code{DOUBLE}] :
+    (Default = \code{DOUBLE})
+    \begin{itemize}
+        \item Set precision for floating point variables.
+        \item  \code{SINLGE}: Single-precision floats.
+        \item  \code{DOUBLE}: Double-precision floats.
+    \end{itemize}
+
+\item \verb|-DTERMINAL_COLORS=ON| : Enable coloured output to \jargon{stdout} and \jargon{stderr} on terminals.
+
 \end{itemize}
 
-
-\todo{Precision flag, once it's implemented}
 
 
 

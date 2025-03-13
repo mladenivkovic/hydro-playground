@@ -5,6 +5,7 @@
 #include <string>
 
 #include "Config.h"
+#include "termcolors.h"
 
 /**
  * @file Logging.h
@@ -54,10 +55,18 @@ namespace logging {
    */
   const char* getStageName(LogStage stage);
 
+
   /**
    * Get the name of the given stage, formatted for output (to screen).
    */
   std::string getStageNameForOutput(LogStage stage);
+
+
+  /**
+   * Get the colour for the given stage.
+   */
+  const char* getStageNameColour(LogStage stage);
+
 
 
   /**
@@ -255,12 +264,12 @@ namespace logging {
     /**
      * The function that actually constructs a message/log/warning/error
      */
-    template <AllowedMessageType T1, AllowedMessageType T2>
+    template <AllowedMessageType T1, AllowedMessageType T2, AllowedMessageType T3, AllowedMessageType T4>
     std::string constructMessage(
       const T1     prefix,
       const T2     text,
-      const char*  file,
-      const char*  function,
+      const T3     file,
+      const T4     function,
       const size_t line,
       const bool   debug = false
     );
@@ -381,11 +390,25 @@ void logging::Log::logMessage(
   if (_verbosity < level)
     return;
 
+  std::string prefix;
+  std::string stext;
+
+  if (color_term){
+    prefix += getStageNameColour(stage);
+    prefix += getStageNameForOutput(stage);
+    prefix += tcols::reset;
+
+    stext += getStageNameColour(stage);
+    stext += text;
+    stext += tcols::reset;
+  }
+  else {
+    prefix = getStageNameForOutput(stage);
+    stext = text;
+  }
+
   bool debug = DEBUG_LEVEL > 0;
-
-  std::string prefix = getStageNameForOutput(stage);
-  std::string out    = constructMessage(prefix, text, file, function, line, debug);
-
+  std::string out = constructMessage(prefix, stext, file, function, line, debug);
   std::cout << out;
 
   // Do we want the message to be instantly flushed to screen?
@@ -400,7 +423,24 @@ void logging::Log::logWarning(
   const T text, const char* file, const char* function, const size_t line
 ) {
 
-  std::string out = constructMessage("[WARNING] ", text, file, function, line, true);
+  std::string prefix;
+  std::string stext;
+
+  if (color_term){
+    prefix += tcols::yellow;
+    prefix += "[WARNING] ";
+    prefix += tcols::reset;
+
+    stext += tcols::yellow;
+    stext += text;
+    stext += tcols::reset;
+  }
+  else {
+    prefix = "[WARNING] ";
+    stext = text;
+  }
+
+  std::string out = constructMessage(prefix, stext, file, function, line, true);
   std::cerr << out;
 }
 
@@ -410,8 +450,24 @@ void logging::Log::logError(
   const T text, const char* file, const char* function, const size_t line
 ) {
 
-  std::string out = constructMessage("[ERROR]   ", text, file, function, line, true);
+  std::string prefix;
+  std::string stext;
 
+  if (color_term){
+    prefix += tcols::red;
+    prefix += "[ERROR]   ";
+    prefix += tcols::reset;
+
+    stext += tcols::red;
+    stext += text;
+    stext += tcols::reset;
+  }
+  else {
+    prefix = "[ERROR]   ";
+    stext = text;
+  }
+
+  std::string out = constructMessage(prefix, stext, file, function, line, true);
   std::cerr << out;
 
   std::cerr << std::flush;
@@ -420,12 +476,12 @@ void logging::Log::logError(
 }
 
 
-template <AllowedMessageType T1, AllowedMessageType T2>
+template <AllowedMessageType T1, AllowedMessageType T2, AllowedMessageType T3, AllowedMessageType T4>
 std::string logging::Log::constructMessage(
   const T1     prefix,
   const T2     text,
-  const char*  file,
-  const char*  function,
+  const T3     file,
+  const T4     function,
   const size_t line,
   const bool   debug
 ) {
@@ -433,18 +489,25 @@ std::string logging::Log::constructMessage(
   std::string_view file_trimmed = extractFileName(file);
   std::string_view func_trimmed = extractFunctionName(function);
 
-  std::string out = prefix;
+  std::string locs;
 
-  out += file_trimmed;
-  out += ":";
-  out += std::to_string(line);
+
+  if (color_term) locs += tcols::blue;
+  locs += file_trimmed;
+  locs += ":";
+  locs += std::to_string(line);
   if (debug) {
-    out += " (";
-    out += func_trimmed;
-    out += "): ";
-  } else {
-    out += ": ";
+    locs += " (";
+    locs += func_trimmed;
+    locs += "): ";
   }
+  else {
+    locs += ": ";
+  }
+  if (color_term) locs += tcols::reset;
+
+
+  std::string out = prefix + locs;
 
   out += text;
   out += "\n";

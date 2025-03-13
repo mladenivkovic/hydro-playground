@@ -70,6 +70,38 @@ message("* Current build type is : ${CMAKE_BUILD_TYPE}")
 
 
 
+
+# ---------------------------
+# Options
+# ---------------------------
+
+option(TERMINAL_COLOR "Enable colour logging outputs" ON)
+if (TERMINAL_COLOR)
+    add_definitions(-DTERMINAL_COLORS)
+endif(TERMINAL_COLOR)
+
+message(STATUS "TERMINAL_COLOR is set to: ${TERMINAL_COLOR}")
+
+
+set(PRECISION "DOUBLE" CACHE STRING "Set floating point precision (SINGLE DOUBLE)")
+set_property(CACHE PRECISION PROPERTY STRINGS "SINGLE" "DOUBLE")
+
+message(STATUS "PRECISION is set to: ${PRECISION}")
+
+if(PRECISION STREQUAL "SINGLE")
+    add_definitions(-DPRECISION=1)
+elseif(PRECISION STREQUAL "DOUBLE")
+    add_definitions(-DPRECISION=2)
+else()
+    message(FATAL_ERROR
+        "Invalid PRECISION=${PRECISION}. "
+        "Options are [SINGLE, DOUBLE]."
+        "Pick one of those."
+        )
+endif()
+
+
+
 # ---------------------------
 # Main Target
 # ---------------------------

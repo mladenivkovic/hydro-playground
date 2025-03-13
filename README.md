@@ -163,16 +163,21 @@ cmake --build build
 
 Currently available build options are:
 
-- `-DBUILD_TYPE=` [`Release`, `RelWithDebInfo`, `Debug`]
+- `-DBUILD_TYPE=` [`Release`, `RelWithDebInfo`, `Debug`] : (Default = `Release`)
+  - Build type of the project.
   - `Release`: Enables aggressive compiler optimisation. This is the default mode.
   - `RelWithDebInfo`: Release mode, but with debugging symbols attached. Also activates some light
     debugging checks.
   - `Debug`: Turns compiler optimisation off and enables extensive debugging checks.
 
+- `-DPRECISION=` [`SINGLE`, `DOUBLE`]: (Default=`DOUBLE`)
+  - Set precision for floating point variables.
+  - `SINLGE`: Single-precision floats.
+  - `DOUBLE`: Double-precision floats (Default)
 
-TODO:
+- `-DTERMINAL_COLORS=ON`: Enable coloured output to `stdout` and `stderr` on terminals.
 
-- Precision
+
 
 
 
