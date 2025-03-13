@@ -6,7 +6,7 @@
 
 #include "Cell.h"
 #include "Logging.h"
-#include "termcolors.h"
+#include "Termcolors.h"
 #include "Version.h"
 
 

@@ -5,7 +5,7 @@
 #include <string>
 
 #include "Config.h"
-#include "termcolors.h"
+#include "Termcolors.h"
 
 /**
  * @file Logging.h
