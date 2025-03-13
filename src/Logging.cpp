@@ -46,6 +46,8 @@ const char* logging::getStageName(LogStage stage) {
     return "Init";
   case LogStage::Step:
     return "Step";
+  case LogStage::IO:
+    return "IO";
   case LogStage::Test:
     return "Test";
   case LogStage::Count:

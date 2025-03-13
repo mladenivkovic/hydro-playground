@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
   message(params.toString(), logging::LogLevel::Debug);
 
   // Read initial conditions
+  logging::setStage(logging::LogStage::IO);
   input.readICFile(grid);
 
   std::ostringstream msg;

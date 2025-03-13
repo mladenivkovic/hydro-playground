@@ -36,7 +36,8 @@ namespace logging {
     Header    = 0,
     Init      = 1,
     Step      = 2,
-    Test      = 3,
+    IO        = 3,
+    Test      = 4,
     Count,
   };
 
@@ -373,6 +374,7 @@ void logging::Log::logMessage(
   str += getStageName(stage);
   str += "] ";
 #if DEBUG_LEVEL > 0
+  str += "`";
   str += file;
   str += ":";
   str += function;
