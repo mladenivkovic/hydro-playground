@@ -57,7 +57,7 @@ idealGas::PrimitiveState::PrimitiveState(const Float rho, const Float vx, const 
  * Using setters instead of initialiser lists so the debugging checks kick in.
  */
 idealGas::PrimitiveState::PrimitiveState(
-  const Float rho, const Float vx, const float vy, const Float p
+  const Float rho, const Float vx, const Float vy, const Float p
 ) {
 #if DEBUG_LEVEL > 0
   if (Dimensions != 2) {
