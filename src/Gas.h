@@ -63,17 +63,17 @@ namespace idealGas {
     // Getters and setters!
 
     // Setter for Rho
-    void                  setRho(const Float val);
+    void                setRho(const Float val);
     [[nodiscard]] Float getRho() const;
 
     // same for u
-    void                  setV(const std::size_t index, const Float val);
+    void                setV(const std::size_t index, const Float val);
     [[nodiscard]] Float getV(const std::size_t index) const;
 
     // used a lot, made a function for it
     [[nodiscard]] Float getVSquared() const;
 
-    void                  setP(const Float val);
+    void                setP(const Float val);
     [[nodiscard]] Float getP() const;
   };
 
@@ -122,15 +122,15 @@ namespace idealGas {
 
 
     // Getters and setters!
-    void                  setRho(const Float val);
+    void                setRho(const Float val);
     [[nodiscard]] Float getRho() const;
 
     // same for u
-    void                  setRhov(const std::size_t index, const Float val);
+    void                setRhov(const std::size_t index, const Float val);
     [[nodiscard]] Float getRhov(const std::size_t index) const;
     [[nodiscard]] Float getRhoVSquared() const;
 
-    void                  setE(const Float val);
+    void                setE(const Float val);
     [[nodiscard]] Float getE() const;
   };
 } // namespace idealGas

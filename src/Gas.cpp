@@ -201,8 +201,8 @@ void idealGas::ConservedState::GetCFluxFromCstate(const ConservedState& c, const
     setRhov(dimension, momentum_dim);
 
     // momentum flux along the other dimension
-    size_t  other_index    = (dimension + 1) % 2;
-    Float momentum_other = c.getRhov(other_index) * v;
+    size_t other_index    = (dimension + 1) % 2;
+    Float  momentum_other = c.getRhov(other_index) * v;
     setRhov(other_index, momentum_other);
 
     Float E = (c.getE() + p) * v;

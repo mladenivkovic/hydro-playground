@@ -68,7 +68,6 @@ namespace logging {
   const char* getStageNameColour(LogStage stage);
 
 
-
   /**
    * Extract the file name from the path by trimming the project
    * root directory from the prefix.
@@ -264,7 +263,11 @@ namespace logging {
     /**
      * The function that actually constructs a message/log/warning/error
      */
-    template <AllowedMessageType T1, AllowedMessageType T2, AllowedMessageType T3, AllowedMessageType T4>
+    template <
+      AllowedMessageType T1,
+      AllowedMessageType T2,
+      AllowedMessageType T3,
+      AllowedMessageType T4>
     std::string constructMessage(
       const T1     prefix,
       const T2     text,
@@ -393,7 +396,7 @@ void logging::Log::logMessage(
   std::string prefix;
   std::string stext;
 
-  if (color_term){
+  if (color_term) {
     prefix += getStageNameColour(stage);
     prefix += getStageNameForOutput(stage);
     prefix += tcols::reset;
@@ -401,14 +404,13 @@ void logging::Log::logMessage(
     stext += getStageNameColour(stage);
     stext += text;
     stext += tcols::reset;
-  }
-  else {
+  } else {
     prefix = getStageNameForOutput(stage);
-    stext = text;
+    stext  = text;
   }
 
-  bool debug = DEBUG_LEVEL > 0;
-  std::string out = constructMessage(prefix, stext, file, function, line, debug);
+  bool        debug = DEBUG_LEVEL > 0;
+  std::string out   = constructMessage(prefix, stext, file, function, line, debug);
   std::cout << out;
 
   // Do we want the message to be instantly flushed to screen?
@@ -426,7 +428,7 @@ void logging::Log::logWarning(
   std::string prefix;
   std::string stext;
 
-  if (color_term){
+  if (color_term) {
     prefix += tcols::yellow;
     prefix += "[WARNING] ";
     prefix += tcols::reset;
@@ -434,10 +436,9 @@ void logging::Log::logWarning(
     stext += tcols::yellow;
     stext += text;
     stext += tcols::reset;
-  }
-  else {
+  } else {
     prefix = "[WARNING] ";
-    stext = text;
+    stext  = text;
   }
 
   std::string out = constructMessage(prefix, stext, file, function, line, true);
@@ -453,7 +454,7 @@ void logging::Log::logError(
   std::string prefix;
   std::string stext;
 
-  if (color_term){
+  if (color_term) {
     prefix += tcols::red;
     prefix += "[ERROR]   ";
     prefix += tcols::reset;
@@ -461,10 +462,9 @@ void logging::Log::logError(
     stext += tcols::red;
     stext += text;
     stext += tcols::reset;
-  }
-  else {
+  } else {
     prefix = "[ERROR]   ";
-    stext = text;
+    stext  = text;
   }
 
   std::string out = constructMessage(prefix, stext, file, function, line, true);
@@ -492,7 +492,8 @@ std::string logging::Log::constructMessage(
   std::string locs;
 
 
-  if (color_term) locs += tcols::blue;
+  if (color_term)
+    locs += tcols::blue;
   locs += file_trimmed;
   locs += ":";
   locs += std::to_string(line);
@@ -500,11 +501,11 @@ std::string logging::Log::constructMessage(
     locs += " (";
     locs += func_trimmed;
     locs += "): ";
-  }
-  else {
+  } else {
     locs += ": ";
   }
-  if (color_term) locs += tcols::reset;
+  if (color_term)
+    locs += tcols::reset;
 
 
   std::string out = prefix + locs;

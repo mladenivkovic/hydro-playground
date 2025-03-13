@@ -183,14 +183,14 @@ namespace grid {
      * @brief Get the cell size
      */
     [[nodiscard]] Float getDx() const;
-    void                  setDx(const Float dx);
+    void                setDx(const Float dx);
 
 
     /**
      * @brief Get the simulation box size
      */
     [[nodiscard]] Float getBoxsize() const;
-    void                  setBoxsize(const Float boxsize);
+    void                setBoxsize(const Float boxsize);
   }; // class Grid
 
 } // namespace grid

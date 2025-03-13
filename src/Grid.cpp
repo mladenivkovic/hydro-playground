@@ -119,7 +119,7 @@ void grid::Grid::initCells() {
     // set cell positions and IDs
     for (size_t i = 0; i < nxTot; i++) {
       cell::Cell& c = getCell(i);
-      Float     x = (static_cast<Float>(i - first) + 0.5) * dx;
+      Float       x = (static_cast<Float>(i - first) + 0.5) * dx;
       c.setX(x);
       c.setId(i);
     }
@@ -134,8 +134,8 @@ void grid::Grid::initCells() {
     for (size_t i = 0; i < nxTot; i++) {
       for (size_t j = 0; j < nxTot; j++) {
         cell::Cell& c = getCell(i, j);
-        Float     x = (static_cast<Float>(i - first) + 0.5) * dx;
-        Float     y = (static_cast<Float>(j - first) + 0.5) * dx;
+        Float       x = (static_cast<Float>(i - first) + 0.5) * dx;
+        Float       y = (static_cast<Float>(j - first) + 0.5) * dx;
         c.setX(x);
         c.setY(y);
         c.setId(i + j * nxTot);
@@ -148,11 +148,11 @@ void grid::Grid::initCells() {
 
   message("Initialised grid.", logging::LogLevel::Verbose);
 
-  constexpr Float KB   = 1024.;
-  constexpr Float MB   = 1024. * 1024.;
-  constexpr Float GB   = 1024. * 1024. * 1024.;
-  constexpr size_t  prec = 3;
-  constexpr size_t  wid  = 10;
+  constexpr Float  KB   = 1024.;
+  constexpr Float  MB   = 1024. * 1024.;
+  constexpr Float  GB   = 1024. * 1024. * 1024.;
+  constexpr size_t prec = 3;
+  constexpr size_t wid  = 10;
 
   Float gridsize = static_cast<Float>(total_cells) * static_cast<Float>(sizeof(cell::Cell));
   std::stringstream msg;
@@ -239,9 +239,9 @@ void grid::Grid::replicateICs() {
  */
 Float grid::Grid::getTotalMass() {
 
-  Float total = 0;
-  size_t  bc    = getNBC();
-  size_t  nx    = getNx();
+  Float  total = 0;
+  size_t bc    = getNBC();
+  size_t nx    = getNx();
 
   if (Dimensions == 1) {
     for (size_t i = bc; i < bc + nx; i++) {

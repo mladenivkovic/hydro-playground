@@ -170,7 +170,7 @@ namespace parameters {
      * @brief get simulation end time
      */
     [[nodiscard]] Float getTmax() const;
-    void                  setTmax(const Float tmax);
+    void                setTmax(const Float tmax);
 
 
     /**
@@ -184,14 +184,14 @@ namespace parameters {
      * @brief Get the number of cells with actual content per dimension
      */
     [[nodiscard]] Float getBoxsize() const;
-    void                  setBoxsize(const Float boxsize);
+    void                setBoxsize(const Float boxsize);
 
 
     /**
      * @brief Get the CFL constant
      */
     [[nodiscard]] Float getCcfl() const;
-    void                  setCcfl(const Float ccfl);
+    void                setCcfl(const Float ccfl);
 
 
     /**
@@ -215,7 +215,6 @@ namespace parameters {
     void                 setReplicate(const size_t rep);
 
 
-
     /**
      * @brief Get the number of boundary cells on each side of the box
      */
@@ -234,14 +233,14 @@ namespace parameters {
      * @brief get output frequency
      */
     [[nodiscard]] size_t getFoutput() const;
-    void setFoutput(const size_t foutput);
+    void                 setFoutput(const size_t foutput);
 
 
     /**
      * @brief get output time interval
      */
     [[nodiscard]] Float getDtOut() const;
-    void setDtOut(const Float dt_out);
+    void                setDtOut(const Float dt_out);
 
 
     /**
@@ -277,7 +276,8 @@ inline void parameters::Parameters::setNstepsLog(const size_t nstepsLog) {
   _nstepsLog = nstepsLog;
   paramSetLog(nstepsLog);
 #if DEBUG_LEVEL > 0
-  if (_locked) error("Trying to overwrite locked parameters!");
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
 #endif
 }
 
@@ -291,7 +291,8 @@ inline void parameters::Parameters::setVerbose(const int verbose) {
   _verbose = verbose;
   paramSetLog(verbose);
 #if DEBUG_LEVEL > 0
-  if (_locked) error("Trying to overwrite locked parameters!");
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
 #endif
 }
 
@@ -305,7 +306,8 @@ inline void parameters::Parameters::setNsteps(const size_t nsteps) {
   _nsteps = nsteps;
   paramSetLog(nsteps);
 #if DEBUG_LEVEL > 0
-  if (_locked) error("Trying to overwrite locked parameters!");
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
 #endif
 }
 
@@ -319,7 +321,8 @@ inline void parameters::Parameters::setTmax(const Float tmax) {
   _tmax = tmax;
   paramSetLog(tmax);
 #if DEBUG_LEVEL > 0
-  if (_locked) error("Trying to overwrite locked parameters!");
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
 #endif
 }
 
@@ -333,7 +336,8 @@ inline void parameters::Parameters::setNx(const size_t nx) {
   _nx = nx;
   paramSetLog(nx);
 #if DEBUG_LEVEL > 0
-  if (_locked) error("Trying to overwrite locked parameters!");
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
 #endif
 }
 
@@ -347,7 +351,8 @@ inline void parameters::Parameters::setCcfl(const Float ccfl) {
   _ccfl = ccfl;
   paramSetLog(ccfl);
 #if DEBUG_LEVEL > 0
-  if (_locked) error("Trying to overwrite locked parameters!");
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
 #endif
 }
 
@@ -361,7 +366,8 @@ inline void parameters::Parameters::setBoundaryType(BC::BoundaryCondition bounda
   _boundaryType = boundaryType;
   paramSetLog((int)boundaryType);
 #if DEBUG_LEVEL > 0
-  if (_locked) error("Trying to overwrite locked parameters!");
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
 #endif
 }
 
@@ -375,7 +381,8 @@ inline void parameters::Parameters::setNBC(const size_t nbc) {
   _nbc = nbc;
   paramSetLog(nbc);
 #if DEBUG_LEVEL > 0
-  if (_locked) error("Trying to overwrite locked parameters!");
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
 #endif
 }
 
@@ -389,7 +396,8 @@ inline void parameters::Parameters::setReplicate(const size_t replicate) {
   _replicate = replicate;
   paramSetLog(replicate);
 #if DEBUG_LEVEL > 0
-  if (_locked) error("Trying to overwrite locked parameters!");
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
 #endif
 }
 
@@ -403,10 +411,10 @@ inline void parameters::Parameters::setWriteReplications(const bool writeReplica
   _write_replications = writeReplications;
   paramSetLog(writeReplications);
 #if DEBUG_LEVEL > 0
-  if (_locked) error("Trying to overwrite locked parameters!");
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
 #endif
 }
-
 
 
 inline std::string parameters::Parameters::getOutputFileBase() const {
@@ -418,7 +426,8 @@ inline void parameters::Parameters::setOutputFileBase(std::string& ofname) {
   _outputfilebase = ofname;
   paramSetLog(ofname);
 #if DEBUG_LEVEL > 0
-  if (_locked) error("Trying to overwrite locked parameters!");
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
 #endif
 }
 
@@ -432,7 +441,8 @@ inline void parameters::Parameters::setFoutput(const size_t foutput) {
   _foutput = foutput;
   paramSetLog(foutput);
 #if DEBUG_LEVEL > 0
-  if (_locked) error("Trying to overwrite locked parameters!");
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
 #endif
 }
 
@@ -446,7 +456,8 @@ inline void parameters::Parameters::setDtOut(const Float dt_out) {
   _dt_out = dt_out;
   paramSetLog(dt_out);
 #if DEBUG_LEVEL > 0
-  if (_locked) error("Trying to overwrite locked parameters!");
+  if (_locked)
+    error("Trying to overwrite locked parameters!");
 #endif
 }
 

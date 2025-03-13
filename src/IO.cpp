@@ -597,9 +597,9 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
   Float p_R = _extractTwoStateVal(line, "p_R");
 
 
-  std::array<Float, 2>   v_L = {u_L, 0.};
+  std::array<Float, 2>     v_L = {u_L, 0.};
   idealGas::PrimitiveState left(rho_L, v_L, p_L);
-  std::array<Float, 2>   v_R = {u_R, 0.};
+  std::array<Float, 2>     v_R = {u_R, 0.};
   idealGas::PrimitiveState right(rho_R, v_R, p_R);
 
 

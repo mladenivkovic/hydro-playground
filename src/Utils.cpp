@@ -6,8 +6,8 @@
 
 #include "Cell.h"
 #include "Logging.h"
-#include "Version.h"
 #include "termcolors.h"
+#include "Version.h"
 
 
 /**
@@ -17,28 +17,42 @@ std::stringstream utils::banner() {
 
   std::stringstream banner;
 
-  if (color_term) banner << tcols::cyan;
-  banner << "o  o o   o o-o   o--o   o-o      o--o  o      O  o   o  o-o  o--o   o-o  o   o o   o o-o   \n";
-  if (color_term) banner << tcols::reset;
-
-  if (color_term) banner << tcols::green;
-  banner << "|  |  \\ /  |  \\  |   | o   o     |   | |     / \\  \\ /  o     |   | o   o |   | |\\  | |  \\  \n";
-  if (color_term) banner << tcols::reset;
-
-  if (color_term) banner << tcols::yellow;
-  banner << "O--O   O   |   O O-Oo  |   |     O--o  |    o---o  O   |  -o O-Oo  |   | |   | | \\ | |   O \n";
-  if (color_term) banner << tcols::reset;
-
-  if (color_term) banner << tcols::red;
-  banner << "|  |   |   |  /  |  \\  o   o     |     |    |   |  |   o   | |  \\  o   o |   | |  \\| |  /  \n";
-  if (color_term) banner << tcols::reset;
-
-  if (color_term) banner << tcols::magenta;
-  banner << "o  o   o   o-o   o   o  o-o      o     O---oo   o  o    o-o  o   o  o-o   o-o  o   o o-o   \n";
-  if (color_term) banner << tcols::reset;
-
+  if (color_term)
+    banner << tcols::cyan;
   banner
-    << "\n";
+    << "o  o o   o o-o   o--o   o-o      o--o  o      O  o   o  o-o  o--o   o-o  o   o o   o o-o   \n";
+  if (color_term)
+    banner << tcols::reset;
+
+  if (color_term)
+    banner << tcols::green;
+  banner
+    << "|  |  \\ /  |  \\  |   | o   o     |   | |     / \\  \\ /  o     |   | o   o |   | |\\  | |  \\  \n";
+  if (color_term)
+    banner << tcols::reset;
+
+  if (color_term)
+    banner << tcols::yellow;
+  banner
+    << "O--O   O   |   O O-Oo  |   |     O--o  |    o---o  O   |  -o O-Oo  |   | |   | | \\ | |   O \n";
+  if (color_term)
+    banner << tcols::reset;
+
+  if (color_term)
+    banner << tcols::red;
+  banner
+    << "|  |   |   |  /  |  \\  o   o     |     |    |   |  |   o   | |  \\  o   o |   | |  \\| |  /  \n";
+  if (color_term)
+    banner << tcols::reset;
+
+  if (color_term)
+    banner << tcols::magenta;
+  banner
+    << "o  o   o   o-o   o   o  o-o      o     O---oo   o  o    o-o  o   o  o-o   o-o  o   o o-o   \n";
+  if (color_term)
+    banner << tcols::reset;
+
+  banner << "\n";
 
   return banner;
 }

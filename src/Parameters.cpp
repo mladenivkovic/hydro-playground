@@ -31,9 +31,9 @@ namespace parameters {
     _replicate    = 0;
 
     _write_replications = false;
-    _outputfilebase = "";
-    _foutput = 0;
-    _dt_out = 0;
+    _outputfilebase     = "";
+    _foutput            = 0;
+    _dt_out             = 0;
 
     _locked = false;
     _read   = false;
@@ -75,7 +75,7 @@ namespace parameters {
     }
 
     // Do we need to resize the box?
-    if (getReplicate() > 1){
+    if (getReplicate() > 1) {
 
       setBoxsize(getBoxsize() * static_cast<Float>(getReplicate()));
       std::stringstream msg;
