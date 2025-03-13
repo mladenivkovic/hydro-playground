@@ -33,7 +33,7 @@ Getting Started
 ### Requirements
 
 - `git` to obtain the code.
-- A good old C++ compiler. Code is written in C++17 standard.
+- A good old C++ compiler. Code is written in C++20 standard.
 - `cmake` 3.21 or above
 - (optional) `python 3` with `numpy` and `matplotlib` for plotting outputs and generating initial
   conditions.
