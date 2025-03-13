@@ -1,11 +1,10 @@
 #pragma once
 
+#include <iostream>
 #include <source_location>
 #include <string>
 
 #include "Config.h"
-
-#include <iostream>
 
 /**
  * @file Logging.h
@@ -13,11 +12,8 @@
  */
 
 template <typename T>
-  concept AllowedMessageType =
-  std::same_as<T, std::string> ||
-  std::same_as<T, const char*> ||
-  std::same_as<T, char*> ||
-  std::same_as<T, std::string_view>;
+concept AllowedMessageType = std::same_as<T, std::string> || std::same_as<T, const char*>
+                             || std::same_as<T, char*> || std::same_as<T, std::string_view>;
 
 
 namespace logging {
@@ -92,8 +88,8 @@ namespace logging {
     }
 
     std::string_view trimmed(path);
-    if (prefix_path == prefix){
-      trimmed = trimmed.substr(pos_this+1);
+    if (prefix_path == prefix) {
+      trimmed = trimmed.substr(pos_this + 1);
     }
 
     return trimmed;
@@ -110,12 +106,12 @@ namespace logging {
     // Trim return type: Everything before space
     size_t pos = funcv.find_first_of(' ');
     if (pos != std::string_view::npos) {
-      funcv = funcv.substr(pos + 1, funcv.size()-pos);
+      funcv = funcv.substr(pos + 1, funcv.size() - pos);
     }
 
     size_t pos_arg = funcv.find_first_of('(');
     if (pos_arg != std::string_view::npos) {
-      funcv = funcv.substr(0,pos_arg);
+      funcv = funcv.substr(0, pos_arg);
     }
 
     return funcv;
@@ -215,14 +211,14 @@ namespace logging {
      * @param line The current line in the file. Intended to be the
      *   (replacement of the) __LINE__ macro.
      */
-    template<AllowedMessageType T>
+    template <AllowedMessageType T>
     void logMessage(
-      const T text,
-      const LogLevel     level,
-      const LogStage     stage,
-      const char*        file,
-      const char*        function,
-      const size_t       line
+      const T        text,
+      const LogLevel level,
+      const LogStage stage,
+      const char*    file,
+      const char*    function,
+      const size_t   line
     );
 
 
@@ -237,13 +233,8 @@ namespace logging {
      * @param line The current line in the file. Intended to be the
      *   (replacement of the) __LINE__ macro.
      */
-    template<AllowedMessageType T>
-    void logWarning(
-      const T text,
-      const char* file,
-      const char* function,
-      const size_t line
-    );
+    template <AllowedMessageType T>
+    void logWarning(const T text, const char* file, const char* function, const size_t line);
 
 
     /**
@@ -257,28 +248,22 @@ namespace logging {
      * @param line The current line in the file. Intended to be the
      *   (replacement of the) __LINE__ macro.
      */
-    template<AllowedMessageType T>
-    void logError(
-        const T text,
-        const char* file,
-        const char* function,
-        const size_t line
-        );
+    template <AllowedMessageType T>
+    void logError(const T text, const char* file, const char* function, const size_t line);
 
 
     /**
      * The function that actually constructs a message/log/warning/error
      */
-    template<AllowedMessageType T1, AllowedMessageType T2>
+    template <AllowedMessageType T1, AllowedMessageType T2>
     std::string constructMessage(
-        const T1 prefix,
-        const T2 text,
-        const char* file,
-        const char* function,
-        const size_t line,
-        const bool debug = false
-        );
-
+      const T1     prefix,
+      const T2     text,
+      const char*  file,
+      const char*  function,
+      const size_t line,
+      const bool   debug = false
+    );
 
 
     /**
@@ -299,18 +284,14 @@ namespace logging {
 
     //! Get the current stage.
     LogStage getCurrentStage();
-
   };
 } // namespace logging
 
 
-
-
 template <AllowedMessageType T>
 constexpr void message(
-    const T msg,
-    const std::source_location& location = std::source_location::current()
-    ) {
+  const T msg, const std::source_location& location = std::source_location::current()
+) {
   logging::Log::getInstance().logMessage(
     msg,
     logging::LogLevel::Quiet,
@@ -324,10 +305,10 @@ constexpr void message(
 
 template <AllowedMessageType T>
 constexpr void message(
-    const T msg,
-    const logging::LogLevel level,
-    const std::source_location& location = std::source_location::current()
-    ) {
+  const T                     msg,
+  const logging::LogLevel     level,
+  const std::source_location& location = std::source_location::current()
+) {
   logging::Log::getInstance().logMessage(
     msg,
     level,
@@ -340,27 +321,22 @@ constexpr void message(
 
 template <AllowedMessageType T>
 constexpr void message(
-    const T msg,
-    const logging::LogLevel level,
-    const logging::LogStage stage,
-    const std::source_location& location = std::source_location::current()
-    ) {
+  const T                     msg,
+  const logging::LogLevel     level,
+  const logging::LogStage     stage,
+  const std::source_location& location = std::source_location::current()
+) {
   logging::Log::getInstance().logMessage(
-    msg,
-    level,
-    stage,
-    location.file_name(),
-    location.function_name(),
-    location.line()
+    msg, level, stage, location.file_name(), location.function_name(), location.line()
   );
 }
 
 template <AllowedMessageType T>
 constexpr void message(
-    const T msg,
-    const logging::LogStage stage,
-    const std::source_location& location = std::source_location::current()
-    ) {
+  const T                     msg,
+  const logging::LogStage     stage,
+  const std::source_location& location = std::source_location::current()
+) {
   logging::Log::getInstance().logMessage(
     msg,
     logging::LogLevel::Quiet,
@@ -374,52 +350,41 @@ constexpr void message(
 
 template <AllowedMessageType T>
 constexpr void error(
-    const T msg,
-    const std::source_location& location = std::source_location::current()
-    ) {
+  const T msg, const std::source_location& location = std::source_location::current()
+) {
   logging::Log::getInstance().logError(
-      msg,
-      location.file_name(),
-      location.function_name(),
-      location.line()
-    );
+    msg, location.file_name(), location.function_name(), location.line()
+  );
 }
 
 template <AllowedMessageType T>
 constexpr void warning(
-    const T msg,
-    const std::source_location& location = std::source_location::current()
-    ) {
+  const T msg, const std::source_location& location = std::source_location::current()
+) {
   logging::Log::getInstance().logWarning(
-      msg,
-      location.file_name(),
-      location.function_name(),
-      location.line()
-      );
+    msg, location.file_name(), location.function_name(), location.line()
+  );
 }
 
 
-
-
-
-template<AllowedMessageType T>
+template <AllowedMessageType T>
 void logging::Log::logMessage(
-  const T text,
-  const LogLevel     level,
-  const LogStage     stage,
-  const char*        file,
-  const char*        function,
-  const size_t       line
+  const T        text,
+  const LogLevel level,
+  const LogStage stage,
+  const char*    file,
+  const char*    function,
+  const size_t   line
 ) {
 
   // Are we talkative enough?
   if (_verbosity < level)
     return;
 
-  bool debug=DEBUG_LEVEL > 0;
+  bool debug = DEBUG_LEVEL > 0;
 
   std::string prefix = getStageNameForOutput(stage);
-  std::string out = constructMessage( prefix, text, file, function, line, debug);
+  std::string out    = constructMessage(prefix, text, file, function, line, debug);
 
   std::cout << out;
 
@@ -430,30 +395,22 @@ void logging::Log::logMessage(
 }
 
 
-template<AllowedMessageType T>
+template <AllowedMessageType T>
 void logging::Log::logWarning(
-  const T text,
-  const char* file,
-  const char* function,
-  const size_t line
+  const T text, const char* file, const char* function, const size_t line
 ) {
 
-  std::string out = constructMessage( "[WARNING] ", text, file, function, line, true);
+  std::string out = constructMessage("[WARNING] ", text, file, function, line, true);
   std::cerr << out;
-
 }
 
 
-
-template<AllowedMessageType T>
+template <AllowedMessageType T>
 void logging::Log::logError(
-  const T text,
-  const char* file,
-  const char* function,
-  const size_t line
+  const T text, const char* file, const char* function, const size_t line
 ) {
 
-  std::string out = constructMessage( "[ERROR]   ", text, file, function, line, true);
+  std::string out = constructMessage("[ERROR]   ", text, file, function, line, true);
 
   std::cerr << out;
 
@@ -463,14 +420,14 @@ void logging::Log::logError(
 }
 
 
-template<AllowedMessageType T1, AllowedMessageType T2>
+template <AllowedMessageType T1, AllowedMessageType T2>
 std::string logging::Log::constructMessage(
-  const T1 prefix,
-  const T2 text,
-  const char* file,
-  const char* function,
+  const T1     prefix,
+  const T2     text,
+  const char*  file,
+  const char*  function,
   const size_t line,
-  const bool debug
+  const bool   debug
 ) {
 
   std::string_view file_trimmed = extractFileName(file);
@@ -478,10 +435,10 @@ std::string logging::Log::constructMessage(
 
   std::string out = prefix;
 
-    out += file_trimmed;
-    out += ":";
-    out += std::to_string(line);
-  if (debug){
+  out += file_trimmed;
+  out += ":";
+  out += std::to_string(line);
+  if (debug) {
     out += " (";
     out += func_trimmed;
     out += "): ";
@@ -494,5 +451,3 @@ std::string logging::Log::constructMessage(
 
   return out;
 }
-
-

@@ -60,23 +60,23 @@ int main() {
   );
 
   logger.logWarning(
-      char_msg,
-      std::source_location::current().file_name(),
-      std::source_location::current().function_name(),
-      std::source_location::current().line()
-      );
+    char_msg,
+    std::source_location::current().file_name(),
+    std::source_location::current().function_name(),
+    std::source_location::current().line()
+  );
   logger.logWarning(
-      str_msg,
-      std::source_location::current().file_name(),
-      std::source_location::current().function_name(),
-      std::source_location::current().line()
-      );
+    str_msg,
+    std::source_location::current().file_name(),
+    std::source_location::current().function_name(),
+    std::source_location::current().line()
+  );
   logger.logWarning(
-      "Directly writing in here",
-      std::source_location::current().file_name(),
-      std::source_location::current().function_name(),
-      std::source_location::current().line()
-      );
+    "Directly writing in here",
+    std::source_location::current().file_name(),
+    std::source_location::current().function_name(),
+    std::source_location::current().line()
+  );
 
   // Now try the message() macros
   message(char_msg);
