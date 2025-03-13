@@ -13,12 +13,11 @@
 #include "Logging.h"
 #include "Utils.h"
 
+using idealGas::PrimitiveState;
 
 /**
  * paramEntry constructors
  */
-using idealGas::PrimitiveState;
-
 IO::paramEntry::paramEntry(std::string parameter):
   param(std::move(parameter)),
   used(false) {};
@@ -389,8 +388,10 @@ std::string IO::InputParse::_getCommandOption(const std::string& option) {
   return search->second;
 }
 
+
 /**
- * Find and list unused parameters
+ * Find and list unused parameters. Prints unused params to screen with a
+ * warning.
  */
 void IO::InputParse::_checkUnusedParameters() {
 
