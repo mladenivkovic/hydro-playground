@@ -34,25 +34,22 @@ endif(NOT CMAKE_BUILD_TYPE)
 # Notes:
 #   - Wno-unused-parameter:
 #       Ignore warnings about unused function parameters.
-#   - Wno-string-plus-int:
-#       Avoid warning "adding 'int' to a string does not append to the string"
-#       That occurs all the time because of my __FILENAME__ = __FILE__ + SOURCE_PATH_SIZE trick.
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     add_compile_options(
-        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-string-plus-int -O3
+        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3
     )
     set(DEBUG_LEVEL 0)
 
 elseif (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     add_compile_options(
-        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-string-plus-int -O3 -g
+        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3 -g
     )
     set(DEBUG_LEVEL 1)
 
 elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(
-        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-string-plus-int -O0 -g
+        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O0 -g
     )
     set(DEBUG_LEVEL 2)
 
@@ -95,7 +92,7 @@ elseif(PRECISION STREQUAL "DOUBLE")
 else()
     message(FATAL_ERROR
         "Invalid PRECISION=${PRECISION}. "
-        "Options are [SINGLE, DOUBLE]."
+        "Options are [SINGLE, DOUBLE]. "
         "Pick one of those."
         )
 endif()

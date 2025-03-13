@@ -82,6 +82,7 @@ const char* logging::getStageNameColour(LogStage stage) {
   case LogStage::Test:
     return tcols::magenta;
   case LogStage::Count:
+  default:
     return tcols::reset;
   }
 }
