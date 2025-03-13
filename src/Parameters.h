@@ -40,19 +40,19 @@ namespace parameters {
     size_t _nsteps;
 
     //! at what time to end simulation
-    float_t _tmax;
+    Float _tmax;
 
     //! number of cells to use (in each dimension)
     size_t _nx;
 
     //! CFL coefficient
-    float_t _ccfl;
+    Float _ccfl;
 
     //! boundary condition
     BC::BoundaryCondition _boundaryType;
 
     //! box size
-    float_t _boxsize;
+    Float _boxsize;
 
     //! Number of Ghost cells at each edge
     size_t _nbc;
@@ -71,7 +71,7 @@ namespace parameters {
     size_t _foutput;
 
     //! time interval between outputs
-    float_t _dt_out;
+    Float _dt_out;
 
     //! Output file name basename
     std::string _outputfilebase;
@@ -89,20 +89,20 @@ namespace parameters {
     // size_t _noutput;
 
     //! array of output times given in the output file
-    // float_t _*outputtimes;
+    // Float _*outputtimes;
 
 
     // Sources related parameters
     // --------------------------
 
     //! constant acceleration in x direction for constant source terms
-    // float_t _src_const_acc_x;
+    // Float _src_const_acc_x;
 
     //! constant acceleration in y direction for constant source terms
-    // float_t _src_const_acc_y;
+    // Float _src_const_acc_y;
 
     //! constant acceleration in radial direction for radial source terms
-    // float_t _src_const_acc_r;
+    // Float _src_const_acc_r;
 
     //! whether the sources will be constant
     // bool _constant_acceleration;
@@ -169,8 +169,8 @@ namespace parameters {
     /**
      * @brief get simulation end time
      */
-    [[nodiscard]] float_t getTmax() const;
-    void                  setTmax(const float_t tmax);
+    [[nodiscard]] Float getTmax() const;
+    void                  setTmax(const Float tmax);
 
 
     /**
@@ -183,15 +183,15 @@ namespace parameters {
     /**
      * @brief Get the number of cells with actual content per dimension
      */
-    [[nodiscard]] float_t getBoxsize() const;
-    void                  setBoxsize(const float_t boxsize);
+    [[nodiscard]] Float getBoxsize() const;
+    void                  setBoxsize(const Float boxsize);
 
 
     /**
      * @brief Get the CFL constant
      */
-    [[nodiscard]] float_t getCcfl() const;
-    void                  setCcfl(const float_t ccfl);
+    [[nodiscard]] Float getCcfl() const;
+    void                  setCcfl(const Float ccfl);
 
 
     /**
@@ -240,8 +240,8 @@ namespace parameters {
     /**
      * @brief get output time interval
      */
-    [[nodiscard]] float_t getDtOut() const;
-    void setDtOut(const float_t dt_out);
+    [[nodiscard]] Float getDtOut() const;
+    void setDtOut(const Float dt_out);
 
 
     /**
@@ -310,12 +310,12 @@ inline void parameters::Parameters::setNsteps(const size_t nsteps) {
 }
 
 
-inline float_t parameters::Parameters::getTmax() const {
+inline Float parameters::Parameters::getTmax() const {
   return _tmax;
 }
 
 
-inline void parameters::Parameters::setTmax(const float_t tmax) {
+inline void parameters::Parameters::setTmax(const Float tmax) {
   _tmax = tmax;
   paramSetLog(tmax);
 #if DEBUG_LEVEL > 0
@@ -338,12 +338,12 @@ inline void parameters::Parameters::setNx(const size_t nx) {
 }
 
 
-inline float_t parameters::Parameters::getCcfl() const {
+inline Float parameters::Parameters::getCcfl() const {
   return _ccfl;
 }
 
 
-inline void parameters::Parameters::setCcfl(const float_t ccfl) {
+inline void parameters::Parameters::setCcfl(const Float ccfl) {
   _ccfl = ccfl;
   paramSetLog(ccfl);
 #if DEBUG_LEVEL > 0
@@ -437,12 +437,12 @@ inline void parameters::Parameters::setFoutput(const size_t foutput) {
 }
 
 
-inline float_t parameters::Parameters::getDtOut() const {
+inline Float parameters::Parameters::getDtOut() const {
   return _dt_out;
 }
 
 
-inline void parameters::Parameters::setDtOut(const float_t dt_out) {
+inline void parameters::Parameters::setDtOut(const Float dt_out) {
   _dt_out = dt_out;
   paramSetLog(dt_out);
 #if DEBUG_LEVEL > 0
@@ -461,11 +461,11 @@ inline void parameters::Parameters::setParamFileHasBeenRead() {
 }
 
 
-inline float_t parameters::Parameters::getBoxsize() const {
+inline Float parameters::Parameters::getBoxsize() const {
   return _boxsize;
 }
 
 
-inline void parameters::Parameters::setBoxsize(const float_t boxsize) {
+inline void parameters::Parameters::setBoxsize(const Float boxsize) {
   _boxsize = boxsize;
 }

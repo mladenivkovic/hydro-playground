@@ -77,7 +77,7 @@ namespace parameters {
     // Do we need to resize the box?
     if (getReplicate() > 1){
 
-      setBoxsize(getBoxsize() * static_cast<float_t>(getReplicate()));
+      setBoxsize(getBoxsize() * static_cast<Float>(getReplicate()));
       std::stringstream msg;
       msg << "Resizing box to" << getBoxsize() << " to accommodate replications";
       message(msg.str(), logging::LogLevel::Verbose);

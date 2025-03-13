@@ -104,7 +104,7 @@ void grid::Grid::initCells() {
 
 
   // Compute derived quantities
-  float_t dx = getBoxsize() / static_cast<float_t>(nxNorep);
+  Float dx = getBoxsize() / static_cast<Float>(nxNorep);
   setDx(dx);
 
 
@@ -119,7 +119,7 @@ void grid::Grid::initCells() {
     // set cell positions and IDs
     for (size_t i = 0; i < nxTot; i++) {
       cell::Cell& c = getCell(i);
-      float_t     x = (static_cast<float_t>(i - first) + 0.5) * dx;
+      Float     x = (static_cast<Float>(i - first) + 0.5) * dx;
       c.setX(x);
       c.setId(i);
     }
@@ -134,8 +134,8 @@ void grid::Grid::initCells() {
     for (size_t i = 0; i < nxTot; i++) {
       for (size_t j = 0; j < nxTot; j++) {
         cell::Cell& c = getCell(i, j);
-        float_t     x = (static_cast<float_t>(i - first) + 0.5) * dx;
-        float_t     y = (static_cast<float_t>(j - first) + 0.5) * dx;
+        Float     x = (static_cast<Float>(i - first) + 0.5) * dx;
+        Float     y = (static_cast<Float>(j - first) + 0.5) * dx;
         c.setX(x);
         c.setY(y);
         c.setId(i + j * nxTot);
@@ -148,13 +148,13 @@ void grid::Grid::initCells() {
 
   message("Initialised grid.", logging::LogLevel::Verbose);
 
-  constexpr float_t KB   = 1024.;
-  constexpr float_t MB   = 1024. * 1024.;
-  constexpr float_t GB   = 1024. * 1024. * 1024.;
+  constexpr Float KB   = 1024.;
+  constexpr Float MB   = 1024. * 1024.;
+  constexpr Float GB   = 1024. * 1024. * 1024.;
   constexpr size_t  prec = 3;
   constexpr size_t  wid  = 10;
 
-  float_t gridsize = static_cast<float_t>(total_cells) * static_cast<float_t>(sizeof(cell::Cell));
+  Float gridsize = static_cast<Float>(total_cells) * static_cast<Float>(sizeof(cell::Cell));
   std::stringstream msg;
   msg << "Grid memory takes [";
   msg << std::setprecision(prec) << std::setw(wid) << gridsize / KB << " KB /";
@@ -237,9 +237,9 @@ void grid::Grid::replicateICs() {
 /**
  * @brief get the total mass of the grid.
  */
-float_t grid::Grid::getTotalMass() {
+Float grid::Grid::getTotalMass() {
 
-  float_t total = 0;
+  Float total = 0;
   size_t  bc    = getNBC();
   size_t  nx    = getNx();
 

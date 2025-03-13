@@ -256,7 +256,7 @@ int utils::string2int(std::string& val) {
  * Convert value string to float/double.
  * Do some additional sanity checks too.
  */
-float_t utils::string2float(std::string& val) {
+Float utils::string2float(std::string& val) {
 
   std::string v = removeWhitespace(val);
   if (v.size() == 0) {
@@ -265,7 +265,7 @@ float_t utils::string2float(std::string& val) {
     error(msg.str());
   }
 
-  auto out = static_cast<float_t>(std::stof(v));
+  auto out = static_cast<Float>(std::stof(v));
   return out;
 }
 

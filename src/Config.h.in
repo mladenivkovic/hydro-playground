@@ -23,10 +23,10 @@ static constexpr int Dimensions = 2;
 
 
 #if (PRECISION == SINGLE_PRECISION)
-using float_t = float;
+using Float = float;
 // #pragma message("Using SINGLE precision")
 #elif (PRECISION == DOUBLE_PRECISION)
-using float_t = double;
+using Float = double;
 // #pragma message("Using DOUBLE precision")
 #else
 #error Invalid precision selected.

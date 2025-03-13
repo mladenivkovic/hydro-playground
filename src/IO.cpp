@@ -165,7 +165,7 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
   );
   params.setBoundaryType(static_cast<BC::BoundaryCondition>(boundary));
 
-  float_t tmax = _convertParameterString(
+  Float tmax = _convertParameterString(
     "tmax",
     ArgType::Float,
     /*optional=*/true,
@@ -173,7 +173,7 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
   );
   params.setTmax(tmax);
 
-  float_t boxsize = _convertParameterString(
+  Float boxsize = _convertParameterString(
     "boxsize",
     ArgType::Float,
     /*optional=*/true,
@@ -181,7 +181,7 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
   );
   params.setBoxsize(boxsize);
 
-  float_t ccfl = _convertParameterString(
+  Float ccfl = _convertParameterString(
     "ccfl",
     ArgType::Float,
     /*optional=*/true,
@@ -205,7 +205,7 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
   );
   params.setWriteReplications(writeReplications);
 
-  float_t dt_out = _convertParameterString(
+  Float dt_out = _convertParameterString(
     "dt_out",
     ArgType::Float,
     /*optional=*/true,
@@ -460,7 +460,7 @@ bool IO::InputParse::_icIsTwoState() {
 /**
  * Extract the value from a single line of the two-state IC file.
  */
-float_t IO::InputParse::_extractTwoStateVal(std::string& line, std::string expectedName) {
+Float IO::InputParse::_extractTwoStateVal(std::string& line, std::string expectedName) {
 
   std::string nocomment = utils::removeTrailingComment(line);
   auto        pair      = utils::splitEquals(nocomment);
@@ -475,17 +475,17 @@ float_t IO::InputParse::_extractTwoStateVal(std::string& line, std::string expec
     error(msg.str());
   }
 
-  float_t out = utils::string2float(value);
+  Float out = utils::string2float(value);
   return out;
 }
 
 
 idealGas::PrimitiveState IO::InputParse::_extractArbitraryICVal(std::string& line, size_t linenr) {
 
-  float_t rho = 0;
-  float_t vx  = 0;
-  float_t vy  = 0;
-  float_t p   = 0;
+  Float rho = 0;
+  Float vx  = 0;
+  Float vy  = 0;
+  Float p   = 0;
 
   std::string nocomment = utils::removeTrailingComment(line);
   std::string trimmed   = utils::removeWhitespace(nocomment);
@@ -578,27 +578,27 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
   }
 
   std::getline(icts_ifs, line);
-  float_t rho_L = _extractTwoStateVal(line, "rho_L");
+  Float rho_L = _extractTwoStateVal(line, "rho_L");
 
   std::getline(icts_ifs, line);
-  float_t u_L = _extractTwoStateVal(line, "u_L");
+  Float u_L = _extractTwoStateVal(line, "u_L");
 
   std::getline(icts_ifs, line);
-  float_t p_L = _extractTwoStateVal(line, "p_L");
+  Float p_L = _extractTwoStateVal(line, "p_L");
 
   std::getline(icts_ifs, line);
-  float_t rho_R = _extractTwoStateVal(line, "rho_R");
+  Float rho_R = _extractTwoStateVal(line, "rho_R");
 
   std::getline(icts_ifs, line);
-  float_t u_R = _extractTwoStateVal(line, "u_R");
+  Float u_R = _extractTwoStateVal(line, "u_R");
 
   std::getline(icts_ifs, line);
-  float_t p_R = _extractTwoStateVal(line, "p_R");
+  Float p_R = _extractTwoStateVal(line, "p_R");
 
 
-  std::array<float_t, 2>   v_L = {u_L, 0.};
+  std::array<Float, 2>   v_L = {u_L, 0.};
   idealGas::PrimitiveState left(rho_L, v_L, p_L);
-  std::array<float_t, 2>   v_R = {u_R, 0.};
+  std::array<Float, 2>   v_R = {u_R, 0.};
   idealGas::PrimitiveState right(rho_R, v_R, p_R);
 
 

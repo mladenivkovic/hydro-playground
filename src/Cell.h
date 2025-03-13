@@ -31,10 +31,10 @@ namespace cell {
     size_t _id;
 
     //! x position of cell centre
-    float_t _x;
+    Float _x;
 
     //! y position of cell centre
-    float_t _y;
+    Float _y;
 
     //! Primitive gas state
     idealGas::PrimitiveState _prim;
@@ -49,21 +49,21 @@ namespace cell {
     idealGas::ConservedState _cflux;
 
     //! Acceleration
-    // std::array<float_t, Dimensions> _acc;
+    // std::array<Float, Dimensions> _acc;
 
   public:
     // leaving these for now
     // std::string getIndexString();
 
     //! Set cell centre position X,Y
-    void setX(float_t x);
-    void setY(float_t y);
+    void setX(Float x);
+    void setY(Float y);
 
     void                 setId(const size_t id);
     [[nodiscard]] size_t getID() const;
 
     //! Retrieve a specific cell quantity. Intended for printouts.
-    float_t getQuanityForPrintout(const char* quantity) const;
+    Float getQuanityForPrintout(const char* quantity) const;
 
     //! Get cell index(es) in grid
     std::pair<std::size_t, std::size_t> getIJ(const std::size_t nxtot);
@@ -100,13 +100,13 @@ inline void cell::Cell::PrimitiveToConserved() {
 
 
 //! Set cell centre position X
-inline void cell::Cell::setX(float_t x) {
+inline void cell::Cell::setX(Float x) {
   _x = x;
 }
 
 
 //! Set cell centre position Y
-inline void cell::Cell::setY(float_t y) {
+inline void cell::Cell::setY(Float y) {
   _y = y;
 }
 

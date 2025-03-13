@@ -27,7 +27,7 @@ idealGas::PrimitiveState::PrimitiveState():
  * Using setters instead of initialiser lists so the debugging checks kick in.
  */
 idealGas::PrimitiveState::PrimitiveState(
-  const float_t rho, const std::array<float_t, Dimensions> vel, const float_t p
+  const Float rho, const std::array<Float, Dimensions> vel, const Float p
 ) {
   setRho(rho);
   for (size_t i = 0; i < Dimensions; i++) {
@@ -41,7 +41,7 @@ idealGas::PrimitiveState::PrimitiveState(
  * @brief Specialized constructor with initial values for 1D.
  * Using setters instead of initialiser lists so the debugging checks kick in.
  */
-idealGas::PrimitiveState::PrimitiveState(const float_t rho, const float_t vx, const float_t p) {
+idealGas::PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float p) {
 #if DEBUG_LEVEL > 0
   if (Dimensions != 1) {
     error("This is a 1D function only!");
@@ -57,7 +57,7 @@ idealGas::PrimitiveState::PrimitiveState(const float_t rho, const float_t vx, co
  * Using setters instead of initialiser lists so the debugging checks kick in.
  */
 idealGas::PrimitiveState::PrimitiveState(
-  const float_t rho, const float_t vx, const float vy, const float_t p
+  const Float rho, const Float vx, const float vy, const Float p
 ) {
 #if DEBUG_LEVEL > 0
   if (Dimensions != 2) {
@@ -153,20 +153,20 @@ void idealGas::ConservedState::PrimitiveToConserved(const PrimitiveState& p) {
  */
 void idealGas::ConservedState::GetCFluxFromPstate(const PrimitiveState& p, const size_t dimension) {
 
-  float_t rhoflux = p.getRho() * p.getV(dimension);
+  Float rhoflux = p.getRho() * p.getV(dimension);
   setRho(rhoflux);
 
   // momentum flux along the requested dimension
-  float_t momentum_dim = p.getRho() * p.getV(dimension) * p.getV(dimension) + p.getP();
+  Float momentum_dim = p.getRho() * p.getV(dimension) * p.getV(dimension) + p.getP();
   setRhov(dimension, momentum_dim);
 
   // momentum flux along the other dimension
-  float_t momentum_other = p.getRho() * p.getV(0) * p.getV(1);
+  Float momentum_other = p.getRho() * p.getV(0) * p.getV(1);
   setRhov((dimension + 1) % 2, momentum_other);
 
   // gas energy
-  float_t E     = 0.5 * p.getRho() * p.getVSquared() + p.getP() / GM1;
-  float_t Eflux = (E + p.getP()) * p.getV(dimension);
+  Float E     = 0.5 * p.getRho() * p.getVSquared() + p.getP() / GM1;
+  Float Eflux = (E + p.getP()) * p.getV(dimension);
   setE(Eflux);
 }
 
@@ -193,19 +193,19 @@ void idealGas::ConservedState::GetCFluxFromCstate(const ConservedState& c, const
   setRho(c.getRhov(dimension));
 
   if (c.getRho() > 0.) {
-    float_t v = c.getRhov(dimension) / c.getRho();
-    float_t p = c.getE() - 0.5 * c.getRhoVSquared() / c.getRho();
+    Float v = c.getRhov(dimension) / c.getRho();
+    Float p = c.getE() - 0.5 * c.getRhoVSquared() / c.getRho();
 
     // momentum flux along the requested dimension
-    float_t momentum_dim = c.getRho() * v * v + p;
+    Float momentum_dim = c.getRho() * v * v + p;
     setRhov(dimension, momentum_dim);
 
     // momentum flux along the other dimension
     size_t  other_index    = (dimension + 1) % 2;
-    float_t momentum_other = c.getRhov(other_index) * v;
+    Float momentum_other = c.getRhov(other_index) * v;
     setRhov(other_index, momentum_other);
 
-    float_t E = (c.getE() + p) * v;
+    Float E = (c.getE() + p) * v;
     setE(E);
 
   } else {

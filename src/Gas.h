@@ -20,20 +20,20 @@ namespace idealGas {
   class PrimitiveState {
   private:
     //! density
-    float_t rho;
+    Float rho;
 
     //! velocity
-    std::array<float_t, Dimensions> v;
+    std::array<Float, Dimensions> v;
 
     //! pressure
-    float_t p;
+    Float p;
 
 
   public:
     PrimitiveState();
-    PrimitiveState(const float_t rho, const std::array<float_t, Dimensions> vel, const float_t p);
-    PrimitiveState(const float_t rho, const float_t vx, const float_t p);
-    PrimitiveState(const float_t rho, const float_t vx, const float_t vy, const float_t p);
+    PrimitiveState(const Float rho, const std::array<Float, Dimensions> vel, const Float p);
+    PrimitiveState(const Float rho, const Float vx, const Float p);
+    PrimitiveState(const Float rho, const Float vx, const Float vy, const Float p);
 
     // copy assignment
     // TODO(mivkov): This doesn't compile. Check with boundary conditions
@@ -51,10 +51,10 @@ namespace idealGas {
     void ConservedToPrimitive(const ConservedState& conservedState);
 
     //! Get the local soundspeed given a primitive state
-    [[nodiscard]] float_t getSoundSpeed() const;
+    [[nodiscard]] Float getSoundSpeed() const;
 
     //! Get the total gas energy from a primitive state
-    [[nodiscard]] float_t getE() const;
+    [[nodiscard]] Float getE() const;
 
     //! Get a string of the state.
     [[nodiscard]] std::string toString() const;
@@ -63,18 +63,18 @@ namespace idealGas {
     // Getters and setters!
 
     // Setter for Rho
-    void                  setRho(const float_t val);
-    [[nodiscard]] float_t getRho() const;
+    void                  setRho(const Float val);
+    [[nodiscard]] Float getRho() const;
 
     // same for u
-    void                  setV(const std::size_t index, const float_t val);
-    [[nodiscard]] float_t getV(const std::size_t index) const;
+    void                  setV(const std::size_t index, const Float val);
+    [[nodiscard]] Float getV(const std::size_t index) const;
 
     // used a lot, made a function for it
-    [[nodiscard]] float_t getVSquared() const;
+    [[nodiscard]] Float getVSquared() const;
 
-    void                  setP(const float_t val);
-    [[nodiscard]] float_t getP() const;
+    void                  setP(const Float val);
+    [[nodiscard]] Float getP() const;
   };
 
 
@@ -84,13 +84,13 @@ namespace idealGas {
   class ConservedState {
   private:
     //! Density
-    float_t rho;
+    Float rho;
 
     //! Momentum: rho * v
-    std::array<float_t, Dimensions> rhov;
+    std::array<Float, Dimensions> rhov;
 
     //! Energy
-    float_t E;
+    Float E;
 
   public:
     // Standard constructor, init variables to 0
@@ -122,16 +122,16 @@ namespace idealGas {
 
 
     // Getters and setters!
-    void                  setRho(const float_t val);
-    [[nodiscard]] float_t getRho() const;
+    void                  setRho(const Float val);
+    [[nodiscard]] Float getRho() const;
 
     // same for u
-    void                  setRhov(const std::size_t index, const float_t val);
-    [[nodiscard]] float_t getRhov(const std::size_t index) const;
-    [[nodiscard]] float_t getRhoVSquared() const;
+    void                  setRhov(const std::size_t index, const Float val);
+    [[nodiscard]] Float getRhov(const std::size_t index) const;
+    [[nodiscard]] Float getRhoVSquared() const;
 
-    void                  setE(const float_t val);
-    [[nodiscard]] float_t getE() const;
+    void                  setE(const Float val);
+    [[nodiscard]] Float getE() const;
   };
 } // namespace idealGas
 
@@ -143,7 +143,7 @@ namespace idealGas {
 // Primitive State Stuff
 // --------------------------
 
-inline void idealGas::PrimitiveState::setRho(const float_t val) {
+inline void idealGas::PrimitiveState::setRho(const Float val) {
 #if DEBUG_LEVEL > 0
   assert(val >= 0.);
 #endif
@@ -151,7 +151,7 @@ inline void idealGas::PrimitiveState::setRho(const float_t val) {
 }
 
 
-inline float_t idealGas::PrimitiveState::getRho() const {
+inline Float idealGas::PrimitiveState::getRho() const {
 #if DEBUG_LEVEL > 0
   assert(rho >= 0.);
 #endif
@@ -159,7 +159,7 @@ inline float_t idealGas::PrimitiveState::getRho() const {
 }
 
 
-inline void idealGas::PrimitiveState::setV(const size_t index, const float_t val) {
+inline void idealGas::PrimitiveState::setV(const size_t index, const Float val) {
 #if DEBUG_LEVEL > 0
   // assert(index >= 0); // always true for unsigned type
   assert(index < Dimensions);
@@ -168,7 +168,7 @@ inline void idealGas::PrimitiveState::setV(const size_t index, const float_t val
 }
 
 
-inline float_t idealGas::PrimitiveState::getV(const size_t index) const {
+inline Float idealGas::PrimitiveState::getV(const size_t index) const {
 #if DEBUG_LEVEL > 0
   // assert(index >= 0); // always true for unsigned type
   assert(index < Dimensions);
@@ -177,12 +177,12 @@ inline float_t idealGas::PrimitiveState::getV(const size_t index) const {
 }
 
 
-inline float_t idealGas::PrimitiveState::getVSquared() const {
+inline Float idealGas::PrimitiveState::getVSquared() const {
   return v[0] * v[0] + v[1] * v[1];
 }
 
 
-inline void idealGas::PrimitiveState::setP(const float_t val) {
+inline void idealGas::PrimitiveState::setP(const Float val) {
 #if DEBUG_LEVEL > 0
   assert(val >= 0.);
 #endif
@@ -190,7 +190,7 @@ inline void idealGas::PrimitiveState::setP(const float_t val) {
 }
 
 
-inline float_t idealGas::PrimitiveState::getP() const {
+inline Float idealGas::PrimitiveState::getP() const {
 #if DEBUG_LEVEL > 0
   assert(p >= 0.);
 #endif
@@ -201,7 +201,7 @@ inline float_t idealGas::PrimitiveState::getP() const {
 /**
  * Compute the local sound speed given a primitive state
  */
-inline float_t idealGas::PrimitiveState::getSoundSpeed() const {
+inline Float idealGas::PrimitiveState::getSoundSpeed() const {
   return std::sqrt(GAMMA * getP() / getRho());
 }
 
@@ -209,7 +209,7 @@ inline float_t idealGas::PrimitiveState::getSoundSpeed() const {
 /**
  * Get the total gas energy from a primitive state
  */
-inline float_t idealGas::PrimitiveState::getE() const {
+inline Float idealGas::PrimitiveState::getE() const {
   return 0.5 * getRho() * getVSquared() + getP() / GM1;
 }
 
@@ -217,7 +217,7 @@ inline float_t idealGas::PrimitiveState::getE() const {
 // Conserved State Stuff
 // --------------------------
 
-inline void idealGas::ConservedState::setRhov(const size_t index, const float_t val) {
+inline void idealGas::ConservedState::setRhov(const size_t index, const Float val) {
 #if DEBUG_LEVEL > 0
   // assert(index >= 0); // always true for unsigned type
   assert(index < Dimensions);
@@ -226,7 +226,7 @@ inline void idealGas::ConservedState::setRhov(const size_t index, const float_t 
 }
 
 
-inline float_t idealGas::ConservedState::getRhov(const size_t index) const {
+inline Float idealGas::ConservedState::getRhov(const size_t index) const {
 #if DEBUG_LEVEL > 0
   // assert(index >= 0); // always true for unsigned type
   assert(index < Dimensions);
@@ -235,12 +235,12 @@ inline float_t idealGas::ConservedState::getRhov(const size_t index) const {
 }
 
 
-inline float_t idealGas::ConservedState::getRhoVSquared() const {
+inline Float idealGas::ConservedState::getRhoVSquared() const {
   return rhov[0] * rhov[0] + rhov[1] * rhov[1];
 }
 
 
-inline void idealGas::ConservedState::setE(const float_t val) {
+inline void idealGas::ConservedState::setE(const Float val) {
 #if DEBUG_LEVEL > 0
   assert(val >= 0.);
 #endif
@@ -248,7 +248,7 @@ inline void idealGas::ConservedState::setE(const float_t val) {
 }
 
 
-inline float_t idealGas::ConservedState::getE() const {
+inline Float idealGas::ConservedState::getE() const {
 #if DEBUG_LEVEL > 0
   assert(E >= 0.);
 #endif
@@ -256,7 +256,7 @@ inline float_t idealGas::ConservedState::getE() const {
 }
 
 
-inline float_t idealGas::ConservedState::getRho() const {
+inline Float idealGas::ConservedState::getRho() const {
 #if DEBUG_LEVEL > 0
   assert(rho >= 0.);
 #endif
@@ -264,7 +264,7 @@ inline float_t idealGas::ConservedState::getRho() const {
 }
 
 
-inline void idealGas::ConservedState::setRho(const float_t val) {
+inline void idealGas::ConservedState::setRho(const Float val) {
 #if DEBUG_LEVEL > 0
   assert(val >= 0.);
 #endif

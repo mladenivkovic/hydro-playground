@@ -23,10 +23,10 @@ namespace grid {
     size_t _nx_norep;
 
     //! cell size
-    float_t _dx;
+    Float _dx;
 
     //! box size
-    float_t _boxsize;
+    Float _boxsize;
 
     //! Number of Ghost cells at each edge
     size_t _nbc;
@@ -48,7 +48,7 @@ namespace grid {
 
 
     //! Fetch the desired quantity for printing given a cell index
-    float_t _getQuanityForPrintout(cell::Cell& cell, std::string& quantity);
+    Float _getQuanityForPrintout(cell::Cell& cell, std::string& quantity);
 
 
   public:
@@ -80,7 +80,7 @@ namespace grid {
     /**
      * @brief get the total mass of the grid.
      */
-    float_t getTotalMass();
+    Float getTotalMass();
 
 
     /**
@@ -182,15 +182,15 @@ namespace grid {
     /**
      * @brief Get the cell size
      */
-    [[nodiscard]] float_t getDx() const;
-    void                  setDx(const float_t dx);
+    [[nodiscard]] Float getDx() const;
+    void                  setDx(const Float dx);
 
 
     /**
      * @brief Get the simulation box size
      */
-    [[nodiscard]] float_t getBoxsize() const;
-    void                  setBoxsize(const float_t boxsize);
+    [[nodiscard]] Float getBoxsize() const;
+    void                  setBoxsize(const Float boxsize);
   }; // class Grid
 
 } // namespace grid
@@ -288,22 +288,22 @@ inline void grid::Grid::setReplicate(const size_t replicate) {
 }
 
 
-inline float_t grid::Grid::getDx() const {
+inline Float grid::Grid::getDx() const {
   return _dx;
 }
 
 
-inline void grid::Grid::setDx(const float_t dx) {
+inline void grid::Grid::setDx(const Float dx) {
   _dx = dx;
 }
 
 
-inline float_t grid::Grid::getBoxsize() const {
+inline Float grid::Grid::getBoxsize() const {
   return _boxsize;
 }
 
 
-inline void grid::Grid::setBoxsize(const float_t boxsize) {
+inline void grid::Grid::setBoxsize(const Float boxsize) {
   _boxsize = boxsize;
 }
 

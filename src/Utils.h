@@ -46,7 +46,7 @@ namespace utils {
   size_t string2size_t(std::string& val);
 
   //! Convert value string to float/double. Do some additional sanity checks too.
-  float_t string2float(std::string& val);
+  Float string2float(std::string& val);
 
   //! Convert value string to integer. Do some additional sanity checks too.
   bool string2bool(std::string& val);
