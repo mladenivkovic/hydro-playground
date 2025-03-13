@@ -15,9 +15,11 @@ void logging::setStage(const logging::LogStage stage) {
   Log::getInstance().setStage(stage);
 }
 
+
 logging::LogStage logging::getCurrentStage() {
   return Log::getInstance().getCurrentStage();
 }
+
 
 void logging::setVerbosity(const int level) {
   Log::getInstance().setVerbosity(level);
@@ -26,6 +28,7 @@ void logging::setVerbosity(const int level) {
 void logging::setVerbosity(const logging::LogLevel level) {
   Log::getInstance().setVerbosity(level);
 }
+
 
 logging::LogLevel logging::getCurrentVerbosity() {
   return Log::getInstance().getCurrentVerbosity();
@@ -57,9 +60,9 @@ void logging::Log::logMessage(
   const char* file,
   const char* function,
   const int   line,
-  std::string text,
-  LogLevel    level,
-  LogStage    stage
+  const std::string& text,
+  const LogLevel    level,
+  const LogStage    stage
 ) {
 
   // Are we talkative enough?
@@ -82,23 +85,12 @@ void logging::Log::logMessage(
 }
 
 void logging::Log::logMessage(
-  const char*        file,
-  const char*        function,
-  const int          line,
-  std::stringstream& text,
-  LogLevel           level,
-  LogStage           stage
-) {
-  logMessage(file, function, line, text.str(), level, stage);
-}
-
-void logging::Log::logMessage(
   const char* file,
   const char* function,
   const int   line,
   const char* text,
-  LogLevel    level,
-  LogStage    stage
+  const LogLevel    level,
+  const LogStage    stage
 ) {
   logMessage(file, function, line, std::string(text), level, stage);
 }
@@ -117,12 +109,6 @@ void logging::Log::logWarning(
 }
 
 void logging::Log::logWarning(
-  const char* file, const char* function, const int line, const std::stringstream& text
-) {
-  logWarning(file, function, line, text.str());
-}
-
-void logging::Log::logWarning(
   const char* file, const char* function, const int line, const char* text
 ) {
   logWarning(file, function, line, std::string(text));
@@ -130,7 +116,7 @@ void logging::Log::logWarning(
 
 
 void logging::Log::logError(
-  const char* file, const char* function, const int line, std::string text
+  const char* file, const char* function, const int line, const std::string& text
 ) {
 
   std::stringstream str;
@@ -146,12 +132,6 @@ void logging::Log::logError(
 }
 
 void logging::Log::logError(
-  const char* file, const char* function, const int line, std::stringstream& text
-) {
-  logError(file, function, line, text.str());
-}
-
-void logging::Log::logError(
   const char* file, const char* function, const int line, const char* text
 ) {
   logError(file, function, line, std::string(text));
@@ -160,20 +140,21 @@ void logging::Log::logError(
 
 void logging::Log::setVerbosity(const int verbosity) {
   auto vlevel = static_cast<LogLevel>(verbosity);
-  getInstance().setVerbosity(vlevel);
+  setVerbosity(vlevel);
 }
 
 void logging::Log::setVerbosity(const LogLevel verbosity) {
-  getInstance()._verbosity = verbosity;
+  _verbosity = verbosity;
+
+  // only notify me if we're talky
   std::stringstream msg;
   msg << "Setting verbosity to " << static_cast<int>(verbosity);
-  // only print this if we're talky
   message(msg.str(), LogLevel::Verbose);
 }
 
 
 logging::LogLevel logging::Log::getCurrentVerbosity() {
-  return getInstance().Log::_verbosity;
+  return _verbosity;
 }
 
 
@@ -183,13 +164,15 @@ void logging::Log::setStage(int stage) {
 }
 
 void logging::Log::setStage(LogStage stage) {
+
+  _currentStage = stage;
+
   std::stringstream msg;
   msg << "Setting stage " << getStageName(stage);
   message(msg.str(), LogLevel::Verbose);
-  getInstance()._currentStage = stage;
 }
 
 
 logging::LogStage logging::Log::getCurrentStage() {
-  return getInstance()._currentStage;
+  return _currentStage;
 }

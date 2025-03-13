@@ -99,7 +99,7 @@ void grid::Grid::initCells() {
     msg << "nx=" << nx << ", ";
     msg << "nxTot=" << nxTot << ", ";
     msg << "nxNorep=" << nxNorep;
-    error(msg);
+    error(msg.str());
   }
 
 
@@ -162,7 +162,7 @@ void grid::Grid::initCells() {
   msg << std::setprecision(prec) << std::setw(wid) << gridsize / GB << " GB  ]";
   msg << " for " << total_cells << " cells";
 
-  message(msg);
+  message(msg.str());
 }
 
 
@@ -200,7 +200,7 @@ void grid::Grid::replicateICs() {
         if (target >= getNxTot()) {
           std::stringstream msg;
           msg << "Index error: Out of bounds " << target << "/" << getNxTot();
-          error(msg);
+          error(msg.str());
         }
 #endif
 
@@ -218,7 +218,7 @@ void grid::Grid::replicateICs() {
       if (target >= getNxTot()) {
         std::stringstream msg;
         msg << "Index error: Out of bounds " << target << "/" << getNxTot();
-        error(msg);
+        error(msg.str());
       }
 #endif
 

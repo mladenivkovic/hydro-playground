@@ -155,7 +155,7 @@ T IO::InputParse::_convertParameterString(
       msg << "; Using default=" << defaultVal;
       return defaultVal;
     }
-    error(msg);
+    error(msg.str());
   }
 
   paramEntry& entry = search->second;
@@ -181,7 +181,7 @@ T IO::InputParse::_convertParameterString(
   default:
     std::stringstream msg;
     msg << "Unknown type " << static_cast<int>(argtype);
-    error(msg);
+    error(msg.str());
     return defaultVal;
   }
 }
@@ -201,7 +201,7 @@ inline std::string IO::InputParse::_convertParameterString<std::string>(
     std::stringstream msg;
     msg << "Wrong type passed? type=";
     msg << static_cast<int>(argtype);
-    error(msg);
+    error(msg.str());
   }
 #endif
 
@@ -216,7 +216,7 @@ inline std::string IO::InputParse::_convertParameterString<std::string>(
       msg << "; Using default=" << defaultVal;
       return defaultVal;
     }
-    error(msg);
+    error(msg.str());
   }
 
   paramEntry& entry = search->second;

@@ -89,7 +89,7 @@ namespace parameters {
       logging::setVerbosity(paramVer);
       std::stringstream msg;
       msg << "Set run verbosity level to valueread from parameter file=" << paramVer;
-      message(msg, logging::LogLevel::Verbose);
+      message(msg.str(), logging::LogLevel::Verbose);
     }
 
 #if DEBUG_LEVEL > 0

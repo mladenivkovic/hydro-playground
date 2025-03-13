@@ -43,29 +43,29 @@ void utils::printHeader() {
 
   std::stringstream version_txt;
   version_txt << "Version:     " << version_major << "." << version_minor;
-  message(version_txt, level);
+  message(version_txt.str(), level);
 
   std::stringstream git_branch_txt;
   git_branch_txt << "Git branch:  " << version::Version::GIT_BRANCH;
-  message(git_branch_txt, level);
+  message(git_branch_txt.str(), level);
 
   std::stringstream git_comm_txt;
   git_comm_txt << "Git commit:  " << version::Version::GIT_SHA1;
-  message(git_comm_txt, level);
+  message(git_comm_txt.str(), level);
 
   std::stringstream build_type;
   build_type << "Build type:  " << CMAKE_BUILD_TYPE;
-  message(build_type, level);
+  message(build_type.str(), level);
 
   message("Build date:  " __DATE__ " - " __TIME__, level);
 
   std::stringstream debug;
   debug << "Debug level: " << DEBUG_LEVEL;
-  message(debug, level);
+  message(debug.str(), level);
 
   std::stringstream cellsize;
   cellsize << "sizeof(cell::Cell): " << sizeof(cell::Cell);
-  message(cellsize);
+  message(cellsize.str());
 
 #if DEBUG_LEVEL > 0
   warning("Code compiled with debugging enabled.");
@@ -242,7 +242,7 @@ int utils::string2int(std::string& val) {
   if (v.size() == 0) {
     std::stringstream msg;
     msg << "Invalid string to convert to int: '" << val << "'";
-    error(msg);
+    error(msg.str());
   }
 
   // todo: error catching
@@ -261,11 +261,10 @@ float_t utils::string2float(std::string& val) {
   if (v.size() == 0) {
     std::stringstream msg;
     msg << "Invalid string to convert to int: '" << val << "'";
-    error(msg);
+    error(msg.str());
   }
 
-  // todo: error catching
-  float_t out = (float_t)std::stof(v);
+  auto out = static_cast<float_t>(std::stof(v));
   return out;
 }
 
@@ -287,7 +286,7 @@ bool utils::string2bool(std::string& val) {
 
   std::stringstream msg;
   msg << "Invalid bool string '" << val << "'";
-  error(msg);
+  error(msg.str());
   return false;
 }
 
@@ -302,8 +301,8 @@ std::string utils::string2string(std::string val) {
   if (v.size() == 0) {
     std::stringstream msg;
     msg << "Suspicious string: '" << val << "'";
-    warning(msg);
-  }
+    warning(msg.str());
+}
 
   return v;
 }

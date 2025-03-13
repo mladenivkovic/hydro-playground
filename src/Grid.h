@@ -209,7 +209,7 @@ inline cell::Cell& grid::Grid::getCell(const size_t i) {
 
 #if DEBUG_LEVEL > 0
   if (Dimensions != 1) {
-    error("This function is for 1D only!")
+    error("This function is for 1D only!");
   }
 #endif
   return _cells[i];
@@ -229,7 +229,7 @@ inline cell::Cell& grid::Grid::getCell(const size_t i, const size_t j) {
 
 #if DEBUG_LEVEL > 0
   if (Dimensions != 2) {
-    error("This function is for 2D only!")
+    error("This function is for 2D only!");
   }
 #endif
 

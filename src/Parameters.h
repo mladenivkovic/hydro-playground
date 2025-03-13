@@ -1,5 +1,7 @@
 #pragma once
+
 #include <string>
+#include <sstream>
 
 #include "BoundaryConditions.h"
 #include "Config.h"
@@ -239,11 +241,12 @@ namespace parameters {
 
 
 //! Print out argument and its value with Debug verbosity
+// Keep this a macro so I can access variable name too
 #define paramSetLog(arg) \
   { \
     std::stringstream msg; \
-    msg << "Parameters: Setting '" << #arg << "' = " << (arg) << "'"; \
-    message(msg, logging::LogLevel::Debug); \
+    msg << "Parameters: Setting '" <<  #arg << "' = " << (arg) << "'"; \
+    message(msg.str(), logging::LogLevel::Debug); \
   }
 
 

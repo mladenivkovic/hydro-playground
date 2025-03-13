@@ -1,6 +1,5 @@
 #pragma once
 
-#include <sstream>
 #include <string>
 
 /**
@@ -67,8 +66,13 @@ namespace logging {
    *
    *   message(<msg>);
    *
-   * where <msg> is a std::string, string literal (char * like "Hello World"),
-   * or std::stringstream.
+   * where <msg> is a std::string or string literal (char * like "Hello World").
+   *
+   * Note that std::stringstream doesn't work, as they aren't copyable, which is
+   * a requirement for constexpr. We end up tyring to make a constexpr which is
+   * never actually constant, and the compiler complains. Use
+   * std::stringstream.str() instead.
+   *
    * Note that any logging printout will add a newline character for you at the
    * end of your message.
    *
@@ -129,25 +133,17 @@ namespace logging {
       const char* file,
       const char* function,
       const int   line,
-      std::string text,
-      LogLevel    level,
-      LogStage    stage
-    );
-    void logMessage(
-      const char*        file,
-      const char*        function,
-      const int          line,
-      std::stringstream& text,
-      LogLevel           level,
-      LogStage           stage
+      const std::string& text,
+      const LogLevel    level,
+      const LogStage    stage
     );
     void logMessage(
       const char* file,
       const char* function,
       const int   line,
       const char* text,
-      LogLevel    level,
-      LogStage    stage
+      const LogLevel    level,
+      const LogStage    stage
     );
 
     /**
@@ -158,12 +154,7 @@ namespace logging {
      * @param line The current line in the file. Intended to be the __LINE__ macro.
      * @param text The message you want to print out.
      */
-    void logWarning(
-      const char* file, const char* function, const int line, const std::string& text
-    );
-    void logWarning(
-      const char* file, const char* function, const int line, const std::stringstream& text
-    );
+    void logWarning(const char* file, const char* function, const int line, const std::string& text);
     void logWarning(const char* file, const char* function, const int line, const char* text);
 
     /**
@@ -174,8 +165,7 @@ namespace logging {
      * @param line The current line in the file. Intended to be the __LINE__ macro.
      * @param text The message you want to print out.
      */
-    void logError(const char* file, const char* function, const int line, std::string text);
-    void logError(const char* file, const char* function, const int line, std::stringstream& text);
+    void logError(const char* file, const char* function, const int line, const std::string& text);
     void logError(const char* file, const char* function, const int line, const char* text);
 
 
@@ -211,33 +201,36 @@ namespace logging {
 #define FILENAME_ __FILE__
 #endif
 
-#define MESSAGE_3_ARGS(msg, level, stage) \
-  logging::Log::getInstance().logMessage(FILENAME_, __FUNCTION__, __LINE__, msg, level, stage);
+template<typename T>
+constexpr void message(T msg){
+  logging::Log::getInstance().logMessage( FILENAME_, __FUNCTION__, __LINE__, msg, logging::LogLevel::Quiet, logging::getCurrentStage());
+}
 
-#define MESSAGE_2_ARGS(msg, level) \
-  logging::Log::getInstance().logMessage( \
-    FILENAME_, __FUNCTION__, __LINE__, msg, level, logging::Log::getInstance().getCurrentStage() \
-  );
+template<typename T>
+constexpr void message(T msg, logging::LogLevel level){
+  logging::Log::getInstance().logMessage( FILENAME_, __FUNCTION__, __LINE__, msg, level, logging::getCurrentStage());
+}
 
-#define MESSAGE_1_ARG(msg) \
-  logging::Log::getInstance().logMessage( \
-    FILENAME_, __FUNCTION__, __LINE__, msg, logging::LogLevel::Quiet, logging::getCurrentStage() \
-  );
+template<typename T>
+constexpr void message(T msg, logging::LogLevel level, logging::LogStage stage){
+  logging::Log::getInstance().logMessage( FILENAME_, __FUNCTION__, __LINE__, msg, level, stage);
+}
 
-#define MESSAGE_GET_4TH_ARG(arg1, arg2, arg3, arg4, ...) arg4
-
-// We return the 4th argument. The variable number of arguments passed
-// to this macro (which are __VA_ARGS__) pushes the "correct" message
-// macro we want to use to the 4th argument. So this way, we get the
-// correct macro to use.
-#define MESSAGE_STRING_MACRO_CHOOSER(...) \
-  MESSAGE_GET_4TH_ARG(__VA_ARGS__, MESSAGE_3_ARGS, MESSAGE_2_ARGS, MESSAGE_1_ARG, )
+template<typename T>
+constexpr void message(T msg, logging::LogStage stage){
+  logging::Log::getInstance().logMessage( FILENAME_, __FUNCTION__, __LINE__, msg, logging::LogLevel::Quiet, stage);
+}
 
 
-// The main message() macro.
-#define message(...) MESSAGE_STRING_MACRO_CHOOSER(__VA_ARGS__)(__VA_ARGS__)
+
+template<typename T>
+constexpr void error(T msg){
+  logging::Log::getInstance().logError( FILENAME_, __FUNCTION__, __LINE__, msg);
+}
+
+template<typename T>
+constexpr void warning(T msg){
+  logging::Log::getInstance().logWarning( FILENAME_, __FUNCTION__, __LINE__, msg);
+}
 
 
-#define error(msg) logging::Log::getInstance().logError(FILENAME_, __FUNCTION__, __LINE__, msg);
-
-#define warning(msg) logging::Log::getInstance().logWarning(FILENAME_, __FUNCTION__, __LINE__, msg);

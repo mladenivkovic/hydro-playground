@@ -42,7 +42,7 @@ IO::InputParse::InputParse(const int argc, char* argv[]) {
     std::stringstream msg;
     msg << "Passed " << argc << " arguments, which is higher than the max: " << argc_max
         << ", ignoring everything past it.";
-    warning(msg.str())
+    warning(msg.str());
   }
 #endif
 
@@ -303,7 +303,7 @@ void IO::InputParse::_checkCmdLineArgsAreValid() {
     if (not _commandOptionExists(opt)) {
       std::stringstream msg;
       msg << "missing option: " << opt;
-      error(msg);
+      error(msg.str());
     }
   }
 
@@ -367,13 +367,13 @@ void IO::InputParse::_checkUnusedParameters() {
     if (not entry.used) {
       std::stringstream msg;
       msg << "Unused parameter: " << entry.param << "=" << entry.value;
-      warning(msg);
+      warning(msg.str());
     }
 #if DEBUG_LEVEL > 1
     else {
       std::stringstream msg;
       msg << "USED parameter: " << entry.param << "=" << entry.value;
-      warning(msg);
+      warning(msg.str());
     }
 #endif
   }
@@ -402,7 +402,7 @@ bool IO::InputParse::_icIsTwoState() {
       msg << "Invalid IC file type: first non-comment line must be ";
       msg << "`filetype = [two-state,arbitrary]`\n";
       msg << "current line is: `" << line << "`";
-      error(msg);
+      error(msg.str());
     }
 
     bool out = false;
@@ -415,7 +415,7 @@ bool IO::InputParse::_icIsTwoState() {
       msg << "Invalid IC file type specification:";
       msg << "`filetype` must be either `two-state` or `arbitrary`\n";
       msg << "I found: `" << value << "`";
-      error(msg);
+      error(msg.str());
     }
 
     return out;
@@ -440,7 +440,7 @@ float_t IO::InputParse::_extractTwoStateVal(std::string& line, std::string expec
     msg << "Something wrong when parsing two-state IC file.\n";
     msg << "Expecting: `" << expectedName << "`\n";
     msg << "Line:`" << line << "`";
-    error(msg);
+    error(msg.str());
   }
 
   float_t out = utils::string2float(value);
@@ -487,7 +487,7 @@ idealGas::PrimitiveState IO::InputParse::_extractArbitraryICVal(std::string& lin
       std::stringstream msg;
       msg << "Error parsing IC line " << linenr << ": ";
       msg << "Found " << split.size() << " entries instead of 3";
-      error(msg);
+      error(msg.str());
     }
 
     rho = utils::string2float(split[0]);
@@ -501,7 +501,7 @@ idealGas::PrimitiveState IO::InputParse::_extractArbitraryICVal(std::string& lin
       std::stringstream msg;
       msg << "Error parsing IC line " << linenr << ": ";
       msg << "Found " << split.size() << " entries instead of 4";
-      error(msg);
+      error(msg.str());
     }
 
     rho = utils::string2float(split[0]);
@@ -542,7 +542,7 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
   if (name != "filetype" or value != "two-state") {
     std::stringstream msg;
     msg << "Something wrong when parsing two-state IC file. Line:`" << line << "`";
-    error(msg);
+    error(msg.str());
   }
 
   std::getline(icts_ifs, line);
@@ -650,7 +650,7 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
       << "Something wrong when parsing arbitrary-type IC file. Line:" << linenr << "`" << line
       << "`" << "\n"
       << "First line should be `filetype = arbitrary`";
-    error(msg);
+    error(msg.str());
   }
 
   std::getline(ic_ifs, line);
@@ -664,7 +664,7 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
     std::stringstream msg;
     msg << "Something wrong when parsing arbitrary-type IC file. Line:" << linenr << "`" << line
         << "`" << "Second line should be `ndim = <ndim>`";
-    error(msg);
+    error(msg.str());
   }
 
   int ndim = utils::string2int(value);
@@ -672,7 +672,7 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
   if (ndim != Dimensions) {
     std::stringstream msg;
     msg << "Error: Code compiled for ndim=" << Dimensions << " but IC is for ndim=" << ndim;
-    error(msg);
+    error(msg.str());
   }
 
 
@@ -687,7 +687,7 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
     std::stringstream msg;
     msg << "Something wrong when parsing arbitrary-type IC file. Line:" << linenr << "`" << line
         << "`" << "Third line should be `nx = <nx>`";
-    error(msg);
+    error(msg.str());
   }
 
   int nx = utils::string2int(value);

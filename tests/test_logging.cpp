@@ -41,9 +41,6 @@ int main() {
     FILENAME_, __FUNCTION__, __LINE__, str_msg, logging::LogLevel::Quiet, logging::LogStage::Init
   );
   logger.logMessage(
-    FILENAME_, __FUNCTION__, __LINE__, ss_msg, logging::LogLevel::Quiet, logging::LogStage::Init
-  );
-  logger.logMessage(
     FILENAME_,
     __FUNCTION__,
     __LINE__,
@@ -54,7 +51,6 @@ int main() {
 
   logger.logWarning(FILENAME_, __FUNCTION__, __LINE__, char_msg);
   logger.logWarning(FILENAME_, __FUNCTION__, __LINE__, str_msg);
-  logger.logWarning(FILENAME_, __FUNCTION__, __LINE__, ss_msg);
   logger.logWarning(FILENAME_, __FUNCTION__, __LINE__, "Directly writing in here");
 
   // Now try the message() macros
@@ -64,16 +60,12 @@ int main() {
   message(str_msg);
   message(str_msg, logging::LogLevel::Quiet, logging::LogStage::Undefined);
 
-  message(ss_msg);
-  message(ss_msg, logging::LogLevel::Quiet, logging::LogStage::Undefined);
-
   message("Directly writing in here");
   message("Directly writing in here", logging::LogLevel::Quiet, logging::LogStage::Undefined);
 
   // Now try the warning() macros
   warning(char_msg);
   warning(str_msg);
-  warning(ss_msg);
   warning("Directly writing in here");
 
 
@@ -107,11 +99,12 @@ int main() {
         bool expect_print = (verb >= level);
 
         std::stringstream msg;
+        constexpr int w = 12;
 
-        msg << std::setw(12) << "Verbosity=" << std::setw(3) << verb;
-        msg << std::setw(12) << " msg level=" << std::setw(3) << level;
-        msg << std::setw(12) << " code stage=" << std::setw(3) << stage;
-        msg << std::setw(12) << " should print?=" << expect_print;
+        msg << std::setw(w) << "Verbosity=" << std::setw(3) << verb;
+        msg << std::setw(w) << " msg level=" << std::setw(3) << level;
+        msg << std::setw(w) << " code stage=" << std::setw(3) << stage;
+        msg << std::setw(w) << " should print?=" << expect_print;
         msg << " | ";
 
         std::cout << msg.str();
