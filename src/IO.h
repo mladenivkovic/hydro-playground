@@ -149,9 +149,8 @@ namespace IO {
       _noutputs_written = n;
     }
     void incNOutputsWritten() {
-      setNOutputsWritten(_noutputs_written+1);
+      setNOutputsWritten(_noutputs_written + 1);
     }
-
   };
 } // namespace IO
 

@@ -57,7 +57,7 @@ namespace grid {
 
     // The grid is never intended to be used via several instances.
     // I could write all of this out, but I see no point.
-    Grid(const Grid& other) = delete;
+    Grid(const Grid& other)            = delete;
     Grid& operator=(const Grid& other) = delete;
 
     /**

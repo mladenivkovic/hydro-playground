@@ -789,10 +789,10 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
 /**
  * Generate the output file name to write into.
  */
-std::string IO::OutputWriter::_getOutputFileName(parameters::Parameters& params){
+std::string IO::OutputWriter::_getOutputFileName(parameters::Parameters& params) {
 
   std::stringstream fname;
-  if (params.getOutputFileBase() == ""){
+  if (params.getOutputFileBase() == "") {
     fname << "output";
   } else {
     fname << params.getOutputFileBase();
@@ -807,28 +807,30 @@ std::string IO::OutputWriter::_getOutputFileName(parameters::Parameters& params)
 /**
  * Write the output.
  */
-void IO::OutputWriter::dump(parameters::Parameters& params, grid::Grid& grid, Float t_current, size_t step){
+void IO::OutputWriter::dump(
+  parameters::Parameters& params, grid::Grid& grid, Float t_current, size_t step
+) {
 
-  if (Dimensions != 2){
+  if (Dimensions != 2) {
     error("Not Implemented Yet");
   }
 
 
   constexpr int fwidth = 12;
-  constexpr int fprec = 6;
+  constexpr int fprec  = 6;
 
   // Change the stage we're in
   logging::LogStage prevStage = logging::getCurrentStage();
   logging::setStage(logging::LogStage::IO);
 
   size_t nx = grid.getNxNorep();
-  if (params.getWriteReplications()){
+  if (params.getWriteReplications()) {
     nx = grid.getNx();
   }
   size_t first = grid.getFirstCellIndex();
-  size_t last = first + nx;
+  size_t last  = first + nx;
 
-  std::string fname = _getOutputFileName(params);
+  std::string   fname = _getOutputFileName(params);
   std::ofstream out(fname);
 
   out << "# ndim = " << Dimensions << "\n";
@@ -837,9 +839,9 @@ void IO::OutputWriter::dump(parameters::Parameters& params, grid::Grid& grid, Fl
   out << "# nsteps = " << step << "\n";
   out << "#            x            y          rho          v_x          v_y            p\n";
 
-  for (size_t j = first; j < last; j++){
-    for (size_t i = first; i < last; i++){
-      cell::Cell& c= grid.getCell(i, j);
+  for (size_t j = first; j < last; j++) {
+    for (size_t i = first; i < last; i++) {
+      cell::Cell& c = grid.getCell(i, j);
       out << std::setw(fwidth) << std::setprecision(fprec) << c.getX();
       out << " ";
       out << std::setw(fwidth) << std::setprecision(fprec) << c.getY();
@@ -867,4 +869,3 @@ void IO::OutputWriter::dump(parameters::Parameters& params, grid::Grid& grid, Fl
   // change it back to where we were
   logging::setStage(prevStage);
 }
-
