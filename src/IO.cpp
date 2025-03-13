@@ -372,7 +372,7 @@ void IO::InputParse::_checkUnusedParameters() {
 #if DEBUG_LEVEL > 1
     else {
       std::stringstream msg;
-      msg << "USED parameter: " << entry.param << "=" << entry.value;
+      msg << "Used parameter: " << entry.param << "=" << entry.value;
       warning(msg.str());
     }
 #endif

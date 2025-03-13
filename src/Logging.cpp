@@ -57,12 +57,12 @@ const char* logging::getStageName(LogStage stage) {
 
 
 void logging::Log::logMessage(
-  const char*        file,
-  const char*        function,
-  const int          line,
   const std::string& text,
   const LogLevel     level,
-  const LogStage     stage
+  const LogStage     stage,
+  const std::string_view        file,
+  const char*        function,
+  const size_t       line
 ) {
 
   // Are we talkative enough?
@@ -72,7 +72,7 @@ void logging::Log::logMessage(
   std::stringstream str;
   str << "[" << getStageName(stage) << "] ";
 #if DEBUG_LEVEL > 0
-  str << "`" << file << ":" << function << "():" << line << "`: ";
+  str << "`" << file << ":" << function << ":" << line << "`: ";
 #endif
   str << text << "\n";
 
@@ -85,43 +85,50 @@ void logging::Log::logMessage(
 }
 
 void logging::Log::logMessage(
-  const char*    file,
-  const char*    function,
-  const int      line,
   const char*    text,
   const LogLevel level,
-  const LogStage stage
+  const LogStage stage,
+  const std::string_view    file,
+  const char*    function,
+  const size_t   line
 ) {
-  logMessage(file, function, line, std::string(text), level, stage);
+  logMessage(std::string(text), level, stage, file, function, line);
 }
 
 
 void logging::Log::logWarning(
-  const char* file, const char* function, const int line, const std::string& text
+  const std::string& text,
+  const std::string_view       file,
+  const char* function, const size_t line
 ) {
 
   std::stringstream str;
   str << "[WARNING] ";
-  str << "`" << file << ":" << function << "():" << line << "`: ";
+  str << "`" << file << ":" << function << ":" << line << "`: ";
   str << text << "\n";
 
   std::cerr << str.str();
 }
 
 void logging::Log::logWarning(
-  const char* file, const char* function, const int line, const char* text
+  const char* text,
+  const std::string_view file,
+  const char* function, const size_t line
 ) {
-  logWarning(file, function, line, std::string(text));
+  logWarning(std::string(text), file, function, line);
 }
 
 
 void logging::Log::logError(
-  const char* file, const char* function, const int line, const std::string& text
+  const std::string& text,
+  const std::string_view       file,
+  const char* function,
+  const size_t line
 ) {
 
   std::stringstream str;
   str << "[ERROR] ";
-  str << "`" << file << ":" << function << "():" << line << "`: ";
+  str << "`" << file << ":" << function << ":" << line << "`: ";
   str << text << "\n";
 
   std::cerr << str.str();
@@ -132,9 +139,11 @@ void logging::Log::logError(
 }
 
 void logging::Log::logError(
-  const char* file, const char* function, const int line, const char* text
+  const char* text,
+  const std::string_view file,
+  const char* function, const size_t line
 ) {
-  logError(file, function, line, std::string(text));
+  logError(std::string(text), file, function, line );
 }
 
 

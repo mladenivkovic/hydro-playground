@@ -35,23 +35,48 @@ int main() {
   logging::Log& logger = logging::Log::getInstance();
 
   logger.logMessage(
-    FILENAME_, __FUNCTION__, __LINE__, char_msg, logging::LogLevel::Quiet, logging::LogStage::Init
+    char_msg,
+    logging::LogLevel::Quiet,
+    logging::LogStage::Init,
+    std::source_location::current().file_name(),
+    std::source_location::current().function_name(),
+    std::source_location::current().line()
   );
   logger.logMessage(
-    FILENAME_, __FUNCTION__, __LINE__, str_msg, logging::LogLevel::Quiet, logging::LogStage::Init
+    str_msg,
+    logging::LogLevel::Quiet,
+    logging::LogStage::Init,
+    std::source_location::current().file_name(),
+    std::source_location::current().function_name(),
+    std::source_location::current().line()
   );
   logger.logMessage(
-    FILENAME_,
-    __FUNCTION__,
-    __LINE__,
     "Directly writing in here",
     logging::LogLevel::Quiet,
-    logging::LogStage::Init
+    logging::LogStage::Init,
+    std::source_location::current().file_name(),
+    std::source_location::current().function_name(),
+    std::source_location::current().line()
   );
 
-  logger.logWarning(FILENAME_, __FUNCTION__, __LINE__, char_msg);
-  logger.logWarning(FILENAME_, __FUNCTION__, __LINE__, str_msg);
-  logger.logWarning(FILENAME_, __FUNCTION__, __LINE__, "Directly writing in here");
+  logger.logWarning(
+      char_msg,
+      std::source_location::current().file_name(),
+      std::source_location::current().function_name(),
+      std::source_location::current().line()
+      );
+  logger.logWarning(
+      str_msg,
+      std::source_location::current().file_name(),
+      std::source_location::current().function_name(),
+      std::source_location::current().line()
+      );
+  logger.logWarning(
+      "Directly writing in here",
+      std::source_location::current().file_name(),
+      std::source_location::current().function_name(),
+      std::source_location::current().line()
+      );
 
   // Now try the message() macros
   message(char_msg);

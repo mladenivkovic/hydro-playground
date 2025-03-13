@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.21)
 project(hydro_playground VERSION 0.1)
 set(LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS On)
 
@@ -29,6 +29,7 @@ if(NOT CMAKE_BUILD_TYPE)
         CACHE STRING "Choose the type of build : [Debug,Release,RelWithDebInfo]."
         FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
+# TODO: Move this back to release once dev has converged
 
 # Notes:
 #   - Wno-unused-parameter:
@@ -67,15 +68,7 @@ endif()
 message("* Current build type is : ${CMAKE_BUILD_TYPE}")
 
 
-# ---------------------------------------
-# Truncate full path from __FILE__ macro
-# ---------------------------------------
 
-# The additional / is important to remove the last character from the path.
-# Note that it does not matter if the OS uses / or \, because we are only
-# saving the path size.
-string(LENGTH "${CMAKE_SOURCE_DIR}/" SOURCE_PATH_SIZE)
-add_definitions("-DSOURCE_PATH_SIZE=${SOURCE_PATH_SIZE}")
 
 # ---------------------------
 # Main Target

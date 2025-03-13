@@ -1,6 +1,11 @@
 #pragma once
 
 #include <string>
+#include <source_location>
+
+#include "Config.h"
+
+#include <iostream>
 
 /**
  * @file Logging.h
@@ -45,12 +50,44 @@ namespace logging {
   const char* getStageName(LogStage stage);
 
 
+  constexpr std::string_view extractFileName(const char* path) {
+
+    // First, get project root prefix
+    // In a pinch, try extracting the root source dir from this file.
+    // Better option: Let cmake tell me what it is.
+    // std::source_location location = std::source_location::current();
+    // auto thisfile = std::string_view(location.file_name());
+
+    auto thisfile = std::string_view(CMAKE_SOURCE_DIR);
+
+    size_t pos_this = thisfile.find_last_of("/\\");
+
+    std::string_view prefix;
+    if (pos_this != std::string_view::npos) {
+      prefix = thisfile.substr(0, pos_this + 1);
+    }
+
+    // Get the path's prefix too.
+    std::string_view prefix_path;
+    if (pos_this != std::string_view::npos) {
+      prefix_path = std::string_view(path).substr(0, pos_this + 1);
+    }
+
+    std::string_view trimmed(path);
+    if (prefix_path == prefix){
+      trimmed = trimmed.substr(pos_this+1);
+    }
+
+    return trimmed;
+  }
+
+
   /**
    * @brief Logger class.
    *
    * Logs (messages to screen) are characterised by their "level" and "stage".
    *
-   *   - "level" determines the verbosity threshold needed to actually print out
+   *  - "level" determines the verbosity threshold needed to actually print out
    *     the message. For example, a message marked at "Debug" or "Verbose"
    *     level won't be printed to screen if the global run setting is "Quiet."
    *     "Levels" are set by the corresponging enum logging::LogLevel.
@@ -122,53 +159,86 @@ namespace logging {
     /**
      * @brief write a log message to screen.
      *
-     * @param file The current file. Intended to be the __FILE__ macro.
-     * @param function The current function. Intended to be the __FUNCTION__ macro.
-     * @param line The current line in the file. Intended to be the __LINE__ macro.
+     * I can probably template this, but I don't think I'm using anything
+     * besides strings or char arrays (string literals), so it's not worth
+     * it at this point.
+     * Also, constexpr doesn't work with constexpr, so we're only left with
+     * 2 options anyway.
+     *
      * @param text The message you want to print out.
      * @param level "verbosity level" of the log message.
      * @param stage stage of the code where this log is called from.
+     * @param file The current file. Intended to be the (replacement of the)
+     *   __FILE__ macro.
+     * @param function The current function name. Intended to be the
+     *   (replacement of the) __FUNCTION__ macro.
+     * @param line The current line in the file. Intended to be the
+     *   (replacement of the) __LINE__ macro.
      */
     void logMessage(
-      const char*        file,
-      const char*        function,
-      const int          line,
       const std::string& text,
       const LogLevel     level,
-      const LogStage     stage
+      const LogStage     stage,
+      const std::string_view        file,
+      const char*        function,
+      const size_t       line
     );
     void logMessage(
-      const char*    file,
-      const char*    function,
-      const int      line,
       const char*    text,
       const LogLevel level,
-      const LogStage stage
+      const LogStage stage,
+      const std::string_view    file,
+      const char*    function,
+      const size_t   line
     );
 
     /**
      * @brief write a warning message.
      *
-     * @param file The current file. Intended to be the __FILE__ macro.
-     * @param function The current function. Intended to be the __FUNCTION__ macro.
-     * @param line The current line in the file. Intended to be the __LINE__ macro.
      * @param text The message you want to print out.
+     * @param file The current file. Intended to be the (replacement of the)
+     *   __FILE__ macro.
+     * @param function The current function. Intended to be the (replacement of
+     *   the) __FUNCTION__ macro.
+     * @param line The current line in the file. Intended to be the
+     *   (replacement of the) __LINE__ macro.
      */
     void logWarning(
-      const char* file, const char* function, const int line, const std::string& text
+      const std::string& text,
+      const std::string_view file,
+      const char* function,
+      const size_t line
     );
-    void logWarning(const char* file, const char* function, const int line, const char* text);
+    void logWarning(
+        const char* text,
+        const std::string_view file,
+        const char* function,
+        const size_t line
+        );
 
     /**
      * @brief write an error message and abort the run.
      *
-     * @param file The current file. Intended to be the __FILE__ macro.
-     * @param function The current function. Intended to be the __FUNCTION__ macro.
-     * @param line The current line in the file. Intended to be the __LINE__ macro.
      * @param text The message you want to print out.
+     * @param file The current file. Intended to be the (replacement of the)
+     *   __FILE__ macro.
+     * @param function The current function name. Intended to be the
+     *   (replacement of the) __FUNCTION__ macro.
+     * @param line The current line in the file. Intended to be the
+     *   (replacement of the) __LINE__ macro.
      */
-    void logError(const char* file, const char* function, const int line, const std::string& text);
-    void logError(const char* file, const char* function, const int line, const char* text);
+    void logError(
+        const std::string& text,
+        const std::string_view file,
+        const char* function,
+        const size_t line
+        );
+    void logError(
+        const char* text,
+        const std::string_view file,
+        const char* function,
+        const size_t line
+        );
 
 
     /**
@@ -196,46 +266,95 @@ namespace logging {
 } // namespace logging
 
 
-// This macro truncates the full path from the __FILE__ macro.
-#ifdef SOURCE_PATH_SIZE
-#define FILENAME_ (__FILE__ + SOURCE_PATH_SIZE)
-#else
-#define FILENAME_ __FILE__
-#endif
+
 
 template <typename T>
-constexpr void message(T msg) {
+constexpr void message(
+    const T msg,
+    const std::source_location& location = std::source_location::current()
+    ) {
   logging::Log::getInstance().logMessage(
-    FILENAME_, __FUNCTION__, __LINE__, msg, logging::LogLevel::Quiet, logging::getCurrentStage()
+    msg,
+    logging::LogLevel::Quiet,
+    logging::getCurrentStage(),
+    location.file_name(),
+    location.function_name(),
+    location.line()
   );
 }
 
 template <typename T>
-constexpr void message(T msg, logging::LogLevel level) {
+constexpr void message(
+    const T msg,
+    const logging::LogLevel level,
+    const std::source_location& location = std::source_location::current()
+    ) {
   logging::Log::getInstance().logMessage(
-    FILENAME_, __FUNCTION__, __LINE__, msg, level, logging::getCurrentStage()
+    msg,
+    level,
+    logging::getCurrentStage(),
+    logging::extractFileName(location.file_name()),
+    location.function_name(),
+    location.line()
   );
 }
 
 template <typename T>
-constexpr void message(T msg, logging::LogLevel level, logging::LogStage stage) {
-  logging::Log::getInstance().logMessage(FILENAME_, __FUNCTION__, __LINE__, msg, level, stage);
+constexpr void message(
+    const T msg,
+    const logging::LogLevel level,
+    const logging::LogStage stage,
+    const std::source_location& location = std::source_location::current()
+    ) {
+  logging::Log::getInstance().logMessage(
+    msg,
+    level,
+    stage,
+    logging::extractFileName(location.file_name()),
+    location.function_name(),
+    location.line()
+  );
 }
 
 template <typename T>
-constexpr void message(T msg, logging::LogStage stage) {
+constexpr void message(
+    const T msg,
+    const logging::LogStage stage,
+    const std::source_location& location = std::source_location::current()
+    ) {
   logging::Log::getInstance().logMessage(
-    FILENAME_, __FUNCTION__, __LINE__, msg, logging::LogLevel::Quiet, stage
+    msg,
+    logging::LogLevel::Quiet,
+    stage,
+    logging::extractFileName(location.file_name()),
+    location.function_name(),
+    location.line()
   );
 }
 
 
 template <typename T>
-constexpr void error(T msg) {
-  logging::Log::getInstance().logError(FILENAME_, __FUNCTION__, __LINE__, msg);
+constexpr void error(
+    const T msg,
+    const std::source_location& location = std::source_location::current()
+    ) {
+  logging::Log::getInstance().logError(
+      msg,
+      logging::extractFileName(location.file_name()),
+      location.function_name(),
+      location.line()
+    );
 }
 
 template <typename T>
-constexpr void warning(T msg) {
-  logging::Log::getInstance().logWarning(FILENAME_, __FUNCTION__, __LINE__, msg);
+constexpr void warning(
+    const T msg,
+    const std::source_location& location = std::source_location::current()
+    ) {
+  logging::Log::getInstance().logWarning(
+      msg,
+      logging::extractFileName(location.file_name()),
+      location.function_name(),
+      location.line()
+      );
 }
