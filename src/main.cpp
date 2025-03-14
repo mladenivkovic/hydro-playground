@@ -3,8 +3,8 @@
 #include "IO.h"
 #include "Logging.h"
 #include "Parameters.h"
-#include "Utils.h"
 #include "Timer.h"
+#include "Utils.h"
 
 
 int main(int argc, char* argv[]) {
@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
   message(params.toString(), logging::LogLevel::Debug);
 
   // This is the end of the init phase.
-  (void) tickInit.tock();
+  (void)tickInit.tock();
 
   // Read initial conditions
   input.readICFile(grid);
@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
   writer.dump(params, grid, 0., 1);
   writer.dump(params, grid, 1., 2);
 
-  (void) tickTotal.tock();
+  (void)tickTotal.tock();
   timing(tickTotal.getTimings());
 
   return 0;

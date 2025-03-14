@@ -412,7 +412,6 @@ constexpr void timing(
 }
 
 
-
 template <AllowedMessageType T>
 void logging::Log::logMessage(
   const T        text,
@@ -532,10 +531,9 @@ void logging::Log::logTiming(
   }
 
   bool        debug = (DEBUG_LEVEL > 0) or (getCurrentVerbosity() >= LogLevel::Debug);
-  std::string out = constructMessage(prefix, stext, file, function, line, debug);
+  std::string out   = constructMessage(prefix, stext, file, function, line, debug);
   std::cerr << out;
 }
-
 
 
 template <AllowedMessageType T1, AllowedMessageType T2, AllowedMessageType T3, AllowedMessageType T4>
@@ -574,5 +572,3 @@ std::string logging::Log::constructMessage(
 
   return out;
 }
-
-

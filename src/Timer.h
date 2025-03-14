@@ -16,16 +16,16 @@ namespace timer {
 
   // Rename time "units" for convenience.
   namespace unit {
-    using ms = chr::milliseconds;
-    using ns = chr::nanoseconds;
+    using ms  = chr::milliseconds;
+    using ns  = chr::nanoseconds;
     using mus = chr::microseconds;
-    using s = chr::seconds;
+    using s   = chr::seconds;
   } // namespace unit
 
 
   // More convenience aliasing
   using default_time_units = unit::mus;
-  using ticks = int64_t;
+  using ticks              = int64_t;
 
 
   /**
@@ -56,7 +56,7 @@ namespace timer {
    * using timer::Timer.end()
    */
   template <typename time_units = default_time_units>
-    class Timer {
+  class Timer {
 
     // Variables
 
@@ -98,19 +98,22 @@ namespace timer {
 
 
   public:
-
     //! Constructors
-    Timer() : _category(Category::Ignore), _ended(false) {
+    Timer():
+      _category(Category::Ignore),
+      _ended(false) {
       _start_timing();
     }
 
-    explicit Timer(Category cat) : _category(cat), _ended(false) {
+    explicit Timer(Category cat):
+      _category(cat),
+      _ended(false) {
       _start_timing();
     }
 
     ~Timer() {
       // If user hasn't ended the measurement manually, do it now.
-      if (not _ended){
+      if (not _ended) {
         (void)_end_timing();
       }
     }
@@ -130,13 +133,13 @@ namespace timer {
 
 
 template <typename time_units>
-std::array<timer::ticks, timer::Category::Count> timer::Timer<time_units>::timings = {static_cast<ticks>(0)};
-
+std::array<timer::ticks, timer::Category::Count> timer::Timer<time_units>::timings = {
+  static_cast<ticks>(0)
+};
 
 
 template <typename time_units>
-const char*
-timer::Timer<time_units>::_units_str() {
+const char* timer::Timer<time_units>::_units_str() {
   if (typeid(time_units) == typeid(chr::nanoseconds))
     return "[ns]";
   if (typeid(time_units) == typeid(chr::microseconds))
@@ -157,7 +160,7 @@ timer::Timer<time_units>::_units_str() {
  * Mark the starting point of the timing.
  */
 template <typename time_units>
-void timer::Timer<time_units>::_start_timing(){
+void timer::Timer<time_units>::_start_timing() {
   _start = chr::high_resolution_clock::now();
 }
 
@@ -165,37 +168,35 @@ void timer::Timer<time_units>::_start_timing(){
 /**
  * Get a name for a timer category
  */
-inline const char* timer::getTimerName(Category t){
-  switch(t) {
-    case Category::Init:
-      return "Init";
-    case Category::IC:
-      return "Initial Conditions";
-    case Category::Step:
-      return "Step";
-    case Category::IO:
-      return "I/O";
-    case Category::Total:
-      return "Total";
-    case Category::Ignore:
-      return "ignored";
-    case Category::Count:
-      return "count";
-    default:
-      return "unknown";
+inline const char* timer::getTimerName(Category t) {
+  switch (t) {
+  case Category::Init:
+    return "Init";
+  case Category::IC:
+    return "Initial Conditions";
+  case Category::Step:
+    return "Step";
+  case Category::IO:
+    return "I/O";
+  case Category::Total:
+    return "Total";
+  case Category::Ignore:
+    return "ignored";
+  case Category::Count:
+    return "count";
+  default:
+    return "unknown";
   }
 }
-
-
 
 
 /**
  * Get duration since object was created.
  */
 template <typename time_units>
-timer::ticks timer::Timer<time_units>::_get_duration(){
+timer::ticks timer::Timer<time_units>::_get_duration() {
 
-  auto _stop = chr::high_resolution_clock::now();
+  auto _stop    = chr::high_resolution_clock::now();
   auto duration = duration_cast<time_units>(_stop - _start);
   return duration.count();
 }
@@ -205,7 +206,7 @@ timer::ticks timer::Timer<time_units>::_get_duration(){
  * End the timing and add the duration to the global counter
  */
 template <typename time_units>
-timer::ticks timer::Timer<time_units>::_end_timing(){
+timer::ticks timer::Timer<time_units>::_end_timing() {
 
   ticks duration = _get_duration();
   timings[_category] += duration;
@@ -219,7 +220,7 @@ timer::ticks timer::Timer<time_units>::_end_timing(){
  * End the timing and return a string with the measurement
  */
 template <typename time_units>
-std::string timer::Timer<time_units>::tock(){
+std::string timer::Timer<time_units>::tock() {
 
   ticks duration = _end_timing();
 
@@ -235,14 +236,14 @@ std::string timer::Timer<time_units>::tock(){
  * Returns a string for printouts containing all global timings.
  */
 template <typename time_units>
-std::string timer::Timer<time_units>::getTimings(){
+std::string timer::Timer<time_units>::getTimings() {
 
   std::stringstream out;
   out << "\nTiming units: ";
   out << _units_str();
   out << "\n";
 
-  for (int i = 0; i < Category::Count - 1; i++){
+  for (int i = 0; i < Category::Count - 1; i++) {
     out << std::setw(20) << getTimerName(static_cast<Category>(i)) << ": ";
     out << std::setw(20) << timings[i] << "\n";
   }
