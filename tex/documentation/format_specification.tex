@@ -221,10 +221,10 @@ You can use a Riemann problem two-state initial condition file as follows:
 \begin{lstlisting}
 filetype = two-state
 rho_L   = <float>
-u_L     = <float>
+v_L     = <float>
 p_L     = <float>
 rho_R   = <float>
-u_R     = <float>
+v_R     = <float>
 p_R     = <float>
 \end{lstlisting}
 
@@ -235,14 +235,16 @@ filetype = two-state
 \end{lstlisting}
 
 \textbf{must} be the first non-comment non-empty line, after which the
-parameters \texttt{rho\_L}, \texttt{u\_L}, \texttt{p\_L}, \texttt{rho\_R},
-\texttt{u\_R}, and \texttt{p\_R} follow.
+parameters \texttt{rho\_L}, \texttt{v\_L}, \texttt{p\_L}, \texttt{rho\_R},
+\texttt{v\_R}, and \texttt{p\_R} follow.
 
 The discontinuity between the changes will be in the middle along the x-axis.
-Fluid velocity in y direction will be set to zero, \texttt{u\_L} and
-\texttt{u\_R} will be set as \texttt{u\_x}.
+Fluid velocity in y direction will be set to zero, \texttt{v\_L} and
+\texttt{v\_R} will be set as \texttt{v\_x}.
 
-
+Note: For ``historical'' reasons, the IC file reader also accepts \texttt{u\_L}
+and \texttt{u\_r} for the velocities instead of \texttt{v\_L} and
+\texttt{v\_r}, respectively.
 
 
 
@@ -352,7 +354,7 @@ self-explanatory:
 # nx =    <number of cells used>
 # t =     <current time, float>
 # nsteps =  <current step of the simulation>
-#            x            y          rho          u_x          u_y            p
+#            x            y          rho          v_x          v_y            p
 <x value of cell (0, 0)> <y value of cell (0, 0)> <density in cell (0, 0)> <x velocity in cell (0, 0)> <y velocity in cell (0, 0)> <pressure in cell (0, 0)>
 <x value of cell (1, 0)> <y value of cell (1, 0)> <density in cell (1, 0)> <x velocity in cell (1, 0)> <y velocity in cell (1, 0)> <pressure in cell (1, 0)>
                                                  .

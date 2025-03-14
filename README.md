@@ -316,10 +316,10 @@ You can use a Riemann-problem two-state initial condition file as follows:
 ```
 filetype = two-state
 rho_L   = <float>
-u_L     = <float>
+v_L     = <float>
 p_L     = <float>
 rho_R   = <float>
-u_R     = <float>
+v_R     = <float>
 p_R     = <float>
 ```
 
@@ -328,11 +328,15 @@ The line
 filetype = two-state
 ```
 
-**must** be the first non-comment non-empty line, followed by `rho_L`, `u_L`, `p_L`, `rho_R`, `u_R`,
+**must** be the first non-comment non-empty line, followed by `rho_L`, `v_L`, `p_L`, `rho_R`, `v_R`,
 `p_R`.
 
 The discontinuity between the changes will be in the middle along the `x`-axis. Fluid velocity in `y`
-direction will be set to zero, `u_L` and `u_R` will be set as `u_x`.
+direction will be set to zero, `v_L` and `v_R` will be set as `v_x`.
+
+Note: For "historical" reasons, the velocities can also be specified as `u_L` and `u_R` instead of
+`v_L` and `v_R`, respectively.
+
 
 
 
@@ -413,7 +417,7 @@ The output files are written in plain text, and their content should be self-exp
 # nx =    <number of cells used>
 # t =     <current time, float>
 # nsteps =  <current step of the simulation>
-#            x            y          rho          u_x          u_y            p
+#            x            y          rho          v_x          v_y            p
 <x value of cell (0, 0)> <y value of cell (0, 0)> <density in cell (0, 0)> <x velocity in cell (0, 0)> <y velocity in cell (0, 0)> <pressure in cell (0, 0)>
 <x value of cell (1, 0)> <y value of cell (1, 0)> <density in cell (1, 0)> <x velocity in cell (1, 0)> <y velocity in cell (1, 0)> <pressure in cell (1, 0)>
                                                  .
