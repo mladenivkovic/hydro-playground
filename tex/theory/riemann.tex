@@ -1,0 +1,988 @@
+\newpage
+%====================================================================
+\section{Riemann Problem and Solvers} \label{chap:riemann}
+%====================================================================
+
+
+
+
+
+%====================================================================
+\subsection{The Riemann Problem and Solution Strategy}
+%====================================================================
+
+
+
+At the heart of Eulerian (not-comoving) numerical fluid dynamics is the
+solution to a specific initial value problem (IVP) called the ``Riemann
+problem''. For a hyperbolic system of conservation laws of the form
+
+\begin{align}
+	\DELDT{\U} + \DELDX{\F(\U))} = 0
+\end{align}
+
+the Riemann problem is defined as
+
+\begin{align}
+	\U(x, t=0) = 
+		\begin{cases}
+			\U_L & \text{ if } x < 0\\
+			\U_R & \text{ if } x > 0\\
+		\end{cases}
+\end{align}
+
+see also Fig.~\ref{fig:riemann-problem}.
+
+\begin{figure}[H]
+	\includegraphics{./figures/riemann_problem.pdf}%
+	\caption{
+		The Riemann Initial Value Problem in 1D.
+		\label{fig:riemann-problem}
+	}
+\end{figure}
+
+
+
+
+
+Unfortunately, there is no exact closed-form solution to the Riemann problem
+for the Euler equations. However, it is possible to devise iterative schemes
+whereby the solution can be computed numerically
+(Section~\ref{chap:riemann-exact}). To solve full fluid dynamics problems, this
+calculation needs to be repeated many many times, making the solution quite
+expensive. For that reason, people have developed approximate Riemann solvers,
+which we also will have a look at (Section~\ref{chap:riemann-approximate}).
+
+
+
+For a full derivation of how to solve the Riemann problem for the Euler
+equations, see e.g. \cite{toro}. For our purposes, it suffices to accept that
+(assuming we have no vacuum) as time progresses, three waves will form which
+will separate the two initial states $\U_L$ and $\U_R$.
+This results in two new states, $\U_L^*$ and $\U_R^*$ between the initial
+states, because  $\U_L^*$ and $\U_R^*$ themselves will be separated by a wave.
+This is shown in Figure \ref{fig:riemann-solution}.
+
+
+\begin{figure}[H]
+	\includegraphics{./figures/riemann_solution.pdf}%
+	\caption{
+The solution structure to the Riemann problem for Euler equations: Three waves,
+(1), (2), and (3), arise from the origin as time evolves. (2) is always a
+contact wave, (1) and (3) can be either rarefaction or shock waves in each
+case, depending on the initial conditions.\\
+The initial states $\U_L$ and $\U_R$ are separated through the waves (1) and
+(3) from the two new arising ``star states'' $\U_L^*$ and $\U_R^*$, which
+themselves are separated by the contact wave (2).
+\label{fig:riemann-solution}
+}
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+%===========================================
+\subsection{Wave Types and Relations}
+%===========================================
+
+
+
+
+
+It turns out that we get three types of waves: A contact wave, a shock wave,
+and a rarefaction wave. The middle wave is always a contact wave. The left and
+right waves can be any combination of shock and/or rarefaction wave, depending
+on the initial conditions. A model problem containing all three waves is shown
+in Figure~\ref{fig:riemann-solved}. These are the wave properties:
+
+
+
+
+
+
+%===========================================
+\subsubsection{Contact Wave}
+%===========================================
+
+The contact wave is a jump discontinuity in the density $\rho$ only.
+Pressure and velocity remain constant across the contact wave.
+This gives us the relations
+
+
+\begin{align*}
+	p^*_L &= p^*_R = p^*\\
+	v^*_L &= v^*_R = v^*\\
+\end{align*}
+
+For this reason, the star state pressure and velocity will have no index
+indicating whether they are the left or right star state, and will be referred
+to as $p^*$ and $v^*$, respectively.
+
+
+
+
+
+
+
+
+
+%===========================================
+\subsubsection{Shock Wave}
+%===========================================
+
+All three primitive variables $\rho$, $p$, and $v$ change across a shock wave.
+A shock wave is a jump discontinuity too. If the \textbf{leftmost} wave (wave
+(1) in Fig. \ref{fig:riemann-solution}) is a shock wave, we have
+
+\begin{align*}
+\rho^*_L &=
+	\frac{\frac{p^*}{p_L} + \frac{\gamma - 1}{\gamma+1}}
+	{\frac{\gamma - 1}{\gamma+1} \frac{p^*}{p_L} + 1}
+	\rho_L \\
+v^* &=
+	v_L - \frac{p^* - p_L}{\sqrt{\frac{p^* + B_L}{A_L}}}\\
+	& = v_L - f_L(p^*) \\
+A_L &=
+	\frac{2}{(\gamma + 1) \rho_L}\\
+B_L &=
+	\frac{\gamma - 1}{\gamma + 1} p_L
+\end{align*}
+
+$f_{L}$ is given in eq. \ref{eq:riemann-pstar}, and the shock speed is
+\begin{align*}
+S_L = v_L - a_L \left[\frac{\gamma + 1}{2 \gamma} \frac{p^*}{p_L} +
+	\frac{\gamma - 1}{2\gamma} \right]^{\half}
+\end{align*}
+
+where $a_L$ is the sound speed (Eq.~\ref{eq:soundspeed}) in the left state
+$\U_L$.
+
+
+
+For a \textbf{right shock wave}, i.e. when wave (3) is a shock wave, we have
+the relations
+
+
+\begin{align*}
+\rho^*_R &=
+	\frac{\frac{p^*}{p_R} + \frac{\gamma - 1}{\gamma+1}}
+		{\frac{\gamma - 1}{\gamma+1} \frac{p^*}{p_R} + 1}
+	\rho_R \\
+v^* &=
+	v_R + \frac{p^* - p_R}{\sqrt{\frac{p^* + B_R}{A_R}}}\\
+	& = v_R + f_R(p^*) \\
+A_R &=
+	\frac{2}{(\gamma + 1) \rho_R}\\
+B_R &=
+	\frac{\gamma - 1}{\gamma + 1} p_R
+\end{align*}
+
+and the shock speed is
+\begin{align*}
+S_R = v_R + a_R \left[\frac{\gamma + 1}{2 \gamma} \frac{p^*}{p_R} +
+	\frac{\gamma - 1}{2\gamma} \right]^{\half}
+\end{align*}
+
+where $a_R$ is the sound speed in the right state $\U_R$. $f_R$ is given in
+equation \ref{eq:riemann-pstar}.
+
+
+
+
+
+
+
+
+%===========================================
+\subsubsection{Rarefaction Wave}
+%===========================================
+
+Rarefaction waves are smooth transitions, not infinitesimally thin jump
+discontinuities like the contact wave and the shock wave. This makes them
+really easy to spot in the solutions of Riemann problems, see e.g.
+Fig.~\ref{fig:riemann-solved}. Across rarefactions, entropy is conserved.
+
+The rarefaction waves are enclosed by the head and the tail of the wave,
+between which we have a smooth transition which is called the ``fan''. The head
+is the ``front'' of the wave, i.e. the part of the wave that gets furthest away
+from the origin as time progresses. The tail is the ``back'' of the wave, i.e.
+the part of the wave that stays closest to the origin as time progresses.
+The wave speeds of the head, $S_H$, and of the tail, $S_T$, are both given
+below.
+
+
+If we have a \textbf{left-facing} rarefaction, i.e. if wave (1) is a rarefaction wave, we have
+
+\begin{align*}
+\rho^*_L &=
+	\rho_L \left( \frac{p^*}{p_L} \right) ^ \frac{1}{\gamma}\\
+v^* &=
+	v_L - \frac{2 a_L}{\gamma - 1} \left[
+		\left( \frac{p^*}{p_L} \right) ^ \frac{\gamma - 1}{2 \gamma} -1
+	\right]\\
+	& = v_L - f_L(p^*) \\
+\end{align*}
+
+$f_{L}$ is given in eq. \ref{eq:riemann-pstar}, and $a_L$ is the sound speed in
+the left state $U_L$.
+
+
+The wave speeds of the head, $S_H$, and the tail, $S_T$, for the left facing
+wave are:
+
+\begin{align*}
+	S_{HL} &= v_L - a_L\\
+	S_{TL} &= v^* - a^*_L\\
+	a^*_L  &= a_L \left( \frac{p^*}{p_L} \right) ^ \frac{\gamma - 1}{2 \gamma}
+\end{align*}
+
+
+Finally, the solution inside the rarefaction fan, i.e. in regions where $S_{HL}
+\leq \frac{x}{t} \leq S_{TL}$, is
+
+\begin{align}
+\rho_{\text{fan}, L} &=
+	\rho_L \left[
+		\frac{2}{\gamma + 1} +
+		\frac{\gamma - 1}{\gamma + 1}
+		\frac{1}{a_L}
+		\left(v_L - \frac{x}{t}\right)
+	\right] ^ \frac{2}{\gamma -1 }
+	\label{eq:rho-rarefaction-fan-left}\\
+v_{\text{fan}, L} &=
+	\frac{2}{\gamma + 1} \left[
+		\frac{\gamma - 1}{2} v_L + a_L + \frac{x}{t}
+	\right] \\
+p_{\text{fan}, L} &=
+	p_L \left[
+		\frac{2}{\gamma + 1} +
+		\frac{\gamma - 1}{\gamma + 1}
+		\frac{1}{a_L}
+		\left(v_L - \frac{x}{t}\right)
+	\right] ^ \frac{2 \gamma}{\gamma -1}
+	\label{eq:pressure-rarefaction-fan-left}
+\end{align}
+
+
+
+
+
+
+
+
+
+If we have a \textbf{right-facing rarefaction}, i.e. if wave (3) is a
+rarefaction wave, we have:
+
+\begin{align*}
+\rho^*_R &=
+	\rho_R \left( \frac{p^*}{p_R} \right) ^ \frac{1}{\gamma}\\
+v^* &=
+	v_R - \frac{2 a_R}{\gamma - 1}
+	\left[
+		1 - \left( \frac{p^*}{p_R} \right) ^ \frac{\gamma - 1}{2 \gamma}
+	\right]\\
+	&= v_R + f_R(p^*)
+\end{align*}
+
+where $a_R$ is the sound speed in the left state $\U_R$.
+$f_R$ is given in Equation~\ref{eq:riemann-pstar}.
+
+
+
+
+
+The wave speeds of the head, $S_H$, and the tail, $S_T$, for the right facing
+wave are:
+
+\begin{align*}
+	S_{HR} &= v_R + a_R\\
+	S_{TR} &= v^* + a^*_R\\
+	a^*_R  &= a_R \left( \frac{p^*}{p_R} \right) ^ \frac{\gamma - 1}{2 \gamma}
+\end{align*}
+
+
+
+
+Finally, the solution inside the rarefaction fan, i.e. in regions where $S_{HL}
+\geq \frac{x}{t} \geq S_{TL}$, is:
+
+\begin{align}
+\rho_{\text{fan}, R} &=
+	\rho_R \left[
+		\frac{2}{\gamma + 1} -
+		\frac{\gamma - 1}{\gamma + 1}
+		\frac{1}{a_R}
+		\left(v_R - \frac{x}{t}\right)
+	\right] ^ \frac{2}{\gamma -1 }
+	\label{eq:rho-rarefaction-fan-right}\\
+v_{\text{fan}, R} &=
+	\frac{2}{\gamma + 1}
+	\left[
+		\frac{\gamma - 1}{2} v_R - a_R + \frac{x}{t}
+	\right] \\
+p_{\text{fan}, R} &=
+	p_R
+	\left[
+		\frac{2}{\gamma + 1} -
+		\frac{\gamma - 1}{\gamma + 1}
+		\frac{1}{a_R}
+		\left(v_R - \frac{x}{t}\right)
+	\right] ^ \frac{2 \gamma}{\gamma -1}
+	\label{eq:pressure-rarefaction-fan-right}
+\end{align}
+
+
+
+
+
+
+
+
+
+
+
+
+%===========================================
+\subsubsection{Which Wave Type Do We Have?}
+%===========================================
+
+
+As written before, the middle wave (wave (2) in Fig. \ref{fig:riemann-solution}
+) is always a contact wave, while the other two waves are any combination of
+rarefaction and/or shock wave. It turns out that the condition for a
+rarefaction or shock wave is remarkably simple.
+
+For the left wave (wave (1)):
+
+\begin{align}
+	p^* > p_L: && &\quad \text{ (1) is a shock wave}\\
+	p^* \leq p_L: && &\quad \text{ (1) is a rarefaction wave}
+\end{align}
+
+and for the right wave (wave (3)):
+
+\begin{align}
+	p^* > p_R: && & \quad \text{ (3) is a shock wave} \\
+	p^* \leq p_R: && & \quad \text{ (3) is a rarefaction wave} 
+\end{align}
+
+
+
+
+
+
+
+
+
+
+%===========================================
+\subsubsection{Solution for $p^*$}
+%===========================================
+
+The only thing missing to have a complete solution to the Riemann problem for
+the Euler equations is an expression how to obtain $p^*$, the pressure in the
+star region, depending on the initial conditions $\U_L$ and $\U_R$. We make use
+of the fact that $p^*$ and $v^*$ are constant across the star region to relate
+$\U_L$ and $\U_R$, or more precisely the primitive states $\mathbf{W}_L$ and
+$\mathbf{W}_R$ which can easily be derived from the conservative ones.
+For both shock and rarefaction waves on either side, we have equations for
+$v^*$ depending on the outer states  $\mathbf{W}_L$ and $\mathbf{W}_R$ and
+$p^*$. By setting $v^*_L - v^*_R = 0$, which must hold, we get the equation:
+
+\begin{align}
+f(p, \mathbf{W}_L, \mathbf{W}_R)
+	\equiv f_L(p, \mathbf{W}_L) + f_R(p, \mathbf{W}_R) + (v_R - v_L)
+	= 0
+\label{eq:riemann-pressure-equation}
+\end{align}
+
+with 
+
+\begin{align}
+f_{L,R} &=
+	\begin{cases}
+		(p - p_{L,R}) \left[ \frac{A_{L,R}}{p + B_{L,R}}
+\right]^{\frac{1}{2}}
+			& ~\text{ if } ~ p > p_{L,R} ~ \quad \text{(shock)} \\
+		\frac{2 a_{L,R}}{\gamma - 1} \left[ \left( \frac{p}{p_{L,R}}
+\right)^ \frac{\gamma -1}{2 \gamma} - 1 \right]
+			& ~\text{ if } ~ p \leq p_{L,R} ~ \quad \text{(rarefaction)}
+\label{eq:riemann-pstar}\\
+	\end{cases} \\
+A_{L,R} &=
+	\frac{2}{(\gamma + 1) \rho_{L,R}}\\
+B_{L,R} &=
+	\frac{\gamma - 1}{\gamma + 1} p_{L,R}
+\end{align}
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{figure}
+	\centering
+	\includegraphics[width=.9\textwidth]{./figures/riemann_IC.pdf}%
+	\\
+	\includegraphics[width=.9\textwidth]{./figures/riemann_exact_solution.pdf}%
+	\caption{
+Top row: The initial conditions to a classical Riemann problem, called the Sod
+shock.\\
+%
+Bottom row: The exact solution of the problem at $t = 0.2$. The solution
+consists of a left facing rarefaction wave (between the two red dotted lines),
+easily recognisable through its non-linear shape. To the right (orange dotted
+line) is a shock wave, across which all three primitive quantities (density,
+pressure, bulk velocity) change as a jump discontinuity. The two waves enclose
+the third middle wave (green dotted line), which is a contact wave. The contact
+wave is a jump discontinuity just like a shock wave, but only the density
+changes; Velocity and pressure remain constant.
+\label{fig:riemann-solved}
+		}%
+\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%====================================================================
+\subsection{Exact Solver}\label{chap:riemann-exact}
+%====================================================================
+
+
+The equation for $p^*$, the pressure in the star region
+(Eq.~\ref{eq:riemann-pstar}) can't be solved analytically, but it can be solved
+iteratively. Since we have the analytic function and the first derivative
+w.r.t. $p$ can be computed, i.e.
+
+\begin{align*}
+\frac{\del f_{L,R}}{\del p} &=
+	\begin{cases}
+		\left[
+			\frac{A_{L,R}}{p + B_{L,R}}
+		\right]^{\frac{1}{2}}
+		\left(
+			1 - \frac{1}{2} \frac{p - p_{L,R}}{p + B_{L,R}}
+		\right)
+	& ~\text{ if } ~ p > p_{L,R} ~ \quad \text{(shock)} \\
+		\frac{a_{L,R}}{\gamma p_{L,R}}
+		\left(
+			\frac{p}{p_{L,R}}
+		\right)^ \frac{-(\gamma+1)}{2 \gamma}
+	& ~\text{ if } ~ p \leq p_{L,R} ~ \quad \text{(rarefaction)}
+\label{eq:riemann-pstar-dp}\\
+		\end{cases} \\
+A_{L,R} &=
+	\frac{2}{(\gamma + 1) \rho_{L,R}}\\
+B_{L,R} &=
+	\frac{\gamma - 1}{\gamma + 1} p_{L,R}
+\end{align*}
+
+
+Then, using the Newton-Raphson iterative root finding method, we can find the
+solution using the prescription:
+
+\begin{align}
+	p_{n+1} = p_n - \frac{f(p_n)}{\frac{\del f(p_n)}{\del p}}
+\end{align}
+
+
+We re-iterate until it converges, i.e. when the relative pressure change
+
+\begin{align}
+	\frac{|p_k - p_{k+1}|}{\frac{1}{2} | p_k + p_{k+1} | } < \epsilon
+\end{align}
+
+where $\epsilon$ is some tolerance.
+
+
+However, we need to find a first guess for the pressure, $p_0$.
+An okay way to do it is to take the average:
+
+\begin{align*}
+	p_0^* = \frac{1}{2} (p_L + p_R)
+\end{align*}
+
+The implemented way is based on a linearised solution based on the linearized
+primitive variable Riemann solver:
+
+\begin{align}
+p_{PV} &=
+	\frac{1}{2} (p_L + p_R) -
+	\frac{1}{8} (v_R - v_L)(\rho_L + \rho_R)(a_L + a_R)\\
+	p_0^* &= \max(\epsilon, p_{PV})
+\label{eq:pPV}
+\end{align}
+
+% Note that every step along the iteration, we must make sure that we didn't
+% accidentally get negative pressures, and limit it to zero (or the tolerance
+% $\epsilon$). If it drops below zero, it might get stuck there, and then all
+% hell breaks loose. (Seriously, you will get NANs because you're trying to take
+% fractal powers of negative stuff.)
+
+
+That concludes the equations relevant to the exact Riemann solver. All that is
+left to do is sample the solution, which is described in
+Section~\ref{chap:sampling-solution}.
+
+
+
+
+
+
+%====================================================================
+\subsection{Approximate Solvers}\label{chap:riemann-approximate}
+%====================================================================
+
+
+While an exact solver exists, as outlined above, it is often very expensive due
+to the needed itative method to determine the star state pressure. So instead,
+approximate Riemann solvers have been developed, which have been shown to
+perform adequately. We outline some of them here.
+
+
+
+
+
+%===============================================================================
+\subsubsection{Two-Rarefaction Riemann Solver (TRRS)}\label{chap:riemann-trrs}
+%===============================================================================
+
+
+
+
+The big idea is to assume a priori that both the left and right waves are
+going to be rarefaction waves, and to use that assumption to get an expression
+for $p^*$ and $v^*$, the pressure and velocity in the star region, respectively.
+
+We get
+
+\begin{align}
+\beta &\equiv
+	\frac{\gamma - 1}{2 \gamma} \\
+v^* &=
+	\frac{
+		\frac{2}{\gamma - 1}
+		\left[
+			\left(\frac{p_L}{p_R} \right) ^ \beta - 1
+		\right] +
+		\frac{v_L}{a_L}
+		\left(
+			\frac{p_L}{p_R}
+		\right) ^ \beta  + \frac{v_R}{a_R}
+	}{
+		\frac{1}{a_R} +
+		\frac{1}{a_L}\left(\frac{p_L}{p_R} \right) ^ \beta
+	} \\
+p^* &=
+	\frac{1}{2}
+	\left[
+		p_R
+		\left[
+			\frac{\gamma - 1}{2 a_R} (v^* - v_R) + 1
+		\right] ^ \frac{1}{\beta} + p_L
+		\left[
+			\frac{\gamma - 1}{2 a_L} (v_L - v^*) + 1
+		\right] ^ \frac{1}{\beta}
+	\right] \label{eq:pstar-trrs}
+\end{align}
+
+Note that we may also write $p^*$ independently of $v^*$:
+
+\begin{align}
+p^* =
+	\left[
+		\frac{
+			a_L + a_R - \frac{\gamma - 1}{2} (v_R - v_L)
+		}{
+			\frac{a_L}{p_L^\beta} +		\frac{a_R}{p_R^\beta}
+		}
+	\right] ^ \frac{1}{\beta}
+\end{align}
+
+But Eq.~\ref{eq:pstar-trrs} is computationally more efficient if we compute
+$v^*$ first. (Way fewer uses of fractional powers.)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% %=============================================================================
+\subsubsection{Two-Shock Riemann Solver (TSRS)}\label{chap:riemann-tsrs}
+% %=============================================================================
+
+
+The big idea is to assume a priori that both the left and right waves are
+going to be shock waves, and to use that assumption to get an expression for
+$p^*$ and $v^*$, the pressure and velocity in the star region, respectively.
+
+
+The equation for the pressure in the star region (eq.
+\ref{eq:riemann-pressure-equation}) then is given by
+
+\begin{align}
+f(p) &=
+	(p - p_L) g_L(p) + (p - p_R) g_R(p) + v_R - v_L = 0
+	\label{eq:riemann-pressure-tsrs} \\
+%
+g_{L,R}(p) &=
+	\left[
+		\frac{A_{L,R}}{p + B_{L,R}}
+	\right] ^{\half} \\
+%
+A_{L,R} &=
+	\frac{2}{(\gamma + 1) \rho_{L,R}}\\
+B_{L,R} &=
+	\frac{\gamma - 1}{\gamma + 1} p_{L,R}
+\end{align}
+
+Unfortunately, this approximation does not lead to a closed form solution. So
+we can either use an iterative method again, or use further approximations.
+Then the idea is to find $p_0$, an estimate for the pressure to use in
+Eq.~\ref{eq:riemann-pressure-tsrs}, and to use that to get a better
+approximation for $p^*$:
+
+\begin{align}
+p^* =
+	\frac{
+		g_L(p_0) p_L + g_R(p_0)p_R - (v_R - v_L)
+	}{
+		g_L(p_0) + g_R(p_0)
+	}
+	\label{eq:pstar-tsrs}
+\end{align}
+
+and
+
+\begin{align}
+v^*  =
+	\frac{1}{2} (v_L + v_R) +
+	\frac{1}{2}
+	\left[
+		(p^* - p_R) g_R(p_0) - (p^* - p_L) g_L(p_0)
+	\right]
+\end{align}
+
+
+A good choice for $p_0$ is coming from the solution of the linearised
+primitive variables approach (Eq.~\ref{eq:pPV}).
+
+
+
+
+
+
+
+
+
+
+
+%====================================================================
+\subsubsection{HLLC Solver}\label{chap:riemann-hllc}
+%====================================================================
+
+
+The HLLC solver is based on the approximation that we have 3 waves which are
+jump discontinuities, travelling with the speeds $S_L$, $S^*$, and $S_R$,
+respectively. Using integral relations and Rankine-Hugeniot relations, we
+directly find an expression for the fluxes $\F$:
+
+
+\begin{align}
+\F_{i+\half} = \begin{cases}
+	\F_L ~~~~ &\text{ if }		~~	\frac{x}{t} \leq S_L \\
+	\F^*_L ~~~~ &\text{ if }	~~  S_L \leq \frac{x}{t} \leq S^* \\
+	\F^*_R ~~~~ &\text{ if }	~~	S^* \leq \frac{x}{t} \leq S_R \\
+	\F_R ~~~~ &\text{ if }		~~	S_R \leq \frac{x}{t} \\
+\end{cases}
+\end{align}
+
+where $x/t = 0$ at the boundary of a cell, $i+\half$, and with
+
+\begin{align}
+S^* &=
+	\frac{
+		p_R - p_L  + \rho_L v_L (S_L - v_L) - \rho_R v_R (S_R - v_R)
+	} {
+		\rho_L (S_L - v_L) - \rho_R (S_R - v_R)
+	}
+	\label{eq:hllc-sstar}\\[.5em]
+%
+\U^*_{L,R} &=
+	\rho_{L,R} \frac{ S_{L,R} - v_{x;L,R}}{S_{L,R} - S^*}
+	\begin{pmatrix}
+		1\\
+		S^*\\
+		v_{x;L,R}\\
+		v_{y;L,R}\\
+		\frac{E_{L,R}}{\rho_{L,R}} +
+		(S^* - v_{x;L,R})
+		\left(
+			S^* + \frac{p_{L,R}}{\rho_{L,R}(S_{L,R} - v_{x;L,R})}
+		\right)
+	\end{pmatrix} \\[.5em]
+%
+\F^*_{L,R} &=
+	\F_{L, R} + S_{L,R} ( \U^*_{L,R} - \U_{L,R} )
+\end{align}
+
+for the flux in $x$ - direction. $v_{x;L,R}$ denotes the velocity component in
+$x$-direction of the (L)eft and (R)ight state, respectievly. For $y$ and $z$
+directions, you'll just need to exchange the velocity components in $S^*$
+appropriately. $\U_{L,R}$ are the given initial states, and $\F_{L,R} =
+\F(\U_{L,R})$ the corresponding initial states.
+
+
+
+What we still lack is estimates for the left and right wave speeds, $S_L$ and
+$S_R$. There are multiple ways to get good and robust estimates. A very simple,
+implemented one is:
+
+\begin{align}
+S_L  &= v_L - a_L q_L \\
+S_R  &= v_R + a_R q_R \\
+q_{L,R} &=
+	\begin{cases}
+		1	~~~~ &
+			\text{ if } p^* \leq p_{L,R} ~~~~ \text{(rarefaction)}\\
+		\sqrt{1 + \frac{\gamma + 1}{2 \gamma}
+		\left(\frac{p^*}{p_{L,R}} - 1 \right)}	~~~~ &
+		\text{ if } p^* > p_{L,R} ~~~~ \text{(shock)}\\
+	\end{cases} \\
+p^* &= \max(0, p_{PV})\\
+p_{PV} &=
+	\frac{1}{2} (p_L + p_R) -
+	\frac{1}{8} (v_R - v_L)(\rho_L + \rho_R)(a_L + a_R)
+	\label{eq:pstar-pv}.
+\end{align}
+
+
+
+You can get a better estimate using an adaptive wave speed estimate method.
+We also start off by computing the primitive variable solution for the star
+state pressure $p^*$ following Eq.~\ref{eq:pstar-pv}.
+Then we assume that the primitive variable estimate is ok as long as:
+%
+%
+\begin{itemize}
+\item The ratio $\frac{p_{max}}{p_{min}}$ is small enough, where
+	$p_{max} = \max \{ p_L, p_R \}$ and
+	$p_{min} = \min \{ p_L, p_R \}$.
+	(In the code, the threshold ratio is hardcoded as $2$.)
+\item $p_{min} \leq p_{PV} \leq p_{max}$
+\end{itemize}
+%
+%
+If that is not the case, then we switch to the star state solutions of other
+approximate Riemann solvers: If $p_{PV} \leq p_{min}$, then we will certainly
+expect two rarefactions to form, so we use the star state estimates of the Two
+Rarefaction Riemann Solver (TRRS, eq. \ref{eq:pstar-trrs}).
+Otherwise, we have at least one shock, so use the star state estimates of the
+Two Shock Riemann Solver (TSRS, eq. \ref{eq:pstar-tsrs}).
+
+
+% The adaptive wave speed estimate is used by default in the code, but can be
+% turned off by removing the line \verb|#define HLLC_USE_ADAPTIVE_SPEED_ESTIMATE|
+% from \texttt{defines.h}.
+
+
+Note that we don't need to compute the contact wave speed $S^*$ according to
+Eq.~\ref{eq:hllc-sstar} in case we are using the TSRS or TRRS estimates, since
+this equation follows from the Rankine-Hugeniot relations of three infinitely
+thin waves. Instead, you can directly compute it using the approximation that
+you are employing at that moment.
+
+
+
+
+
+
+
+
+
+
+%====================================================================
+\subsection{Dealing with Vacuum}
+%====================================================================
+
+
+Vacuum is characterized by the condition $\rho = 0$. With the equation of
+state, we also have $p = 0$ and $E = 0$ following from $\rho = 0$.
+
+The structure of the solution to the Riemann problem is different, there is no
+more star region. It can be shown that a shock wave can't be adjacent to a
+vacuum. Instead, we have a rarefaction wave and a contact wave which coalesces
+with the tail of the rarefaction. So we have a jump discontinuity next to the
+vacuum, which makes perfect sense, and this discontinuity will travel with some
+``escape velocity'' $v_{vac}$.
+Hence it makes sense to characterize the vacuum state as
+$\mathbf{W}_{vac} = (0, v_0, 0)$.
+
+There are three cases to consider:
+
+
+\begin{enumerate}
+
+\item \textbf{The right state is a vacuum:}
+
+	The vacuum front travels with the velocity
+	%
+	\begin{equation}
+		S_{vac, L} = v_L + \frac{2 a_L}{\gamma - 1}
+	\end{equation}
+	%
+	and left of it we have a left going rarefaction wave, i.e.
+	%
+	\begin{align}
+		\mathbf{W}_{L, \text{ with vacuum }} =
+			\begin{cases}
+			\mathbf{W_L} &
+				\quad \text{ if } \frac{x}{t} \leq v_L - a_L \\
+			\mathbf{W_{L, \text{inside fan}}} &
+				\quad \text{ if }
+					v_L - a_L < \frac{x}{t} < S_{\mathrm{vac}, L} \\
+			\mathbf{W_{vac}} &
+				\quad \text{ if } \frac{x}{t} \geq S_{\mathrm{vac}, L}\\
+			\end{cases}
+	\end{align}
+
+\item \textbf{The left state is a vacuum:}
+	
+		The vacuum front travels with the velocity
+		%
+		\begin{equation}
+			S_{\mathrm{vac}, R} = v_R - \frac{2 a_R}{\gamma - 1}
+		\end{equation}
+		%
+		and right of it we have a right going rarefaction wave, i.e.
+		%
+		\begin{align}
+		\mathbf{W}_{R, \text{ with vacuum }} =
+			\begin{cases}
+			\mathbf{W_{vac}} &
+				\quad \text{ if } \frac{x}{t} \leq S_{\mathrm{vac}, R}\\
+			\mathbf{W_{R, \text{inside fan}}} &
+				\quad \text{ if }
+					S_{\mathrm{vac}, R} < \frac{x}{t} < v_R + a_R\\
+			\mathbf{W_R} &
+				\quad \text{ if } \frac{x}{t} \geq v_R + a_R \\
+			\end{cases}
+		\end{align}
+		
+	\item \textbf{ Vacuum is being generated }
+	
+		In certain cases, with both the left and the right state being
+		non-vacuum states, vacuum can be generated in regions of the solution.
+		Just think what might happen if the left state has high velocity
+		towards the left, and the right state having a high velocity towards
+		the right, leaving the center region empty. The result is that we have a
+		vacuum state emerging around the center, bounded by two vacuum fronts
+		$S_{\mathrm{vac}, L}$ on the left side and $S_{\mathrm{vac}, R}$ on the
+		right side.
+
+		The full solution is
+		\begin{align}
+		\mathbf{W} =
+			\begin{cases}
+			\mathbf{W}_{L, \text{ with vacuum }} &
+				\quad \text{ if } \frac{x}{t} \leq S_{\mathrm{vac}, L}\\
+			\mathbf{W}_{vac} &
+				\quad \text{ if }
+					S_{vac, L} < \frac{x}{t} <  S_{\mathrm{vac}, R}\\
+			\mathbf{W}_{R, \text{ with vacuum }} &
+				\quad \text{ if } \frac{x}{t} \geq S_{vac, R} \\
+			\end{cases}
+		\end{align}
+		
+		
+		When do we have a vacuum generating condition? Well,
+		$S_{\mathrm{vac}, L} \leq S_{\mathrm{vac}, R}$ must hold, hence
+		\begin{align}
+		\Delta v_{crit} \equiv
+			\frac{2 a_L}{\gamma - 1 } + \frac{2 a_R}{\gamma - 1 }
+			\leq v_R - v_L
+		\label{eq:vacuum-generating-condition}
+		\end{align}
+
+\end{enumerate}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%====================================================================
+\subsection{Sampling the Solution}\label{chap:sampling-solution}
+%====================================================================
+
+With the solvers readily available, the final task is to sample the solution at
+some given point $(x, t)$. Assuming we have computed all the star region state
+variables, what is left to do is to determine in which case the point $(x, t)$
+is located. The flow chart of decision making and finally which relations to
+use is shown in Figure~\ref{fig:sampling-solution}.
+
+
+\begin{sidewaysfigure}
+	\includegraphics[]{./figures/tikz/sampling_the_solution.pdf}%
+	\caption{
+Flow chart to sample the solution of the Riemann problem for the Euler
+equations at a given point $(x, t)$.
+\label{fig:sampling-solution}
+	}
+\end{sidewaysfigure}
+
+Initially, all we need to compute is the star states, then we sample the
+solution at the given point that we're interested in, and the flowchart will
+tell us which states we need to compute using which relations.
+
+
+

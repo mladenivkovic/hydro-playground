@@ -1,0 +1,128 @@
+\newpage
+% =====================================================================
+\section{Solving Multidimensional Problems: Dimensional Splitting}
+\label{chap:dimensional-splitting}
+% =====================================================================
+
+
+To go from one to multiple dimensions, it is tempting to just extend the one
+dimensional discretisation. For example, starting with the conservation law
+
+\begin{equation}
+	\deldt{\U} + \deldx{\F(\U)} + \frac{\del}{\del y} \mathbf{G}(\U) = 0
+\end{equation}
+
+
+where $\F$ is the hyperbolic flux in $x$ direction and $\mathbf{G}$ is the
+hyperbolic flux in $y$ direction (see e.g.
+Eq.~\ref{eq:euler-dimensional-split}) and just apply e.g. Godunov's finite
+volume method:
+
+\begin{equation}
+\U_{i,j}^{n+1} =
+	\U_{i,j}^n +
+	\frac{\Delta t}{\Delta x}
+	\left(
+		\F_{i - \half, j} - \F_{i + \half, j}
+	\right)
+	+ \frac{\Delta t}{\Delta x}
+	\left(
+		\mathbf{G}_{i ,j - \half} - \mathbf{G}_{i, j + \half}
+	\right)
+\end{equation}
+
+
+However, this is a bit of a problem. The upwinding here is not complete.
+To explain, consider the 2D advection equation
+
+\begin{equation}
+	\deldt{q} + v_x \deldx{q} + v_y \frac{\del}{\del y} q = 0
+\end{equation}
+
+with constant coefficients $v_x$ and $v_y$. Now suppose we have advecting
+velocities $v_x = v_y = 1$, i.e. the advection velocity is along the diagonal.
+Then our method reads 
+
+\begin{equation}
+q_{i,j}^{n+1} =
+	q_{i,j}^n +
+	v_x \frac{\Delta t}{\Delta x}
+	\left(
+		q_{i - \half, j} - q_{i + \half, j}
+	\right)
+	+ v \frac{\Delta t}{\Delta x}
+	\left(
+		q_{i ,j - \half} - q_{i, j + \half}
+	\right)
+\end{equation}
+
+This expression doesn't involve $q_{i-1, j-1}$ at all, but that's actually the
+diagonal value that should be advected to $q_{i, j}$ in the next timestep!
+
+
+One way of doing things is to actually formulate more sophisticated unsplit
+methods that involve the appropriate stencils. We shan't do that here though.
+We make use of dimensional splitting. Instead of solving
+
+\begin{equation}
+\begin{cases}
+\text{PDE: } &
+	\deldt{\U} + \deldx{\F(\U)} + \frac{\del}{\del y} \mathbf{G}(\U) = 0
+\\
+\text{IC: } &
+	\U(x, y, t^n) = \U^n
+\end{cases}
+\end{equation}
+
+we do it in 2 steps (3 for 3D):
+
+\textbf{Step 1}: We obtain an intermediate result $\U^{n+\half}$ by solving the
+``x - sweep'' over the \textbf{full} time interval $\Delta t$ :
+
+\begin{equation}
+\begin{cases}
+	\text{PDE: } & \deldt{\U} + \deldx{\F(\U)} = 0\\
+	\text{IC: } &  \U = \U^n
+\end{cases}
+\end{equation}
+
+\textbf{Step 2}: We evolve the solution to the final $\U^{n+1}$ by solving the
+``y - sweep'' over the \textbf{full} time interval $\Delta t$ :
+
+\begin{equation}
+\begin{cases}
+\text{PDE: } &
+	\deldt{\U} + \frac{\del}{\del y} \mathbf{G}(\U) = 0
+\\
+\text{IC: } &
+	\U = \U^{n+\half}
+\\
+\end{cases}
+\end{equation}
+
+using the 1D methods that are described.
+This is called ``Strang splitting'' and gives us a first order accurate method.
+
+For a second order accurate method, we need to do one more step in 2D:
+
+\begin{enumerate}
+	\item Get $\U^{n + 1/4}$ by doing an x - sweep over the time interval $\Delta t / 2$
+	\item Get $\U^{n + 3/4}$ by doing an y - sweep over the time interval $\Delta t$ and using the intermediate solution $\U^{n + 1/4}$
+	\item Get $\U^{n + 1}$ by doing an x - sweep over the time interval $\Delta t / 2$ and using the intermediate solution $\U^{n + 3/4}$
+\end{enumerate}
+
+
+
+However, if $\Delta t$ is kept constant over multiple time steps, which is
+often the case for linear advection, we can get the first order method
+described above to be second order accurate by switching the order of the
+sweeps every time step (see \cite{leveque_2002}), i.e. if for one time step we
+did the x-sweep first, in the next one we do the y-sweep first, then in the
+next time step we do the x-sweep first again, and so on. The order of the
+sweeps doesn't matter as long as all sweeps have been done in the end, and by
+alternating the order we recover the second order method formalism, but with a
+twice as big time step.
+
+
+
+

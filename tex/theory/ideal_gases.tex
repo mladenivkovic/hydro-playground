@@ -1,0 +1,262 @@
+\newpage
+%===============================================
+\section{Ideal Gases}\label{chap:ideal_gases}
+%===============================================
+
+
+
+
+
+%=======================================
+\subsection{Governing Equations}
+%=======================================
+
+We are going to concern ourselves with ideal gases, which are described by the
+Euler equations:
+
+
+\begin{align}
+	\deldt
+	\begin{pmatrix}
+		\rho \\
+		\rho \V \\
+		E
+	\end{pmatrix}
+	+
+	\nabla \cdot
+	\begin{pmatrix}
+		\rho \V\\
+		\rho \V \otimes \V + p\\
+		(E + p) \V
+	\end{pmatrix}
+	=
+	\begin{pmatrix}
+		0\\
+		\rho \mathbf{a}\\
+		\rho \mathbf{a} \V
+	\end{pmatrix}
+\end{align}
+
+
+
+Where
+\begin{itemize}
+\item $\rho$: fluid density
+\item $\V$: fluid (mean/bulk) velocity at a given point. I use the notation
+	$\V = (v_x, v_y, v_w)$, or when indices are useful, $\V = (v_1, v_2, v_3)$
+\item $p$: pressure
+\item $E$: specific energy. $E = \frac{1}{2} \rho \V^2 + \rho u$,
+	where $u$ is the specific internal thermal energy
+	(Eq.~\ref{eq:internal-energy})
+\item $\mathbf{a}$: acceleration due to some external force.
+\end{itemize}
+
+The outer product $\cdot \otimes \cdot$ gives the following tensor:
+\begin{align}
+	(\V \otimes \V)_{ij} = v_i \cdot v_j
+\end{align}
+
+
+
+Furthermore, we have the following relations for ideal gasses:
+\begin{align}
+p &= n k T
+	&& \text{Ideal Gas law} \\
+p &= C \rho ^ \gamma
+	&& \text{Entropy relation for smooth flow, i.e. no shocks} \\
+s &= c_V \ln \left( \frac{p}{\rho^\gamma} \right) + s_0
+	&& \text{Entropy}\\
+a &= \sqrt{\frac{\del p}{\del \rho} \bigg{|}_s } = \sqrt{\frac{\gamma p}{\rho}}
+	&& \text{Sound speed}
+	\label{eq:soundspeed}
+\end{align}
+
+with 
+\begin{itemize}
+	\item $n$ : number density
+	\item $k$ : Boltzmann constant
+	\item $T$ : temperature
+	\item $s$ : entropy
+	\item $\gamma$: adiabatic index
+	\item $c_V$: specific heat 
+\end{itemize}
+
+and the Equation of State
+
+\begin{align}
+	u &= \frac{1}{\gamma - 1}\frac{p}{\rho} \label{eq:internal-energy}
+\end{align}
+
+
+
+
+Neglecting any outer forces, i.e. $\mathbf{a} = 0$, the Euler equations can be
+written as a conservation law as
+
+\begin{align}
+    \DELDT{ \U } + \nabla \cdot \F(\U) = 0
+\end{align}
+
+with
+
+\begin{align}
+	\U = 
+		\begin{pmatrix}
+			\rho \\ \rho \V \\ E
+		\end{pmatrix}, &&
+	\F(\U) = 
+		\begin{pmatrix}
+			\rho \V\\
+			\rho \V \otimes \V + p\\
+			(E + p) \V
+		\end{pmatrix}
+\end{align}
+
+
+
+
+
+
+
+
+%===============================================
+\subsubsection{Euler Equations in 1D}
+%===============================================
+
+In 1D, we can write the Euler equations without source terms ($\mathbf{a} = 0$)
+as
+
+\begin{align}
+    \DELDT{ \U } + \DELDX{\F(\U)} = 0
+\end{align}
+
+or explicitly (using $\V = v$)
+
+
+\begin{align}
+	\deldt{ 
+		\begin{pmatrix}
+			\rho \\ \rho v \\ E
+		\end{pmatrix}
+		}
+	+ \deldx {
+		\begin{pmatrix}
+			\rho v\\
+			\rho v^2  + p\\
+			(E + p) v
+		\end{pmatrix}
+	} = 0
+\end{align}
+
+
+
+
+%===============================================
+\subsubsection{Euler equations in 2D}
+%===============================================
+
+In 2D, we have without source terms ($\mathbf{a} = 0$):
+
+
+
+\begin{align}
+\DELDT{ \U } + \DELDX{\F(\U)} + \frac{\del \mathbf{G}(\U)}{\del y} = 0
+\label{eq:euler-dimensional-split}
+\end{align}
+
+or explicitly (using $\V = (v_x, v_y)$)
+
+\begin{align}
+	\deldt{ 
+		\begin{pmatrix}
+			\rho \\ \rho v_x \\ \rho v_y \\ E
+		\end{pmatrix}
+		}
+	+ \deldx {
+		\begin{pmatrix}
+			\rho v\\
+			\rho v_x^2  + p\\
+			\rho v_x v_y\\
+			(E + p) v_x
+		\end{pmatrix}
+	} 
+	+ \frac{\del}{\del y}
+		\begin{pmatrix}
+			\rho v_y\\
+			\rho v_x v_y\\
+			\rho v_y^2  + p\\
+			(E + p) v_y
+		\end{pmatrix}
+	= 0
+\end{align}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%===============================================
+\subsection{Conserved and Primitive Variables}
+%===============================================
+
+
+For now, we have described the Euler equation as a hyperbolic conservation law
+using the (conserved) state vector $\U$:
+
+\begin{align}
+	\U = 
+		\begin{pmatrix}
+			\rho \\ \rho \V \\ E \ .
+		\end{pmatrix}
+\end{align}
+
+
+For this reason, the variables $\rho$, $\rho \V$, and $E$ are referred to as
+``conserved variables'', as they obey conservation laws.
+
+However, this is not the only set of variables that allows us to describe the
+fluid dynamics. In particular, the solution of the  Riemann problem (section
+\ref{chap:riemann}) will give us a set of so called ``primitive
+variables'' (or ``physical variables'') with the ``primitive'' state vector
+$\mathbf{W}$:
+
+\begin{align}
+	\mathbf{W} = 
+		\begin{pmatrix}
+			\rho \\ \V \\ p
+		\end{pmatrix}
+\end{align}
+
+
+
+For the ideal gas equations, these are the equations to translate between
+primitive and conservative variables:
+
+\textbf{Primitive to conservative:}
+
+\begin{align}
+	(\rho) &= (\rho) \\
+	(\rho \V) &= (\rho) \cdot (\V) \\
+	(E) &= \frac{1}{2} (\rho) (\V)^2 + \frac{(p)}{\gamma - 1} 
+\end{align}
+
+
+\textbf{Conservative to primitive:}
+
+\begin{align}
+	(\rho) &= (\rho) \\
+	(\V) &= \frac{(\rho \V )}{(\rho)}\\
+	(p) &= (\gamma - 1)  \left((E) - \frac{1}{2} \frac{(\rho \V)^2}{(\rho)} \right) 
+\end{align}
+
+
+
