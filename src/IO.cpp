@@ -477,14 +477,14 @@ bool IO::InputParse::_icIsTwoState() {
 /**
  * Extract the value from a single line of the two-state IC file.
  */
-Float IO::InputParse::_extractTwoStateVal(std::string& line, std::string expectedName) {
+Float IO::InputParse::_extractTwoStateVal(std::string& line, const char* expectedName, const char* alternativeName) {
 
   std::string nocomment = utils::removeTrailingComment(line);
   auto        pair      = utils::splitEquals(nocomment);
   std::string name      = pair.first;
   std::string value     = pair.second;
 
-  if (name != expectedName) {
+  if (name != expectedName and name != alternativeName) {
     std::stringstream msg;
     msg << "Something wrong when parsing two-state IC file.\n";
     msg << "Expecting: `" << expectedName << "`\n";
@@ -598,7 +598,7 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
   Float rho_L = _extractTwoStateVal(line, "rho_L");
 
   std::getline(icts_ifs, line);
-  Float u_L = _extractTwoStateVal(line, "u_L");
+  Float v_L = _extractTwoStateVal(line, "u_L", "v_L");
 
   std::getline(icts_ifs, line);
   Float p_L = _extractTwoStateVal(line, "p_L");
@@ -607,16 +607,25 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
   Float rho_R = _extractTwoStateVal(line, "rho_R");
 
   std::getline(icts_ifs, line);
-  Float u_R = _extractTwoStateVal(line, "u_R");
+  Float v_R = _extractTwoStateVal(line, "u_R", "v_R");
 
   std::getline(icts_ifs, line);
   Float p_R = _extractTwoStateVal(line, "p_R");
 
+  PrimitiveState left;
+  PrimitiveState right;
 
-  std::array<Float, 2>     v_L = {u_L, 0.};
-  idealGas::PrimitiveState left(rho_L, v_L, p_L);
-  std::array<Float, 2>     v_R = {u_R, 0.};
-  idealGas::PrimitiveState right(rho_R, v_R, p_R);
+  if (Dimensions == 1){
+    left = PrimitiveState(rho_L, v_L, p_L);
+    right = PrimitiveState(rho_R, v_R, p_R);
+  }
+  else if (Dimensions == 2) {
+    left = PrimitiveState(rho_L, v_L, 0., p_L);
+    right = PrimitiveState(rho_R, v_R, 0., p_R);
+  } else {
+    error("Not Implemented.");
+  }
+
 
 
   // Now allocate and fill up the grid.
