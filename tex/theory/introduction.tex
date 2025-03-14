@@ -1,0 +1,86 @@
+% ====================================================
+\section{Introduction}
+% ====================================================
+
+
+This document serves mainly to collect and explain the equations and methods
+used to run the \hydro code. It is not intended to be an introduction to
+physics, ideal gases, numerical hydrodynamics, or anything else really. For a
+proper, extensive introduction, see e.g. \citet{toro} and \citet{leveque_2002}.
+
+For a crash-course introduction into the topic, see e.g. \citet{gearrt}. Part I
+of that document is an introduction into numerical hydrodynamics following
+mostly \citet{toro}, with lots of the maths derived on a step-by-step basis. It
+grew alongside the \codename{Mesh-Hydro}
+code\footnote{\url{https://github.com/mladenivkovic/mesh-hydro}}, which is a
+playground to learn about and experiment with numerical methods to solve
+hyperbolic conservation laws (in particular the advection equation and the Euler
+equations of ideal gases). The source files of \citet{gearrt} are also
+publicly
+available\footnote{\url{https://github.com/mladenivkovic/thesis_public}}.
+
+For general implementation details, see the accompanying document in \\
+\texttt{hydro-playground/tex/documentation}.
+
+
+
+% ====================================================
+\subsection{The Big Picture}
+% ====================================================
+
+To start with, here's some of the most important points to get you started:
+
+\begin{itemize}
+\item We're solving the Euler equations, i.e. the equations governing ideal
+    gases (Section~\ref{chap:ideal_gases}).
+\item We're solving them in 2D using Finite Volume methods.
+\item This means that we discretise (split) a 2D domain into small (2D) cells,
+    which we use to solve the equations.
+\item All cells are of equal size. The entire domain is described as a uniform
+    grid. We do not use anything remotely clever or sophisticated, such as
+    adaptive refinement etc.
+\item We solve the equations over small time intervals.
+\item We call these time intervals ``steps'' or ``time steps''.
+\item Solving the equations for all cells in a grid over a single time step is
+    called a ``simulation step''.
+\item The simulation (consecutive solution) of time steps evolves the state of
+    the gas over time.
+\item The simulation is ended once we reach our desired end time or number of
+    steps.
+\end{itemize}
+
+
+
+
+
+
+% ==============================================
+\subsection{Notation}
+% ==============================================
+
+
+We are working on numerical methods: Both space and time will be discretised.
+
+Space will be discretised in cells which will have integer indices to describe
+their position in the grid. Time will be discretised in fixed time steps, which
+may have variable lengths. Nevertheless, the time progresses step by step.
+
+The lower left corner has indices $(0, 0)$.
+% In 1D, index 0 also represents the leftmost cell.
+
+
+
+
+We have:
+\begin{itemize}
+    \item Integer subscript: Value of a quantity at the cell, i.e. the center
+        of the cell. Example: $\U_i$, $\U_{i-2}$ or $\U_{i, j+1}$ for 2D.
+    \item Non-integer subscript: Value at the cell faces, e.g. $\F_{i-\half}$ is
+        the flux at the interface between cell $i$ and $i-1$, i.e. the left
+        cell as seen from cell $i$.
+    \item Integer superscript: Indication of the time step. E.g. $\U ^ n$:
+        State at timestep $n$
+    \item Non-integer superscript: (Estimated) value of a quantity in between
+        timesteps. E.g. $\F^{n + \half}$: The flux at the middle of the time
+        between steps $n$ and $n + 1$.
+\end{itemize}

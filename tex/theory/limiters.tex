@@ -1,0 +1,124 @@
+\newpage
+%============================================================
+\section{Slope and Flux Limiters}\label{chap:limiters}
+%============================================================
+
+
+
+%===========================================
+\subsection{Why Limiters?}
+%===========================================
+
+Limiters are employed because issues arise around numerical schemes due to
+their discrete nature. For example, a non-limited piecewise linear advection
+scheme will produce oscillations around jump discontinuities. See
+\textbf{Godunov's Theorem}:
+
+
+\begin{displayquote}
+	Linear numerical schemes for solving partial differential equations
+	(PDE's), having the property of not generating new extrema (monotone
+	scheme), can be at most first-order accurate.
+\end{displayquote}
+
+
+So if we want to employ linear or higher order schemes such as the
+MUSCL-Hancock method (Section~\ref{chap:MUSCL-hancock}), we will generate new
+extrema, which induce non-physical extrema around steep gradients, in
+particular around discontinuities.
+
+A discussion how limiters do their magic is out of scope for this document. See
+the references given in the Introduction for more details.
+
+
+
+
+
+%=============================================================================
+\subsection{ Implemented Limiters} \label{chap:implemented_limiters}
+%=============================================================================
+
+% =============================================================================
+% \subsubsection{Flux limiters $\phi(r)$}
+% %=============================================================================
+%
+% Some popular (and implemented) limiters are:
+% \begin{flalign}
+% \text{Minmod}
+% 	&&\quad \phi(r) &=
+% 	\mathrm{minmod}(1, r)
+% \\
+% \text{Superbee}
+% 	&&\quad \phi(r) &= \max(0, \min(1, 2r), \min(2, r))
+% \\
+% \text{MC (monotonized cenral-difference)}
+% 	&&\quad \phi(r) &= \max(0, \min ((1+r)/2, 2, 2r))
+% \\
+% \text{van Leer}
+% 	&&\quad \phi(r) &= \frac{r + |r|}{1 + |r|}
+% \end{flalign}
+%
+% where
+%
+% \begin{align}
+% \mathrm{minmod}(a, b) =
+% 	\begin{cases}
+% 		a	& \quad \text{ if } |a| < |b| \text{ and } ab > 0\\
+% 		b	& \quad \text{ if } |a| > |b| \text{ and } ab > 0\\
+% 		0	& \quad \text{ if } ab \leq 0\\
+% 	\end{cases}
+% \end{align}
+%
+%
+
+
+
+
+
+%=============================================================================
+\subsubsection{Slope limiters $\xi(r)$}
+%=============================================================================
+
+\todo{Clear out what isn't implemented in \hydro}
+
+Some popular (and implemented) limiters are:
+\begin{flalign}
+\text{Minmod}
+	&&\quad \xi(r) &=
+	\begin{cases}
+		0, & r \leq 0\\
+		r, & 0 \leq r \leq 1\\
+		\min\{1, \xi_R(r)\}, & r \geq 1\\
+	\end{cases}
+\\
+\text{Superbee}
+	&&\quad \xi(r) &=
+	\begin{cases}
+		0, & r \leq 0\\
+		2r, & 0 \leq r \leq \frac{1}{2}\\
+		1, & \frac{1}{2} \leq r \leq 1 \\
+		\min\{r, \xi_R(r), 2\}, & r \geq 1\\
+	\end{cases}
+\\
+\text{van Leer}
+	&&\quad \xi(r) &=
+	\begin{cases}
+		0, & r \leq 0\\
+		\min\{\frac{2r}{1+r},  \xi_R(r)\}, & r \geq 0\\
+	\end{cases}
+\\
+\end{flalign}
+
+where
+
+\begin{align}
+\xi_R(r) &=
+	\frac{2}{1 - \omega + (1 + \omega) r}
+\\
+r &=
+	\frac{\U_i - \U_{i-1}}{\U_{i+1} - \U_{i}}
+	\quad\quad\quad\quad \text{for each component of }\U
+\end{align}
+
+
+
