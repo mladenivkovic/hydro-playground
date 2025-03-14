@@ -51,9 +51,34 @@ namespace timer {
 
   /**
    * @brief a small class to time code execution.
-   * Usage: Create a Timer object. Time count starts at instantiation.
-   * The timing is printed out when the object destructs, or do it manually
-   * using timer::Timer.end()
+   *
+   * Generally, the class is intended to accumulate global timings. The timings
+   * will be accumulated separately for each category defined in enum
+   * timing::Category.
+   *
+   * To start a timer, just instantiate an object with the corresponding category:
+   *
+   *   timer::Timer tick(timer::Category::SomeCategory);
+   *
+   * To end the timing, call the tock function:
+   *
+   *   tick.tock()                                  // ignoring return value
+   *   (void) tick.tock()                           // ignoring return value
+   *   std::string timing_message =  tick.tock();   // capturing timing string
+   *
+   * The return value is a string containing the timing and its units, ready to
+   * be printed out if you like.
+   *
+   * Note that if you don't call tick.tock(), the timing will nevertheless be
+   * added to the global tally once the timer object is destructed, i.e. once
+   * it leaves the stack (unless you end the measurement manually first.)
+   *
+   * If you want to measure something outside the global tally, use the
+   * timer::Category::Ignored. That's what it's indended for.
+   *
+   * The Timer class is templated for specific timing units. You can change
+   * those by specifying units when instantiating the object. See timer::units
+   * namespace for some convenience aliases.
    */
   template <typename time_units = default_time_units>
   class Timer {
