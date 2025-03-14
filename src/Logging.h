@@ -182,6 +182,13 @@ namespace logging {
    *
    * Which prints yout your messages and exits with an errorcode.
    *
+   * Finally, there is also the
+   *
+   *   timing(<msg>)
+   *
+   * function as a special case to treat all timing outputs specially,
+   * if needed.
+   *
    * You can set global verbosity levels and code stage states using the
    * convenience functions
    *
@@ -261,6 +268,21 @@ namespace logging {
 
 
     /**
+     * @brief write a timing message.
+     *
+     * @param text The message you want to print out.
+     * @param file The current file. Intended to be the (replacement of the)
+     *   __FILE__ macro.
+     * @param function The current function. Intended to be the (replacement of
+     *   the) __FUNCTION__ macro.
+     * @param line The current line in the file. Intended to be the
+     *   (replacement of the) __LINE__ macro.
+     */
+    template <AllowedMessageType T>
+    void logTiming(const T text, const char* file, const char* function, const size_t line);
+
+
+    /**
      * The function that actually constructs a message/log/warning/error
      */
     template <
@@ -274,7 +296,7 @@ namespace logging {
       const T3     file,
       const T4     function,
       const size_t line,
-      const bool   debug = false
+      const bool   debug = true
     );
 
 
@@ -369,11 +391,22 @@ constexpr void error(
   );
 }
 
+
 template <AllowedMessageType T>
 constexpr void warning(
   const T msg, const std::source_location& location = std::source_location::current()
 ) {
   logging::Log::getInstance().logWarning(
+    msg, location.file_name(), location.function_name(), location.line()
+  );
+}
+
+
+template <AllowedMessageType T>
+constexpr void timing(
+  const T msg, const std::source_location& location = std::source_location::current()
+) {
+  logging::Log::getInstance().logTiming(
     msg, location.file_name(), location.function_name(), location.line()
   );
 }
@@ -409,7 +442,7 @@ void logging::Log::logMessage(
     stext  = text;
   }
 
-  bool        debug = DEBUG_LEVEL > 0;
+  bool        debug = (DEBUG_LEVEL > 0) or (getCurrentVerbosity() >= LogLevel::Debug);
   std::string out   = constructMessage(prefix, stext, file, function, line, debug);
   std::cout << out;
 
@@ -476,6 +509,33 @@ void logging::Log::logError(
 }
 
 
+template <AllowedMessageType T>
+void logging::Log::logTiming(
+  const T text, const char* file, const char* function, const size_t line
+) {
+
+  std::string prefix;
+  std::string stext;
+
+  if (color_term) {
+    prefix += tcols::yellow;
+    prefix += "[Timing]  ";
+    prefix += tcols::reset;
+
+    stext += tcols::yellow;
+    stext += text;
+    stext += tcols::reset;
+  } else {
+    prefix = "[Timing]  ";
+    stext  = text;
+  }
+
+  bool        debug = (DEBUG_LEVEL > 0) or (getCurrentVerbosity() >= LogLevel::Debug);
+  std::string out   = constructMessage(prefix, stext, file, function, line, debug);
+  std::cerr << out;
+}
+
+
 template <AllowedMessageType T1, AllowedMessageType T2, AllowedMessageType T3, AllowedMessageType T4>
 std::string logging::Log::constructMessage(
   const T1     prefix,
@@ -492,21 +552,18 @@ std::string logging::Log::constructMessage(
   std::string locs;
 
 
-  if (color_term)
-    locs += tcols::blue;
-  locs += file_trimmed;
-  locs += ":";
-  locs += std::to_string(line);
   if (debug) {
+    if (color_term)
+      locs += tcols::blue;
+    locs += file_trimmed;
+    locs += ":";
+    locs += std::to_string(line);
     locs += " (";
     locs += func_trimmed;
     locs += "): ";
-  } else {
-    locs += ": ";
+    if (color_term)
+      locs += tcols::reset;
   }
-  if (color_term)
-    locs += tcols::reset;
-
 
   std::string out = prefix + locs;
 

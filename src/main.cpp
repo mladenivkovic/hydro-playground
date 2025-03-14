@@ -3,10 +3,14 @@
 #include "IO.h"
 #include "Logging.h"
 #include "Parameters.h"
+#include "Timer.h"
 #include "Utils.h"
 
 
 int main(int argc, char* argv[]) {
+
+  // Start timing!
+  timer::Timer tickTotal(timer::Category::Total);
 
   // Set the logging stage. We're in the header phase.
   logging::setStage(logging::LogStage::Header);
@@ -25,6 +29,7 @@ int main(int argc, char* argv[]) {
 
   // Were' in the initialisation phase now.
   logging::setStage(logging::LogStage::Init);
+  timer::Timer tickInit(timer::Category::Init);
 
   // Fire up IO
   IO::InputParse input(argc, argv);
@@ -38,8 +43,10 @@ int main(int argc, char* argv[]) {
   message("Running with parameters:", logging::LogLevel::Debug);
   message(params.toString(), logging::LogLevel::Debug);
 
+  // This is the end of the init phase.
+  (void)tickInit.tock();
+
   // Read initial conditions
-  logging::setStage(logging::LogStage::IO);
   input.readICFile(grid);
 
   std::ostringstream msg;
@@ -49,6 +56,9 @@ int main(int argc, char* argv[]) {
   logging::setStage(logging::LogStage::Step);
   writer.dump(params, grid, 0., 1);
   writer.dump(params, grid, 1., 2);
+
+  (void)tickTotal.tock();
+  timing(tickTotal.getTimings());
 
   return 0;
 }

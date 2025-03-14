@@ -28,7 +28,7 @@ target_include_directories(Grid PUBLIC "${PROJECT_BINARY_DIR}") # we need this f
 target_link_libraries(Grid Cell)
 target_link_libraries(Grid Logging)
 
-add_library(IO OBJECT IO.cpp IO.h BoundaryConditions.h)
+add_library(IO OBJECT IO.cpp IO.h BoundaryConditions.h Timer.h)
 target_include_directories(IO PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 target_link_libraries(IO Logging)
 target_link_libraries(IO Utils)
