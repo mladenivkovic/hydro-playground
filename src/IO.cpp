@@ -12,6 +12,7 @@
 #include "BoundaryConditions.h"
 #include "Gas.h"
 #include "Logging.h"
+#include "Timer.h"
 #include "Utils.h"
 
 using idealGas::PrimitiveState;
@@ -244,6 +245,9 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
  */
 void IO::InputParse::readICFile(grid::Grid& grid) {
 
+  logging::setStage(logging::LogStage::IO);
+  timer::Timer tickIC(timer::Category::IC);
+
   if (_icIsTwoState()) {
     message("Found two-state IC file.", logging::LogLevel::Verbose);
     _readTwoStateIC(grid);
@@ -252,7 +256,9 @@ void IO::InputParse::readICFile(grid::Grid& grid) {
     _readArbitraryIC(grid);
   }
 
-  message("Finished reading ICs.", logging::LogLevel::Verbose);
+  auto dt = tickIC.tock();
+
+  timing("Reading ICs took " + dt);
 }
 
 
@@ -822,6 +828,8 @@ void IO::OutputWriter::dump(
   // Change the stage we're in
   logging::LogStage prevStage = logging::getCurrentStage();
   logging::setStage(logging::LogStage::IO);
+  timer::Timer tick(timer::Category::IO);
+
 
   size_t nx = grid.getNxNorep();
   if (params.getWriteReplications()) {
@@ -866,6 +874,8 @@ void IO::OutputWriter::dump(
   message("Written output to " + fname, logging::LogLevel::Verbose);
   incNOutputsWritten();
 
+  auto delt = tick.tock();
+  timing("Writing output took " + delt);
   // change it back to where we were
   logging::setStage(prevStage);
 }
