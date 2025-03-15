@@ -200,7 +200,7 @@ inline Float idealGas::PrimitiveState::getP() const {
  * Compute the local sound speed given a primitive state
  */
 inline Float idealGas::PrimitiveState::getSoundSpeed() const {
-  return std::sqrt(GAMMA * getP() / getRho());
+  return std::sqrt(cst::GAMMA * getP() / getRho());
 }
 
 
@@ -208,7 +208,7 @@ inline Float idealGas::PrimitiveState::getSoundSpeed() const {
  * Get the total gas energy from a primitive state
  */
 inline Float idealGas::PrimitiveState::getE() const {
-  return 0.5 * getRho() * getVSquared() + getP() / GM1;
+  return 0.5 * getRho() * getVSquared() + getP() / cst::GM1;
 }
 
 

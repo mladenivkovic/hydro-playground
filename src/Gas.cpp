@@ -76,21 +76,21 @@ idealGas::PrimitiveState::PrimitiveState(
  * Overwrites the contents of this primitive state.
  */
 void idealGas::PrimitiveState::ConservedToPrimitive(const ConservedState& c) {
-  if (c.getRho() <= SMALLRHO) {
+  if (c.getRho() <= cst::SMALLRHO) {
     // execption handling for vacuum
-    setRho(SMALLRHO);
-    setV(0, SMALLU);
-    setV(1, SMALLU);
-    setP(SMALLP);
+    setRho(cst::SMALLRHO);
+    setV(0, cst::SMALLU);
+    setV(1, cst::SMALLU);
+    setP(cst::SMALLP);
   } else {
     setRho(c.getRho());
     setV(0, c.getRhov(0) / c.getRho());
     setV(1, c.getRhov(1) / c.getRho());
-    setP(GM1 * c.getE() - 0.5 * c.getRhoVSquared() / c.getRho());
+    setP(cst::GM1 * c.getE() - 0.5 * c.getRhoVSquared() / c.getRho());
 
     // handle negative pressure
-    if (getP() <= SMALLP) {
-      setP(SMALLP);
+    if (getP() <= cst::SMALLP) {
+      setP(cst::SMALLP);
     }
   }
 }
@@ -135,7 +135,7 @@ void idealGas::ConservedState::PrimitiveToConserved(const PrimitiveState& p) {
   setRho(p.getRho());
   setRhov(0, p.getRho() * p.getV(0));
   setRhov(1, p.getRho() * p.getV(1));
-  setE(0.5 * p.getRho() * p.getVSquared() + p.getP() / GM1);
+  setE(0.5 * p.getRho() * p.getVSquared() + p.getP() / cst::GM1);
 }
 
 
@@ -148,6 +148,7 @@ void idealGas::ConservedState::PrimitiveToConserved(const PrimitiveState& p) {
  * described in the "Euler equations in 2D" section of the
  * documentation TeX files.
  * That's why you need to specify the dimension.
+ *
  *
  * TODO: make sure latex documentation has these equations
  */
@@ -165,7 +166,7 @@ void idealGas::ConservedState::GetCFluxFromPstate(const PrimitiveState& p, const
   setRhov((dimension + 1) % 2, momentum_other);
 
   // gas energy
-  Float E     = 0.5 * p.getRho() * p.getVSquared() + p.getP() / GM1;
+  Float E     = 0.5 * p.getRho() * p.getVSquared() + p.getP() / cst::GM1;
   Float Eflux = (E + p.getP()) * p.getV(dimension);
   setE(Eflux);
 }
