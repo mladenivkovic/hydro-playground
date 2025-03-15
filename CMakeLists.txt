@@ -129,9 +129,9 @@ set_property(CACHE RIEMANN PROPERTY STRINGS "HLLC" "EXACT")
 message(STATUS "RIEMANN is set to: ${RIEMANN}")
 
 if(RIEMANN STREQUAL "HLLC")
-    add_definitions(-DRIEMANN=21)
+    add_definitions(-DRIEMANN_SOLVER=21)
 elseif(SOLVER STREQUAL "RIEMANN")
-    add_definitions(-DRIEMANN=22)
+    add_definitions(-DRIEMANN_SOLVER=22)
 else()
     message(FATAL_ERROR
         "Invalid RIEMANN=${RIEMANN}. "
@@ -190,7 +190,7 @@ add_subdirectory(tests)
 
 enable_testing()
 add_test(NAME logging COMMAND test_logging)
-add_test(NAME logging COMMAND test_io)
+add_test(NAME io COMMAND test_io)
 
 
 # ----------------------------------

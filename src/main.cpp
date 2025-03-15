@@ -3,6 +3,8 @@
 #include "IO.h"
 #include "Logging.h"
 #include "Parameters.h"
+#include "Solver.h"
+#include "SolverMUSCL.h"
 #include "Timer.h"
 #include "Utils.h"
 
@@ -51,6 +53,16 @@ int main(int argc, char* argv[]) {
 
   // Set boundary conditions
   grid.setBoundary();
+
+
+  solver::SolverMUSCL muscl;
+  muscl.solve(params, grid);
+  solver::SolverGodunov godunov;
+  godunov.solve(params, grid);
+  solver::Solver solver;
+  solver.solve(params, grid);
+
+
 
   std::ostringstream msg;
   msg << "Got params nx=" << params.getNx();
