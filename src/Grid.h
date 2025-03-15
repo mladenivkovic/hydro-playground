@@ -37,9 +37,6 @@ namespace grid {
     //! boundary condition
     BC::BoundaryCondition _boundaryType;
 
-    //! Initialised?
-    bool _initialised;
-
 
     /**
      * @brief get the total number of boundary cells per dimension.
@@ -52,7 +49,7 @@ namespace grid {
 
 
   public:
-    Grid();
+    explicit Grid(const parameters::Parameters& params);
     ~Grid();
 
     // The grid is never intended to be used via several instances.
@@ -65,12 +62,6 @@ namespace grid {
      */
     cell::Cell& getCell(const size_t i);
     cell::Cell& getCell(const size_t i, const size_t j);
-
-
-    /**
-     * @brief Initialise the grid.
-     */
-    void initGrid(const parameters::Parameters& pars);
 
 
     /**

@@ -14,21 +14,28 @@
 constexpr size_t grid_print_width     = 5;
 constexpr size_t grid_print_precision = 3;
 
+
 /**
- * Constructor
+ * This is mainly copying parameters from the parameters object
+ * into the grid object. The actual grid is allocated later.
+ *
+ * @param pars A Parameters object holding global simulation parameters
  */
-grid::Grid::Grid():
+grid::Grid::Grid(const parameters::Parameters& pars) :
   _cells(nullptr),
+  _nx(pars.getNx()),
+  _nx_norep(pars.getNx()),
   _dx(1.),
-  _initialised(false) {
-  // Grab default values from default Parameters object.
-  auto pars     = parameters::Parameters();
-  _nx           = pars.getNx();
-  _nx_norep     = pars.getNx();
-  _boundaryType = pars.getBoundaryType();
-  _boxsize      = pars.getBoxsize();
-  _replicate    = pars.getReplicate();
-  _nbc          = pars.getNBC();
+  _boxsize(pars.getBoxsize()),
+  _nbc(pars.getNBC()),
+  _replicate(pars.getReplicate()),
+  _boundaryType(pars.getBoundaryType())
+  {
+
+#if DEBUG_LEVEL > 0
+  if (not pars.getParamFileHasBeenRead())
+    error("Parameter file is unread; Need that at this stage!");
+#endif
 }
 
 
@@ -41,37 +48,6 @@ grid::Grid::~Grid() {
   delete[] _cells;
 }
 
-
-/**
- * @brief Initialize the grid.
- * This is mainly copying parameters from the parameters object
- * into the grid object. The actual grid is allocated later.
- *
- * @param pars A Parameters object holding global simulation parameters
- */
-void grid::Grid::initGrid(const parameters::Parameters& pars) {
-
-  message("Initialising grid parameters.", logging::LogLevel::Verbose);
-
-#if DEBUG_LEVEL > 0
-  if (not pars.getParamFileHasBeenRead())
-    error("Parameter file is unread; Need that at this stage!");
-#endif
-
-  // Copy over relevant data.
-  setNx(pars.getNx());
-  setNxNorep(pars.getNx());
-  setBoundaryType(pars.getBoundaryType());
-  setNBC(pars.getNBC());
-  setBoxsize(pars.getBoxsize());
-  setReplicate(pars.getReplicate());
-
-
-  // Mark that we did this
-  _initialised = true;
-}
-
-
 /**
  * @brief Initialize the grid.
  * This is mainly copying parameters from the parameters object
@@ -83,11 +59,6 @@ void grid::Grid::initGrid(const parameters::Parameters& pars) {
  * _cell(nxtot-1,nxtot-1) is the top-right cell
  */
 void grid::Grid::initCells() {
-
-#if DEBUG_LEVEL > 0
-  if (not _initialised)
-    error("Trying to alloc cells on uninitialised grid");
-#endif
 
   size_t nx      = getNx();
   size_t nxNorep = getNxNorep();
