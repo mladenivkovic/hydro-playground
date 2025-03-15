@@ -662,16 +662,6 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
   } else {
     error("Not implemented");
   }
-
-  // TODO: Remove this again. (after boundary check)
-  grid.printGrid(true);
-  // grid.printGrid("rho", true);
-  // grid.printGrid("vx", true);
-  // grid.printGrid("vy", true);
-  // grid.printGrid("p", true);
-  // grid.printGrid("rhovx", true);
-  // grid.printGrid("rhovy", true);
-  // grid.printGrid("e", true);
 }
 
 
@@ -791,8 +781,6 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
     grid.replicateICs();
   }
 
-  // grid.printGrid();
-  grid.printGrid("rho", true);
 }
 
 

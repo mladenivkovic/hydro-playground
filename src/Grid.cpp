@@ -8,6 +8,7 @@
 #include "Cell.h"
 #include "Logging.h"
 #include "Parameters.h"
+#include "Timer.h"
 
 
 constexpr size_t grid_print_width     = 5;
@@ -35,8 +36,7 @@ grid::Grid::Grid():
  * Destructor
  */
 grid::Grid::~Grid() {
-  if (_cells == nullptr)
-    error("Where did the cells array go??");
+  if (_cells == nullptr) error("Where did the cells array go??");
   delete[] _cells;
 }
 
@@ -121,7 +121,7 @@ void grid::Grid::initCells() {
       cell::Cell& c = getCell(i);
       Float       x = (static_cast<Float>(i - first) + 0.5) * dx;
       c.setX(x);
-      c.setId(i);
+      // c.setId(i);
     }
 
   } else if (Dimensions == 2) {
@@ -138,7 +138,7 @@ void grid::Grid::initCells() {
         Float       y = (static_cast<Float>(j - first) + 0.5) * dx;
         c.setX(x);
         c.setY(y);
-        c.setId(i + j * nxTot);
+        // c.setId(i + j * nxTot);
       }
     }
   } else {
@@ -154,7 +154,7 @@ void grid::Grid::initCells() {
   constexpr size_t prec = 3;
   constexpr size_t wid  = 10;
 
-  Float gridsize = static_cast<Float>(total_cells) * static_cast<Float>(sizeof(cell::Cell));
+  auto gridsize = static_cast<Float>(total_cells * sizeof(cell::Cell));
   std::stringstream msg;
   msg << "Grid memory takes [";
   msg << std::setprecision(prec) << std::setw(wid) << gridsize / KB << " KB /";
@@ -179,6 +179,8 @@ void grid::Grid::replicateICs() {
     warning("Called IC replication with replicate <=1? Skipping it.");
     return;
   }
+
+  timer::Timer tick(timer::Category::Ignore);
 
 
   printGrid("rho");
@@ -229,8 +231,7 @@ void grid::Grid::replicateICs() {
   }
 
 
-  // TODO: Make a timer out of this.
-  message("Finished replicating grid.");
+  timing("Replicating grid took" + tick.tock());
 }
 
 
@@ -323,7 +324,7 @@ void grid::Grid::getPStatesFromCstates() {
 }
 
 /**
- * enforce boundary conditions.
+ * @brief enforce boundary conditions.
  * This function only picks out the pairs of real
  * and ghost cells in a row or column and then
  * calls the function that actually copies the data.
@@ -331,49 +332,52 @@ void grid::Grid::getPStatesFromCstates() {
 void grid::Grid::setBoundary() {
 
   const size_t nbc   = getNBC();
-  const size_t nx    = getNx();
-  const size_t bctot = _getNBCTot();
+  const size_t firstReal = getFirstCellIndex();
+  const size_t lastReal = getLastCellIndex();
 
-  // Make space to store pointers to real and ghost cells.
+  // Make some space.
   std::vector<cell::Cell*> realLeft(nbc);
   std::vector<cell::Cell*> realRight(nbc);
   std::vector<cell::Cell*> ghostLeft(nbc);
   std::vector<cell::Cell*> ghostRight(nbc);
 
-  // doesn't look like we will need this code often. so avoid hacky stuff
   if (Dimensions == 1) {
-    for (size_t i = 0; i < nbc; i++) {
-      realLeft[i]   = &(getCell(nbc + i));
-      realRight[i]  = &(getCell(nx + i)); // = last index of a real cell = BC + (i + 1)
+    for (size_t i = 0; i < firstReal; i++) {
+      realLeft[i]   = &(getCell(firstReal + i));
+      realRight[i]  = &(getCell(lastReal - firstReal + i));
       ghostLeft[i]  = &(getCell(i));
-      ghostRight[i] = &(getCell(nx + nbc + i));
+      ghostRight[i] = &(getCell(lastReal + i));
     }
     realToGhost(realLeft, realRight, ghostLeft, ghostRight);
   }
 
   else if (Dimensions == 2) {
+
     // left-right boundaries
-    for (size_t j = 0; j < nx + bctot; j++) {
-      for (size_t i = 0; i < nbc; i++) {
-        realLeft[i]   = &(getCell(nbc + i, j));
-        realRight[i]  = &(getCell(nx + i, j));
+    for (size_t j = firstReal; j < lastReal; j++) {
+      for (size_t i = 0; i < firstReal; i++) {
+        realLeft[i]   = &(getCell(firstReal + i, j));
+        realRight[i]  = &(getCell(lastReal - firstReal + i, j));
         ghostLeft[i]  = &(getCell(i, j));
-        ghostRight[i] = &(getCell(nx + nbc + i, j));
+        ghostRight[i] = &(getCell(lastReal + i, j));
       }
       realToGhost(realLeft, realRight, ghostLeft, ghostRight, 0);
     }
-  }
 
-  // upper-lower boundaries
-  // left -> lower, right -> upper
-  for (size_t i = 0; i < nx + bctot; i++) {
-    for (size_t j = 0; j < nbc; j++) {
-      realLeft[j]   = &(getCell(i, nbc + j));
-      realRight[j]  = &(getCell(i, nx + j));
-      ghostLeft[j]  = &(getCell(i, j));
-      ghostRight[j] = &(getCell(i, nx + nbc + j));
+    // upper-lower boundaries
+    // left -> lower, right -> upper
+    for (size_t i = firstReal; i < lastReal; i++) {
+      for (size_t j = 0; j < firstReal; j++) {
+        realLeft[j]   = &(getCell(i, firstReal + j));
+        realRight[j]  = &(getCell(i, lastReal - firstReal + j));
+        ghostLeft[j]  = &(getCell(i, j));
+        ghostRight[j] = &(getCell(i, lastReal + j));
+      }
+      realToGhost(realLeft, realRight, ghostLeft, ghostRight, 1);
     }
-    realToGhost(realLeft, realRight, ghostLeft, ghostRight, 1);
+  }
+  else {
+    error("Not implemented.");
   }
 }
 
@@ -399,31 +403,46 @@ void grid::Grid::realToGhost(
   const size_t             dimension
 ) // dimension defaults to 0
 {
+
   size_t nbc = getNBC();
 
+#if DEBUG_LEVEL > 0
+  assert(realLeft.size() == nbc);
+  assert(realRight.size() == nbc);
+  assert(ghostLeft.size() == nbc);
+  assert(ghostRight.size() == nbc);
+#endif
+
+
   switch (getBoundaryType()) {
-  case BC::BoundaryCondition::Periodic: {
-    for (size_t i = 0; i < nbc; i++) {
-      ghostLeft[i]->CopyBoundaryData(realLeft[i]);
-      ghostRight[i]->CopyBoundaryData(realRight[i]);
-    }
-  } break;
+    case BC::BoundaryCondition::Periodic:
+      for (size_t i = 0; i < nbc; i++) {
+        ghostLeft[i]->CopyBoundaryData(realRight[i]);
+        ghostRight[i]->CopyBoundaryData(realLeft[i]);
+      }
+      break;
 
-  case BC::BoundaryCondition::Reflective: {
-    for (size_t i = 0; i < nbc; i++) {
-      ghostLeft[i]->CopyBoundaryDataReflective(realLeft[i], dimension);
-      ghostRight[i]->CopyBoundaryDataReflective(realRight[i], dimension);
-    }
-  } break;
+    case BC::BoundaryCondition::Reflective:
+      for (size_t i = 0; i < nbc; i++) {
+        ghostLeft[i]->CopyBoundaryDataReflective(realLeft[realLeft.size() - i - 1], dimension);
+        ghostRight[i]->CopyBoundaryDataReflective(realRight[realRight.size() - i - 1], dimension);
+      }
+      break;
 
-  case BC::BoundaryCondition::Transmissive: {
-    for (size_t i = 0; i < nbc; i++) {
-      ghostLeft[i]->CopyBoundaryData(realLeft[i]);
+    case BC::BoundaryCondition::Transmissive:
+      for (size_t i = 0; i < nbc; i++) {
+        ghostLeft[i]->CopyBoundaryData(realLeft[realLeft.size() - i - 1]);
+        ghostRight[i]->CopyBoundaryData(realRight[realRight.size() - i - 1]);
+      }
+      break;
 
-      // assumption that this vector has length "bc".
-      ghostRight[i]->CopyBoundaryData(realRight[nbc - i - 1]);
-    }
-  } break;
+    default:
+      std::stringstream msg;
+      msg << "Treatment for boundary conditions of type ";
+      msg << BC::getBoundaryConditionName(getBoundaryType());
+      msg << " not defined.";
+      error(msg.str());
+      break;
   }
 }
 
@@ -551,7 +570,8 @@ void grid::Grid::printGrid(const char* quantity, bool boundaries) {
   if (Dimensions == 1) {
 
     for (size_t i = start; i < end; i++) {
-      out << std::setw(w) << std::setprecision(p) << getCell(i).getQuanityForPrintout(quantity);
+      out << std::setw(w) << std::setprecision(p);
+      out << getCell(i).getQuantityForPrintout(quantity);
 
       bool at_boundary = (i == first - 1) or (i == last - 1);
       if (boundaries and at_boundary) {
@@ -571,8 +591,8 @@ void grid::Grid::printGrid(const char* quantity, bool boundaries) {
     for (int j = end - 1; j >= 0; j--) {
 
       for (size_t i = start; i < end; i++) {
-        out
-          << std::setw(w) << std::setprecision(p) << getCell(i, j).getQuanityForPrintout(quantity);
+        out << std::setw(w) << std::setprecision(p);
+        out << getCell(i, j).getQuantityForPrintout(quantity);
 
         bool at_boundary = (i == first - 1) or (i == last - 1);
         if (boundaries and at_boundary) {

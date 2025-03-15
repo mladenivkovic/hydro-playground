@@ -72,12 +72,12 @@ message("* Current build type is : ${CMAKE_BUILD_TYPE}")
 # Options
 # ---------------------------
 
-option(TERMINAL_COLOR "Enable colour logging outputs" ON)
-if (TERMINAL_COLOR)
+option(TERMINAL_COLORS "Enable colour logging outputs" ON)
+if (TERMINAL_COLORS)
     add_definitions(-DTERMINAL_COLORS)
-endif(TERMINAL_COLOR)
+endif(TERMINAL_COLORS)
 
-message(STATUS "TERMINAL_COLOR is set to: ${TERMINAL_COLOR}")
+message(STATUS "TERMINAL_COLORS is set to: ${TERMINAL_COLORS}")
 
 
 set(PRECISION "DOUBLE" CACHE STRING "Set floating point precision (SINGLE DOUBLE)")

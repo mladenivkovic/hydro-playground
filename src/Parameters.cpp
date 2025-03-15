@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <iostream>
 
+#include "BoundaryConditions.h"
 #include "Logging.h"
 
 
@@ -120,7 +121,7 @@ namespace parameters {
     out << std::setw(width) << "Ccfl:";
     out << std::setw(width) << getCcfl() << "\n";
     out << std::setw(width) << "boundaryType:";
-    out << std::setw(width) << static_cast<int>(getBoundaryType()) << "\n";
+    out << std::setw(width) << BC::getBoundaryConditionName(getBoundaryType()) << "\n";
     out << std::setw(width) << "boxsize:";
     out << std::setw(width) << getBoxsize() << "\n";
     out << std::setw(width) << "nbc:";

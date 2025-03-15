@@ -49,6 +49,9 @@ int main(int argc, char* argv[]) {
   // Read initial conditions
   input.readICFile(grid);
 
+  // Set boundary conditions
+  grid.setBoundary();
+
   std::ostringstream msg;
   msg << "Got params nx=" << params.getNx();
   message(msg.str());
