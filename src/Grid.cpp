@@ -36,7 +36,8 @@ grid::Grid::Grid():
  * Destructor
  */
 grid::Grid::~Grid() {
-  if (_cells == nullptr) error("Where did the cells array go??");
+  if (_cells == nullptr)
+    error("Where did the cells array go??");
   delete[] _cells;
 }
 
@@ -154,7 +155,7 @@ void grid::Grid::initCells() {
   constexpr size_t prec = 3;
   constexpr size_t wid  = 10;
 
-  auto gridsize = static_cast<Float>(total_cells * sizeof(cell::Cell));
+  auto              gridsize = static_cast<Float>(total_cells * sizeof(cell::Cell));
   std::stringstream msg;
   msg << "Grid memory takes [";
   msg << std::setprecision(prec) << std::setw(wid) << gridsize / KB << " KB /";
@@ -331,9 +332,9 @@ void grid::Grid::getPStatesFromCstates() {
  */
 void grid::Grid::setBoundary() {
 
-  const size_t nbc   = getNBC();
+  const size_t nbc       = getNBC();
   const size_t firstReal = getFirstCellIndex();
-  const size_t lastReal = getLastCellIndex();
+  const size_t lastReal  = getLastCellIndex();
 
   // Make some space.
   std::vector<cell::Cell*> realLeft(nbc);
@@ -375,8 +376,7 @@ void grid::Grid::setBoundary() {
       }
       realToGhost(realLeft, realRight, ghostLeft, ghostRight, 1);
     }
-  }
-  else {
+  } else {
     error("Not implemented.");
   }
 }
@@ -415,34 +415,34 @@ void grid::Grid::realToGhost(
 
 
   switch (getBoundaryType()) {
-    case BC::BoundaryCondition::Periodic:
-      for (size_t i = 0; i < nbc; i++) {
-        ghostLeft[i]->CopyBoundaryData(realRight[i]);
-        ghostRight[i]->CopyBoundaryData(realLeft[i]);
-      }
-      break;
+  case BC::BoundaryCondition::Periodic:
+    for (size_t i = 0; i < nbc; i++) {
+      ghostLeft[i]->CopyBoundaryData(realRight[i]);
+      ghostRight[i]->CopyBoundaryData(realLeft[i]);
+    }
+    break;
 
-    case BC::BoundaryCondition::Reflective:
-      for (size_t i = 0; i < nbc; i++) {
-        ghostLeft[i]->CopyBoundaryDataReflective(realLeft[realLeft.size() - i - 1], dimension);
-        ghostRight[i]->CopyBoundaryDataReflective(realRight[realRight.size() - i - 1], dimension);
-      }
-      break;
+  case BC::BoundaryCondition::Reflective:
+    for (size_t i = 0; i < nbc; i++) {
+      ghostLeft[i]->CopyBoundaryDataReflective(realLeft[realLeft.size() - i - 1], dimension);
+      ghostRight[i]->CopyBoundaryDataReflective(realRight[realRight.size() - i - 1], dimension);
+    }
+    break;
 
-    case BC::BoundaryCondition::Transmissive:
-      for (size_t i = 0; i < nbc; i++) {
-        ghostLeft[i]->CopyBoundaryData(realLeft[realLeft.size() - i - 1]);
-        ghostRight[i]->CopyBoundaryData(realRight[realRight.size() - i - 1]);
-      }
-      break;
+  case BC::BoundaryCondition::Transmissive:
+    for (size_t i = 0; i < nbc; i++) {
+      ghostLeft[i]->CopyBoundaryData(realLeft[realLeft.size() - i - 1]);
+      ghostRight[i]->CopyBoundaryData(realRight[realRight.size() - i - 1]);
+    }
+    break;
 
-    default:
-      std::stringstream msg;
-      msg << "Treatment for boundary conditions of type ";
-      msg << BC::getBoundaryConditionName(getBoundaryType());
-      msg << " not defined.";
-      error(msg.str());
-      break;
+  default:
+    std::stringstream msg;
+    msg << "Treatment for boundary conditions of type ";
+    msg << BC::getBoundaryConditionName(getBoundaryType());
+    msg << " not defined.";
+    error(msg.str());
+    break;
   }
 }
 

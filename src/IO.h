@@ -97,7 +97,9 @@ namespace IO {
     bool _icIsTwoState();
 
     //! Get a pair of name, value from a parameter line
-    Float _extractTwoStateVal(std::string& line, const char* expectedName, const char* alternativeName = "");
+    Float _extractTwoStateVal(
+      std::string& line, const char* expectedName, const char* alternativeName = ""
+    );
 
     //! Extract a primitive state from a line of an arbitary-type IC file
     idealGas::PrimitiveState _extractArbitraryICVal(std::string& line, size_t linenr);

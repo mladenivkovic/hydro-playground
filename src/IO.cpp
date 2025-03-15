@@ -477,7 +477,9 @@ bool IO::InputParse::_icIsTwoState() {
 /**
  * Extract the value from a single line of the two-state IC file.
  */
-Float IO::InputParse::_extractTwoStateVal(std::string& line, const char* expectedName, const char* alternativeName) {
+Float IO::InputParse::_extractTwoStateVal(
+  std::string& line, const char* expectedName, const char* alternativeName
+) {
 
   std::string nocomment = utils::removeTrailingComment(line);
   auto        pair      = utils::splitEquals(nocomment);
@@ -615,17 +617,15 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
   PrimitiveState left;
   PrimitiveState right;
 
-  if (Dimensions == 1){
-    left = PrimitiveState(rho_L, v_L, p_L);
+  if (Dimensions == 1) {
+    left  = PrimitiveState(rho_L, v_L, p_L);
     right = PrimitiveState(rho_R, v_R, p_R);
-  }
-  else if (Dimensions == 2) {
-    left = PrimitiveState(rho_L, v_L, 0., p_L);
+  } else if (Dimensions == 2) {
+    left  = PrimitiveState(rho_L, v_L, 0., p_L);
     right = PrimitiveState(rho_R, v_R, 0., p_R);
   } else {
     error("Not Implemented.");
   }
-
 
 
   // Now allocate and fill up the grid.
@@ -780,7 +780,6 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
   if (grid.getReplicate() > 1) {
     grid.replicateICs();
   }
-
 }
 
 

@@ -45,7 +45,6 @@ namespace cell {
     idealGas::ConservedState _cflux;
 
   public:
-
     //! Set cell centre position X,Y
     void                setX(const Float x);
     [[nodiscard]] Float getX() const;

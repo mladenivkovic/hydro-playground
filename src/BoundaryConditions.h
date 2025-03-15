@@ -18,20 +18,20 @@ namespace BC {
 
 
   //! Get a name for your boundary condition.
-  inline const char* getBoundaryConditionName(const enum BoundaryCondition bc){
+  inline const char* getBoundaryConditionName(const enum BoundaryCondition bc) {
 
-    switch(bc){
-      case BoundaryCondition::Periodic:
-        return "Periodic";
-      case BoundaryCondition::Reflective:
-        return "Reflective";
-      case BoundaryCondition::Transmissive:
-        return "Transmissive";
-      case Count:
-        return "Count";
-      case BoundaryCondition::Undefined:
-      default:
-        return "Undefined";
+    switch (bc) {
+    case BoundaryCondition::Periodic:
+      return "Periodic";
+    case BoundaryCondition::Reflective:
+      return "Reflective";
+    case BoundaryCondition::Transmissive:
+      return "Transmissive";
+    case Count:
+      return "Count";
+    case BoundaryCondition::Undefined:
+    default:
+      return "Undefined";
     }
   }
 
