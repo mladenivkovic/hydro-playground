@@ -6,6 +6,10 @@
 
 #include "SolverGodunov.h"
 
+solver::SolverGodunov::SolverGodunov(parameters::Parameters& params_, grid::Grid& grid_) :
+  SolverBase(params_, grid_){}
+
+
 //! Run a single step.
 void solver::SolverGodunov::step() {
 

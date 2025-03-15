@@ -15,7 +15,7 @@ namespace solver {
 
   public:
 
-    SolverGodunov() = default;
+    SolverGodunov(parameters::Parameters& params_, grid::Grid& grid_);
     ~SolverGodunov() = default;
 
     //! Run a single step.

@@ -4,7 +4,6 @@
 #include "Logging.h"
 #include "Parameters.h"
 #include "Solver.h"
-#include "SolverMUSCL.h"
 #include "Timer.h"
 #include "Utils.h"
 
@@ -24,7 +23,6 @@ int main(int argc, char* argv[]) {
   // Get a handle on global vars so they're always in scope
   auto params = parameters::Parameters();
   auto grid   = grid::Grid();
-  auto writer = IO::OutputWriter();
 
   // Useless things first :)
   utils::printHeader();
@@ -54,26 +52,17 @@ int main(int argc, char* argv[]) {
   // Set boundary conditions
   grid.setBoundary();
 
+  // Launch the solver.
+  solver::Solver solver(params, grid);
+  solver.solve();
 
-  solver::SolverMUSCL muscl;
-  muscl.solve(params, grid);
-  solver::SolverGodunov godunov;
-  godunov.solve(params, grid);
-  solver::Solver solver;
-  solver.solve(params, grid);
-
-
-
-  std::ostringstream msg;
-  msg << "Got params nx=" << params.getNx();
-  message(msg.str());
-
-  logging::setStage(logging::LogStage::Step);
-  writer.dump(params, grid, 0., 1);
-  writer.dump(params, grid, 1., 2);
+  // Wrapup
+  logging::setStage(logging::LogStage::Shutdown);
+  message("Done. Bye!");
 
   (void)tickTotal.tock();
-  timing(tickTotal.getTimings());
+  // Use message intead of timing here: Always print timing at the end.
+  message(tickTotal.getTimings());
 
   return 0;
 }

@@ -17,7 +17,7 @@ namespace solver {
 
   public:
 
-    SolverMUSCL() = default;
+    SolverMUSCL(parameters::Parameters& params_, grid::Grid& grid_);
     ~SolverMUSCL() = default;
 
     //! Run a single step.

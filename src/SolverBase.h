@@ -26,14 +26,22 @@ namespace solver {
     //! Current step
     size_t stepCount;
 
+    //! Reference to runtime parameters
+    parameters::Parameters& params;
+
+    //! Reference to the grid.
+    grid::Grid& grid;
+
+    //! Compute current time step size.
+    void computeDt();
 
   public:
 
-    SolverBase();
+    SolverBase(parameters::Parameters& params_, grid::Grid& grid_);
     ~SolverBase() = default;
 
     //! Call the actual solver.
-    void solve(parameters::Parameters& params, grid::Grid& grid);
+    void solve();
 
     //! Run a single step.
     virtual void step(){
