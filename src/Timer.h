@@ -60,6 +60,9 @@ namespace timer {
    *
    *   timer::Timer tick(timer::Category::SomeCategory);
    *
+   * The category corresponds to the total global timing accumulation. If you
+   * don't want the timing to be counted globally, use the Category::Ignore.
+   *
    * To end the timing, call the tock function:
    *
    *   tick.tock()                                  // ignoring return value
