@@ -1,4 +1,5 @@
 #include "SolverBase.h"
+#include "IO.h"
 #include "Logging.h"
 
 
@@ -19,6 +20,10 @@ solver::SolverBase::SolverBase():
 void solver::SolverBase::solve(parameters::Parameters& params, grid::Grid& grid){
 
   logging::setStage(logging::LogStage::Step);
+
+  auto writer = IO::OutputWriter();
+
+
 
   std::cout << "Called solve \n";
 

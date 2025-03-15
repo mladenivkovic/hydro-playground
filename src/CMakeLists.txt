@@ -4,13 +4,13 @@
 add_library(Version OBJECT "${CMAKE_BINARY_DIR}/Version.cpp" Version.h)
 target_include_directories(Version PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
-add_library(Logging OBJECT Logging.cpp Logging.h Termcolors.h)
+add_library(Logging OBJECT Logging.cpp Logging.h)
 target_include_directories(Logging PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 
 add_library(Parameters OBJECT Parameters.cpp Parameters.h BoundaryConditions.h)
 target_include_directories(Parameters PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 
-add_library(Utils OBJECT Utils.cpp Utils.h Termcolors.h)
+add_library(Utils OBJECT Utils.cpp Utils.h)
 target_include_directories(Utils PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 target_link_libraries(Utils Version)
 target_link_libraries(Utils Logging)
@@ -36,8 +36,9 @@ target_link_libraries(IO Utils)
 add_library(SolverBase OBJECT Solver.h SolverBase.h SolverBase.cpp)
 target_include_directories(SolverBase PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 target_link_libraries(SolverBase Grid)
-target_link_libraries(SolverBase Parameters)
+target_link_libraries(SolverBase IO)
 target_link_libraries(SolverBase Logging)
+target_link_libraries(SolverBase Parameters)
 
 add_library(SolverMUSCL OBJECT Solver.h SolverMUSCL.h SolverMUSCL.cpp)
 target_include_directories(SolverMUSCL PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h

@@ -12,9 +12,9 @@
 
 namespace riemann {
 
-#if RIEMANN == RIEMANN_SOLVER_HLLC
+#if RIEMANN_SOLVER == RIEMANN_SOLVER_HLLC
   using Riemann = RiemannHLLC;
-#elif RIEMANN == RIEMANN_SOLVER_EXACT
+#elif RIEMANN_SOLVER == RIEMANN_SOLVER_EXACT
   using Riemann = RiemannExact;
 #else
 #error Invalid Riemann solver selected
