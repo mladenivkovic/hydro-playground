@@ -36,7 +36,14 @@ namespace timer {
     Init = 0,
     IC,
     Step,
+    SolverTot,
+    Riemann,
     IO,
+    BoundaryConditions,
+    Convert,
+    Reset,
+    CollectDt,
+    CollectMass,
     Total,
     Ignore,
     Count
@@ -204,8 +211,22 @@ inline const char* timer::getTimerName(Category t) {
     return "Initial Conditions";
   case Category::Step:
     return "Step";
+  case Category::SolverTot:
+    return "Solver (Total)";
+  case Category::Riemann:
+    return "Riemann";
   case Category::IO:
     return "I/O";
+  case Category::BoundaryConditions:
+    return "Boundary Conditions";
+  case Category::Convert:
+    return "State Conversions";
+  case Category::Reset:
+    return "Resetting";
+  case Category::CollectDt:
+    return "Collect Timestep";
+  case Category::CollectMass:
+    return "Collect Mass";
   case Category::Total:
     return "Total";
   case Category::Ignore:

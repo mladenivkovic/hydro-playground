@@ -21,19 +21,19 @@ constexpr size_t grid_print_precision = 3;
  *
  * @param pars A Parameters object holding global simulation parameters
  */
-grid::Grid::Grid(const parameters::Parameters& pars) :
+grid::Grid::Grid(const parameters::Parameters& params) :
   _cells(nullptr),
-  _nx(pars.getNx()),
-  _nx_norep(pars.getNx()),
+  _nx(params.getNx()),
+  _nx_norep(params.getNx()),
   _dx(1.),
-  _boxsize(pars.getBoxsize()),
-  _nbc(pars.getNBC()),
-  _replicate(pars.getReplicate()),
-  _boundaryType(pars.getBoundaryType())
+  _boxsize(params.getBoxsize()),
+  _nbc(params.getNBC()),
+  _replicate(params.getReplicate()),
+  _boundaryType(params.getBoundaryType())
   {
 
 #if DEBUG_LEVEL > 0
-  if (not pars.getParamFileHasBeenRead())
+  if (not params.getParamFileHasBeenRead())
     error("Parameter file is unread; Need that at this stage!");
 #endif
 }
@@ -48,6 +48,7 @@ grid::Grid::~Grid() {
   delete[] _cells;
 }
 
+
 /**
  * @brief Initialize the grid.
  * This is mainly copying parameters from the parameters object
@@ -59,6 +60,10 @@ grid::Grid::~Grid() {
  * _cell(nxtot-1,nxtot-1) is the top-right cell
  */
 void grid::Grid::initCells() {
+
+  message("Initialising cells.", logging::LogLevel::Debug);
+  timer::Timer tick(timer::Category::Reset);
+
 
   size_t nx      = getNx();
   size_t nxNorep = getNxNorep();
@@ -135,6 +140,7 @@ void grid::Grid::initCells() {
   msg << " for " << total_cells << " cells";
 
   message(msg.str());
+  timing("Initialising grid took " + tick.tock());
 }
 
 
@@ -152,6 +158,8 @@ void grid::Grid::replicateICs() {
     return;
   }
 
+  // Ignore timing here:
+  // Timer for global IC duration is already set up above in call stack
   timer::Timer tick(timer::Category::Ignore);
 
 
@@ -210,7 +218,11 @@ void grid::Grid::replicateICs() {
 /**
  * @brief get the total mass of the grid.
  */
-Float grid::Grid::getTotalMass() {
+Float grid::Grid::collectTotalMass() {
+
+  timer::Timer tick(timer::Category::CollectMass);
+  message("Collecting total mass in grid.", logging::LogLevel::Debug);
+
 
   Float  total = 0;
   size_t bc    = getNBC();
@@ -233,6 +245,10 @@ Float grid::Grid::getTotalMass() {
 
     total *= getDx() * getDx();
   }
+
+
+  message("Collecting total mass in grid took" + tick.tock());
+
   return total;
 }
 
@@ -241,6 +257,8 @@ Float grid::Grid::getTotalMass() {
  * Reset all fluxes of the grid (both primitive and conservative) to zero.
  */
 void grid::Grid::resetFluxes() {
+
+  timer::Timer tick(timer::Category::Reset);
 
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
   size_t         nbc  = getNBC();
@@ -253,6 +271,8 @@ void grid::Grid::resetFluxes() {
       getCell(i, j).getCons().clear();
     }
   }
+
+  timing("Resetting fluxes took" + tick.tock());
 }
 
 
@@ -261,6 +281,8 @@ void grid::Grid::resetFluxes() {
  * on each.
  */
 void grid::Grid::getCStatesFromPstates() {
+
+  timer::Timer tick(timer::Category::Convert);
 
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
 
@@ -273,6 +295,8 @@ void grid::Grid::getCStatesFromPstates() {
       getCell(i, j).PrimitiveToConserved();
     }
   }
+
+  timing("Converting primitive to conserved vars took" + tick.tock());
 }
 
 
@@ -281,6 +305,8 @@ void grid::Grid::getCStatesFromPstates() {
  * on each.
  */
 void grid::Grid::getPStatesFromCstates() {
+
+  timer::Timer tick(timer::Category::Convert);
 
   constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
 
@@ -293,7 +319,10 @@ void grid::Grid::getPStatesFromCstates() {
       getCell(i, j).ConservedToPrimitive();
     }
   }
+
+  timing("Converting conserved to primitive vars took" + tick.tock());
 }
+
 
 /**
  * @brief enforce boundary conditions.
@@ -301,7 +330,10 @@ void grid::Grid::getPStatesFromCstates() {
  * and ghost cells in a row or column and then
  * calls the function that actually copies the data.
  */
-void grid::Grid::setBoundary() {
+void grid::Grid::applyBoundaryConditions() {
+
+  timer::Timer tick(timer::Category::BoundaryConditions);
+  message("Applying boundary conditions.", logging::LogLevel::Debug);
 
   const size_t nbc       = getNBC();
   const size_t firstReal = getFirstCellIndex();
@@ -350,6 +382,8 @@ void grid::Grid::setBoundary() {
   } else {
     error("Not implemented.");
   }
+
+  timing("Applying boundary conditions took " + tick.tock());
 }
 
 
@@ -588,3 +622,4 @@ void grid::Grid::printGrid(const char* quantity, bool boundaries) {
 
   std::cout << out.str() << "\n";
 }
+

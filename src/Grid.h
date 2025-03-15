@@ -73,7 +73,7 @@ namespace grid {
     /**
      * @brief get the total mass of the grid.
      */
-    Float getTotalMass();
+    Float collectTotalMass();
 
 
     /**
@@ -94,8 +94,8 @@ namespace grid {
     void resetFluxes();
 
 
-    //! enforce boundary conditions.
-    void setBoundary();
+    //! Apply boundary conditions.
+    void applyBoundaryConditions();
 
 
     //! Apply the boundary conditions from real to ghost cells.
