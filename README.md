@@ -177,7 +177,20 @@ Currently available build options are:
 
 - `-DTERMINAL_COLORS=ON`: Enable coloured output to `stdout` and `stderr` on terminals.
 
+- `-DSOLVER=` [`MUSCL`, `GODUNOV`]: (Default=`MUSCL`)
+  - Select hydrodynamics solver.
+  - `MUSCL`: MUSCL-Hancock solver (second order accurate)
+  - `GODUNOV`: Godunov solver (first order accurate)
 
+- `-DRIEMANN=` [`HLLC`, `EXACT`]: (Default=`HLLC`)
+  - Select Riemann solver.
+  - `HLLC`: Harten-Lax-van Leer with central wave (approximate solver)
+  - `EXACT`: Exact Riemann solver.
+
+- `-DLIMITER=` [`MINMOD`, `VANLEER`]: (Default = `VANLEER`):
+  - Select slope limiter for MUSCL-Hancock solver.
+  - `MINMOD`: Minmod limiter.
+  - `EXACT`: Exact Riemann solver.
 
 
 

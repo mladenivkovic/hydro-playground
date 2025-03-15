@@ -246,6 +246,24 @@ Currently available build options are:
 \item \verb|-DTERMINAL_COLORS=ON| :
     Enable coloured output to \jargon{stdout} and \jargon{stderr} on terminals.
 
+
+- \verb|-DSOLVER=| [\verb|MUSCL|, \verb|GODUNOV|]: (Default=\verb|MUSCL|)
+  - Select hydrodynamics solver.
+  - \verb|MUSCL|: MUSCL-Hancock solver (second order accurate)
+  - \verb|GODUNOV|: Godunov solver (first order accurate)
+
+- \verb|-DRIEMANN=| [\verb|HLLC|, \verb|EXACT|]: (Default=\verb|HLLC|)
+  - Select Riemann solver.
+  - \verb|HLLC|: Harten-Lax-van Leer with central wave (approximate solver)
+  - \verb|EXACT|: Exact Riemann solver.
+
+- \verb|-DLIMITER=| [\verb|MINMOD|, \verb|VANLEER|]: (Default = \verb|VANLEER|):
+  - Select slope limiter for MUSCL-Hancock solver.
+  - \verb|MINMOD|: Minmod limiter.
+  - \verb|EXACT|: Exact Riemann solver.
+
+
+
 \end{itemize}
 
 
