@@ -18,24 +18,30 @@ namespace riemann {
     protected:
 
       //! The left state
-      idealGas::PrimitiveState& left;
+      idealGas::PrimitiveState& _left;
 
       //! The right state
-      idealGas::PrimitiveState& right;
+      idealGas::PrimitiveState& _right;
 
       //! Star state pressure
-      Float pstar;
+      Float _pstar;
 
       //! Star state velocity
-      Float vstar;
+      Float _vstar;
+
+      //! In which dimension/direction to solve the problem.
+      size_t _dim;
 
       //! Do we have vacuum generating conditions?
-      bool hasVacuum(size_t dimension);
+      bool hasVacuum();
+
+      //! Get the vacuum solution
+      idealGas::PrimitiveState solveVacuum();
 
 
   public:
 
-    RiemannBase(idealGas::PrimitiveState& l, idealGas::PrimitiveState& r) : left(l), right(r){};
+    RiemannBase(idealGas::PrimitiveState& l, idealGas::PrimitiveState& r, const size_t dimension) : _left(l), _right(r), _dim(dimension){};
     ~RiemannBase() = default;
 
     //! Call the actual solver.

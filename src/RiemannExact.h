@@ -1,6 +1,6 @@
 /**
- * @file RiemannBase.h
- * @brief Base class for Riemann solvers.
+ * @file RiemannExact.h
+ * @brief The exact Riemann solver.
  */
 
 #pragma once
@@ -9,7 +9,9 @@
 
 namespace riemann {
 
-
+  /**
+   * The Exact riemann solver.
+   */
   class RiemannExact : public RiemannBase {
 
     protected:
@@ -17,7 +19,7 @@ namespace riemann {
 
   public:
 
-    RiemannExact(idealGas::PrimitiveState& l, idealGas::PrimitiveState& r) : RiemannBase(l, r){};
+    RiemannExact(idealGas::PrimitiveState& l, idealGas::PrimitiveState& r, const size_t dimension) : RiemannBase(l, r, dimension){};
     ~RiemannExact() = default;
 
     //! Call the actual solver.

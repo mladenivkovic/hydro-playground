@@ -20,14 +20,11 @@ namespace riemann {
 
   public:
 
-    RiemannHLLC(idealGas::PrimitiveState& l, idealGas::PrimitiveState& r) : RiemannBase(l, r){};
+    RiemannHLLC(idealGas::PrimitiveState& l, idealGas::PrimitiveState& r, const size_t dimension) : RiemannBase(l, r, dimension){};
     ~RiemannHLLC() = default;
 
     //! Call the actual solver.
-    idealGas::PrimitiveState solve() override{
-      message("Solving HLLC.");
-      return {};
-    }
+    idealGas::PrimitiveState solve() override;
 
   };
 
