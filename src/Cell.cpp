@@ -24,7 +24,7 @@ cell::Cell::Cell():
  *
  * @param other the other cell, which we are copying data from
  */
-void cell::Cell::CopyBoundaryData(const cell::Cell* other) {
+void cell::Cell::copyBoundaryData(const cell::Cell* other) {
   // copy gas data from the other
   _prim = other->getPrim();
   _cons = other->getCons();
@@ -40,7 +40,7 @@ void cell::Cell::CopyBoundaryData(const cell::Cell* other) {
  * @param other: pointer to real cell from which we take data
  * @param dimension: in which dimension the reflection is supposed to be
  */
-void cell::Cell::CopyBoundaryDataReflective(const cell::Cell* other, const size_t dimension) {
+void cell::Cell::copyBoundaryDataReflective(const cell::Cell* other, const size_t dimension) {
 
   // This should be called from within the ghost
   _prim = other->getPrim();

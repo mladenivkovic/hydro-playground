@@ -29,7 +29,7 @@ grid::Grid::Grid(const parameters::Parameters& params) :
   _boxsize(params.getBoxsize()),
   _nbc(params.getNBC()),
   _replicate(params.getReplicate()),
-  _boundaryType(params.getBoundaryType())
+  _boundary_type(params.getBoundaryType())
   {
 
 #if DEBUG_LEVEL > 0
@@ -280,7 +280,7 @@ void grid::Grid::resetFluxes() {
  * runs through interior cells and calls PrimitveToConserved()
  * on each.
  */
-void grid::Grid::getCStatesFromPstates() {
+void grid::Grid::convertPrim2Cons() {
 
   timer::Timer tick(timer::Category::Convert);
 
@@ -292,7 +292,7 @@ void grid::Grid::getCStatesFromPstates() {
   for (size_t i = nbc; i < nbc + nx; i++) {
     for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
       // if we are in 1d, j will be fixed to zero
-      getCell(i, j).PrimitiveToConserved();
+      getCell(i, j).prim2cons();
     }
   }
 
@@ -304,7 +304,7 @@ void grid::Grid::getCStatesFromPstates() {
  * runs through interior cells and alls ConservedToPrimitve()
  * on each.
  */
-void grid::Grid::getPStatesFromCstates() {
+void grid::Grid::convertCons2Prim() {
 
   timer::Timer tick(timer::Category::Convert);
 
@@ -316,7 +316,7 @@ void grid::Grid::getPStatesFromCstates() {
   for (size_t i = nbc; i < nbc + nx; i++) {
     for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
       // if we are in 1d, j will be fixed to zero
-      getCell(i, j).ConservedToPrimitive();
+      getCell(i, j).cons2prim();
     }
   }
 
@@ -340,19 +340,19 @@ void grid::Grid::applyBoundaryConditions() {
   const size_t lastReal  = getLastCellIndex();
 
   // Make some space.
-  std::vector<cell::Cell*> realLeft(nbc);
-  std::vector<cell::Cell*> realRight(nbc);
-  std::vector<cell::Cell*> ghostLeft(nbc);
-  std::vector<cell::Cell*> ghostRight(nbc);
+  std::vector<cell::Cell*> real_left(nbc);
+  std::vector<cell::Cell*> real_right(nbc);
+  std::vector<cell::Cell*> ghost_left(nbc);
+  std::vector<cell::Cell*> ghost_right(nbc);
 
   if (Dimensions == 1) {
     for (size_t i = 0; i < firstReal; i++) {
-      realLeft[i]   = &(getCell(firstReal + i));
-      realRight[i]  = &(getCell(lastReal - firstReal + i));
-      ghostLeft[i]  = &(getCell(i));
-      ghostRight[i] = &(getCell(lastReal + i));
+      real_left[i]   = &(getCell(firstReal + i));
+      real_right[i]  = &(getCell(lastReal - firstReal + i));
+      ghost_left[i]  = &(getCell(i));
+      ghost_right[i] = &(getCell(lastReal + i));
     }
-    realToGhost(realLeft, realRight, ghostLeft, ghostRight);
+    realToGhost(real_left, real_right, ghost_left, ghost_right);
   }
 
   else if (Dimensions == 2) {
@@ -360,24 +360,24 @@ void grid::Grid::applyBoundaryConditions() {
     // left-right boundaries
     for (size_t j = firstReal; j < lastReal; j++) {
       for (size_t i = 0; i < firstReal; i++) {
-        realLeft[i]   = &(getCell(firstReal + i, j));
-        realRight[i]  = &(getCell(lastReal - firstReal + i, j));
-        ghostLeft[i]  = &(getCell(i, j));
-        ghostRight[i] = &(getCell(lastReal + i, j));
+        real_left[i]   = &(getCell(firstReal + i, j));
+        real_right[i]  = &(getCell(lastReal - firstReal + i, j));
+        ghost_left[i]  = &(getCell(i, j));
+        ghost_right[i] = &(getCell(lastReal + i, j));
       }
-      realToGhost(realLeft, realRight, ghostLeft, ghostRight, 0);
+      realToGhost(real_left, real_right, ghost_left, ghost_right, 0);
     }
 
     // upper-lower boundaries
     // left -> lower, right -> upper
     for (size_t i = firstReal; i < lastReal; i++) {
       for (size_t j = 0; j < firstReal; j++) {
-        realLeft[j]   = &(getCell(i, firstReal + j));
-        realRight[j]  = &(getCell(i, lastReal - firstReal + j));
-        ghostLeft[j]  = &(getCell(i, j));
-        ghostRight[j] = &(getCell(i, lastReal + j));
+        real_left[j]   = &(getCell(i, firstReal + j));
+        real_right[j]  = &(getCell(i, lastReal - firstReal + j));
+        ghost_left[j]  = &(getCell(i, j));
+        ghost_right[j] = &(getCell(i, lastReal + j));
       }
-      realToGhost(realLeft, realRight, ghostLeft, ghostRight, 1);
+      realToGhost(real_left, real_right, ghost_left, ghost_right, 1);
     }
   } else {
     error("Not implemented.");
@@ -401,10 +401,10 @@ void grid::Grid::applyBoundaryConditions() {
  * lowest array index is also lowest index of cell in grid
  */
 void grid::Grid::realToGhost(
-  std::vector<cell::Cell*> realLeft,
-  std::vector<cell::Cell*> realRight,
-  std::vector<cell::Cell*> ghostLeft,
-  std::vector<cell::Cell*> ghostRight,
+  std::vector<cell::Cell*> real_left,
+  std::vector<cell::Cell*> real_right,
+  std::vector<cell::Cell*> ghost_left,
+  std::vector<cell::Cell*> ghost_right,
   const size_t             dimension
 ) // dimension defaults to 0
 {
@@ -412,32 +412,32 @@ void grid::Grid::realToGhost(
   size_t nbc = getNBC();
 
 #if DEBUG_LEVEL > 0
-  assert(realLeft.size() == nbc);
-  assert(realRight.size() == nbc);
-  assert(ghostLeft.size() == nbc);
-  assert(ghostRight.size() == nbc);
+  assert(real_left.size() == nbc);
+  assert(real_right.size() == nbc);
+  assert(ghost_left.size() == nbc);
+  assert(ghost_right.size() == nbc);
 #endif
 
 
   switch (getBoundaryType()) {
   case BC::BoundaryCondition::Periodic:
     for (size_t i = 0; i < nbc; i++) {
-      ghostLeft[i]->CopyBoundaryData(realRight[i]);
-      ghostRight[i]->CopyBoundaryData(realLeft[i]);
+      ghost_left[i]->copyBoundaryData(real_right[i]);
+      ghost_right[i]->copyBoundaryData(real_left[i]);
     }
     break;
 
   case BC::BoundaryCondition::Reflective:
     for (size_t i = 0; i < nbc; i++) {
-      ghostLeft[i]->CopyBoundaryDataReflective(realLeft[realLeft.size() - i - 1], dimension);
-      ghostRight[i]->CopyBoundaryDataReflective(realRight[realRight.size() - i - 1], dimension);
+      ghost_left[i]->copyBoundaryDataReflective(real_left[real_left.size() - i - 1], dimension);
+      ghost_right[i]->copyBoundaryDataReflective(real_right[real_right.size() - i - 1], dimension);
     }
     break;
 
   case BC::BoundaryCondition::Transmissive:
     for (size_t i = 0; i < nbc; i++) {
-      ghostLeft[i]->CopyBoundaryData(realLeft[realLeft.size() - i - 1]);
-      ghostRight[i]->CopyBoundaryData(realRight[realRight.size() - i - 1]);
+      ghost_left[i]->copyBoundaryData(real_left[real_left.size() - i - 1]);
+      ghost_right[i]->copyBoundaryData(real_right[real_right.size() - i - 1]);
     }
     break;
 
@@ -539,7 +539,7 @@ void grid::Grid::printGrid(bool boundaries, bool conserved) {
     error("Not implemented");
   }
 
-  std::cout << out.str() << std::endl;
+  std::cout << out.str();
 }
 
 

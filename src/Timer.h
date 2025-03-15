@@ -44,6 +44,8 @@ namespace timer {
     Reset,
     CollectDt,
     CollectMass,
+    HydroFluxes,
+    HydroIntegrate,
     Total,
     Ignore,
     Count
@@ -227,6 +229,10 @@ inline const char* timer::getTimerName(Category t) {
     return "Collect Timestep";
   case Category::CollectMass:
     return "Collect Mass";
+  case Category::HydroFluxes:
+    return "Hydro Fluxes";
+  case Category::HydroIntegrate:
+    return "Hydro Integrate";
   case Category::Total:
     return "Total";
   case Category::Ignore:

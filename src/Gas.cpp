@@ -15,10 +15,10 @@ static constexpr int gas_print_precision = 2;
  * @brief Default constructor.
  */
 idealGas::PrimitiveState::PrimitiveState():
-  rho(0.),
-  p(0.) {
+  _rho(0.),
+  _p(0.) {
   for (size_t i = 0; i < Dimensions; i++) {
-    v[i] = 0.;
+    _v[i] = 0.;
   }
 }
 
@@ -56,9 +56,7 @@ idealGas::PrimitiveState::PrimitiveState(const Float rho, const Float vx, const 
  * @brief Specialized constructor with initial values for 2D.
  * Using setters instead of initialiser lists so the debugging checks kick in.
  */
-idealGas::PrimitiveState::PrimitiveState(
-  const Float rho, const Float vx, const Float vy, const Float p
-) {
+idealGas::PrimitiveState::PrimitiveState( const Float rho, const Float vx, const Float vy, const Float p) {
 #if DEBUG_LEVEL > 0
   if (Dimensions != 2) {
     error("This is a 2D function only!");
@@ -75,18 +73,18 @@ idealGas::PrimitiveState::PrimitiveState(
  * Convert a conserved state to a (this) primitive state.
  * Overwrites the contents of this primitive state.
  */
-void idealGas::PrimitiveState::ConservedToPrimitive(const ConservedState& c) {
-  if (c.getRho() <= cst::SMALLRHO) {
+void idealGas::PrimitiveState::fromCons(const ConservedState& cons) {
+  if (cons.getRho() <= cst::SMALLRHO) {
     // execption handling for vacuum
     setRho(cst::SMALLRHO);
-    setV(0, cst::SMALLU);
-    setV(1, cst::SMALLU);
+    setV(0, cst::SMALLV);
+    setV(1, cst::SMALLV);
     setP(cst::SMALLP);
   } else {
-    setRho(c.getRho());
-    setV(0, c.getRhov(0) / c.getRho());
-    setV(1, c.getRhov(1) / c.getRho());
-    setP(cst::GM1 * c.getE() - 0.5 * c.getRhoVSquared() / c.getRho());
+    setRho(cons.getRho());
+    setV(0, cons.getRhov(0) / cons.getRho());
+    setV(1, cons.getRhov(1) / cons.getRho());
+    setP(cst::GM1 * cons.getE() - 0.5 * cons.getRhoVSquared() / cons.getRho());
 
     // handle negative pressure
     if (getP() <= cst::SMALLP) {
@@ -117,13 +115,16 @@ std::string idealGas::PrimitiveState::toString() const {
 }
 
 
+// ------------------------------------
 // Stuff for conserved state
+// ------------------------------------
+
 
 idealGas::ConservedState::ConservedState():
-  rho(0.),
-  E(0.) {
+  _rho(0.),
+  _energy(0.) {
   for (size_t i = 0; i < Dimensions; i++) {
-    rhov[i] = 0.;
+    _rhov[i] = 0.;
   }
 };
 
@@ -131,7 +132,7 @@ idealGas::ConservedState::ConservedState():
 /**
  * Compute the conserved state vector of a given primitive state.
  */
-void idealGas::ConservedState::PrimitiveToConserved(const PrimitiveState& p) {
+void idealGas::ConservedState::fromPrim(const PrimitiveState& p) {
   setRho(p.getRho());
   setRhov(0, p.getRho() * p.getV(0));
   setRhov(1, p.getRho() * p.getV(1));
@@ -152,22 +153,22 @@ void idealGas::ConservedState::PrimitiveToConserved(const PrimitiveState& p) {
  *
  * TODO: make sure latex documentation has these equations
  */
-void idealGas::ConservedState::GetCFluxFromPstate(const PrimitiveState& p, const size_t dimension) {
+void idealGas::ConservedState::getCFluxFromPstate(const PrimitiveState& prim, const size_t dimension) {
 
-  Float rhoflux = p.getRho() * p.getV(dimension);
+  Float rhoflux = prim.getRho() * prim.getV(dimension);
   setRho(rhoflux);
 
   // momentum flux along the requested dimension
-  Float momentum_dim = p.getRho() * p.getV(dimension) * p.getV(dimension) + p.getP();
+  Float momentum_dim = prim.getRho() * prim.getV(dimension) * prim.getV(dimension) + prim.getP();
   setRhov(dimension, momentum_dim);
 
   // momentum flux along the other dimension
-  Float momentum_other = p.getRho() * p.getV(0) * p.getV(1);
+  Float momentum_other = prim.getRho() * prim.getV(0) * prim.getV(1);
   setRhov((dimension + 1) % 2, momentum_other);
 
   // gas energy
-  Float E     = 0.5 * p.getRho() * p.getVSquared() + p.getP() / cst::GM1;
-  Float Eflux = (E + p.getP()) * p.getV(dimension);
+  Float E     = 0.5 * prim.getRho() * prim.getVSquared() + prim.getP() / cst::GM1;
+  Float Eflux = (E + prim.getP()) * prim.getV(dimension);
   setE(Eflux);
 }
 
@@ -188,25 +189,25 @@ void idealGas::ConservedState::GetCFluxFromPstate(const PrimitiveState& p, const
  *
  * TODO: make sure latex documentation has these equations
  */
-void idealGas::ConservedState::GetCFluxFromCstate(const ConservedState& c, const size_t dimension) {
+void idealGas::ConservedState::getCFluxFromCstate(const ConservedState& cons, const size_t dimension) {
 
   // Mass flux
-  setRho(c.getRhov(dimension));
+  setRho(cons.getRhov(dimension));
 
-  if (c.getRho() > 0.) {
-    Float v = c.getRhov(dimension) / c.getRho();
-    Float p = c.getE() - 0.5 * c.getRhoVSquared() / c.getRho();
+  if (cons.getRho() > 0.) {
+    Float v = cons.getRhov(dimension) / cons.getRho();
+    Float p = cons.getE() - 0.5 * cons.getRhoVSquared() / cons.getRho();
 
     // momentum flux along the requested dimension
-    Float momentum_dim = c.getRho() * v * v + p;
+    Float momentum_dim = cons.getRho() * v * v + p;
     setRhov(dimension, momentum_dim);
 
     // momentum flux along the other dimension
     size_t other_index    = (dimension + 1) % 2;
-    Float  momentum_other = c.getRhov(other_index) * v;
+    Float  momentum_other = cons.getRhov(other_index) * v;
     setRhov(other_index, momentum_other);
 
-    Float E = (c.getE() + p) * v;
+    Float E = (cons.getE() + p) * v;
     setE(E);
 
   } else {

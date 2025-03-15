@@ -12,15 +12,15 @@ namespace cell {
     //! Standard constructor
     Cell();
 
-    void CopyBoundaryData(const Cell* other);
+    void copyBoundaryData(const Cell* other);
 
-    void CopyBoundaryDataReflective(const Cell* other, const std::size_t dimension);
+    void copyBoundaryDataReflective(const Cell* other, const std::size_t dimension);
 
     //! Update cell's primitive state to current conserved state
-    void ConservedToPrimitive();
+    void cons2prim();
 
     //! Update cell's conserved state to current primitive state
-    void PrimitiveToConserved();
+    void prim2cons();
 
   private:
     //! Cell ID
@@ -82,13 +82,13 @@ namespace cell {
 // Definitions
 // --------------------------------------------------------
 
-inline void cell::Cell::ConservedToPrimitive() {
-  _prim.ConservedToPrimitive(_cons);
+inline void cell::Cell::cons2prim() {
+  _prim.fromCons(_cons);
 };
 
 
-inline void cell::Cell::PrimitiveToConserved() {
-  _cons.PrimitiveToConserved(_prim);
+inline void cell::Cell::prim2cons() {
+  _cons.fromPrim(_prim);
 };
 
 

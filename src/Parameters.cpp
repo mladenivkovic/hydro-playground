@@ -47,6 +47,9 @@ parameters::Parameters::Parameters() {
  */
 void parameters::Parameters::initDerivedAndValidate() {
 
+  if (not getParamFileHasBeenRead())
+    error("Parameter file is unread; Need that at this stage!");
+
   // Update run verbosity level, if necessary
   int currentLevel = static_cast<int>(logging::getCurrentVerbosity());
   int paramVer     = getVerbose();

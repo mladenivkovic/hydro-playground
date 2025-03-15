@@ -7,10 +7,10 @@ solver::SolverMUSCL::SolverMUSCL(parameters::Parameters& params_, grid::Grid& gr
 void solver::SolverMUSCL::step() {
 
   std::cout << "Called MUSCL step; ";
-  std::cout << "stepCount=" << stepCount;
+  std::cout << "stepCount=" << step_count;
   std::cout << ", t=" << t << "\n";
 
-  stepCount += 1;
+  step_count += 1;
 
 }
 

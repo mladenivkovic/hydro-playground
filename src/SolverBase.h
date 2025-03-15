@@ -24,7 +24,11 @@ namespace solver {
     Float dt;
 
     //! Current step
-    size_t stepCount;
+    size_t step_count;
+
+    //! Total mass in grid.
+    Float total_mass_init;
+    Float total_mass_current;
 
     //! Reference to runtime parameters
     parameters::Parameters& params;
@@ -34,6 +38,21 @@ namespace solver {
 
     //! Compute current time step size.
     void computeDt();
+
+    //! Apply the actual time integration step.
+    void integrateHydro(const size_t dim);
+
+    //! Do we still need to run?
+    bool keepRunning();
+
+    //! Write a log to screen, if requested.
+    void writeLog(const std::string& timingstr);
+
+    //! Write the log header to screen
+    void writeLogHeader();
+
+    //! Apply the time update for a pair of cells.
+    void applyTimeUpdate(cell::Cell& left, cell::Cell& right, const Float dtdx);
 
   public:
 
@@ -48,7 +67,6 @@ namespace solver {
       // Virtual functions need a definition too somewhere.
       error("This should never be called.");
     };
-
   };
 
 } // namespace solver
