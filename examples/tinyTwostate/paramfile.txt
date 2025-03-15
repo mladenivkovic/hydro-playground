@@ -56,16 +56,3 @@ basename = None             // Basename for output file names. If not given, a b
 write_replications = false  // If replicate > 1, setting this to true will write the entire content
                             // of the box, including all replications.
 
-
-
-// Source Term Parameters
-// ------------------------
-
-// src_const_acc_x = 0.       // constant acceleration in x direction for constant source terms  
-                              // Not implemented yet.
-
-// src_const_acc_y = 10       // constant acceleration in x direction for constant source terms  
-                              // Not implemented yet.
-
-// src_const_acc_r = -1.      // constant acceleration in radial direction for radial source terms
-                              // Not implemented yet.
