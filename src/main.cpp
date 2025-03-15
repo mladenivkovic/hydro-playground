@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
 
   // Read the parameters from the parameter file and initialise global paramters...
   input.readParamFile(params);
-  params.initDerived();
+  params.initDerivedAndValidate();
 
   // Get a grid started. Note that the cells are being allocated later, when
   // the ICs are being read.
@@ -52,14 +52,11 @@ int main(int argc, char* argv[]) {
   // Read initial conditions
   input.readICFile(grid);
 
-  // Set boundary conditions
-  grid.setBoundary();
-
   // Launch the solver.
   solver::Solver solver(params, grid);
   solver.solve();
 
-  // Wrapup
+  // Wrap-Up
   logging::setStage(logging::LogStage::Shutdown);
   message("Done. Bye!");
 
