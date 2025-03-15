@@ -14,7 +14,7 @@ namespace riemann {
   /**
    * The HLLC Riemann solver.
    */
-  class RiemannHLLC : public RiemannBase {
+  class RiemannHLLC: public RiemannBase {
 
     //! Left wave speed
     Float _SL;
@@ -38,10 +38,7 @@ namespace riemann {
     idealGas::PrimitiveState sampleSolution();
 
   public:
-
-    RiemannHLLC(
-        idealGas::PrimitiveState& l, idealGas::PrimitiveState& r,
-        const size_t dimension) :
+    RiemannHLLC(idealGas::PrimitiveState& l, idealGas::PrimitiveState& r, const size_t dimension):
       RiemannBase(l, r, dimension),
       _SL(0.),
       _SR(0.),
@@ -51,8 +48,6 @@ namespace riemann {
 
     //! Call the actual solver.
     idealGas::PrimitiveState solve() override;
-
   };
 
 } // namespace riemann
-

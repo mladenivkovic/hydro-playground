@@ -145,11 +145,13 @@ namespace IO {
      * Write down the simulation time at which output was dumped. Also update
      * time of next dump.
      */
-    void setTimeLastOutputWritten(const Float t){
+    void setTimeLastOutputWritten(const Float t) {
 #if DEBUG_LEVEL > 0
-      if (t < _t_last_dump){
-        error("Current time smaller than time of last dump: t=" +
-            std::to_string(t) + ", t_last=" + std::to_string(_t_last_dump));
+      if (t < _t_last_dump) {
+        error(
+          "Current time smaller than time of last dump: t=" + std::to_string(t)
+          + ", t_last=" + std::to_string(_t_last_dump)
+        );
       }
 #endif
       _t_last_dump = t;
@@ -180,8 +182,7 @@ namespace IO {
       _t_last_dump(0.),
       _t_next_dump(0.),
       _params(params),
-      _grid(grid)
-    {};
+      _grid(grid) {};
 
     /**
      * Write the current state of the simulation into an output.
@@ -203,7 +204,7 @@ namespace IO {
      * @param t_current the current simulation time
      * @param dt_current the current simulation time step size
      */
-     bool dumpThisStep(size_t current_step, Float t_current, Float& dt_current);
+    bool dumpThisStep(size_t current_step, Float t_current, Float& dt_current);
   };
 } // namespace IO
 

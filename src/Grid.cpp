@@ -21,7 +21,7 @@ constexpr size_t grid_print_precision = 3;
  *
  * @param pars A Parameters object holding global simulation parameters
  */
-grid::Grid::Grid(const parameters::Parameters& params) :
+grid::Grid::Grid(const parameters::Parameters& params):
   _cells(nullptr),
   _nx(params.getNx()),
   _nx_norep(params.getNx()),
@@ -29,8 +29,7 @@ grid::Grid::Grid(const parameters::Parameters& params) :
   _boxsize(params.getBoxsize()),
   _nbc(params.getNBC()),
   _replicate(params.getReplicate()),
-  _boundary_type(params.getBoundaryType())
-  {
+  _boundary_type(params.getBoundaryType()) {
 
 #if DEBUG_LEVEL > 0
   if (not params.getParamFileHasBeenRead())
@@ -622,4 +621,3 @@ void grid::Grid::printGrid(const char* quantity, bool boundaries) {
 
   std::cout << out.str() << "\n";
 }
-

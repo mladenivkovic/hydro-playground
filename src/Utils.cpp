@@ -1,8 +1,8 @@
 #include "Utils.h"
 
 #include <filesystem> // std::filesytem::exists
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 
 #include "Cell.h"
@@ -19,30 +19,40 @@ std::stringstream utils::banner() {
 
   std::stringstream banner;
 
-  if (color_term) banner << tcols::cyan;
+  if (color_term)
+    banner << tcols::cyan;
   banner << "o  o o   o o-o   o--o   o-o      o--o  o      ";
   banner << "O  o   o  o-o  o--o   o-o  o   o o   o o-o   \n";
-  if (color_term) banner << tcols::reset;
+  if (color_term)
+    banner << tcols::reset;
 
-  if (color_term) banner << tcols::green;
+  if (color_term)
+    banner << tcols::green;
   banner << "|  |  \\ /  |  \\  |   | o   o     |   | |     ";
   banner << "/ \\  \\ /  o     |   | o   o |   | |\\  | |  \\  \n";
-  if (color_term) banner << tcols::reset;
+  if (color_term)
+    banner << tcols::reset;
 
-  if (color_term) banner << tcols::yellow;
+  if (color_term)
+    banner << tcols::yellow;
   banner << "O--O   O   |   O O-Oo  |   |     O--o  |    ";
   banner << "o---o  O   |  -o O-Oo  |   | |   | | \\ | |   O \n";
-  if (color_term) banner << tcols::reset;
+  if (color_term)
+    banner << tcols::reset;
 
-  if (color_term) banner << tcols::red;
+  if (color_term)
+    banner << tcols::red;
   banner << "|  |   |   |  /  |  \\  o   o     |     |    ";
   banner << "|   |  |   o   | |  \\  o   o |   | |  \\| |  /  \n";
-  if (color_term) banner << tcols::reset;
+  if (color_term)
+    banner << tcols::reset;
 
-  if (color_term) banner << tcols::magenta;
+  if (color_term)
+    banner << tcols::magenta;
   banner << "o  o   o   o-o   o   o  o-o      o     O---oo ";
   banner << "  o  o    o-o  o   o  o-o   o-o  o   o o-o   \n";
-  if (color_term) banner << tcols::reset;
+  if (color_term)
+    banner << tcols::reset;
 
   banner << "\n";
 
@@ -89,7 +99,7 @@ void utils::printHeader() {
   // Note this only displays the build date of Utils.cpp.o
   std::stringstream build_date;
   build_date << std::setw(w) << std::left;
-  build_date << "Build date:" <<  __DATE__ << " - " << __TIME__;
+  build_date << "Build date:" << __DATE__ << " - " << __TIME__;
   message(build_date.str(), level);
 
   std::stringstream solver;
@@ -368,7 +378,7 @@ std::string utils::string2string(std::string val) {
 /**
  * Get solver name from macro.
  */
-const char* utils::getSolverName(){
+const char* utils::getSolverName() {
 
 #if SOLVER == SOLVER_GODUNOV
   return "Godunov";
@@ -381,11 +391,10 @@ const char* utils::getSolverName(){
 }
 
 
-
 /**
  * Get Riemann solver name from macro.
  */
-const char* utils::getRiemannSolverName(){
+const char* utils::getRiemannSolverName() {
 
 #if RIEMANN_SOLVER == RIEMANN_SOLVER_EXACT
   return "Exact";
@@ -395,15 +404,13 @@ const char* utils::getRiemannSolverName(){
 #error Invalid Riemann Solver
   return "UndefinedRiemannSolver";
 #endif
-
 }
-
 
 
 /**
  * Get limiter name from macro.
  */
-const char* utils::getLimiterName(){
+const char* utils::getLimiterName() {
 
 #if LIMITER == LIMITER_MINMOD
   return "Minmod";

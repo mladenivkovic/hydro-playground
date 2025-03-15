@@ -56,7 +56,9 @@ idealGas::PrimitiveState::PrimitiveState(const Float rho, const Float vx, const 
  * @brief Specialized constructor with initial values for 2D.
  * Using setters instead of initialiser lists so the debugging checks kick in.
  */
-idealGas::PrimitiveState::PrimitiveState( const Float rho, const Float vx, const Float vy, const Float p) {
+idealGas::PrimitiveState::PrimitiveState(
+  const Float rho, const Float vx, const Float vy, const Float p
+) {
 #if DEBUG_LEVEL > 0
   if (Dimensions != 2) {
     error("This is a 2D function only!");
@@ -128,11 +130,13 @@ idealGas::ConservedState::ConservedState():
   }
 }
 
-idealGas::ConservedState::ConservedState(const Float rho, const Float rhovx, const Float rhovy, const Float E):
+idealGas::ConservedState::ConservedState(
+  const Float rho, const Float rhovx, const Float rhovy, const Float E
+):
   _rho(rho),
-  _energy(E)
-{
-  if (Dimensions != 2) error("This is for 2D only!");
+  _energy(E) {
+  if (Dimensions != 2)
+    error("This is for 2D only!");
   _rhov[0] = rhovx;
   _rhov[1] = rhovy;
 }
@@ -162,7 +166,9 @@ void idealGas::ConservedState::fromPrim(const PrimitiveState& p) {
  *
  * TODO: make sure latex documentation has these equations
  */
-void idealGas::ConservedState::getCFluxFromPstate(const PrimitiveState& prim, const size_t dimension) {
+void idealGas::ConservedState::getCFluxFromPstate(
+  const PrimitiveState& prim, const size_t dimension
+) {
 
   Float rhoflux = prim.getRho() * prim.getV(dimension);
   setRho(rhoflux);
@@ -198,7 +204,9 @@ void idealGas::ConservedState::getCFluxFromPstate(const PrimitiveState& prim, co
  *
  * TODO: make sure latex documentation has these equations
  */
-void idealGas::ConservedState::getCFluxFromCstate(const ConservedState& cons, const size_t dimension) {
+void idealGas::ConservedState::getCFluxFromCstate(
+  const ConservedState& cons, const size_t dimension
+) {
 
   // Mass flux
   setRho(cons.getRhov(dimension));

@@ -37,7 +37,6 @@ parameters::Parameters::Parameters() {
   _read   = false;
 
   // NOLINTEND
-
 }
 
 
@@ -137,4 +136,3 @@ std::string parameters::Parameters::toString() const {
 
   return out.str();
 }
-

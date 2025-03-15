@@ -4,10 +4,8 @@
  */
 
 #include "Config.h"
-
-#include "SolverMUSCL.h"
 #include "SolverGodunov.h"
-
+#include "SolverMUSCL.h"
 
 
 namespace solver {
@@ -21,4 +19,3 @@ namespace solver {
 #endif
 
 } // namespace solver
-

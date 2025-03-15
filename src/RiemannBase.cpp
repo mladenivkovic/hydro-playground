@@ -19,7 +19,7 @@ bool riemann::RiemannBase::hasVacuum() {
     return true;
 
   Float delta_v = _right.getV(_dim) - _left.getV(_dim);
-  Float v_crit = 2. * cst::ONEOVERGAMMAM1 * (_left.getSoundSpeed() + _right.getSoundSpeed());
+  Float v_crit  = 2. * cst::ONEOVERGAMMAM1 * (_left.getSoundSpeed() + _right.getSoundSpeed());
 
   return delta_v >= v_crit;
 }
@@ -31,7 +31,7 @@ bool riemann::RiemannBase::hasVacuum() {
  * TODO: Refer to equations in theory document
  * @return the primitive state corresponding to the solution sampled at x=0.
  */
-idealGas::PrimitiveState riemann::RiemannBase::solveVacuum(){
+idealGas::PrimitiveState riemann::RiemannBase::solveVacuum() {
 
   size_t otherdim = (_dim + 1) % 2;
   // x / t. We always center the problem at x=0, but to sample the solution in general,
@@ -44,9 +44,9 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum(){
   Float rhoL = _left.getRho();
   Float rhoR = _right.getRho();
 
-  Float vLdim = _left.getV(_dim);
+  Float vLdim   = _left.getV(_dim);
   Float vLother = _left.getV(otherdim);
-  Float vRdim = _right.getV(_dim);
+  Float vRdim   = _right.getV(_dim);
   Float vRother = _right.getV(otherdim);
 
   Float pL = _left.getP();
@@ -58,24 +58,24 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum(){
     return idealGas::PrimitiveState(cst::SMALLRHO, cst::SMALLV, cst::SMALLV, cst::SMALLP);
   }
 
-  Float rho_sol = NAN;
-  Float vdim_sol = NAN;
+  Float rho_sol    = NAN;
+  Float vdim_sol   = NAN;
   Float vother_sol = NAN;
-  Float p_sol = NAN;
+  Float p_sol      = NAN;
 
   if (rhoL <= cst::SMALLRHO) {
     // ------------------------
     // Left vacuum state
     // ------------------------
     Float SR  = vRdim - aR * cst::TWOOVERGAMMAM1; // vacuum front speed
-    Float SHR = vRdim + aR; // speed of head of right rarefaction fan
+    Float SHR = vRdim + aR;                       // speed of head of right rarefaction fan
 
     if (xovert <= SR) {
       // left vacuum
-      rho_sol = cst::SMALLRHO;
-      vdim_sol = cst::SMALLV;
+      rho_sol    = cst::SMALLRHO;
+      vdim_sol   = cst::SMALLV;
       vother_sol = cst::SMALLV;
-      p_sol = cst::SMALLP;
+      p_sol      = cst::SMALLP;
     } else if (xovert < SHR) {
       // inside rarefaction
       Float precomp = std::pow(
@@ -87,10 +87,10 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum(){
       p_sol      = pR * std::pow(precomp, cst::GAMMA);
     } else {
       // original right pstate
-      rho_sol   = rhoR;
-      vdim_sol  = vRdim;
+      rho_sol    = rhoR;
+      vdim_sol   = vRdim;
       vother_sol = vRother;
-      p_sol     = pR;
+      p_sol      = pR;
     }
   }
 
@@ -100,37 +100,39 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum(){
     // ------------------------
 
     Float SL  = vLdim + aL * cst::TWOOVERGAMMAM1; // vacuum front speed
-    Float SHL = vLdim - aL; // speed of head of left rarefaction fan
+    Float SHL = vLdim - aL;                       // speed of head of left rarefaction fan
 
     if (xovert >= SL) {
       // right vacuum
-      rho_sol = cst::SMALLRHO;
-      vdim_sol = cst::SMALLV;
+      rho_sol    = cst::SMALLRHO;
+      vdim_sol   = cst::SMALLV;
       vother_sol = cst::SMALLV;
-      p_sol   = cst::SMALLP;
+      p_sol      = cst::SMALLP;
     } else if (xovert > SHL) {
       // inside rarefaction
-      Float precomp = std::pow( (cst::TWOOVERGAMMAP1 + cst::GM1OGP1 / aL * (vLdim - xovert)), (cst::TWOOVERGAMMAP1));
-      rho_sol       = rhoL * precomp;
-      vdim_sol    = cst::TWOOVERGAMMAP1 * (cst::GM1HALF * vLdim + aL + xovert);
+      Float precomp = std::pow(
+        (cst::TWOOVERGAMMAP1 + cst::GM1OGP1 / aL * (vLdim - xovert)), (cst::TWOOVERGAMMAP1)
+      );
+      rho_sol    = rhoL * precomp;
+      vdim_sol   = cst::TWOOVERGAMMAP1 * (cst::GM1HALF * vLdim + aL + xovert);
       vother_sol = vLother;
-      p_sol      = pL * std::pow(precomp,cst::GAMMA);
+      p_sol      = pL * std::pow(precomp, cst::GAMMA);
     } else {
       // original left pstate
-      rho_sol       = rhoL;
-      vdim_sol      = vLdim;
-      vother_sol    = vLother;
-      p_sol         = pL;
+      rho_sol    = rhoL;
+      vdim_sol   = vLdim;
+      vother_sol = vLother;
+      p_sol      = pL;
     }
   } else {
     // ------------------------
     // Vacuum generating case
     // ------------------------
 
-    Float SL  = vLdim + aL * cst::TWOOVERGAMMAM1;  // vacuum front speed
+    Float SL  = vLdim + aL * cst::TWOOVERGAMMAM1; // vacuum front speed
     Float SR  = vRdim - aR * cst::TWOOVERGAMMAP1; // vacuum front speed
-    Float SHL = vLdim - aL;  // speed of head of left rarefaction fan
-    Float SHR = vRdim + aR; // speed of head of right rarefaction fan
+    Float SHL = vLdim - aL;                       // speed of head of left rarefaction fan
+    Float SHR = vRdim + aR;                       // speed of head of right rarefaction fan
 
     if (xovert <= SHL) {
       // left original pstate
@@ -138,8 +140,7 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum(){
       vdim_sol   = vLdim;
       vother_sol = vLother;
       p_sol      = pL;
-    }
-    else if (xovert < SL) {
+    } else if (xovert < SL) {
       // inside rarefaction fan from right to left
       Float precomp = std::pow(
         (cst::TWOOVERGAMMAP1 + cst::GM1OGP1 / aL * (vLdim - xovert)), (cst::TWOOVERGAMMAM1)
@@ -147,29 +148,28 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum(){
       rho_sol    = rhoL * precomp;
       vdim_sol   = cst::TWOOVERGAMMAP1 * (cst::GM1HALF * vLdim + aL + xovert);
       vother_sol = vLother;
-      p_sol      = pL * std::pow(precomp,cst::GAMMA);
-    }
-    else if (xovert < SR) {
+      p_sol      = pL * std::pow(precomp, cst::GAMMA);
+    } else if (xovert < SR) {
       // vacuum region
-      rho_sol = cst::SMALLRHO;
-      vdim_sol = cst::SMALLV;
+      rho_sol    = cst::SMALLRHO;
+      vdim_sol   = cst::SMALLV;
       vother_sol = cst::SMALLV;
-      p_sol  = cst::SMALLP;
-    }
-    else if (xovert < SHR) {
+      p_sol      = cst::SMALLP;
+    } else if (xovert < SHR) {
       // inside rarefaction fan from left to right
-      Float precomp = std::pow( (cst::TWOOVERGAMMAP1 - cst::GM1OGP1 / aR * (vRdim - xovert)), (cst::TWOOVERGAMMAM1));
+      Float precomp = std::pow(
+        (cst::TWOOVERGAMMAP1 - cst::GM1OGP1 / aR * (vRdim - xovert)), (cst::TWOOVERGAMMAM1)
+      );
       rho_sol    = rhoR * precomp;
       vdim_sol   = cst::TWOOVERGAMMAP1 * (cst::GM1HALF * vRdim - aR + xovert);
       vother_sol = vRother;
-      p_sol      = pR * std::pow(precomp,cst::GAMMA);
-    }
-    else {
+      p_sol      = pR * std::pow(precomp, cst::GAMMA);
+    } else {
       // right original pstate
-      rho_sol       = rhoR;
-      vdim_sol    = vRdim;
+      rho_sol    = rhoR;
+      vdim_sol   = vRdim;
       vother_sol = vRother;
-      p_sol         = pR;
+      p_sol      = pR;
     }
   }
 

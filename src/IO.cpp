@@ -566,7 +566,6 @@ idealGas::PrimitiveState IO::InputParse::_extractArbitraryICVal(std::string& lin
     p   = utils::string2float(split[3]);
 
     return PrimitiveState(rho, vx, vy, p);
-
   }
 
   // Dim != 1, != 2
@@ -885,7 +884,6 @@ void IO::OutputWriter::dump(Float t_current, size_t step) {
 }
 
 
-
 /**
  * Will we write output this step? Call this before actually doing the
  * computations. This function is allowed to modify the time step size,
@@ -895,16 +893,18 @@ void IO::OutputWriter::dump(Float t_current, size_t step) {
  * @param tCurrent the current simulation time
  * @param dtCurrent the current simulation time step size
  */
-bool IO::OutputWriter::dumpThisStep(size_t current_step, Float t_current, Float& dt_current){
+bool IO::OutputWriter::dumpThisStep(size_t current_step, Float t_current, Float& dt_current) {
 
-  if (_params.getDtOut() > 0.){
+  if (_params.getDtOut() > 0.) {
     // We're writing outputs based on time intervals.
     // Trim down time step size to fit, if necessary.
-    if (t_current + dt_current >= _t_next_dump){
+    if (t_current + dt_current >= _t_next_dump) {
       dt_current = _t_next_dump - t_current;
 
       // TODO(mivkov): Set this to Debug verbosity once you verified it works
-      message("Trimmed dt to " + std::to_string(dt_current) + " for output.", logging::LogLevel::Quiet);
+      message(
+        "Trimmed dt to " + std::to_string(dt_current) + " for output.", logging::LogLevel::Quiet
+      );
 
       return true;
     }

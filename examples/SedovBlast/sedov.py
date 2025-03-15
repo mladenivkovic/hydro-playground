@@ -12,15 +12,17 @@ from mesh_hydro_utils import write_ic
 
 nx = 200
 
-rho0 = 1.
-v0 = 0.
+rho0 = 1.0
+v0 = 0.0
 p0 = 1e-5
-e1 = 1.
+e1 = 1.0
+
 
 def p(rho, e, gamma):
     return rho * e * (gamma - 1)
 
-pblast = p(rho0, e1, 5./3.)
+
+pblast = p(rho0, e1, 5.0 / 3.0)
 
 rho = np.ones((nx, nx)) * rho0
 v = np.ones((nx, nx, 2)) * v0
@@ -28,7 +30,7 @@ p = np.ones((nx, nx)) * p0
 
 
 dx = 1.0 / nx
-print(1./dx, pblast)
+print(1.0 / dx, pblast)
 
 if nx % 2 == 0:
     c = int(nx / 2) - 1

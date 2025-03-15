@@ -12,23 +12,19 @@ namespace riemann {
   /**
    * The Exact riemann solver.
    */
-  class RiemannExact : public RiemannBase {
+  class RiemannExact: public RiemannBase {
 
-    protected:
-
-
+  protected:
   public:
-
-    RiemannExact(idealGas::PrimitiveState& l, idealGas::PrimitiveState& r, const size_t dimension) : RiemannBase(l, r, dimension){};
+    RiemannExact(idealGas::PrimitiveState& l, idealGas::PrimitiveState& r, const size_t dimension):
+      RiemannBase(l, r, dimension) {};
     ~RiemannExact() = default;
 
     //! Call the actual solver.
-    idealGas::PrimitiveState solve() override{
+    idealGas::PrimitiveState solve() override {
       message("Solving Exact.");
       return {};
     }
-
   };
 
 } // namespace riemann
-

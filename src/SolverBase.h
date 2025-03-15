@@ -10,13 +10,12 @@
 #include "Parameters.h"
 
 
-
 namespace solver {
 
 
   class SolverBase {
 
-    protected:
+  protected:
     //! Current time
     Float t;
 
@@ -55,7 +54,6 @@ namespace solver {
     void applyTimeUpdate(cell::Cell& left, cell::Cell& right, const Float dtdx);
 
   public:
-
     SolverBase(parameters::Parameters& params_, grid::Grid& grid_);
     ~SolverBase() = default;
 
@@ -63,11 +61,10 @@ namespace solver {
     void solve();
 
     //! Run a single step.
-    virtual void step(){
+    virtual void step() {
       // Virtual functions need a definition too somewhere.
       error("This should never be called.");
     };
   };
 
 } // namespace solver
-

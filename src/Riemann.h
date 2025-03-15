@@ -4,10 +4,8 @@
  */
 
 #include "Config.h"
-
 #include "RiemannExact.h"
 #include "RiemannHLLC.h"
-
 
 
 namespace riemann {
@@ -21,4 +19,3 @@ namespace riemann {
 #endif
 
 } // namespace riemann
-

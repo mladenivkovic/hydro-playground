@@ -5,12 +5,14 @@
 
 
 #include "SolverGodunov.h"
-#include "Gas.h"
-#include "Timer.h"
-#include "Riemann.h"
 
-solver::SolverGodunov::SolverGodunov(parameters::Parameters& params_, grid::Grid& grid_) :
-  SolverBase(params_, grid_){}
+#include "Gas.h"
+#include "Riemann.h"
+#include "Timer.h"
+
+solver::SolverGodunov::SolverGodunov(parameters::Parameters& params_, grid::Grid& grid_):
+  SolverBase(params_, grid_) {
+}
 
 
 /**
@@ -18,11 +20,10 @@ solver::SolverGodunov::SolverGodunov(parameters::Parameters& params_, grid::Grid
  * We store the result in the left cell.
  */
 inline void solver::SolverGodunov::computeIntercellFluxes(
-        cell::Cell& left,
-        cell::Cell& right,
-        const size_t dimension){
+  cell::Cell& left, cell::Cell& right, const size_t dimension
+) {
 
-  riemann::Riemann solver(left.getPrim(), right.getPrim(), dimension);
+  riemann::Riemann         solver(left.getPrim(), right.getPrim(), dimension);
   idealGas::PrimitiveState sol = solver.solve();
   left.getCFlux().getCFluxFromPstate(sol, dimension);
 }
@@ -32,28 +33,27 @@ inline void solver::SolverGodunov::computeIntercellFluxes(
  * Compute all the intercell fluxes needed for a step update along the
  * direction of @param dimension.
  */
-void solver::SolverGodunov::computeFluxes(const size_t dimension){
+void solver::SolverGodunov::computeFluxes(const size_t dimension) {
 
   timer::Timer tick(timer::Category::HydroFluxes);
 
   // NOTE: we start earlier here!
   size_t first = grid.getFirstCellIndex() - 1;
-  size_t last = grid.getLastCellIndex();
+  size_t last  = grid.getLastCellIndex();
 
-  if (dimension == 0){
-    for (size_t j = first; j < last; j++){
-      for (size_t i = first ; i < last; i++){
-        cell::Cell& left = grid.getCell(i, j);
-        cell::Cell& right = grid.getCell(i+1, j);
+  if (dimension == 0) {
+    for (size_t j = first; j < last; j++) {
+      for (size_t i = first; i < last; i++) {
+        cell::Cell& left  = grid.getCell(i, j);
+        cell::Cell& right = grid.getCell(i + 1, j);
         computeIntercellFluxes(left, right, dimension);
       }
     }
-  }
-  else if (dimension == 1){
-    for (size_t j = first; j < last; j++){
-      for (size_t i = first; i < last; i++){
-        cell::Cell& left = grid.getCell(i, j);
-        cell::Cell& right = grid.getCell(i, j+1);
+  } else if (dimension == 1) {
+    for (size_t j = first; j < last; j++) {
+      for (size_t i = first; i < last; i++) {
+        cell::Cell& left  = grid.getCell(i, j);
+        cell::Cell& right = grid.getCell(i, j + 1);
         computeIntercellFluxes(left, right, dimension);
       }
     }
@@ -85,13 +85,9 @@ void solver::SolverGodunov::step() {
   integrateHydro(dimension);
 
 
-
   // Get solution from previous step from conserved into primitive vars.
   grid.convertCons2Prim();
 
   // Compute next time step.
   computeDt();
-
 }
-
-
