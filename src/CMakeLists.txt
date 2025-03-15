@@ -48,6 +48,21 @@ target_include_directories(SolverGodunov PUBLIC "${PROJECT_BINARY_DIR}") # we ne
 target_link_libraries(SolverGodunov SolverBase)
 
 
+add_library(RiemannBase OBJECT Riemann.h RiemannBase.h RiemannBase.cpp)
+target_include_directories(RiemannBase PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_link_libraries(RiemannBase Logging)
+
+add_library(RiemannExact OBJECT Riemann.h RiemannExact.h RiemannExact.cpp)
+target_include_directories(RiemannExact PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_link_libraries(RiemannExact RiemannBase)
+
+add_library(RiemannHLLC OBJECT Riemann.h RiemannHLLC.h RiemannHLLC.cpp)
+target_include_directories(RiemannHLLC PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_link_libraries(RiemannHLLC RiemannBase)
+
+
+
+
 
 
 
