@@ -93,6 +93,7 @@ namespace idealGas {
   public:
     // Standard constructor, init variables to 0
     ConservedState();
+    ConservedState(const Float rho, const Float rhovx, const Float rhovy, const Float E);
 
     /**
      * Clear out contents.

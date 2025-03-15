@@ -43,10 +43,16 @@ target_link_libraries(SolverBase Parameters)
 add_library(SolverMUSCL OBJECT Solver.h SolverMUSCL.h SolverMUSCL.cpp)
 target_include_directories(SolverMUSCL PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 target_link_libraries(SolverMUSCL SolverBase)
+target_link_libraries(SolverMUSCL RiemannBase)
+target_link_libraries(SolverMUSCL RiemannHLLC)
+target_link_libraries(SolverMUSCL RiemannExact)
 
 add_library(SolverGodunov OBJECT Solver.h SolverGodunov.h SolverGodunov.cpp)
 target_include_directories(SolverGodunov PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 target_link_libraries(SolverGodunov SolverBase)
+target_link_libraries(SolverGodunov RiemannBase)
+target_link_libraries(SolverGodunov RiemannHLLC)
+target_link_libraries(SolverGodunov RiemannExact)
 
 
 add_library(RiemannBase OBJECT Riemann.h RiemannBase.h RiemannBase.cpp)
@@ -77,6 +83,9 @@ target_link_libraries(RiemannHLLC RiemannBase)
 target_link_libraries(hydro SolverMUSCL)
 target_link_libraries(hydro SolverGodunov)
 target_link_libraries(hydro SolverBase)
+target_link_libraries(hydro RiemannHLLC)
+target_link_libraries(hydro RiemannExact)
+target_link_libraries(hydro RiemannBase)
 target_link_libraries(hydro IO)
 target_link_libraries(hydro Grid)
 target_link_libraries(hydro Cell)

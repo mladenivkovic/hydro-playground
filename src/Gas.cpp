@@ -126,7 +126,16 @@ idealGas::ConservedState::ConservedState():
   for (size_t i = 0; i < Dimensions; i++) {
     _rhov[i] = 0.;
   }
-};
+}
+
+idealGas::ConservedState::ConservedState(const Float rho, const Float rhovx, const Float rhovy, const Float E):
+  _rho(rho),
+  _energy(E)
+{
+  if (Dimensions != 2) error("This is for 2D only!");
+  _rhov[0] = rhovx;
+  _rhov[1] = rhovy;
+}
 
 
 /**
