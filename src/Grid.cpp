@@ -140,7 +140,7 @@ void grid::Grid::initCells() {
   msg << " for " << total_cells << " cells";
 
   message(msg.str());
-  timing("Initialising grid took " + tick.tock());
+  // timing("Initialising grid took " + tick.tock());
 }
 
 
@@ -211,7 +211,7 @@ void grid::Grid::replicateICs() {
   }
 
 
-  timing("Replicating grid took" + tick.tock());
+  // timing("Replicating grid took" + tick.tock());
 }
 
 
@@ -247,7 +247,7 @@ Float grid::Grid::collectTotalMass() {
   }
 
 
-  message("Collecting total mass in grid took" + tick.tock());
+  // message("Collecting total mass in grid took" + tick.tock());
 
   return total;
 }
@@ -272,7 +272,7 @@ void grid::Grid::resetFluxes() {
     }
   }
 
-  timing("Resetting fluxes took" + tick.tock());
+  // timing("Resetting fluxes took" + tick.tock());
 }
 
 
@@ -296,7 +296,7 @@ void grid::Grid::convertPrim2Cons() {
     }
   }
 
-  timing("Converting primitive to conserved vars took" + tick.tock());
+  // timing("Converting primitive to conserved vars took" + tick.tock());
 }
 
 
@@ -320,7 +320,7 @@ void grid::Grid::convertCons2Prim() {
     }
   }
 
-  timing("Converting conserved to primitive vars took" + tick.tock());
+  // timing("Converting conserved to primitive vars took" + tick.tock());
 }
 
 
@@ -383,7 +383,7 @@ void grid::Grid::applyBoundaryConditions() {
     error("Not implemented.");
   }
 
-  timing("Applying boundary conditions took " + tick.tock());
+  // timing("Applying boundary conditions took " + tick.tock());
 }
 
 

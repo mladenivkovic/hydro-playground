@@ -1,6 +1,7 @@
 #include "RiemannHLLC.h"
 
 #include "Gas.h"
+#include "Timer.h"
 
 #include <cmath>
 
@@ -10,6 +11,8 @@
  * @return the primitive state corresponding to the solution sampled at x=0.
  */
 idealGas::PrimitiveState riemann::RiemannHLLC::solve() {
+
+  timer::Timer tick(timer::Category::Riemann);
 
   if (hasVacuum()) {
     return solveVacuum();

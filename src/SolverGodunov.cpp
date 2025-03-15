@@ -59,7 +59,7 @@ void solver::SolverGodunov::computeFluxes(const size_t dimension){
     }
   }
 
-  timing("Computing fluxes took " + tick.tock());
+  // timing("Computing fluxes took " + tick.tock());
 }
 
 

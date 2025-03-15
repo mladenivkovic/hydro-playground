@@ -24,8 +24,9 @@ namespace timer {
 
 
   // More convenience aliasing
-  using default_time_units = unit::mus;
-  using ticks              = int64_t;
+  using default_time_units = unit::ms;
+  using ticks              = double;
+  // using ticks              = int64_t;
 
 
   /**

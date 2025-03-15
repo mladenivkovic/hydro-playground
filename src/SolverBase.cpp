@@ -162,7 +162,7 @@ void solver::SolverBase::computeDt(){
   }
 
 
-  timing("Compute next dt took " + tick.tock());
+  // timing("Compute next dt took " + tick.tock());
 }
 
 
@@ -208,7 +208,7 @@ void solver::SolverBase::integrateHydro(const size_t dimension){
     error("Unknown dimension " + std::to_string(dimension));
   }
 
-  timing("Hydro integration took " + tick.tock());
+  // timing("Hydro integration took " + tick.tock());
 }
 
 
