@@ -2,9 +2,11 @@
 
 #include <filesystem> // std::filesytem::exists
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 
 #include "Cell.h"
+#include "Config.h"
 #include "Logging.h"
 #include "Termcolors.h"
 #include "Version.h"
@@ -17,40 +19,30 @@ std::stringstream utils::banner() {
 
   std::stringstream banner;
 
-  if (color_term)
-    banner << tcols::cyan;
-  banner
-    << "o  o o   o o-o   o--o   o-o      o--o  o      O  o   o  o-o  o--o   o-o  o   o o   o o-o   \n";
-  if (color_term)
-    banner << tcols::reset;
+  if (color_term) banner << tcols::cyan;
+  banner << "o  o o   o o-o   o--o   o-o      o--o  o      ";
+  banner << "O  o   o  o-o  o--o   o-o  o   o o   o o-o   \n";
+  if (color_term) banner << tcols::reset;
 
-  if (color_term)
-    banner << tcols::green;
-  banner
-    << "|  |  \\ /  |  \\  |   | o   o     |   | |     / \\  \\ /  o     |   | o   o |   | |\\  | |  \\  \n";
-  if (color_term)
-    banner << tcols::reset;
+  if (color_term) banner << tcols::green;
+  banner << "|  |  \\ /  |  \\  |   | o   o     |   | |     ";
+  banner << "/ \\  \\ /  o     |   | o   o |   | |\\  | |  \\  \n";
+  if (color_term) banner << tcols::reset;
 
-  if (color_term)
-    banner << tcols::yellow;
-  banner
-    << "O--O   O   |   O O-Oo  |   |     O--o  |    o---o  O   |  -o O-Oo  |   | |   | | \\ | |   O \n";
-  if (color_term)
-    banner << tcols::reset;
+  if (color_term) banner << tcols::yellow;
+  banner << "O--O   O   |   O O-Oo  |   |     O--o  |    ";
+  banner << "o---o  O   |  -o O-Oo  |   | |   | | \\ | |   O \n";
+  if (color_term) banner << tcols::reset;
 
-  if (color_term)
-    banner << tcols::red;
-  banner
-    << "|  |   |   |  /  |  \\  o   o     |     |    |   |  |   o   | |  \\  o   o |   | |  \\| |  /  \n";
-  if (color_term)
-    banner << tcols::reset;
+  if (color_term) banner << tcols::red;
+  banner << "|  |   |   |  /  |  \\  o   o     |     |    ";
+  banner << "|   |  |   o   | |  \\  o   o |   | |  \\| |  /  \n";
+  if (color_term) banner << tcols::reset;
 
-  if (color_term)
-    banner << tcols::magenta;
-  banner
-    << "o  o   o   o-o   o   o  o-o      o     O---oo   o  o    o-o  o   o  o-o   o-o  o   o o-o   \n";
-  if (color_term)
-    banner << tcols::reset;
+  if (color_term) banner << tcols::magenta;
+  banner << "o  o   o   o-o   o   o  o-o      o     O---oo ";
+  banner << "  o  o    o-o  o   o  o-o   o-o  o   o o-o   \n";
+  if (color_term) banner << tcols::reset;
 
   banner << "\n";
 
@@ -72,30 +64,56 @@ void utils::printHeader() {
   // Print this out even for the quiet runs.
   logging::LogLevel level = logging::LogLevel::Quiet;
 
+  constexpr int w = 20;
+
   std::stringstream version_txt;
-  version_txt << "Version:     " << version_major << "." << version_minor;
+  version_txt << std::setw(w) << std::left;
+  version_txt << "Version:" << version_major << "." << version_minor;
   message(version_txt.str(), level);
 
   std::stringstream git_branch_txt;
-  git_branch_txt << "Git branch:  " << version::Version::GIT_BRANCH;
+  git_branch_txt << std::setw(w) << std::left;
+  git_branch_txt << "Git branch:" << version::Version::GIT_BRANCH;
   message(git_branch_txt.str(), level);
 
   std::stringstream git_comm_txt;
-  git_comm_txt << "Git commit:  " << version::Version::GIT_SHA1;
+  git_comm_txt << std::setw(w) << std::left;
+  git_comm_txt << "Git commit:" << version::Version::GIT_SHA1;
   message(git_comm_txt.str(), level);
 
   std::stringstream build_type;
-  build_type << "Build type:  " << CMAKE_BUILD_TYPE;
+  build_type << std::setw(w) << std::left;
+  build_type << "Build type:" << CMAKE_BUILD_TYPE;
   message(build_type.str(), level);
 
   // Note this only displays the build date of Utils.cpp.o
-  message("Build date:  " __DATE__ " - " __TIME__, level);
+  std::stringstream build_date;
+  build_date << std::setw(w) << std::left;
+  build_date << "Build date:" <<  __DATE__ << " - " << __TIME__;
+  message(build_date.str(), level);
+
+  std::stringstream solver;
+  solver << std::setw(w) << std::left;
+  solver << "Hydro solver: " << getSolverName();
+  message(solver.str(), level);
+
+  std::stringstream riemann;
+  riemann << std::setw(w) << std::left;
+  riemann << "Riemann solver: " << getRiemannSolverName();
+  message(riemann.str(), level);
+
+  std::stringstream limiter;
+  limiter << std::setw(w) << std::left;
+  limiter << "Limiter: " << getLimiterName();
+  message(limiter.str(), level);
 
   std::stringstream debug;
+  debug << std::setw(w) << std::left;
   debug << "Debug level: " << DEBUG_LEVEL;
   message(debug.str(), level);
 
   std::stringstream cellsize;
+  cellsize << std::setw(w) << std::left;
   cellsize << "sizeof(cell::Cell): " << sizeof(cell::Cell);
   message(cellsize.str());
 
@@ -344,4 +362,55 @@ std::string utils::string2string(std::string val) {
   }
 
   return v;
+}
+
+
+/**
+ * Get solver name from macro.
+ */
+const char* utils::getSolverName(){
+
+#if SOLVER == SOLVER_GODUNOV
+  return "Godunov";
+#elif SOLVER == SOLVER_MUSCL
+  return "MUSCL";
+#else
+#error Invalid Hydro Solver
+  return "UndefinedSolver";
+#endif
+}
+
+
+
+/**
+ * Get Riemann solver name from macro.
+ */
+const char* utils::getRiemannSolverName(){
+
+#if RIEMANN_SOLVER == RIEMANN_SOLVER_EXACT
+  return "Exact";
+#elif RIEMANN_SOLVER == RIEMANN_SOLVER_HLLC
+  return "HLLC";
+#else
+#error Invalid Riemann Solver
+  return "UndefinedRiemannSolver";
+#endif
+
+}
+
+
+
+/**
+ * Get limiter name from macro.
+ */
+const char* utils::getLimiterName(){
+
+#if LIMITER == LIMITER_MINMOD
+  return "Minmod";
+#elif LIMITER == LIMITER_VANLEER
+  return "VanLeer";
+#else
+#error Invalid Limiter
+  return "UndefinedLimiter";
+#endif
 }

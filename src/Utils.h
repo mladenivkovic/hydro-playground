@@ -54,4 +54,12 @@ namespace utils {
   //! "Convert" value string to string. Basically just do some additional sanity checks.
   std::string string2string(std::string val);
 
+  //! Get solver name from macro.
+  const char* getSolverName();
+
+  //! Get Riemann solver name from macro.
+  const char* getRiemannSolverName();
+
+  //! Get limiter name from macro.
+  const char* getLimiterName();
 } // namespace utils
