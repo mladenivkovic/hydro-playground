@@ -311,14 +311,11 @@ If no \texttt{basename} is given in the parameter file, the output file
 name will be generated as follows:
 
 \begin{lstlisting}
-<ICfile-without-suffix>-<SOLVER>-<RIEMANN-SOLVER>-<LIMITER>-<NDIM>D-<snapshot nr>.out
+output_XXXX.out
 \end{lstlisting}
 
-e.g.
+where \texttt{XXXX} is the snapshot/output number.
 
-\begin{lstlisting}
-run-uniform-MUSCL_HANCOCK-EXACT-MINMOD-2D-0001.out
-\end{lstlisting}
 
 The output files are written in plain text, and their content should be
 self-explanatory:

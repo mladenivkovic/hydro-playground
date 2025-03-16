@@ -72,17 +72,21 @@ message("* Current build type is : ${CMAKE_BUILD_TYPE}")
 # Options
 # ---------------------------
 
-option(TERMINAL_COLOR "Enable colour logging outputs" ON)
-if (TERMINAL_COLOR)
+# Terminal colours
+
+option(TERMINAL_COLORS "Enable colour logging outputs" ON)
+if (TERMINAL_COLORS)
     add_definitions(-DTERMINAL_COLORS)
-endif(TERMINAL_COLOR)
+endif(TERMINAL_COLORS)
 
-message(STATUS "TERMINAL_COLOR is set to: ${TERMINAL_COLOR}")
+message(STATUS "TERMINAL_COLORS is set to: ${TERMINAL_COLORS}")
 
+
+
+# Float precision
 
 set(PRECISION "DOUBLE" CACHE STRING "Set floating point precision (SINGLE DOUBLE)")
 set_property(CACHE PRECISION PROPERTY STRINGS "SINGLE" "DOUBLE")
-
 message(STATUS "PRECISION is set to: ${PRECISION}")
 
 if(PRECISION STREQUAL "SINGLE")
@@ -96,6 +100,71 @@ else()
         "Pick one of those."
         )
 endif()
+
+
+# Hydro Solver
+
+set(SOLVER "MUSCL" CACHE STRING "Select hydro solver (MUSCL GODUNOV)")
+set_property(CACHE SOLVER PROPERTY STRINGS "MUSCL" "GODUNOV")
+message(STATUS "SOLVER is set to: ${SOLVER}")
+
+if(SOLVER STREQUAL "MUSCL")
+    add_definitions(-DSOLVER=11)
+elseif(SOLVER STREQUAL "GODUNOV")
+    add_definitions(-DSOLVER=12)
+else()
+    message(FATAL_ERROR
+        "Invalid SOLVER=${SOLVER}. "
+        "Options are [MUSCL, GODUNOV]. "
+        "Pick one of those."
+        )
+endif()
+
+
+
+# Riemann Solver
+
+set(RIEMANN "HLLC" CACHE STRING "Select Riemann solver (HLLC EXACT)")
+set_property(CACHE RIEMANN PROPERTY STRINGS "HLLC" "EXACT")
+message(STATUS "RIEMANN is set to: ${RIEMANN}")
+
+if(RIEMANN STREQUAL "HLLC")
+    add_definitions(-DRIEMANN_SOLVER=21)
+elseif(SOLVER STREQUAL "RIEMANN")
+    add_definitions(-DRIEMANN_SOLVER=22)
+else()
+    message(FATAL_ERROR
+        "Invalid RIEMANN=${RIEMANN}. "
+        "Options are [HLLC, EXACT]. "
+        "Pick one of those."
+        )
+endif()
+
+
+
+
+# Slope Limiter
+
+set(LIMITER "MINMOD" CACHE STRING "Select slope limiter (MINMOD VANLEER)")
+set_property(CACHE LIMITER PROPERTY STRINGS "MINMOD" "VANLEER")
+message(STATUS "LIMITER is set to: ${LIMITER}")
+
+if(LIMITER STREQUAL "MINMOD")
+    add_definitions(-DLIMITER=31)
+elseif(SOLVER STREQUAL "VANLEER")
+    add_definitions(-DLIMITER=32)
+else()
+    message(FATAL_ERROR
+        "Invalid LIMITER=${LIMITER}. "
+        "Options are [MINMOD, VANLEER]. "
+        "Pick one of those."
+        )
+endif()
+
+
+
+
+
 
 
 
@@ -121,6 +190,8 @@ add_subdirectory(tests)
 
 enable_testing()
 add_test(NAME logging COMMAND test_logging)
+add_test(NAME io COMMAND test_io)
+add_test(NAME gas COMMAND test_gas)
 
 
 # ----------------------------------

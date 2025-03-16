@@ -177,7 +177,20 @@ Currently available build options are:
 
 - `-DTERMINAL_COLORS=ON`: Enable coloured output to `stdout` and `stderr` on terminals.
 
+- `-DSOLVER=` [`MUSCL`, `GODUNOV`]: (Default=`MUSCL`)
+  - Select hydrodynamics solver.
+  - `MUSCL`: MUSCL-Hancock solver (second order accurate)
+  - `GODUNOV`: Godunov solver (first order accurate)
 
+- `-DRIEMANN=` [`HLLC`, `EXACT`]: (Default=`HLLC`)
+  - Select Riemann solver.
+  - `HLLC`: Harten-Lax-van Leer with central wave (approximate solver)
+  - `EXACT`: Exact Riemann solver.
+
+- `-DLIMITER=` [`MINMOD`, `VANLEER`]: (Default = `VANLEER`):
+  - Select slope limiter for MUSCL-Hancock solver.
+  - `MINMOD`: Minmod limiter.
+  - `EXACT`: Exact Riemann solver.
 
 
 
@@ -402,12 +415,11 @@ wherever you feel like it.
 If no `basename` is given in the parameter file, the output file name will be generated as follows:
 
 ```
-<ICfile-without-suffix>-<SOLVER>-<RIEMANN-SOLVER>-<LIMITER>-<NDIM>D-<snapshot nr>.out
+output_XXXX.out
 ```
 
-e.g.
+where `XXXX` is the snapshot/output number.
 
-`run-ADVECTION-NO_LIMITER-2D-0001.out`
 
 The output files are written in plain text, and their content should be self-explanatory:
 

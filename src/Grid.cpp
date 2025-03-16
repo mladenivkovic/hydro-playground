@@ -8,26 +8,33 @@
 #include "Cell.h"
 #include "Logging.h"
 #include "Parameters.h"
+#include "Timer.h"
 
 
 constexpr size_t grid_print_width     = 5;
 constexpr size_t grid_print_precision = 3;
 
+
 /**
- * Constructor
+ * This is mainly copying parameters from the parameters object
+ * into the grid object. The actual grid is allocated later.
+ *
+ * @param pars A Parameters object holding global simulation parameters
  */
-grid::Grid::Grid():
+grid::Grid::Grid(const parameters::Parameters& params):
   _cells(nullptr),
+  _nx(params.getNx()),
+  _nx_norep(params.getNx()),
   _dx(1.),
-  _initialised(false) {
-  // Grab default values from default Parameters object.
-  auto pars     = parameters::Parameters();
-  _nx           = pars.getNx();
-  _nx_norep     = pars.getNx();
-  _boundaryType = pars.getBoundaryType();
-  _boxsize      = pars.getBoxsize();
-  _replicate    = pars.getReplicate();
-  _nbc          = pars.getNBC();
+  _boxsize(params.getBoxsize()),
+  _nbc(params.getNBC()),
+  _replicate(params.getReplicate()),
+  _boundary_type(params.getBoundaryType()) {
+
+#if DEBUG_LEVEL > 0
+  if (not params.getParamFileHasBeenRead())
+    error("Parameter file is unread; Need that at this stage!");
+#endif
 }
 
 
@@ -46,36 +53,6 @@ grid::Grid::~Grid() {
  * This is mainly copying parameters from the parameters object
  * into the grid object. The actual grid is allocated later.
  *
- * @param pars A Parameters object holding global simulation parameters
- */
-void grid::Grid::initGrid(const parameters::Parameters& pars) {
-
-  message("Initialising grid parameters.", logging::LogLevel::Verbose);
-
-#if DEBUG_LEVEL > 0
-  if (not pars.getParamFileHasBeenRead())
-    error("Parameter file is unread; Need that at this stage!");
-#endif
-
-  // Copy over relevant data.
-  setNx(pars.getNx());
-  setNxNorep(pars.getNx());
-  setBoundaryType(pars.getBoundaryType());
-  setNBC(pars.getNBC());
-  setBoxsize(pars.getBoxsize());
-  setReplicate(pars.getReplicate());
-
-
-  // Mark that we did this
-  _initialised = true;
-}
-
-
-/**
- * @brief Initialize the grid.
- * This is mainly copying parameters from the parameters object
- * into the grid object. The actual grid is allocated later.
- *
  * _cell(0,0)             is the bottom left cell.
  * _cell(nxtot-1,0)       is the bottom right cell
  * _cell(0,nxtot-1)       is the top-left cell
@@ -83,10 +60,9 @@ void grid::Grid::initGrid(const parameters::Parameters& pars) {
  */
 void grid::Grid::initCells() {
 
-#if DEBUG_LEVEL > 0
-  if (not _initialised)
-    error("Trying to alloc cells on uninitialised grid");
-#endif
+  message("Initialising cells.", logging::LogLevel::Debug);
+  timer::Timer tick(timer::Category::Reset);
+
 
   size_t nx      = getNx();
   size_t nxNorep = getNxNorep();
@@ -121,7 +97,7 @@ void grid::Grid::initCells() {
       cell::Cell& c = getCell(i);
       Float       x = (static_cast<Float>(i - first) + 0.5) * dx;
       c.setX(x);
-      c.setId(i);
+      // c.setId(i);
     }
 
   } else if (Dimensions == 2) {
@@ -138,7 +114,7 @@ void grid::Grid::initCells() {
         Float       y = (static_cast<Float>(j - first) + 0.5) * dx;
         c.setX(x);
         c.setY(y);
-        c.setId(i + j * nxTot);
+        // c.setId(i + j * nxTot);
       }
     }
   } else {
@@ -154,7 +130,7 @@ void grid::Grid::initCells() {
   constexpr size_t prec = 3;
   constexpr size_t wid  = 10;
 
-  Float gridsize = static_cast<Float>(total_cells) * static_cast<Float>(sizeof(cell::Cell));
+  auto              gridsize = static_cast<Float>(total_cells * sizeof(cell::Cell));
   std::stringstream msg;
   msg << "Grid memory takes [";
   msg << std::setprecision(prec) << std::setw(wid) << gridsize / KB << " KB /";
@@ -163,6 +139,7 @@ void grid::Grid::initCells() {
   msg << " for " << total_cells << " cells";
 
   message(msg.str());
+  // timing("Initialising grid took " + tick.tock());
 }
 
 
@@ -179,6 +156,10 @@ void grid::Grid::replicateICs() {
     warning("Called IC replication with replicate <=1? Skipping it.");
     return;
   }
+
+  // Ignore timing here:
+  // Timer for global IC duration is already set up above in call stack
+  timer::Timer tick(timer::Category::Ignore);
 
 
   printGrid("rho");
@@ -229,22 +210,24 @@ void grid::Grid::replicateICs() {
   }
 
 
-  // TODO: Make a timer out of this.
-  message("Finished replicating grid.");
+  // timing("Replicating grid took" + tick.tock());
 }
 
 
 /**
  * @brief get the total mass of the grid.
  */
-Float grid::Grid::getTotalMass() {
+Float grid::Grid::collectTotalMass() {
 
-  Float  total = 0;
-  size_t bc    = getNBC();
-  size_t nx    = getNx();
+  timer::Timer tick(timer::Category::CollectMass);
+  message("Collecting total mass in grid.", logging::LogLevel::Debug);
+
+  Float  total = 0.;
+  size_t first = getFirstCellIndex();
+  size_t last  = getLastCellIndex();
 
   if (Dimensions == 1) {
-    for (size_t i = bc; i < bc + nx; i++) {
+    for (size_t i = first; i < last; i++) {
       total += getCell(i).getPrim().getRho();
     }
 
@@ -252,14 +235,18 @@ Float grid::Grid::getTotalMass() {
   }
 
   else if (Dimensions == 2) {
-    for (size_t i = bc; i < bc + nx; i++) {
-      for (size_t j = bc; j < bc + nx; j++) {
+    for (size_t j = first; j < last; j++) {
+      for (size_t i = first; i < last; i++) {
         total += getCell(i, j).getPrim().getRho();
       }
     }
 
     total *= getDx() * getDx();
   }
+
+
+  // message("Collecting total mass in grid took" + tick.tock());
+
   return total;
 }
 
@@ -269,112 +256,139 @@ Float grid::Grid::getTotalMass() {
  */
 void grid::Grid::resetFluxes() {
 
-  constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
-  size_t         nbc  = getNBC();
-  size_t         nx   = getNx();
+  timer::Timer tick(timer::Category::Reset);
 
-  for (size_t i = nbc; i < nbc + nx; i++) {
-    for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
-      // if we are in 1d, j will be fixed to zero
-      getCell(i, j).getPrim().clear();
-      getCell(i, j).getCons().clear();
+  if (Dimensions != 2) {
+    error("Not Implemented");
+    return;
+  }
+
+  size_t first = getFirstCellIndex();
+  size_t last  = getLastCellIndex();
+
+  for (size_t j = first; j < last; j++) {
+    for (size_t i = first; i < last; i++) {
+      getCell(i, j).getPFlux().clear();
+      getCell(i, j).getCFlux().clear();
     }
   }
+
+  // timing("Resetting fluxes took" + tick.tock());
 }
 
 
 /**
- * runs through interior cells and calls PrimitveToConserved()
+ * runs through interior cells and calls prim2cons()
  * on each.
  */
-void grid::Grid::getCStatesFromPstates() {
+void grid::Grid::convertPrim2Cons() {
 
-  constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
+  timer::Timer tick(timer::Category::Convert);
 
-  size_t nbc = getNBC();
-  size_t nx  = getNx();
+  if (Dimensions != 2) {
+    error("Not Implemented");
+    return;
+  }
 
-  for (size_t i = nbc; i < nbc + nx; i++) {
-    for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
-      // if we are in 1d, j will be fixed to zero
-      getCell(i, j).PrimitiveToConserved();
+  size_t first = getFirstCellIndex();
+  size_t last  = getLastCellIndex();
+
+  for (size_t j = first; j < last; j++) {
+    for (size_t i = first; i < last; i++) {
+      getCell(i, j).prim2cons();
     }
   }
+
+  // timing("Converting primitive to conserved vars took" + tick.tock());
 }
 
 
 /**
- * runs through interior cells and alls ConservedToPrimitve()
+ * runs through interior cells and calls cons2prim()
  * on each.
  */
-void grid::Grid::getPStatesFromCstates() {
+void grid::Grid::convertCons2Prim() {
 
-  constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
+  timer::Timer tick(timer::Category::Convert);
 
-  size_t nbc = getNBC();
-  size_t nx  = getNx();
+  if (Dimensions != 2) {
+    error("Not Implemented");
+    return;
+  }
 
-  for (size_t i = nbc; i < nbc + nx; i++) {
-    for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
-      // if we are in 1d, j will be fixed to zero
-      getCell(i, j).ConservedToPrimitive();
+  size_t first = getFirstCellIndex();
+  size_t last  = getLastCellIndex();
+
+  for (size_t j = first; j < last; j++) {
+    for (size_t i = first; i < last; i++) {
+      getCell(i, j).cons2prim();
     }
   }
+
+  // timing("Converting conserved to primitive vars took" + tick.tock());
 }
 
+
 /**
- * enforce boundary conditions.
+ * @brief enforce boundary conditions.
  * This function only picks out the pairs of real
  * and ghost cells in a row or column and then
  * calls the function that actually copies the data.
  */
-void grid::Grid::setBoundary() {
+void grid::Grid::applyBoundaryConditions() {
 
-  const size_t nbc   = getNBC();
-  const size_t nx    = getNx();
-  const size_t bctot = _getNBCTot();
+  timer::Timer tick(timer::Category::BoundaryConditions);
+  message("Applying boundary conditions.", logging::LogLevel::Debug);
 
-  // Make space to store pointers to real and ghost cells.
-  std::vector<cell::Cell*> realLeft(nbc);
-  std::vector<cell::Cell*> realRight(nbc);
-  std::vector<cell::Cell*> ghostLeft(nbc);
-  std::vector<cell::Cell*> ghostRight(nbc);
+  const size_t nbc       = getNBC();
+  const size_t firstReal = getFirstCellIndex();
+  const size_t lastReal  = getLastCellIndex();
 
-  // doesn't look like we will need this code often. so avoid hacky stuff
+  // Make some space.
+  std::vector<cell::Cell*> real_left(nbc);
+  std::vector<cell::Cell*> real_right(nbc);
+  std::vector<cell::Cell*> ghost_left(nbc);
+  std::vector<cell::Cell*> ghost_right(nbc);
+
   if (Dimensions == 1) {
-    for (size_t i = 0; i < nbc; i++) {
-      realLeft[i]   = &(getCell(nbc + i));
-      realRight[i]  = &(getCell(nx + i)); // = last index of a real cell = BC + (i + 1)
-      ghostLeft[i]  = &(getCell(i));
-      ghostRight[i] = &(getCell(nx + nbc + i));
+    for (size_t i = 0; i < firstReal; i++) {
+      real_left[i]   = &(getCell(firstReal + i));
+      real_right[i]  = &(getCell(lastReal - firstReal + i));
+      ghost_left[i]  = &(getCell(i));
+      ghost_right[i] = &(getCell(lastReal + i));
     }
-    realToGhost(realLeft, realRight, ghostLeft, ghostRight);
+    realToGhost(real_left, real_right, ghost_left, ghost_right);
   }
 
   else if (Dimensions == 2) {
+
     // left-right boundaries
-    for (size_t j = 0; j < nx + bctot; j++) {
-      for (size_t i = 0; i < nbc; i++) {
-        realLeft[i]   = &(getCell(nbc + i, j));
-        realRight[i]  = &(getCell(nx + i, j));
-        ghostLeft[i]  = &(getCell(i, j));
-        ghostRight[i] = &(getCell(nx + nbc + i, j));
+    for (size_t j = firstReal; j < lastReal; j++) {
+      for (size_t i = 0; i < firstReal; i++) {
+        real_left[i]   = &(getCell(firstReal + i, j));
+        real_right[i]  = &(getCell(lastReal - firstReal + i, j));
+        ghost_left[i]  = &(getCell(i, j));
+        ghost_right[i] = &(getCell(lastReal + i, j));
       }
-      realToGhost(realLeft, realRight, ghostLeft, ghostRight, 0);
+      realToGhost(real_left, real_right, ghost_left, ghost_right, 0);
     }
+
+    // upper-lower boundaries
+    // left -> lower, right -> upper
+    for (size_t i = firstReal; i < lastReal; i++) {
+      for (size_t j = 0; j < firstReal; j++) {
+        real_left[j]   = &(getCell(i, firstReal + j));
+        real_right[j]  = &(getCell(i, lastReal - firstReal + j));
+        ghost_left[j]  = &(getCell(i, j));
+        ghost_right[j] = &(getCell(i, lastReal + j));
+      }
+      realToGhost(real_left, real_right, ghost_left, ghost_right, 1);
+    }
+  } else {
+    error("Not implemented.");
   }
 
-  // upper-lower boundaries
-  // left -> lower, right -> upper
-  for (size_t i = 0; i < nx + bctot; i++) {
-    for (size_t j = 0; j < nbc; j++) {
-      realLeft[j]   = &(getCell(i, nbc + j));
-      realRight[j]  = &(getCell(i, nx + j));
-      ghostLeft[j]  = &(getCell(i, j));
-      ghostRight[j] = &(getCell(i, nx + nbc + j));
-    }
-    realToGhost(realLeft, realRight, ghostLeft, ghostRight, 1);
-  }
+  // timing("Applying boundary conditions took " + tick.tock());
 }
 
 
@@ -392,38 +406,53 @@ void grid::Grid::setBoundary() {
  * lowest array index is also lowest index of cell in grid
  */
 void grid::Grid::realToGhost(
-  std::vector<cell::Cell*> realLeft,
-  std::vector<cell::Cell*> realRight,
-  std::vector<cell::Cell*> ghostLeft,
-  std::vector<cell::Cell*> ghostRight,
+  std::vector<cell::Cell*> real_left,
+  std::vector<cell::Cell*> real_right,
+  std::vector<cell::Cell*> ghost_left,
+  std::vector<cell::Cell*> ghost_right,
   const size_t             dimension
 ) // dimension defaults to 0
 {
+
   size_t nbc = getNBC();
 
+#if DEBUG_LEVEL > 0
+  assert(real_left.size() == nbc);
+  assert(real_right.size() == nbc);
+  assert(ghost_left.size() == nbc);
+  assert(ghost_right.size() == nbc);
+#endif
+
+
   switch (getBoundaryType()) {
-  case BC::BoundaryCondition::Periodic: {
+  case BC::BoundaryCondition::Periodic:
     for (size_t i = 0; i < nbc; i++) {
-      ghostLeft[i]->CopyBoundaryData(realLeft[i]);
-      ghostRight[i]->CopyBoundaryData(realRight[i]);
+      ghost_left[i]->copyBoundaryData(real_right[i]);
+      ghost_right[i]->copyBoundaryData(real_left[i]);
     }
-  } break;
+    break;
 
-  case BC::BoundaryCondition::Reflective: {
+  case BC::BoundaryCondition::Reflective:
     for (size_t i = 0; i < nbc; i++) {
-      ghostLeft[i]->CopyBoundaryDataReflective(realLeft[i], dimension);
-      ghostRight[i]->CopyBoundaryDataReflective(realRight[i], dimension);
+      ghost_left[i]->copyBoundaryDataReflective(real_left[real_left.size() - i - 1], dimension);
+      ghost_right[i]->copyBoundaryDataReflective(real_right[real_right.size() - i - 1], dimension);
     }
-  } break;
+    break;
 
-  case BC::BoundaryCondition::Transmissive: {
+  case BC::BoundaryCondition::Transmissive:
     for (size_t i = 0; i < nbc; i++) {
-      ghostLeft[i]->CopyBoundaryData(realLeft[i]);
-
-      // assumption that this vector has length "bc".
-      ghostRight[i]->CopyBoundaryData(realRight[nbc - i - 1]);
+      ghost_left[i]->copyBoundaryData(real_left[real_left.size() - i - 1]);
+      ghost_right[i]->copyBoundaryData(real_right[real_right.size() - i - 1]);
     }
-  } break;
+    break;
+
+  default:
+    std::stringstream msg;
+    msg << "Treatment for boundary conditions of type ";
+    msg << BC::getBoundaryConditionName(getBoundaryType());
+    msg << " not defined.";
+    error(msg.str());
+    break;
   }
 }
 
@@ -515,7 +544,7 @@ void grid::Grid::printGrid(bool boundaries, bool conserved) {
     error("Not implemented");
   }
 
-  std::cout << out.str() << std::endl;
+  std::cout << out.str();
 }
 
 
@@ -551,7 +580,8 @@ void grid::Grid::printGrid(const char* quantity, bool boundaries) {
   if (Dimensions == 1) {
 
     for (size_t i = start; i < end; i++) {
-      out << std::setw(w) << std::setprecision(p) << getCell(i).getQuanityForPrintout(quantity);
+      out << std::setw(w) << std::setprecision(p);
+      out << getCell(i).getQuantityForPrintout(quantity);
 
       bool at_boundary = (i == first - 1) or (i == last - 1);
       if (boundaries and at_boundary) {
@@ -571,8 +601,8 @@ void grid::Grid::printGrid(const char* quantity, bool boundaries) {
     for (int j = end - 1; j >= 0; j--) {
 
       for (size_t i = start; i < end; i++) {
-        out
-          << std::setw(w) << std::setprecision(p) << getCell(i, j).getQuanityForPrintout(quantity);
+        out << std::setw(w) << std::setprecision(p);
+        out << getCell(i, j).getQuantityForPrintout(quantity);
 
         bool at_boundary = (i == first - 1) or (i == last - 1);
         if (boundaries and at_boundary) {

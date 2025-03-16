@@ -12,23 +12,19 @@ namespace cell {
     //! Standard constructor
     Cell();
 
-    //! copy assignment, for copying boundary data
-    //! Return reference to this, for chaining calls
-    // Cell& operator=(const Cell& other) = default;
+    void copyBoundaryData(const Cell* other);
 
-    void CopyBoundaryData(const Cell* real);
-
-    void CopyBoundaryDataReflective(const Cell* real, const std::size_t dimension);
+    void copyBoundaryDataReflective(const Cell* other, const std::size_t dimension);
 
     //! Update cell's primitive state to current conserved state
-    void ConservedToPrimitive();
+    void cons2prim();
 
     //! Update cell's conserved state to current primitive state
-    void PrimitiveToConserved();
+    void prim2cons();
 
   private:
     //! Cell ID
-    size_t _id;
+    // size_t _id;
 
     //! x position of cell centre
     Float _x;
@@ -48,13 +44,7 @@ namespace cell {
     //! Fluxes of conserved state
     idealGas::ConservedState _cflux;
 
-    //! Acceleration
-    // std::array<Float, Dimensions> _acc;
-
   public:
-    // leaving these for now
-    // std::string getIndexString();
-
     //! Set cell centre position X,Y
     void                setX(const Float x);
     [[nodiscard]] Float getX() const;
@@ -62,14 +52,14 @@ namespace cell {
     void                setY(const Float y);
     [[nodiscard]] Float getY() const;
 
-    void                 setId(const size_t id);
-    [[nodiscard]] size_t getID() const;
+    // void                 setId(const size_t id);
+    // [[nodiscard]] size_t getID() const;
 
     //! Retrieve a specific cell quantity. Intended for printouts.
-    Float getQuanityForPrintout(const char* quantity) const;
+    Float getQuantityForPrintout(const char* quantity) const;
 
     //! Get cell index(es) in grid
-    std::pair<std::size_t, std::size_t> getIJ(const std::size_t nxtot);
+    // std::pair<std::size_t, std::size_t> getIJ(const std::size_t nxtot);
 
     //! Getters and setters
     idealGas::PrimitiveState& getPrim();
@@ -81,8 +71,8 @@ namespace cell {
     [[nodiscard]] const idealGas::PrimitiveState& getPrim() const;
     [[nodiscard]] const idealGas::ConservedState& getCons() const;
 
-    void setPrim(idealGas::PrimitiveState& prim);
-    void setCons(idealGas::ConservedState& cons);
+    void setPrim(const idealGas::PrimitiveState& prim);
+    void setCons(const idealGas::ConservedState& cons);
   };
 
 } // namespace cell
@@ -92,18 +82,18 @@ namespace cell {
 // Definitions
 // --------------------------------------------------------
 
-inline void cell::Cell::ConservedToPrimitive() {
-  _prim.ConservedToPrimitive(_cons);
+inline void cell::Cell::cons2prim() {
+  _prim.fromCons(_cons);
 };
 
 
-inline void cell::Cell::PrimitiveToConserved() {
-  _cons.PrimitiveToConserved(_prim);
+inline void cell::Cell::prim2cons() {
+  _cons.fromPrim(_prim);
 };
 
 
 //! Set cell centre position X
-inline void cell::Cell::setX(Float x) {
+inline void cell::Cell::setX(const Float x) {
   _x = x;
 }
 
@@ -113,7 +103,7 @@ inline Float cell::Cell::getX() const {
 
 
 //! Set cell centre position Y
-inline void cell::Cell::setY(Float y) {
+inline void cell::Cell::setY(const Float y) {
   _y = y;
 }
 
@@ -123,14 +113,14 @@ inline Float cell::Cell::getY() const {
 }
 
 
-inline void cell::Cell::setId(const size_t id) {
-  _id = id;
-}
+// inline void cell::Cell::setId(const size_t id) {
+//   _id = id;
+// }
 
 
-inline size_t cell::Cell::getID() const {
-  return _id;
-}
+// inline size_t cell::Cell::getID() const {
+//   return _id;
+// }
 
 
 inline idealGas::PrimitiveState& cell::Cell::getPrim() {
@@ -163,11 +153,11 @@ inline const idealGas::ConservedState& cell::Cell::getCons() const {
 }
 
 
-inline void cell::Cell::setPrim(idealGas::PrimitiveState& prim) {
+inline void cell::Cell::setPrim(const idealGas::PrimitiveState& prim) {
   _prim = prim;
 }
 
 
-inline void cell::Cell::setCons(idealGas::ConservedState& cons) {
+inline void cell::Cell::setCons(const idealGas::ConservedState& cons) {
   _cons = cons;
 }

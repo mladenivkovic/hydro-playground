@@ -4,6 +4,7 @@
 #include <cctype>
 #include <fstream>
 #include <iomanip>
+#include <ios>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -15,7 +16,6 @@
 #include "Timer.h"
 #include "Utils.h"
 
-using idealGas::PrimitiveState;
 
 // -----------------------------------------
 // paramEntry stuff
@@ -24,11 +24,11 @@ using idealGas::PrimitiveState;
 /**
  * paramEntry constructors
  */
-IO::paramEntry::paramEntry(std::string parameter):
+IO::ParamEntry::ParamEntry(std::string parameter):
   param(std::move(parameter)),
   used(false) {};
 
-IO::paramEntry::paramEntry(std::string parameter, std::string value):
+IO::ParamEntry::ParamEntry(std::string parameter, std::string value):
   param(std::move(parameter)),
   value(std::move(value)),
   used(false) {};
@@ -63,7 +63,7 @@ IO::InputParse::InputParse(const int argc, char* argv[]) {
     // Allow flags without values
     if (arg == "-h" or arg == "--help" or arg == "-v" or arg == "--verbose" or arg == "-vv"
         or arg == "--very-verbose") {
-      _clArguments.insert(std::make_pair(arg, ""));
+      _cmdlargs.insert(std::make_pair(arg, ""));
       continue;
     }
 
@@ -75,7 +75,7 @@ IO::InputParse::InputParse(const int argc, char* argv[]) {
     if (name != utils::somethingWrong()) {
 
       // We have an arg=value situation.
-      _clArguments.insert(std::make_pair(name, value));
+      _cmdlargs.insert(std::make_pair(name, value));
 
     } else {
 
@@ -83,7 +83,7 @@ IO::InputParse::InputParse(const int argc, char* argv[]) {
       std::string val;
       if (i + 1 < argc)
         val = argv[i + 1];
-      _clArguments.insert(std::make_pair(arg, val));
+      _cmdlargs.insert(std::make_pair(arg, val));
       i++;
     }
   }
@@ -111,7 +111,7 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
 
   // Read in line by line
   while (std::getline(conf_ifs, line)) {
-    auto        pair  = _extractParameter(line);
+    auto        pair  = extractParameter(line);
     std::string name  = pair.first;
     std::string value = pair.second;
     if (name == "")
@@ -120,26 +120,26 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
       warning("Something wrong with param file line '" + line + "'; skipping it");
     }
 
-    paramEntry newEntry = paramEntry(name, value);
+    ParamEntry newEntry(name, value);
     _config_params.insert(std::make_pair(name, newEntry));
   }
 
 
   // Now we parse each argument
 
-  size_t nstepsLog = _convertParameterString(
+  size_t nsteps_log = _convertParameterString(
     "nstep_log",
     ArgType::Size_t,
     /*optional=*/true,
-    /*defaultVal=*/params.getNstepsLog()
+    /*default_val=*/params.getNstepsLog()
   );
-  params.setNstepsLog(nstepsLog);
+  params.setNstepsLog(nsteps_log);
 
   int verbose = _convertParameterString(
     "verbose",
     ArgType::Integer,
     /*optional=*/true,
-    /*defaultVal=*/params.getVerbose()
+    /*default_val=*/params.getVerbose()
   );
   params.setVerbose(verbose);
 
@@ -147,7 +147,7 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
     "nsteps",
     ArgType::Size_t,
     /*optional=*/true,
-    /*defaultVal=*/params.getNsteps()
+    /*default_val=*/params.getNsteps()
   );
   params.setNsteps(nsteps);
 
@@ -155,7 +155,7 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
     "nx",
     ArgType::Size_t,
     /*optional=*/true,
-    /*defaultVal=*/params.getNsteps()
+    /*default_val=*/params.getNsteps()
   );
   params.setNx(nx);
 
@@ -163,7 +163,7 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
     "replicate",
     ArgType::Size_t,
     /*optional=*/true,
-    /*defaultVal=*/params.getReplicate()
+    /*default_val=*/params.getReplicate()
   );
   params.setReplicate(rep);
 
@@ -171,7 +171,7 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
     "boundary",
     ArgType::Integer,
     /*optional=*/true,
-    /*defaultVal=*/static_cast<int>(params.getBoundaryType())
+    /*default_val=*/static_cast<int>(params.getBoundaryType())
   );
   params.setBoundaryType(static_cast<BC::BoundaryCondition>(boundary));
 
@@ -179,7 +179,7 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
     "tmax",
     ArgType::Float,
     /*optional=*/true,
-    /*defaultVal=*/params.getTmax()
+    /*default_val=*/params.getTmax()
   );
   params.setTmax(tmax);
 
@@ -187,7 +187,7 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
     "boxsize",
     ArgType::Float,
     /*optional=*/true,
-    /*defaultVal=*/params.getBoxsize()
+    /*default_val=*/params.getBoxsize()
   );
   params.setBoxsize(boxsize);
 
@@ -195,7 +195,7 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
     "ccfl",
     ArgType::Float,
     /*optional=*/true,
-    /*defaultVal=*/params.getCcfl()
+    /*default_val=*/params.getCcfl()
   );
   params.setCcfl(ccfl);
 
@@ -203,23 +203,23 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
     "basename",
     ArgType::String,
     /*optional=*/true,
-    /*defaultVal=*/params.getOutputFileBase()
+    /*default_val=*/params.getOutputFileBase()
   );
   params.setOutputFileBase(basename);
 
-  bool writeReplications = _convertParameterString(
+  bool write_replications = _convertParameterString(
     "write_replications",
     ArgType::Bool,
     /*optional=*/true,
-    /*defaultVal=*/params.getWriteReplications()
+    /*default_val=*/params.getWriteReplications()
   );
-  params.setWriteReplications(writeReplications);
+  params.setWriteReplications(write_replications);
 
   Float dt_out = _convertParameterString(
     "dt_out",
     ArgType::Float,
     /*optional=*/true,
-    /*defaultVal=*/params.getDtOut()
+    /*default_val=*/params.getDtOut()
   );
   params.setDtOut(dt_out);
 
@@ -227,7 +227,7 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
     "foutput",
     ArgType::Size_t,
     /*optional=*/true,
-    /*defaultVal=*/params.getFoutput()
+    /*default_val=*/params.getFoutput()
   );
   params.setFoutput(foutput);
 
@@ -246,7 +246,7 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
 void IO::InputParse::readICFile(grid::Grid& grid) {
 
   logging::setStage(logging::LogStage::IO);
-  timer::Timer tickIC(timer::Category::IC);
+  timer::Timer tick(timer::Category::IC);
 
   if (_icIsTwoState()) {
     message("Found two-state IC file.", logging::LogLevel::Verbose);
@@ -256,9 +256,7 @@ void IO::InputParse::readICFile(grid::Grid& grid) {
     _readArbitraryIC(grid);
   }
 
-  auto dt = tickIC.tock();
-
-  timing("Reading ICs took " + dt);
+  timing("Reading ICs took " + tick.tock());
 }
 
 
@@ -274,7 +272,7 @@ void IO::InputParse::readICFile(grid::Grid& grid) {
  * If something goes wrong during the partising, name and value will be
  * utils::somethingWrong().
  */
-std::pair<std::string, std::string> IO::InputParse::_extractParameter(std::string& line) {
+std::pair<std::string, std::string> IO::InputParse::extractParameter(std::string& line) {
 
   std::string name;
   std::string value;
@@ -384,8 +382,8 @@ void IO::InputParse::_checkCmdLineArgsAreValid() {
  */
 bool IO::InputParse::_commandOptionExists(const std::string& option) {
 
-  auto search = _clArguments.find(option);
-  return (search != _clArguments.end());
+  auto search = _cmdlargs.find(option);
+  return (search != _cmdlargs.end());
 }
 
 
@@ -394,8 +392,8 @@ bool IO::InputParse::_commandOptionExists(const std::string& option) {
  */
 std::string IO::InputParse::_getCommandOption(const std::string& option) {
 
-  auto search = _clArguments.find(option);
-  if (search == _clArguments.end()) {
+  auto search = _cmdlargs.find(option);
+  if (search == _cmdlargs.end()) {
     warning("No option '" + option + "' available");
     const std::string emptyString;
     return emptyString;
@@ -412,7 +410,7 @@ std::string IO::InputParse::_getCommandOption(const std::string& option) {
 void IO::InputParse::_checkUnusedParameters() {
 
   for (auto& _config_param : _config_params) {
-    paramEntry& entry = _config_param.second;
+    ParamEntry& entry = _config_param.second;
     if (not entry.used) {
       std::stringstream msg;
       msg << "Unused parameter: " << entry.param << "=" << entry.value;
@@ -422,7 +420,7 @@ void IO::InputParse::_checkUnusedParameters() {
     else {
       std::stringstream msg;
       msg << "Used parameter: " << entry.param << "=" << entry.value;
-      message(msg.str(), logging::LogLevel::Verbose);
+      message(msg.str(), logging::LogLevel::Debug);
     }
 #endif
   }
@@ -477,17 +475,19 @@ bool IO::InputParse::_icIsTwoState() {
 /**
  * Extract the value from a single line of the two-state IC file.
  */
-Float IO::InputParse::_extractTwoStateVal(std::string& line, const char* expectedName, const char* alternativeName) {
+Float IO::InputParse::_extractTwoStateVal(
+  std::string& line, const char* expected_name, const char* alternative_name
+) {
 
   std::string nocomment = utils::removeTrailingComment(line);
   auto        pair      = utils::splitEquals(nocomment);
   std::string name      = pair.first;
   std::string value     = pair.second;
 
-  if (name != expectedName and name != alternativeName) {
+  if (name != expected_name and name != alternative_name) {
     std::stringstream msg;
     msg << "Something wrong when parsing two-state IC file.\n";
-    msg << "Expecting: `" << expectedName << "`\n";
+    msg << "Expecting: `" << expected_name << "`\n";
     msg << "Line:`" << line << "`";
     error(msg.str());
   }
@@ -497,6 +497,12 @@ Float IO::InputParse::_extractTwoStateVal(std::string& line, const char* expecte
 }
 
 
+/**
+ * Extract a line from an arbitrary-time IC file into a PrimitiveState.
+ *
+ * @param line the line to work on
+ * @param linenr the current line number in the IC. Used in case of errors.
+ */
 idealGas::PrimitiveState IO::InputParse::_extractArbitraryICVal(std::string& line, size_t linenr) {
 
   Float rho = 0;
@@ -543,8 +549,9 @@ idealGas::PrimitiveState IO::InputParse::_extractArbitraryICVal(std::string& lin
     vx  = utils::string2float(split[1]);
     p   = utils::string2float(split[2]);
 
-    return PrimitiveState(rho, vx, p);
-  } else if (Dimensions == 2) {
+    return idealGas::PrimitiveState(rho, vx, p);
+  }
+  if (Dimensions == 2) {
 
     if (split.size() != 4) {
       std::stringstream msg;
@@ -558,12 +565,11 @@ idealGas::PrimitiveState IO::InputParse::_extractArbitraryICVal(std::string& lin
     vy  = utils::string2float(split[2]);
     p   = utils::string2float(split[3]);
 
-    return PrimitiveState(rho, vx, vy, p);
-
-  } else {
-    error("Not Implemented.");
+    return idealGas::PrimitiveState(rho, vx, vy, p);
   }
 
+  // Dim != 1, != 2
+  error("Not Implemented.");
   return {};
 }
 
@@ -612,20 +618,18 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
   std::getline(icts_ifs, line);
   Float p_R = _extractTwoStateVal(line, "p_R");
 
-  PrimitiveState left;
-  PrimitiveState right;
+  idealGas::PrimitiveState left;
+  idealGas::PrimitiveState right;
 
-  if (Dimensions == 1){
-    left = PrimitiveState(rho_L, v_L, p_L);
-    right = PrimitiveState(rho_R, v_R, p_R);
-  }
-  else if (Dimensions == 2) {
-    left = PrimitiveState(rho_L, v_L, 0., p_L);
-    right = PrimitiveState(rho_R, v_R, 0., p_R);
+  if (Dimensions == 1) {
+    left  = idealGas::PrimitiveState(rho_L, v_L, p_L);
+    right = idealGas::PrimitiveState(rho_R, v_R, p_R);
+  } else if (Dimensions == 2) {
+    left  = idealGas::PrimitiveState(rho_L, v_L, 0., p_L);
+    right = idealGas::PrimitiveState(rho_R, v_R, 0., p_R);
   } else {
     error("Not Implemented.");
   }
-
 
 
   // Now allocate and fill up the grid.
@@ -662,16 +666,6 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
   } else {
     error("Not implemented");
   }
-
-  // TODO: Remove this again. (after boundary check)
-  grid.printGrid(true);
-  // grid.printGrid("rho", true);
-  // grid.printGrid("vx", true);
-  // grid.printGrid("vy", true);
-  // grid.printGrid("p", true);
-  // grid.printGrid("rhovx", true);
-  // grid.printGrid("rhovy", true);
-  // grid.printGrid("e", true);
 }
 
 
@@ -790,9 +784,6 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
   if (grid.getReplicate() > 1) {
     grid.replicateICs();
   }
-
-  // grid.printGrid();
-  grid.printGrid("rho", true);
 }
 
 
@@ -804,50 +795,52 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
 /**
  * Generate the output file name to write into.
  */
-std::string IO::OutputWriter::_getOutputFileName(parameters::Parameters& params) {
+std::string IO::OutputWriter::_getOutputFileName() {
 
   std::stringstream fname;
-  if (params.getOutputFileBase() == "") {
+  if (_params.getOutputFileBase() == "") {
     fname << "output";
   } else {
-    fname << params.getOutputFileBase();
+    fname << _params.getOutputFileBase();
   }
   fname << "_";
   fname << std::setfill('0') << std::setw(4) << getNOutputsWritten();
-  fname << ".dat";
+  fname << ".out";
 
   return fname.str();
 }
 
+
 /**
  * Write the output.
  */
-void IO::OutputWriter::dump(
-  parameters::Parameters& params, grid::Grid& grid, Float t_current, size_t step
-) {
+void IO::OutputWriter::dump(Float t_current, size_t step) {
 
   if (Dimensions != 2) {
     error("Not Implemented Yet");
   }
-
-
-  constexpr int fwidth = 12;
-  constexpr int fprec  = 6;
 
   // Change the stage we're in
   logging::LogStage prevStage = logging::getCurrentStage();
   logging::setStage(logging::LogStage::IO);
   timer::Timer tick(timer::Category::IO);
 
+  std::stringstream msg;
+  msg << "Writing output for step " << step << ", t=" << t_current;
+  message(msg.str(), logging::LogLevel::Debug);
 
-  size_t nx = grid.getNxNorep();
-  if (params.getWriteReplications()) {
-    nx = grid.getNx();
+
+  size_t nx = _grid.getNxNorep();
+  if (_params.getWriteReplications()) {
+    nx = _grid.getNx();
   }
-  size_t first = grid.getFirstCellIndex();
+  size_t first = _grid.getFirstCellIndex();
   size_t last  = first + nx;
 
-  std::string   fname = _getOutputFileName(params);
+  constexpr int fwidth = 12;
+  constexpr int fprec  = 6;
+
+  std::string   fname = _getOutputFileName();
   std::ofstream out(fname);
 
   out << "# ndim = " << Dimensions << "\n";
@@ -858,21 +851,24 @@ void IO::OutputWriter::dump(
 
   for (size_t j = first; j < last; j++) {
     for (size_t i = first; i < last; i++) {
-      cell::Cell& c = grid.getCell(i, j);
-      out << std::setw(fwidth) << std::setprecision(fprec) << c.getX();
+      cell::Cell& c = _grid.getCell(i, j);
+      out << std::setw(fwidth) << std::scientific << std::setprecision(fprec) << c.getX();
       out << " ";
-      out << std::setw(fwidth) << std::setprecision(fprec) << c.getY();
+      out << std::setw(fwidth) << std::scientific << std::setprecision(fprec) << c.getY();
       out << " ";
 
-      PrimitiveState& p = c.getPrim();
-      out << std::setw(fwidth) << std::setprecision(fprec) << p.getRho();
+      idealGas::PrimitiveState& p = c.getPrim();
+      out << std::setw(fwidth) << std::scientific << std::setprecision(fprec) << p.getRho();
       out << " ";
-      out << std::setw(fwidth) << std::setprecision(fprec) << p.getV(0);
+      out << std::setw(fwidth) << std::scientific << std::setprecision(fprec) << p.getV(0);
       out << " ";
-      out << std::setw(fwidth) << std::setprecision(fprec) << p.getV(1);
+      out << std::setw(fwidth) << std::scientific << std::setprecision(fprec) << p.getV(1);
       out << " ";
-      out << std::setw(fwidth) << std::setprecision(fprec) << p.getP();
+      out << std::setw(fwidth) << std::scientific << std::setprecision(fprec) << p.getP();
       out << "\n";
+
+      if (p.getP() > 190. and p.getP() < 210)
+        warning("Caught it!!!");
     }
   }
 
@@ -882,9 +878,50 @@ void IO::OutputWriter::dump(
   // We're done, take note of that
   message("Written output to " + fname, logging::LogLevel::Verbose);
   incNOutputsWritten();
+  // Write down current time and update when next output is being written
+  setTimeLastOutputWritten(t_current);
 
-  auto delt = tick.tock();
-  timing("Writing output took " + delt);
+  timing("Writing output took " + tick.tock());
   // change it back to where we were
   logging::setStage(prevStage);
+}
+
+
+/**
+ * Will we write output this step? Call this before actually doing the
+ * computations. This function is allowed to modify the time step size,
+ * dtCurrent, so that it writes output at the requested time.
+ *
+ * @param currentStep the current simulation step index
+ * @param tCurrent the current simulation time
+ * @param dtCurrent the current simulation time step size
+ */
+bool IO::OutputWriter::dumpThisStep(size_t current_step, Float t_current, Float& dt_current) {
+
+  if (_params.getDtOut() > 0.) {
+    // We're writing outputs based on time intervals.
+    // Trim down time step size to fit, if necessary.
+    if (t_current + dt_current >= _t_next_dump) {
+      dt_current = _t_next_dump - t_current;
+
+      message(
+        "Trimmed dt to " + std::to_string(dt_current) + " for output.", logging::LogLevel::Debug
+      );
+
+      return true;
+    }
+    return false;
+  }
+  if (_params.getFoutput() > 0) {
+    // Writing at step 0 is handled outside the main step loop. So check that
+    // current_step > 0 too lest you write snapshot 0 twice.
+    return ((current_step % _params.getFoutput() == 0) and (current_step > 0));
+  }
+  if (_params.getDtOut() == 0 and _params.getFoutput() == 0) {
+    // Not writing outputs except first and last one.
+    return false;
+  }
+
+  error("Invalid configuration: Neither dump after time interval nor after nsteps configured.");
+  return false;
 }

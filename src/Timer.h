@@ -1,10 +1,12 @@
-/**
+/**.
+ * If you change this, note that the conversion for printouts is hardcoded. So change that too.
  * @file Timer.h
  * @brief A small class and tools to help with timing.
  */
 #pragma once
 
 #include <chrono>
+#include <iomanip>
 #include <string>
 #include <typeinfo>
 
@@ -23,9 +25,12 @@ namespace timer {
   } // namespace unit
 
 
-  // More convenience aliasing
+  // More convenience aliasing.
+  // If you change this, note that the conversion for printouts is hardcoded.
+  // That happens in chr::duration<ticks, std::milli>. So change that too.
   using default_time_units = unit::mus;
-  using ticks              = int64_t;
+  using ticks              = double;
+  // using ticks              = int64_t;
 
 
   /**
@@ -36,7 +41,16 @@ namespace timer {
     Init = 0,
     IC,
     Step,
+    SolverTot,
+    Riemann,
     IO,
+    BoundaryConditions,
+    Convert,
+    Reset,
+    CollectDt,
+    CollectMass,
+    HydroFluxes,
+    HydroIntegrate,
     Total,
     Ignore,
     Count
@@ -59,6 +73,9 @@ namespace timer {
    * To start a timer, just instantiate an object with the corresponding category:
    *
    *   timer::Timer tick(timer::Category::SomeCategory);
+   *
+   * The category corresponds to the total global timing accumulation. If you
+   * don't want the timing to be counted globally, use the Category::Ignore.
    *
    * To end the timing, call the tock function:
    *
@@ -201,8 +218,26 @@ inline const char* timer::getTimerName(Category t) {
     return "Initial Conditions";
   case Category::Step:
     return "Step";
+  case Category::SolverTot:
+    return "Solver (Total)";
+  case Category::Riemann:
+    return "Riemann";
   case Category::IO:
     return "I/O";
+  case Category::BoundaryConditions:
+    return "Boundary Conditions";
+  case Category::Convert:
+    return "State Conversions";
+  case Category::Reset:
+    return "Resetting";
+  case Category::CollectDt:
+    return "Collect Timestep";
+  case Category::CollectMass:
+    return "Collect Mass";
+  case Category::HydroFluxes:
+    return "Hydro Fluxes";
+  case Category::HydroIntegrate:
+    return "Hydro Integrate";
   case Category::Total:
     return "Total";
   case Category::Ignore:
@@ -221,8 +256,8 @@ inline const char* timer::getTimerName(Category t) {
 template <typename time_units>
 timer::ticks timer::Timer<time_units>::_get_duration() {
 
-  auto _stop    = chr::high_resolution_clock::now();
-  auto duration = duration_cast<time_units>(_stop - _start);
+  auto                             _stop    = chr::high_resolution_clock::now();
+  chr::duration<ticks, std::milli> duration = _stop - _start;
   return duration.count();
 }
 
@@ -249,11 +284,13 @@ std::string timer::Timer<time_units>::tock() {
 
   ticks duration = _end_timing();
 
-  std::string out = std::to_string(duration);
-  out += " ";
-  out += _units_str();
+  std::stringstream out;
+  out << std::setprecision(3) << std::fixed;
+  out << duration;
+  out << " [ms]";
+  // out << _units_str();
 
-  return out;
+  return out.str();
 }
 
 
@@ -265,11 +302,13 @@ std::string timer::Timer<time_units>::getTimings() {
 
   std::stringstream out;
   out << "\nTiming units: ";
-  out << _units_str();
+  out << "[ms]";
+  // out << _units_str();
   out << "\n";
 
   for (int i = 0; i < Category::Count - 1; i++) {
-    out << std::setw(20) << getTimerName(static_cast<Category>(i)) << ": ";
+    out << std::setw(20) << std::scientific;
+    out << getTimerName(static_cast<Category>(i)) << ": ";
     out << std::setw(20) << timings[i] << "\n";
   }
 

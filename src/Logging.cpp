@@ -58,6 +58,8 @@ const char* logging::getStageName(LogStage stage) {
     return "Step";
   case LogStage::IO:
     return "IO";
+  case LogStage::Shutdown:
+    return "Shutdown";
   case LogStage::Test:
     return "Test";
   case LogStage::Count:
@@ -75,6 +77,7 @@ const char* logging::getStageNameColour(LogStage stage) {
     return tcols::red;
   case LogStage::Header:
   case LogStage::Init:
+  case LogStage::Shutdown:
     return tcols::green;
   case LogStage::Step:
     return tcols::cyan;

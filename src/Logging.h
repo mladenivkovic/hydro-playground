@@ -33,7 +33,8 @@ namespace logging {
     Init      = 1,
     Step      = 2,
     IO        = 3,
-    Test      = 4,
+    Shutdown  = 4,
+    Test      = 5,
     Count,
   };
 
@@ -186,8 +187,10 @@ namespace logging {
    *
    *   timing(<msg>)
    *
-   * function as a special case to treat all timing outputs specially,
-   * if needed.
+   * function as a special case to treat all timing outputs specially. In
+   * particular, they will only be printed to screen in debug mode, i.e. if the
+   * global verbosity was set to LogLevel::Debug or if the code was compiled
+   * with DEBUG_LEVEL > 0. k
    *
    * You can set global verbosity levels and code stage states using the
    * convenience functions

@@ -16,7 +16,7 @@ namespace parameters {
    *   - Add private variable in class
    *   - Add getter and setters in class
    *   - Add default value in constructor
-   *   - Does it need some computation? If so, add to initDerived
+   *   - Does it need some computation? If so, add to initDerivedAndValidate
    *   - Add read in IO::InputParse::parseConfigFile()
    *   - Add entry in toString()
    */
@@ -134,7 +134,7 @@ namespace parameters {
      * In debug mode, this also "locks" the parameters and watches for future
      * modifications.
      */
-    void initDerived();
+    void initDerivedAndValidate();
 
 
     //! Get a sring of all parameters for printouts.

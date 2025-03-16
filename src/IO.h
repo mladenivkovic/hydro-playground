@@ -18,12 +18,12 @@ namespace IO {
   /**
    * A container for read in parameters.
    */
-  struct paramEntry {
+  struct ParamEntry {
 
     //! constructors
-    paramEntry() = delete;
-    explicit paramEntry(std::string parameter);
-    paramEntry(std::string parameter, std::string value);
+    ParamEntry() = delete;
+    explicit ParamEntry(std::string parameter);
+    ParamEntry(std::string parameter, std::string value);
 
     //! Parameter name
     std::string param;
@@ -53,10 +53,10 @@ namespace IO {
 
   private:
     //! Map holding incoming command line args
-    std::map<std::string, std::string> _clArguments;
+    std::map<std::string, std::string> _cmdlargs;
 
     //! Storage for all read-in configuration parameters
-    std::map<std::string, paramEntry> _config_params;
+    std::map<std::string, ParamEntry> _config_params;
 
     //! Param file name. Verified that file exists.
     std::string _paramfile;
@@ -75,7 +75,7 @@ namespace IO {
     void readICFile(grid::Grid& grid);
 
     //! Get a pair of name, value from a parameter line
-    static std::pair<std::string, std::string> _extractParameter(std::string& line);
+    static std::pair<std::string, std::string> extractParameter(std::string& line);
 
   private:
     //! Help message
@@ -97,10 +97,12 @@ namespace IO {
     bool _icIsTwoState();
 
     //! Get a pair of name, value from a parameter line
-    Float _extractTwoStateVal(std::string& line, const char* expectedName, const char* alternativeName = "");
+    Float _extractTwoStateVal(
+      std::string& line, const char* expected_name, const char* alternative_name = ""
+    );
 
     //! Extract a primitive state from a line of an arbitary-type IC file
-    idealGas::PrimitiveState _extractArbitraryICVal(std::string& line, size_t linenr);
+    static idealGas::PrimitiveState _extractArbitraryICVal(std::string& line, size_t linenr);
 
     //! Read an IC file with the Two-State format
     void _readTwoStateIC(grid::Grid& grid);
@@ -111,7 +113,7 @@ namespace IO {
     //! convert a parameter from read-in strings to a native type
     template <typename T>
     T _convertParameterString(
-      std::string param, ArgType type, bool optional = false, T defaultVal = 0
+      std::string param, ArgType type, bool optional = false, T default_val = 0
     );
 
   }; // class InputParse
@@ -120,14 +122,67 @@ namespace IO {
   class OutputWriter {
 
   private:
+    //! output index counter
     size_t _noutputs_written;
 
-    std::string _getOutputFileName(parameters::Parameters& params);
+    //! time of last output
+    Float _t_last_dump;
+
+    //! time of next output
+    Float _t_next_dump;
+
+    //! Reference to runtime parameters.
+    parameters::Parameters& _params;
+
+    //! Reference to grid to dump.
+    grid::Grid& _grid;
+
+    //! Generate the output file name.
+    std::string _getOutputFileName();
+
+
+    /**
+     * Write down the simulation time at which output was dumped. Also update
+     * time of next dump.
+     */
+    void setTimeLastOutputWritten(const Float t) {
+#if DEBUG_LEVEL > 0
+      if (t < _t_last_dump) {
+        error(
+          "Current time smaller than time of last dump: t=" + std::to_string(t)
+          + ", t_last=" + std::to_string(_t_last_dump)
+        );
+      }
+#endif
+      _t_last_dump = t;
+      _t_next_dump = t + _params.getDtOut();
+    }
+
+
+    // Getters/setters. Keeping these for included debug checks.
+    [[nodiscard]] size_t getNOutputsWritten() const {
+      return _noutputs_written;
+    }
+
+    void setNOutputsWritten(const size_t n) {
+      if (n > 9999) {
+        error("Can't write more than 10k outputs; Change output file name format");
+      }
+      _noutputs_written = n;
+    }
+
+    void incNOutputsWritten() {
+      setNOutputsWritten(_noutputs_written + 1);
+    }
 
 
   public:
-    OutputWriter():
-      _noutputs_written(0) {};
+    explicit OutputWriter(parameters::Parameters& params, grid::Grid& grid):
+      _noutputs_written(0),
+      _t_last_dump(0.),
+      _t_next_dump(0.),
+      _params(params),
+      _grid(grid) {};
 
     /**
      * Write the current state of the simulation into an output.
@@ -137,20 +192,19 @@ namespace IO {
      * @param t_current the current simulation time
      * @param step the current simulation step
      */
-    void dump(parameters::Parameters& params, grid::Grid& grid, Float t_current, size_t step);
+    void dump(Float t_current, size_t step);
 
-    [[nodiscard]] size_t getNOutputsWritten() const {
-      return _noutputs_written;
-    }
-    void setNOutputsWritten(const size_t n) {
-      if (n > 9999) {
-        error("Can't write more than 10k outputs; Change output file name format");
-      }
-      _noutputs_written = n;
-    }
-    void incNOutputsWritten() {
-      setNOutputsWritten(_noutputs_written + 1);
-    }
+
+    /**
+     * Will we write output this step? Call this before actually doing the
+     * computations. This function is allowed to modify the time step size,
+     * dtCurrent, so that it writes output at the requested time.
+     *
+     * @param current_step the current simulation step index
+     * @param t_current the current simulation time
+     * @param dt_current the current simulation time step size
+     */
+    bool dumpThisStep(size_t current_step, Float t_current, Float& dt_current);
   };
 } // namespace IO
 
@@ -173,7 +227,7 @@ namespace IO {
  */
 template <typename T>
 T IO::InputParse::_convertParameterString(
-  std::string param, ArgType argtype, bool optional, T defaultVal
+  std::string param, ArgType argtype, bool optional, T default_val
 ) {
 
 #if DEBUG_LEVEL > 0
@@ -189,13 +243,13 @@ T IO::InputParse::_convertParameterString(
     msg << "No parameter '" << param << "' provided";
     if (optional) {
       // just raise warning, not error
-      msg << "; Using default=" << defaultVal;
-      return defaultVal;
+      msg << "; Using default=" << default_val;
+      return default_val;
     }
     error(msg.str());
   }
 
-  paramEntry& entry = search->second;
+  ParamEntry& entry = search->second;
   std::string val   = entry.value;
   entry.used        = true;
 
@@ -219,7 +273,7 @@ T IO::InputParse::_convertParameterString(
     std::stringstream msg;
     msg << "Unknown type " << static_cast<int>(argtype);
     error(msg.str());
-    return defaultVal;
+    return default_val;
   }
 }
 
@@ -230,7 +284,7 @@ T IO::InputParse::_convertParameterString(
  */
 template <>
 inline std::string IO::InputParse::_convertParameterString<std::string>(
-  std::string param, ArgType argtype, bool optional, std::string defaultVal
+  std::string param, ArgType argtype, bool optional, std::string default_val
 ) {
 
 #if DEBUG_LEVEL > 0
@@ -250,13 +304,13 @@ inline std::string IO::InputParse::_convertParameterString<std::string>(
     msg << "No parameter '" << param << "' provided";
     if (optional) {
       // just raise warning, not error
-      msg << "; Using default=" << defaultVal;
-      return defaultVal;
+      msg << "; Using default=" << default_val;
+      return default_val;
     }
     error(msg.str());
   }
 
-  paramEntry& entry = search->second;
+  ParamEntry& entry = search->second;
   std::string val   = entry.value;
   entry.used        = true;
 

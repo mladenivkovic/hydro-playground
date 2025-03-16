@@ -4,13 +4,13 @@
 add_library(Version OBJECT "${CMAKE_BINARY_DIR}/Version.cpp" Version.h)
 target_include_directories(Version PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
-add_library(Logging OBJECT Logging.cpp Logging.h Termcolors.h)
+add_library(Logging OBJECT Logging.cpp Logging.h)
 target_include_directories(Logging PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 
 add_library(Parameters OBJECT Parameters.cpp Parameters.h BoundaryConditions.h)
 target_include_directories(Parameters PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 
-add_library(Utils OBJECT Utils.cpp Utils.h Termcolors.h)
+add_library(Utils OBJECT Utils.cpp Utils.h)
 target_include_directories(Utils PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 target_link_libraries(Utils Version)
 target_link_libraries(Utils Logging)
@@ -33,12 +33,59 @@ target_include_directories(IO PUBLIC "${PROJECT_BINARY_DIR}") # we need this for
 target_link_libraries(IO Logging)
 target_link_libraries(IO Utils)
 
+add_library(SolverBase OBJECT Solver.h SolverBase.h SolverBase.cpp)
+target_include_directories(SolverBase PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_link_libraries(SolverBase Grid)
+target_link_libraries(SolverBase IO)
+target_link_libraries(SolverBase Logging)
+target_link_libraries(SolverBase Parameters)
+
+add_library(SolverMUSCL OBJECT Solver.h SolverMUSCL.h SolverMUSCL.cpp)
+target_include_directories(SolverMUSCL PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_link_libraries(SolverMUSCL SolverBase)
+target_link_libraries(SolverMUSCL RiemannBase)
+target_link_libraries(SolverMUSCL RiemannHLLC)
+target_link_libraries(SolverMUSCL RiemannExact)
+
+add_library(SolverGodunov OBJECT Solver.h SolverGodunov.h SolverGodunov.cpp)
+target_include_directories(SolverGodunov PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_link_libraries(SolverGodunov SolverBase)
+target_link_libraries(SolverGodunov RiemannBase)
+target_link_libraries(SolverGodunov RiemannHLLC)
+target_link_libraries(SolverGodunov RiemannExact)
+
+
+add_library(RiemannBase OBJECT Riemann.h RiemannBase.h RiemannBase.cpp)
+target_include_directories(RiemannBase PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_link_libraries(RiemannBase Logging)
+
+add_library(RiemannExact OBJECT Riemann.h RiemannExact.h RiemannExact.cpp)
+target_include_directories(RiemannExact PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_link_libraries(RiemannExact RiemannBase)
+
+add_library(RiemannHLLC OBJECT Riemann.h RiemannHLLC.h RiemannHLLC.cpp)
+target_include_directories(RiemannHLLC PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_link_libraries(RiemannHLLC RiemannBase)
+
+
+
+
+
+
+
+
 
 # Linking to the main executable
 # ------------------------------
 # Order matters here! E.g. Utils needs Version and Logging. If you put them before Utils,
 # Utils won't find its link dependencies during the executable linking step.
 # The target_link_libraries of Utils above only applies to the compile step of the object library above.
+target_link_libraries(hydro SolverMUSCL)
+target_link_libraries(hydro SolverGodunov)
+target_link_libraries(hydro SolverBase)
+target_link_libraries(hydro RiemannHLLC)
+target_link_libraries(hydro RiemannExact)
+target_link_libraries(hydro RiemannBase)
 target_link_libraries(hydro IO)
 target_link_libraries(hydro Grid)
 target_link_libraries(hydro Cell)

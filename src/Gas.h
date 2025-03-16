@@ -14,19 +14,26 @@ namespace idealGas {
   class ConservedState;
   class PrimitiveState;
 
+  // Aliases for clarity. The states and fluxes will have the same components,
+  // so we can use the same data structure. But this aliasing should make things
+  // more clear.
+  using ConservedFlux = ConservedState;
+  using PrimitiveFlux = PrimitiveState;
+
+
   /**
    * @brief Holds a primitive state (density, velocity, pressure)
    */
   class PrimitiveState {
   private:
     //! density
-    Float rho;
+    Float _rho;
 
     //! velocity
-    std::array<Float, Dimensions> v;
+    std::array<Float, Dimensions> _v;
 
     //! pressure
-    Float p;
+    Float _p;
 
 
   public:
@@ -35,15 +42,18 @@ namespace idealGas {
     PrimitiveState(const Float rho, const Float vx, const Float p);
     PrimitiveState(const Float rho, const Float vx, const Float vy, const Float p);
 
+    /**
+     * Clear out contents.
+     */
     void clear() {
       *this = PrimitiveState();
     }
 
     /**
-     * Convert a conserved state to a (this) primitive state.
-     * Overwrites the contents of this primitive state.
+     * Set the current primitive state vector to equivalend of given conserved
+     * state.
      */
-    void ConservedToPrimitive(const ConservedState& conservedState);
+    void fromCons(const ConservedState& cons);
 
     //! Get the local soundspeed given a primitive state
     [[nodiscard]] Float getSoundSpeed() const;
@@ -79,40 +89,46 @@ namespace idealGas {
   class ConservedState {
   private:
     //! Density
-    Float rho;
+    Float _rho;
 
     //! Momentum: rho * v
-    std::array<Float, Dimensions> rhov;
+    std::array<Float, Dimensions> _rhov;
 
     //! Energy
-    Float E;
+    Float _energy;
 
   public:
     // Standard constructor, init variables to 0
     ConservedState();
+    ConservedState(const Float rho, const Float rhovx, const Float rhovy, const Float E);
 
-    //! Clear out contents.
+    /**
+     * Clear out contents.
+     */
     void clear() {
       *this = ConservedState();
     }
 
 
-    //! Compute the conserved state vector of a given primitive state.
-    void PrimitiveToConserved(const PrimitiveState& primState);
+    /**
+     * Set the current conserved state vector to equivalent of given primitive
+     * state.
+     */
+    void fromPrim(const PrimitiveState& prim);
 
 
     /**
      * Compute the flux of conserved variables of the Euler
-     * equations given a primitive state vector
+     * equations given a primitive variable state vector
      */
-    void GetCFluxFromPstate(const PrimitiveState& pstate, const std::size_t dimension);
+    void getCFluxFromPState(const PrimitiveState& pstate, const std::size_t dimension);
 
 
     /**
      * Compute the flux of conserved variables of the Euler
      * equations given a conserved state vector
      */
-    void GetCFluxFromCstate(const ConservedState& cstate, const std::size_t dimension);
+    void getCFluxFromCstate(const ConservedState& cstate, const std::size_t dimension);
 
 
     //! Get a string of the state.
@@ -142,18 +158,22 @@ namespace idealGas {
 // --------------------------
 
 inline void idealGas::PrimitiveState::setRho(const Float val) {
-#if DEBUG_LEVEL > 0
-  assert(val >= 0.);
-#endif
-  rho = val;
+  // These checks will fail because we (ab)use the PrimitiveState
+  // as fluxes too, which can be negative
+  // #if DEBUG_LEVEL > 0
+  //   assert(val >= 0.);
+  // #endif
+  _rho = val;
 }
 
 
 inline Float idealGas::PrimitiveState::getRho() const {
-#if DEBUG_LEVEL > 0
-  assert(rho >= 0.);
-#endif
-  return rho;
+  // These checks will fail because we (ab)use the PrimitiveState
+  // as fluxes too, which can be negative
+  // #if DEBUG_LEVEL > 0
+  //   assert(_rho >= 0.);
+  // #endif
+  return _rho;
 }
 
 
@@ -162,7 +182,7 @@ inline void idealGas::PrimitiveState::setV(const size_t index, const Float val) 
   // assert(index >= 0); // always true for unsigned type
   assert(index < Dimensions);
 #endif
-  v[index] = val;
+  _v[index] = val;
 }
 
 
@@ -171,28 +191,32 @@ inline Float idealGas::PrimitiveState::getV(const size_t index) const {
   // assert(index >= 0); // always true for unsigned type
   assert(index < Dimensions);
 #endif
-  return v[index];
+  return _v[index];
 }
 
 
 inline Float idealGas::PrimitiveState::getVSquared() const {
-  return v[0] * v[0] + v[1] * v[1];
+  return _v[0] * _v[0] + _v[1] * _v[1];
 }
 
 
 inline void idealGas::PrimitiveState::setP(const Float val) {
-#if DEBUG_LEVEL > 0
-  assert(val >= 0.);
-#endif
-  p = val;
+  // These checks will fail because we (ab)use the PrimitiveState
+  // as fluxes too, which can be negative
+  // #if DEBUG_LEVEL > 0
+  //   assert(val >= 0.);
+  // #endif
+  _p = val;
 }
 
 
 inline Float idealGas::PrimitiveState::getP() const {
-#if DEBUG_LEVEL > 0
-  assert(p >= 0.);
-#endif
-  return p;
+  // These checks will fail because we (ab)use the PrimitiveState
+  // as fluxes too, which can be negative
+  // #if DEBUG_LEVEL > 0
+  //   assert(_p >= 0.);
+  // #endif
+  return _p;
 }
 
 
@@ -200,7 +224,7 @@ inline Float idealGas::PrimitiveState::getP() const {
  * Compute the local sound speed given a primitive state
  */
 inline Float idealGas::PrimitiveState::getSoundSpeed() const {
-  return std::sqrt(GAMMA * getP() / getRho());
+  return std::sqrt(cst::GAMMA * getP() / getRho());
 }
 
 
@@ -208,7 +232,7 @@ inline Float idealGas::PrimitiveState::getSoundSpeed() const {
  * Get the total gas energy from a primitive state
  */
 inline Float idealGas::PrimitiveState::getE() const {
-  return 0.5 * getRho() * getVSquared() + getP() / GM1;
+  return 0.5 * getRho() * getVSquared() + getP() / cst::GM1;
 }
 
 
@@ -220,7 +244,7 @@ inline void idealGas::ConservedState::setRhov(const size_t index, const Float va
   // assert(index >= 0); // always true for unsigned type
   assert(index < Dimensions);
 #endif
-  rhov[index] = val;
+  _rhov[index] = val;
 }
 
 
@@ -229,42 +253,50 @@ inline Float idealGas::ConservedState::getRhov(const size_t index) const {
   // assert(index >= 0); // always true for unsigned type
   assert(index < Dimensions);
 #endif
-  return rhov[index];
+  return _rhov[index];
 }
 
 
 inline Float idealGas::ConservedState::getRhoVSquared() const {
-  return rhov[0] * rhov[0] + rhov[1] * rhov[1];
+  return _rhov[0] * _rhov[0] + _rhov[1] * _rhov[1];
 }
 
 
 inline void idealGas::ConservedState::setE(const Float val) {
-#if DEBUG_LEVEL > 0
-  assert(val >= 0.);
-#endif
-  E = val;
+  // These checks will fail because we (ab)use the ConservedState
+  // as fluxes too, which can be negative
+  // #if DEBUG_LEVEL > 0
+  //   assert(val >= 0.);
+  // #endif
+  _energy = val;
 }
 
 
 inline Float idealGas::ConservedState::getE() const {
-#if DEBUG_LEVEL > 0
-  assert(E >= 0.);
-#endif
-  return E;
+  // These checks will fail because we (ab)use the ConservedState
+  // as fluxes too, which can be negative
+  // #if DEBUG_LEVEL > 0
+  //   assert(_energy >= 0.);
+  // #endif
+  return _energy;
 }
 
 
 inline Float idealGas::ConservedState::getRho() const {
-#if DEBUG_LEVEL > 0
-  assert(rho >= 0.);
-#endif
-  return rho;
+  // These checks will fail because we (ab)use the ConservedState
+  // as fluxes too, which can be negative
+  // #if DEBUG_LEVEL > 0
+  //   assert(_rho >= 0.);
+  // #endif
+  return _rho;
 }
 
 
 inline void idealGas::ConservedState::setRho(const Float val) {
-#if DEBUG_LEVEL > 0
-  assert(val >= 0.);
-#endif
-  rho = val;
+  // These checks will fail because we (ab)use the ConservedState
+  // as fluxes too, which can be negative
+  // #if DEBUG_LEVEL > 0
+  //   assert(val >= 0.);
+  // #endif
+  _rho = val;
 }

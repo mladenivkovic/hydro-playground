@@ -19,7 +19,7 @@ verbose = 1                 // Verbosity level of the run. 0: Quiet. 1: Verbose.
 // Simulation Parameters
 // ---------------------
 
-nx = 100                    // Number of cells to use if you're running with a two-state type IC
+nx = 10                    // Number of cells to use if you're running with a two-state type IC
                             // file. Otherwise, it needs to be specified in the initial conditions.
                             // If you're not using a two-state IC, the value will be overwritten by
                             // the value given in the IC file.  
@@ -55,6 +55,4 @@ basename = None             // Basename for output file names. If not given, a b
 
 write_replications = false  // If replicate > 1, setting this to true will write the entire content
                             // of the box, including all replications.
-
-
 

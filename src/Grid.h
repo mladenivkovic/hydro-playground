@@ -35,10 +35,7 @@ namespace grid {
     size_t _replicate;
 
     //! boundary condition
-    BC::BoundaryCondition _boundaryType;
-
-    //! Initialised?
-    bool _initialised;
+    BC::BoundaryCondition _boundary_type;
 
 
     /**
@@ -52,7 +49,7 @@ namespace grid {
 
 
   public:
-    Grid();
+    explicit Grid(const parameters::Parameters& params);
     ~Grid();
 
     // The grid is never intended to be used via several instances.
@@ -68,12 +65,6 @@ namespace grid {
 
 
     /**
-     * @brief Initialise the grid.
-     */
-    void initGrid(const parameters::Parameters& pars);
-
-
-    /**
      * @brief Initialise (and allocate) the cells.
      */
     void initCells();
@@ -82,7 +73,7 @@ namespace grid {
     /**
      * @brief get the total mass of the grid.
      */
-    Float getTotalMass();
+    Float collectTotalMass();
 
 
     /**
@@ -92,27 +83,27 @@ namespace grid {
 
 
     //! Run through the grid and get cstates from pstates
-    void getCStatesFromPstates();
+    void convertPrim2Cons();
 
 
     //! Run through the grid and get pstates from cstates
-    void getPStatesFromCstates();
+    void convertCons2Prim();
 
 
     //! Reset all fluxes
     void resetFluxes();
 
 
-    //! enforce boundary conditions.
-    void setBoundary();
+    //! Apply boundary conditions.
+    void applyBoundaryConditions();
 
 
     //! Apply the boundary conditions from real to ghost cells.
     void realToGhost(
-      std::vector<cell::Cell*> realLeft,
-      std::vector<cell::Cell*> realRight,
-      std::vector<cell::Cell*> ghostLeft,
-      std::vector<cell::Cell*> ghostRight,
+      std::vector<cell::Cell*> real_left,
+      std::vector<cell::Cell*> real_right,
+      std::vector<cell::Cell*> ghost_left,
+      std::vector<cell::Cell*> ghost_right,
       const size_t             dimension = 0
     );
 
@@ -261,12 +252,12 @@ inline void grid::Grid::setNxNorep(const size_t nx) {
 
 
 inline BC::BoundaryCondition grid::Grid::getBoundaryType() const {
-  return _boundaryType;
+  return _boundary_type;
 }
 
 
 inline void grid::Grid::setBoundaryType(BC::BoundaryCondition boundaryType) {
-  _boundaryType = boundaryType;
+  _boundary_type = boundaryType;
 }
 
 
