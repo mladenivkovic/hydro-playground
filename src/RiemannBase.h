@@ -46,7 +46,7 @@ namespace riemann {
     ~RiemannBase() = default;
 
     //! Call the actual solver.
-    virtual idealGas::PrimitiveState solve() {
+    virtual idealGas::ConservedFlux solve() {
       error("Shouldn't be called.");
       return {};
     }

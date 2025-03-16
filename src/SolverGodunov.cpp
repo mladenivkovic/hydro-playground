@@ -24,8 +24,9 @@ inline void solver::SolverGodunov::computeIntercellFluxes(
 ) {
 
   riemann::Riemann         solver(left.getPrim(), right.getPrim(), dimension);
-  idealGas::PrimitiveState sol = solver.solve();
-  left.getCFlux().getCFluxFromPstate(sol, dimension);
+  idealGas::ConservedFlux  csol = solver.solve();
+
+  left.getCFlux() = csol;
 }
 
 
@@ -69,23 +70,46 @@ void solver::SolverGodunov::step() {
   if (Dimensions != 2)
     error("Not implemented.");
 
+  // First sweep
+  // -----------------
+
+  size_t dimension = step_count % 2;
+
   // zero out fluxes.
   grid.resetFluxes();
-  // Send around value
+  // No need to convert conserved quantities to primitive ones - see below.
+  // grid.convertCons2Prim();
+  // Send around updated boundary values
   grid.applyBoundaryConditions();
 
-
-  // First sweep
-  size_t dimension = step_count % 2;
+  // Compute updated fluxes
   computeFluxes(dimension);
+
+  // Apply fluxes and update current states
   integrateHydro(dimension);
 
+  // Second sweep
+  // -----------------
+
+  // change dimension
   dimension = (step_count + 1) % 2;
+  // zero out fluxes.
+  grid.resetFluxes();
+  // Transfer results from conserved states to primitive ones.
+  grid.convertCons2Prim();
+  // Send around updated boundary values
+  grid.applyBoundaryConditions();
+
+  // Compute updated fluxes
   computeFluxes(dimension);
+  // Apply fluxes and update current states
   integrateHydro(dimension);
 
 
   // Get solution from previous step from conserved into primitive vars.
+  // Do this here instead of at the start of this function so we can compute
+  // dt. During startup, primitive values are correct already since that's
+  // what we read from the ICs.
   grid.convertCons2Prim();
 
   // Compute next time step.

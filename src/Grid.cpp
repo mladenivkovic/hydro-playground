@@ -222,13 +222,12 @@ Float grid::Grid::collectTotalMass() {
   timer::Timer tick(timer::Category::CollectMass);
   message("Collecting total mass in grid.", logging::LogLevel::Debug);
 
-
-  Float  total = 0;
-  size_t bc    = getNBC();
-  size_t nx    = getNx();
+  Float  total = 0.;
+  size_t first = getFirstCellIndex();
+  size_t last = getLastCellIndex();
 
   if (Dimensions == 1) {
-    for (size_t i = bc; i < bc + nx; i++) {
+    for (size_t i = first; i < last; i++) {
       total += getCell(i).getPrim().getRho();
     }
 
@@ -236,8 +235,8 @@ Float grid::Grid::collectTotalMass() {
   }
 
   else if (Dimensions == 2) {
-    for (size_t i = bc; i < bc + nx; i++) {
-      for (size_t j = bc; j < bc + nx; j++) {
+    for (size_t j = first; j < last; j++) {
+      for (size_t i = first; i < last; i++) {
         total += getCell(i, j).getPrim().getRho();
       }
     }
@@ -259,15 +258,18 @@ void grid::Grid::resetFluxes() {
 
   timer::Timer tick(timer::Category::Reset);
 
-  constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
-  size_t         nbc  = getNBC();
-  size_t         nx   = getNx();
+  if (Dimensions != 2){
+    error("Not Implemented");
+    return;
+  }
 
-  for (size_t i = nbc; i < nbc + nx; i++) {
-    for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
-      // if we are in 1d, j will be fixed to zero
-      getCell(i, j).getPrim().clear();
-      getCell(i, j).getCons().clear();
+  size_t first = getFirstCellIndex();
+  size_t last = getLastCellIndex();
+
+  for (size_t j = first; j < last; j++) {
+    for (size_t i = first; i < last; i++) {
+      getCell(i, j).getPFlux().clear();
+      getCell(i, j).getCFlux().clear();
     }
   }
 
@@ -276,21 +278,23 @@ void grid::Grid::resetFluxes() {
 
 
 /**
- * runs through interior cells and calls PrimitveToConserved()
+ * runs through interior cells and calls prim2cons()
  * on each.
  */
 void grid::Grid::convertPrim2Cons() {
 
   timer::Timer tick(timer::Category::Convert);
 
-  constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
+  if (Dimensions != 2){
+    error("Not Implemented");
+    return;
+  }
 
-  size_t nbc = getNBC();
-  size_t nx  = getNx();
+  size_t first = getFirstCellIndex();
+  size_t last = getLastCellIndex();
 
-  for (size_t i = nbc; i < nbc + nx; i++) {
-    for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
-      // if we are in 1d, j will be fixed to zero
+  for (size_t j = first; j < last; j++) {
+    for (size_t i = first; i < last; i++) {
       getCell(i, j).prim2cons();
     }
   }
@@ -300,21 +304,23 @@ void grid::Grid::convertPrim2Cons() {
 
 
 /**
- * runs through interior cells and alls ConservedToPrimitve()
+ * runs through interior cells and calls cons2prim()
  * on each.
  */
 void grid::Grid::convertCons2Prim() {
 
   timer::Timer tick(timer::Category::Convert);
 
-  constexpr auto dim2 = static_cast<size_t>(Dimensions == 2);
+  if (Dimensions != 2){
+    error("Not Implemented");
+    return;
+  }
 
-  size_t nbc = getNBC();
-  size_t nx  = getNx();
+  size_t first = getFirstCellIndex();
+  size_t last = getLastCellIndex();
 
-  for (size_t i = nbc; i < nbc + nx; i++) {
-    for (size_t j = nbc * dim2; j < (nbc + nx) * dim2; j++) {
-      // if we are in 1d, j will be fixed to zero
+  for (size_t j = first; j < last; j++) {
+    for (size_t i = first; i < last; i++) {
       getCell(i, j).cons2prim();
     }
   }
@@ -505,7 +511,8 @@ void grid::Grid::printGrid(bool boundaries, bool conserved) {
 
     out << "\n";
 
-  } else if (Dimensions == 2) {
+  }
+  else if (Dimensions == 2) {
 
     // Put the top at the top, and (0, 0) at the bottom left.
     for (int j = end - 1; j >= 0; j--) {

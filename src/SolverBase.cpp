@@ -1,6 +1,7 @@
 #include "SolverBase.h"
 
 #include <iomanip>
+#include <ios>
 
 #include "Constants.h"
 #include "Gas.h"
@@ -15,6 +16,7 @@
 solver::SolverBase::SolverBase(parameters::Parameters& params_, grid::Grid& grid_):
   t(0.),
   dt(0.),
+  dt_old(0.),
   step_count(0),
   total_mass_init(0.),
   total_mass_current(0.),
@@ -59,18 +61,18 @@ void solver::SolverBase::writeLog(const std::string& timingstr) {
   msg << std::setw(w) << std::left;
   msg << step_count;
   msg << " ";
-  msg << std::setw(w) << std::setprecision(p) << std::left;
+  msg << std::setw(w) << std::setprecision(p) << std::scientific << std::left;
   msg << t;
   msg << " ";
-  msg << std::setw(w) << std::setprecision(p) << std::left;
-  msg << dt;
+  msg << std::setw(w) << std::setprecision(p) << std::scientific << std::left;
+  msg << dt_old;
   msg << " ";
 #if DEBUG_LEVEL > 1
-  msg << std::setw(w) << std::setprecision(p) << std::left;
+  msg << std::setw(w) << std::setprecision(p) << std::scientific << std::left;
   msg << total_mass_current / total_mass_init;
   msg << " ";
 #endif
-  msg << std::setw(w) << std::setprecision(p) << std::left;
+  msg << std::setw(w) << std::left;
   msg << timingstr;
   message(msg.str());
 }
@@ -117,8 +119,10 @@ void solver::SolverBase::computeDt() {
   message("Computing next dt.", logging::LogLevel::Debug);
   timer::Timer tick(timer::Category::CollectDt);
 
-  if (Dimensions != 2)
+  if (Dimensions != 2){
     error("Not Implemented");
+    return;
+  }
 
   size_t first = grid.getFirstCellIndex();
   size_t last  = grid.getLastCellIndex();
@@ -157,7 +161,6 @@ void solver::SolverBase::computeDt() {
     error(msg.str());
   }
 
-
   // timing("Compute next dt took " + tick.tock());
 }
 
@@ -172,14 +175,15 @@ void solver::SolverBase::integrateHydro(const size_t dimension) {
   message("Integrating dim=" + std::to_string(dimension), logging::LogLevel::Debug);
   timer::Timer tick(timer::Category::HydroIntegrate);
 
-  if (Dimensions != 2)
+  if (Dimensions != 2){
     error("Not Implemented");
+    return;
+  }
 
   size_t first = grid.getFirstCellIndex();
   size_t last  = grid.getLastCellIndex();
 
   const Float dtdx = dt / grid.getDx();
-
   if (dimension == 0) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
@@ -216,23 +220,23 @@ void solver::SolverBase::integrateHydro(const size_t dimension) {
  */
 void solver::SolverBase::applyTimeUpdate(cell::Cell& left, cell::Cell& right, const Float dtdx) {
 
-  idealGas::ConservedState&       r     = right.getCons();
-  const idealGas::ConservedState& lflux = left.getCFlux();
-  const idealGas::ConservedState& rflux = right.getCFlux();
+  idealGas::ConservedState&       cr    = right.getCons();
+  const idealGas::ConservedState& lcflux = left.getCFlux();
+  const idealGas::ConservedState& rcflux = right.getCFlux();
 
-  Float rho = r.getRho() + dtdx * (lflux.getRho() - rflux.getRho());
-  r.setRho(rho);
+  Float rho = cr.getRho() + dtdx * (lcflux.getRho() - rcflux.getRho());
+  cr.setRho(rho);
 
-  Float vx = r.getRhov(0) + dtdx * (lflux.getRhov(0) - rflux.getRhov(0));
-  r.setRhov(0, vx);
+  Float vx = cr.getRhov(0) + dtdx * (lcflux.getRhov(0) - rcflux.getRhov(0));
+  cr.setRhov(0, vx);
 
   if (Dimensions > 1) {
-    Float vy = r.getRhov(0) + dtdx * (lflux.getRhov(1) - rflux.getRhov(1));
-    r.setRhov(1, vy);
+    Float vy = cr.getRhov(1) + dtdx * (lcflux.getRhov(1) - rcflux.getRhov(1));
+    cr.setRhov(1, vy);
   }
 
-  Float e = r.getE() + dtdx * (lflux.getE() - rflux.getE());
-  r.setE(e);
+  Float e = cr.getE() + dtdx * (lcflux.getE() - rcflux.getE());
+  cr.setE(e);
 }
 
 
@@ -248,7 +252,8 @@ void solver::SolverBase::solve() {
   timer::Timer tick(timer::Category::SolverTot);
 
   // Fill out conserved variables from read-in primitive ones.
-  grid.convertCons2Prim();
+  grid.convertPrim2Cons();
+
 
 #if DEBUG_LEVEL > 1
   // Collect the total mass to verify that we're actually conservative.
@@ -269,17 +274,20 @@ void solver::SolverBase::solve() {
   // Main loop.
   while (keepRunning()) {
 
-    // TODO(mivkov): test that this actually modifies dt
+    dt_old = dt;
+
+    // Do this first, since it may modify dt.
     bool write_output = writer.dumpThisStep(step_count, t, dt);
 
     timer::Timer tickStep(timer::Category::Step);
 
+    // The actual solver step.
     step();
 
     std::string timingStep = tickStep.tock();
 
-    // update time and step
-    t += dt;
+    // update time and step. dt is next time step size at this point.
+    t += dt_old;
     step_count++;
 
     // Write output files

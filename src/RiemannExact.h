@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "Gas.h"
 #include "RiemannBase.h"
 
 namespace riemann {
@@ -21,7 +22,7 @@ namespace riemann {
     ~RiemannExact() = default;
 
     //! Call the actual solver.
-    idealGas::PrimitiveState solve() override {
+    idealGas::ConservedFlux solve() override {
       message("Solving Exact.");
       return {};
     }

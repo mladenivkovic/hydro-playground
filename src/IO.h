@@ -102,7 +102,7 @@ namespace IO {
     );
 
     //! Extract a primitive state from a line of an arbitary-type IC file
-    idealGas::PrimitiveState _extractArbitraryICVal(std::string& line, size_t linenr);
+    static idealGas::PrimitiveState _extractArbitraryICVal(std::string& line, size_t linenr);
 
     //! Read an IC file with the Two-State format
     void _readTwoStateIC(grid::Grid& grid);

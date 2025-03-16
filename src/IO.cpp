@@ -4,6 +4,7 @@
 #include <cctype>
 #include <fstream>
 #include <iomanip>
+#include <ios>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -15,7 +16,6 @@
 #include "Timer.h"
 #include "Utils.h"
 
-using idealGas::PrimitiveState;
 
 // -----------------------------------------
 // paramEntry stuff
@@ -549,7 +549,7 @@ idealGas::PrimitiveState IO::InputParse::_extractArbitraryICVal(std::string& lin
     vx  = utils::string2float(split[1]);
     p   = utils::string2float(split[2]);
 
-    return PrimitiveState(rho, vx, p);
+    return idealGas::PrimitiveState(rho, vx, p);
   }
   if (Dimensions == 2) {
 
@@ -565,7 +565,7 @@ idealGas::PrimitiveState IO::InputParse::_extractArbitraryICVal(std::string& lin
     vy  = utils::string2float(split[2]);
     p   = utils::string2float(split[3]);
 
-    return PrimitiveState(rho, vx, vy, p);
+    return idealGas::PrimitiveState(rho, vx, vy, p);
   }
 
   // Dim != 1, != 2
@@ -618,15 +618,15 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
   std::getline(icts_ifs, line);
   Float p_R = _extractTwoStateVal(line, "p_R");
 
-  PrimitiveState left;
-  PrimitiveState right;
+  idealGas::PrimitiveState left;
+  idealGas::PrimitiveState right;
 
   if (Dimensions == 1) {
-    left  = PrimitiveState(rho_L, v_L, p_L);
-    right = PrimitiveState(rho_R, v_R, p_R);
+    left  = idealGas::PrimitiveState(rho_L, v_L, p_L);
+    right = idealGas::PrimitiveState(rho_R, v_R, p_R);
   } else if (Dimensions == 2) {
-    left  = PrimitiveState(rho_L, v_L, 0., p_L);
-    right = PrimitiveState(rho_R, v_R, 0., p_R);
+    left  = idealGas::PrimitiveState(rho_L, v_L, 0., p_L);
+    right = idealGas::PrimitiveState(rho_R, v_R, 0., p_R);
   } else {
     error("Not Implemented.");
   }
@@ -805,7 +805,7 @@ std::string IO::OutputWriter::_getOutputFileName() {
   }
   fname << "_";
   fname << std::setfill('0') << std::setw(4) << getNOutputsWritten();
-  fname << ".dat";
+  fname << ".out";
 
   return fname.str();
 }
@@ -852,20 +852,24 @@ void IO::OutputWriter::dump(Float t_current, size_t step) {
   for (size_t j = first; j < last; j++) {
     for (size_t i = first; i < last; i++) {
       cell::Cell& c = _grid.getCell(i, j);
-      out << std::setw(fwidth) << std::setprecision(fprec) << c.getX();
+      out << std::setw(fwidth) << std::scientific << std::setprecision(fprec) << c.getX();
       out << " ";
-      out << std::setw(fwidth) << std::setprecision(fprec) << c.getY();
+      out << std::setw(fwidth) <<  std::scientific <<std::setprecision(fprec) << c.getY();
       out << " ";
 
-      PrimitiveState& p = c.getPrim();
-      out << std::setw(fwidth) << std::setprecision(fprec) << p.getRho();
+      idealGas::PrimitiveState& p = c.getPrim();
+      out << std::setw(fwidth) <<  std::scientific << std::setprecision(fprec) << p.getRho();
       out << " ";
-      out << std::setw(fwidth) << std::setprecision(fprec) << p.getV(0);
+      out << std::setw(fwidth) << std::scientific << std::setprecision(fprec) << p.getV(0);
       out << " ";
-      out << std::setw(fwidth) << std::setprecision(fprec) << p.getV(1);
+      out << std::setw(fwidth) <<std::scientific <<  std::setprecision(fprec) << p.getV(1);
       out << " ";
-      out << std::setw(fwidth) << std::setprecision(fprec) << p.getP();
+      out << std::setw(fwidth) <<std::scientific <<  std::setprecision(fprec) << p.getP();
       out << "\n";
+
+      if (p.getP() > 190. and p.getP() < 210)
+        warning("Caught it!!!");
+
     }
   }
 
@@ -901,9 +905,8 @@ bool IO::OutputWriter::dumpThisStep(size_t current_step, Float t_current, Float&
     if (t_current + dt_current >= _t_next_dump) {
       dt_current = _t_next_dump - t_current;
 
-      // TODO(mivkov): Set this to Debug verbosity once you verified it works
       message(
-        "Trimmed dt to " + std::to_string(dt_current) + " for output.", logging::LogLevel::Quiet
+        "Trimmed dt to " + std::to_string(dt_current) + " for output.", logging::LogLevel::Debug
       );
 
       return true;

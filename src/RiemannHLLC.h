@@ -35,7 +35,7 @@ namespace riemann {
     void computeStarCStates(idealGas::ConservedState& UStarL, idealGas::ConservedState& UStarR);
 
     //! Sample the solution.
-    idealGas::PrimitiveState sampleSolution();
+    idealGas::ConservedFlux sampleSolution();
 
   public:
     RiemannHLLC(idealGas::PrimitiveState& l, idealGas::PrimitiveState& r, const size_t dimension):
@@ -47,7 +47,7 @@ namespace riemann {
     ~RiemannHLLC() = default;
 
     //! Call the actual solver.
-    idealGas::PrimitiveState solve() override;
+    idealGas::ConservedFlux solve() override;
   };
 
 } // namespace riemann

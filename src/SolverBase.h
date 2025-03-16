@@ -22,6 +22,9 @@ namespace solver {
     //! Current time step
     Float dt;
 
+    //! Previous time step
+    Float dt_old;
+
     //! Current step
     size_t step_count;
 
@@ -51,7 +54,7 @@ namespace solver {
     void writeLogHeader();
 
     //! Apply the time update for a pair of cells.
-    void applyTimeUpdate(cell::Cell& left, cell::Cell& right, const Float dtdx);
+    static void applyTimeUpdate(cell::Cell& left, cell::Cell& right, const Float dtdx);
 
   public:
     SolverBase(parameters::Parameters& params_, grid::Grid& grid_);
