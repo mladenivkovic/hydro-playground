@@ -123,7 +123,7 @@ void logging::Log::setStage(LogStage stage) {
 
   std::stringstream msg;
   msg << "Setting stage " << getStageName(stage);
-  message(msg.str(), LogLevel::Verbose);
+  message(msg.str(), LogLevel::Debug);
 }
 
 

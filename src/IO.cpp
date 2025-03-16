@@ -854,21 +854,18 @@ void IO::OutputWriter::dump(Float t_current, size_t step) {
       cell::Cell& c = _grid.getCell(i, j);
       out << std::setw(fwidth) << std::scientific << std::setprecision(fprec) << c.getX();
       out << " ";
-      out << std::setw(fwidth) << std::scientific << std::setprecision(fprec) << c.getY();
+      out << c.getY();
       out << " ";
 
       idealGas::PrimitiveState& p = c.getPrim();
-      out << std::setw(fwidth) << std::scientific << std::setprecision(fprec) << p.getRho();
+      out << p.getRho();
       out << " ";
-      out << std::setw(fwidth) << std::scientific << std::setprecision(fprec) << p.getV(0);
+      out << p.getV(0);
       out << " ";
-      out << std::setw(fwidth) << std::scientific << std::setprecision(fprec) << p.getV(1);
+      out << p.getV(1);
       out << " ";
-      out << std::setw(fwidth) << std::scientific << std::setprecision(fprec) << p.getP();
+      out << p.getP();
       out << "\n";
-
-      if (p.getP() > 190. and p.getP() < 210)
-        warning("Caught it!!!");
     }
   }
 
@@ -881,7 +878,7 @@ void IO::OutputWriter::dump(Float t_current, size_t step) {
   // Write down current time and update when next output is being written
   setTimeLastOutputWritten(t_current);
 
-  timing("Writing output took " + tick.tock());
+  // timing("Writing output took " + tick.tock());
   // change it back to where we were
   logging::setStage(prevStage);
 }
