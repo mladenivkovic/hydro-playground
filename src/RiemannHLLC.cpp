@@ -17,7 +17,7 @@ idealGas::ConservedFlux riemann::RiemannHLLC::solve() {
 
   if (hasVacuum()) {
     idealGas::PrimitiveState vac = solveVacuum();
-    idealGas::ConservedFlux sol;
+    idealGas::ConservedFlux  sol;
     sol.getCFluxFromPState(vac, _dim);
     return sol;
   }
@@ -70,7 +70,8 @@ void riemann::RiemannHLLC::computeWaveSpeedEstimates() {
   Float temp = 0.25 * (rhoL + rhoR) * (aL + aR);
   Float PPV  = 0.5 * (pL + pR) + 0.5 * (vL - vR) * temp;
 
-  if (PPV < 0.) PPV = cst::SMALLP;
+  if (PPV < 0.)
+    PPV = cst::SMALLP;
 
   Float pstar = PPV;
   Float vstar = 0.5 * (vL + vR) + 0.5 * (pL - pR) / temp;
@@ -91,8 +92,7 @@ void riemann::RiemannHLLC::computeWaveSpeedEstimates() {
   if (qmax <= 2. and (pmin <= PPV and PPV <= pmax)) {
     pstar = PPV;
     vstar = 0.5 * (vL + vR) + 0.5 * (pL - pR) / temp;
-  }
-  else {
+  } else {
 
     if (PPV <= pmin) {
       // Primitive variable approximation isn't good enough.
@@ -105,9 +105,9 @@ void riemann::RiemannHLLC::computeWaveSpeedEstimates() {
       vstar = ((pLRbeta - 1.) / cst::GM1HALF + vL * aLinv * pLRbeta + vR * aRinv)
               / (aRinv + aLinv * pLRbeta);
 
-      pstar = 0.5 * (
-          pR * std::pow((1. + aRinv * cst::GM1HALF * (vstar - vR)), 1. / cst::BETA)
-          + pL * std::pow((1. + aLinv * cst::GM1HALF * (vL - vstar)), 1. / cst::BETA));
+      pstar
+        = 0.5
+          * (pR * std::pow((1. + aRinv * cst::GM1HALF * (vstar - vR)), 1. / cst::BETA) + pL * std::pow((1. + aLinv * cst::GM1HALF * (vL - vstar)), 1. / cst::BETA));
     }
 
     else {
@@ -226,16 +226,16 @@ idealGas::ConservedFlux riemann::RiemannHLLC::sampleSolution() {
 
   // Compute left and right star fluxes
 
-  Float                    rhoL   = FL.getRho()   + _SL * (UStarL.getRho()   - UL.getRho());
+  Float                    rhoL   = FL.getRho() + _SL * (UStarL.getRho() - UL.getRho());
   Float                    rhovLx = FL.getRhov(0) + _SL * (UStarL.getRhov(0) - UL.getRhov(0));
   Float                    rhovLy = FL.getRhov(1) + _SL * (UStarL.getRhov(1) - UL.getRhov(1));
-  Float                    EL     = FL.getE()     + _SL * (UStarL.getE()     - UL.getE());
+  Float                    EL     = FL.getE() + _SL * (UStarL.getE() - UL.getE());
   idealGas::ConservedState FstarL(rhoL, rhovLx, rhovLy, EL);
 
-  Float                    rhoR   = FR.getRho()   + _SR * (UStarR.getRho()   - UR.getRho());
+  Float                    rhoR   = FR.getRho() + _SR * (UStarR.getRho() - UR.getRho());
   Float                    rhovRx = FR.getRhov(0) + _SR * (UStarR.getRhov(0) - UR.getRhov(0));
   Float                    rhovRy = FR.getRhov(1) + _SR * (UStarR.getRhov(1) - UR.getRhov(1));
-  Float                    ER     = FR.getE()     + _SR * (UStarR.getE()     - UR.getE());
+  Float                    ER     = FR.getE() + _SR * (UStarR.getE() - UR.getE());
   idealGas::ConservedState FstarR(rhoR, rhovRx, rhovRy, ER);
 
 
@@ -252,22 +252,19 @@ idealGas::ConservedFlux riemann::RiemannHLLC::sampleSolution() {
     rhovx_sol = FL.getRhov(0);
     rhovy_sol = FL.getRhov(1);
     E_sol     = FL.getE();
-  }
-  else if (xovert <= _Sstar) {
+  } else if (xovert <= _Sstar) {
     // solution is F*_L
     rho_sol   = FstarL.getRho();
     rhovx_sol = FstarL.getRhov(0);
     rhovy_sol = FstarL.getRhov(1);
     E_sol     = FstarL.getE();
-  }
-  else if (xovert <= _SR) {
+  } else if (xovert <= _SR) {
     // solution is F*_R
     rho_sol   = FstarR.getRho();
     rhovx_sol = FstarR.getRhov(0);
     rhovy_sol = FstarR.getRhov(1);
     E_sol     = FstarR.getE();
-  }
-  else {
+  } else {
     // solution is F_R
     rho_sol   = FR.getRho();
     rhovx_sol = FR.getRhov(0);

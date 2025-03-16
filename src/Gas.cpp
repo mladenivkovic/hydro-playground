@@ -221,8 +221,8 @@ void idealGas::ConservedState::getCFluxFromCstate(
 
   if (cons.getRho() > 0.) {
     Float rho = cons.getRho();
-    Float v = cons.getRhov(dimension) / rho;
-    Float p = cst::GM1 * (cons.getE() - 0.5 * cons.getRhoVSquared() / rho);
+    Float v   = cons.getRhov(dimension) / rho;
+    Float p   = cst::GM1 * (cons.getE() - 0.5 * cons.getRhoVSquared() / rho);
 
     // momentum flux along the requested dimension
     Float momentum_dim = rho * v * v + p;

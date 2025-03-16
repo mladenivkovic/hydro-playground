@@ -23,8 +23,8 @@ inline void solver::SolverGodunov::computeIntercellFluxes(
   cell::Cell& left, cell::Cell& right, const size_t dimension
 ) {
 
-  riemann::Riemann         solver(left.getPrim(), right.getPrim(), dimension);
-  idealGas::ConservedFlux  csol = solver.solve();
+  riemann::Riemann        solver(left.getPrim(), right.getPrim(), dimension);
+  idealGas::ConservedFlux csol = solver.solve();
 
   left.getCFlux() = csol;
 }

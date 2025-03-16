@@ -256,7 +256,7 @@ inline const char* timer::getTimerName(Category t) {
 template <typename time_units>
 timer::ticks timer::Timer<time_units>::_get_duration() {
 
-  auto _stop    = chr::high_resolution_clock::now();
+  auto                             _stop    = chr::high_resolution_clock::now();
   chr::duration<ticks, std::milli> duration = _stop - _start;
   return duration.count();
 }

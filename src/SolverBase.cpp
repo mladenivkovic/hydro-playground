@@ -119,7 +119,7 @@ void solver::SolverBase::computeDt() {
   message("Computing next dt.", logging::LogLevel::Debug);
   timer::Timer tick(timer::Category::CollectDt);
 
-  if (Dimensions != 2){
+  if (Dimensions != 2) {
     error("Not Implemented");
     return;
   }
@@ -175,7 +175,7 @@ void solver::SolverBase::integrateHydro(const size_t dimension) {
   message("Integrating dim=" + std::to_string(dimension), logging::LogLevel::Debug);
   timer::Timer tick(timer::Category::HydroIntegrate);
 
-  if (Dimensions != 2){
+  if (Dimensions != 2) {
     error("Not Implemented");
     return;
   }
@@ -220,7 +220,7 @@ void solver::SolverBase::integrateHydro(const size_t dimension) {
  */
 void solver::SolverBase::applyTimeUpdate(cell::Cell& left, cell::Cell& right, const Float dtdx) {
 
-  idealGas::ConservedState&       cr    = right.getCons();
+  idealGas::ConservedState&       cr     = right.getCons();
   const idealGas::ConservedState& lcflux = left.getCFlux();
   const idealGas::ConservedState& rcflux = right.getCFlux();
 

@@ -224,7 +224,7 @@ Float grid::Grid::collectTotalMass() {
 
   Float  total = 0.;
   size_t first = getFirstCellIndex();
-  size_t last = getLastCellIndex();
+  size_t last  = getLastCellIndex();
 
   if (Dimensions == 1) {
     for (size_t i = first; i < last; i++) {
@@ -258,13 +258,13 @@ void grid::Grid::resetFluxes() {
 
   timer::Timer tick(timer::Category::Reset);
 
-  if (Dimensions != 2){
+  if (Dimensions != 2) {
     error("Not Implemented");
     return;
   }
 
   size_t first = getFirstCellIndex();
-  size_t last = getLastCellIndex();
+  size_t last  = getLastCellIndex();
 
   for (size_t j = first; j < last; j++) {
     for (size_t i = first; i < last; i++) {
@@ -285,13 +285,13 @@ void grid::Grid::convertPrim2Cons() {
 
   timer::Timer tick(timer::Category::Convert);
 
-  if (Dimensions != 2){
+  if (Dimensions != 2) {
     error("Not Implemented");
     return;
   }
 
   size_t first = getFirstCellIndex();
-  size_t last = getLastCellIndex();
+  size_t last  = getLastCellIndex();
 
   for (size_t j = first; j < last; j++) {
     for (size_t i = first; i < last; i++) {
@@ -311,13 +311,13 @@ void grid::Grid::convertCons2Prim() {
 
   timer::Timer tick(timer::Category::Convert);
 
-  if (Dimensions != 2){
+  if (Dimensions != 2) {
     error("Not Implemented");
     return;
   }
 
   size_t first = getFirstCellIndex();
-  size_t last = getLastCellIndex();
+  size_t last  = getLastCellIndex();
 
   for (size_t j = first; j < last; j++) {
     for (size_t i = first; i < last; i++) {
@@ -511,8 +511,7 @@ void grid::Grid::printGrid(bool boundaries, bool conserved) {
 
     out << "\n";
 
-  }
-  else if (Dimensions == 2) {
+  } else if (Dimensions == 2) {
 
     // Put the top at the top, and (0, 0) at the bottom left.
     for (int j = end - 1; j >= 0; j--) {

@@ -158,21 +158,21 @@ namespace idealGas {
 // --------------------------
 
 inline void idealGas::PrimitiveState::setRho(const Float val) {
-// These checks will fail because we (ab)use the PrimitiveState
-// as fluxes too, which can be negative
-// #if DEBUG_LEVEL > 0
-//   assert(val >= 0.);
-// #endif
+  // These checks will fail because we (ab)use the PrimitiveState
+  // as fluxes too, which can be negative
+  // #if DEBUG_LEVEL > 0
+  //   assert(val >= 0.);
+  // #endif
   _rho = val;
 }
 
 
 inline Float idealGas::PrimitiveState::getRho() const {
-// These checks will fail because we (ab)use the PrimitiveState
-// as fluxes too, which can be negative
-// #if DEBUG_LEVEL > 0
-//   assert(_rho >= 0.);
-// #endif
+  // These checks will fail because we (ab)use the PrimitiveState
+  // as fluxes too, which can be negative
+  // #if DEBUG_LEVEL > 0
+  //   assert(_rho >= 0.);
+  // #endif
   return _rho;
 }
 
@@ -201,21 +201,21 @@ inline Float idealGas::PrimitiveState::getVSquared() const {
 
 
 inline void idealGas::PrimitiveState::setP(const Float val) {
-// These checks will fail because we (ab)use the PrimitiveState
-// as fluxes too, which can be negative
-// #if DEBUG_LEVEL > 0
-//   assert(val >= 0.);
-// #endif
+  // These checks will fail because we (ab)use the PrimitiveState
+  // as fluxes too, which can be negative
+  // #if DEBUG_LEVEL > 0
+  //   assert(val >= 0.);
+  // #endif
   _p = val;
 }
 
 
 inline Float idealGas::PrimitiveState::getP() const {
-// These checks will fail because we (ab)use the PrimitiveState
-// as fluxes too, which can be negative
-// #if DEBUG_LEVEL > 0
-//   assert(_p >= 0.);
-// #endif
+  // These checks will fail because we (ab)use the PrimitiveState
+  // as fluxes too, which can be negative
+  // #if DEBUG_LEVEL > 0
+  //   assert(_p >= 0.);
+  // #endif
   return _p;
 }
 
@@ -263,40 +263,40 @@ inline Float idealGas::ConservedState::getRhoVSquared() const {
 
 
 inline void idealGas::ConservedState::setE(const Float val) {
-// These checks will fail because we (ab)use the ConservedState
-// as fluxes too, which can be negative
-// #if DEBUG_LEVEL > 0
-//   assert(val >= 0.);
-// #endif
+  // These checks will fail because we (ab)use the ConservedState
+  // as fluxes too, which can be negative
+  // #if DEBUG_LEVEL > 0
+  //   assert(val >= 0.);
+  // #endif
   _energy = val;
 }
 
 
 inline Float idealGas::ConservedState::getE() const {
-// These checks will fail because we (ab)use the ConservedState
-// as fluxes too, which can be negative
-// #if DEBUG_LEVEL > 0
-//   assert(_energy >= 0.);
-// #endif
+  // These checks will fail because we (ab)use the ConservedState
+  // as fluxes too, which can be negative
+  // #if DEBUG_LEVEL > 0
+  //   assert(_energy >= 0.);
+  // #endif
   return _energy;
 }
 
 
 inline Float idealGas::ConservedState::getRho() const {
-// These checks will fail because we (ab)use the ConservedState
-// as fluxes too, which can be negative
-// #if DEBUG_LEVEL > 0
-//   assert(_rho >= 0.);
-// #endif
+  // These checks will fail because we (ab)use the ConservedState
+  // as fluxes too, which can be negative
+  // #if DEBUG_LEVEL > 0
+  //   assert(_rho >= 0.);
+  // #endif
   return _rho;
 }
 
 
 inline void idealGas::ConservedState::setRho(const Float val) {
-// These checks will fail because we (ab)use the ConservedState
-// as fluxes too, which can be negative
-// #if DEBUG_LEVEL > 0
-//   assert(val >= 0.);
-// #endif
+  // These checks will fail because we (ab)use the ConservedState
+  // as fluxes too, which can be negative
+  // #if DEBUG_LEVEL > 0
+  //   assert(val >= 0.);
+  // #endif
   _rho = val;
 }

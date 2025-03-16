@@ -1,13 +1,13 @@
 #include <cassert>
-#include <string>
-#include <sstream>
 #include <cmath>
 #include <random>
+#include <sstream>
+#include <string>
 
-#include "Gas.h"
-#include "Logging.h"
 #include "Config.h"
 #include "Constants.h"
+#include "Gas.h"
+#include "Logging.h"
 
 
 using ps = idealGas::PrimitiveState;
@@ -18,32 +18,29 @@ constexpr int nrepeat = 10000;
 
 #if PRECISION == SINGLE_PRECISION
 constexpr Float TOLERANCE = 1.e-4;
-#elif PRECISION ==  DOUBLE_PRECISION
+#elif PRECISION == DOUBLE_PRECISION
 constexpr Float TOLERANCE = 1.e-8;
 #else
 #error invalid presicion defined
 #endif
 
 
-
-
-bool isEqual(Float a, Float b, Float tolerance=TOLERANCE){
+bool isEqual(Float a, Float b, Float tolerance = TOLERANCE) {
   return (1. - std::abs(a / b)) < tolerance;
 }
 
 
-
-void testConversion(std::mt19937& generator){
+void testConversion(std::mt19937& generator) {
 
   std::uniform_real_distribution<Float> positive(cst::SMALLRHO, 1.e3);
   std::uniform_real_distribution<Float> uniform(-1.e3, 1.e3);
 
   // Convert prim -> cons -> prim -> cons
-  for (int i = 0; i < nrepeat; i++){
+  for (int i = 0; i < nrepeat; i++) {
     Float rho = positive(generator);
-    Float vx = uniform(generator);
-    Float vy = uniform(generator);
-    Float p = positive(generator);
+    Float vx  = uniform(generator);
+    Float vy  = uniform(generator);
+    Float p   = positive(generator);
 
     ps prim(rho, vx, vy, p);
 
@@ -57,7 +54,7 @@ void testConversion(std::mt19937& generator){
     cons2.fromPrim(prim2);
 
 
-    if (not isEqual(prim2.getRho(), prim.getRho())){
+    if (not isEqual(prim2.getRho(), prim.getRho())) {
       std::stringstream msg;
       msg << prim2.getRho() << ", ";
       msg << prim.getRho() << ", ";
@@ -65,7 +62,7 @@ void testConversion(std::mt19937& generator){
       error(msg.str());
     }
 
-    if (not isEqual(prim2.getV(0), prim.getV(0))){
+    if (not isEqual(prim2.getV(0), prim.getV(0))) {
       std::stringstream msg;
       msg << prim2.getV(0) << ", ";
       msg << prim.getV(0) << ", ";
@@ -73,7 +70,7 @@ void testConversion(std::mt19937& generator){
       error(msg.str());
     }
 
-    if (not isEqual(prim2.getV(1), prim.getV(1))){
+    if (not isEqual(prim2.getV(1), prim.getV(1))) {
       std::stringstream msg;
       msg << prim2.getV(1) << ", ";
       msg << prim.getV(1) << ", ";
@@ -81,7 +78,7 @@ void testConversion(std::mt19937& generator){
       error(msg.str());
     }
 
-    if (not isEqual(prim2.getP(), prim.getP())){
+    if (not isEqual(prim2.getP(), prim.getP())) {
       std::stringstream msg;
       msg << prim2.getP() << ", ";
       msg << prim.getP() << ", ";
@@ -89,7 +86,7 @@ void testConversion(std::mt19937& generator){
       error(msg.str());
     }
 
-    if (not isEqual(cons2.getRho(), cons.getRho())){
+    if (not isEqual(cons2.getRho(), cons.getRho())) {
       std::stringstream msg;
       msg << cons2.getRho() << ", ";
       msg << cons.getRho() << ", ";
@@ -97,7 +94,7 @@ void testConversion(std::mt19937& generator){
       error(msg.str());
     }
 
-    if (not isEqual(cons2.getRhov(0), cons.getRhov(0))){
+    if (not isEqual(cons2.getRhov(0), cons.getRhov(0))) {
       std::stringstream msg;
       msg << cons2.getRhov(0) << ", ";
       msg << cons.getRhov(0) << ", ";
@@ -105,7 +102,7 @@ void testConversion(std::mt19937& generator){
       error(msg.str());
     }
 
-    if (not isEqual(cons2.getRhov(1), cons.getRhov(1))){
+    if (not isEqual(cons2.getRhov(1), cons.getRhov(1))) {
       std::stringstream msg;
       msg << cons2.getRhov(1) << ", ";
       msg << cons.getRhov(1) << ", ";
@@ -113,7 +110,7 @@ void testConversion(std::mt19937& generator){
       error(msg.str());
     }
 
-    if (not isEqual(cons2.getE(), cons.getE())){
+    if (not isEqual(cons2.getE(), cons.getE())) {
       std::stringstream msg;
       msg << cons2.getE() << ", ";
       msg << cons.getE() << ", ";
@@ -121,10 +118,7 @@ void testConversion(std::mt19937& generator){
       error(msg.str());
     }
   }
-
 }
-
-
 
 
 int main() {
