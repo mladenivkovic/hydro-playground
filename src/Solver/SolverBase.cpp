@@ -282,6 +282,11 @@ void solver::SolverBase::solve() {
     t += dt_old;
     step_count++;
 
+#if DEBUG_LEVEL > 1
+    // Collect the total mass to verify that we're actually conservative.
+    total_mass_current = grid.collectTotalMass();
+#endif
+
     // Write output files
     if (write_output)
       writer.dump(t, step_count);
