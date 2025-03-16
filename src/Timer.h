@@ -1,10 +1,12 @@
-/**
+/**.
+ * If you change this, note that the conversion for printouts is hardcoded. So change that too.
  * @file Timer.h
  * @brief A small class and tools to help with timing.
  */
 #pragma once
 
 #include <chrono>
+#include <iomanip>
 #include <string>
 #include <typeinfo>
 
@@ -23,8 +25,10 @@ namespace timer {
   } // namespace unit
 
 
-  // More convenience aliasing
-  using default_time_units = unit::ms;
+  // More convenience aliasing.
+  // If you change this, note that the conversion for printouts is hardcoded.
+  // That happens in chr::duration<ticks, std::milli>. So change that too.
+  using default_time_units = unit::mus;
   using ticks              = double;
   // using ticks              = int64_t;
 
@@ -253,7 +257,7 @@ template <typename time_units>
 timer::ticks timer::Timer<time_units>::_get_duration() {
 
   auto _stop    = chr::high_resolution_clock::now();
-  auto duration = duration_cast<time_units>(_stop - _start);
+  chr::duration<ticks, std::milli> duration = _stop - _start;
   return duration.count();
 }
 
@@ -280,11 +284,13 @@ std::string timer::Timer<time_units>::tock() {
 
   ticks duration = _end_timing();
 
-  std::string out = std::to_string(duration);
-  out += " ";
-  out += _units_str();
+  std::stringstream out;
+  out << std::setprecision(3) << std::fixed;
+  out << duration;
+  out << " [ms]";
+  // out << _units_str();
 
-  return out;
+  return out.str();
 }
 
 
@@ -296,11 +302,13 @@ std::string timer::Timer<time_units>::getTimings() {
 
   std::stringstream out;
   out << "\nTiming units: ";
-  out << _units_str();
+  out << "[ms]";
+  // out << _units_str();
   out << "\n";
 
   for (int i = 0; i < Category::Count - 1; i++) {
-    out << std::setw(20) << getTimerName(static_cast<Category>(i)) << ": ";
+    out << std::setw(20) << std::scientific;
+    out << getTimerName(static_cast<Category>(i)) << ": ";
     out << std::setw(20) << timings[i] << "\n";
   }
 
