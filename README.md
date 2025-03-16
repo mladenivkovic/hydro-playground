@@ -415,12 +415,11 @@ wherever you feel like it.
 If no `basename` is given in the parameter file, the output file name will be generated as follows:
 
 ```
-<ICfile-without-suffix>-<SOLVER>-<RIEMANN-SOLVER>-<LIMITER>-<NDIM>D-<snapshot nr>.out
+output_XXXX.out
 ```
 
-e.g.
+where `XXXX` is the snapshot/output number.
 
-`run-ADVECTION-NO_LIMITER-2D-0001.out`
 
 The output files are written in plain text, and their content should be self-explanatory:
 
