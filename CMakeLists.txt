@@ -191,6 +191,7 @@ add_subdirectory(tests)
 enable_testing()
 add_test(NAME logging COMMAND test_logging)
 add_test(NAME io COMMAND test_io)
+add_test(NAME gas COMMAND test_gas)
 
 
 # ----------------------------------
