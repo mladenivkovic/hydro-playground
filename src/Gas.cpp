@@ -152,8 +152,9 @@ idealGas::ConservedState::ConservedState(
  * Initialise a conserved flux along a dimension using primitive variables of
  * the state.
  */
-idealGas::ConservedState::ConservedState(const idealGas::PrimitiveState& prim,
- const size_t dimension){
+idealGas::ConservedState::ConservedState(
+  const idealGas::PrimitiveState& prim, const size_t dimension
+) {
 
   getCFluxFromPState(prim, dimension);
 }
@@ -189,11 +190,11 @@ void idealGas::ConservedState::getCFluxFromPState(
   const PrimitiveState& pstate, const size_t dimension
 ) {
 
-  size_t other =  (dimension + 1) % 2;
-  Float rho = pstate.getRho();
-  Float vdim = pstate.getV(dimension);
-  Float vother = pstate.getV(other);
-  Float p = pstate.getP();
+  size_t other  = (dimension + 1) % 2;
+  Float  rho    = pstate.getRho();
+  Float  vdim   = pstate.getV(dimension);
+  Float  vother = pstate.getV(other);
+  Float  p      = pstate.getP();
 
 
   // mass flux
@@ -205,7 +206,7 @@ void idealGas::ConservedState::getCFluxFromPState(
   setRhov(other, rho * vdim * vother);
 
   // gas energy flux
-  Float E     = 0.5 * rho * pstate.getVSquared() + p * cst::ONEOVERGAMMA;
+  Float E = 0.5 * rho * pstate.getVSquared() + p * cst::ONEOVERGAMMA;
   setE((E + p) * vdim);
 }
 

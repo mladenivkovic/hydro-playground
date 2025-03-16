@@ -28,12 +28,11 @@ idealGas::ConservedFlux riemann::RiemannExact::solve() {
 }
 
 
-
 /**
  * computes the star region pressure and velocity given the left and right
  * primitive states.
  */
-inline void riemann::RiemannExact::computeStarStates(){
+inline void riemann::RiemannExact::computeStarStates() {
 
   Float rhoL = _left.getRho();
   Float rhoR = _right.getRho();
@@ -56,7 +55,7 @@ inline void riemann::RiemannExact::computeStarStates(){
 
 
   /* Find initial guess for star pressure */
-  Float ppv = 0.5 * (pL + pR) - 0.125 * delta_v * (rhoL + rhoR) * (aL + aR);
+  Float ppv    = 0.5 * (pL + pR) - 0.125 * delta_v * (rhoL + rhoR) * (aL + aR);
   Float pguess = ppv;
 
   if (pguess < cst::SMALLP) {
@@ -64,10 +63,10 @@ inline void riemann::RiemannExact::computeStarStates(){
   }
 
   // Newton-Raphson iteration
-  int niter = 0;
-  Float pold = pguess;
+  int   niter = 0;
+  Float pold  = pguess;
 
-  while (2. * std::abs((pguess - pold) / (pguess + pold)) >= cst::EPSILON_ITER){
+  while (2. * std::abs((pguess - pold) / (pguess + pold)) >= cst::EPSILON_ITER) {
     niter++;
     pold         = pguess;
     Float fL     = fp(pguess, _left, AL, BL, aL);
@@ -80,15 +79,17 @@ inline void riemann::RiemannExact::computeStarStates(){
     }
     if (niter > 100) {
       warning(
-        "Iteration for central pressure needs more than "
-        + std::to_string(niter) +
-        " steps. Force-quitting iteration. Old-to-new ratio is "
-        + std::to_string(std::abs(1. - pguess / pold)));
+        "Iteration for central pressure needs more than " + std::to_string(niter)
+        + " steps. Force-quitting iteration. Old-to-new ratio is "
+        + std::to_string(std::abs(1. - pguess / pold))
+      );
       break;
     }
   }
 
-  if (pguess <= cst::SMALLP) { pguess = cst::SMALLP; }
+  if (pguess <= cst::SMALLP) {
+    pguess = cst::SMALLP;
+  }
 
   _vstar = vLdim - fp(pguess, _left, AL, BL, aL);
   _pstar = pguess;
@@ -105,13 +106,19 @@ inline void riemann::RiemannExact::computeStarStates(){
  * @param B   B_L or B_R (Eq. TODO)
  * @param cs  soundspeed of state
  */
-inline Float riemann::RiemannExact::fp(const Float pguess, const idealGas::PrimitiveState& state, const Float A, const Float B, const Float cs){
+inline Float riemann::RiemannExact::fp(
+  const Float                     pguess,
+  const idealGas::PrimitiveState& state,
+  const Float                     A,
+  const Float                     B,
+  const Float                     cs
+) {
 
   Float p = state.getP();
 
   if (pguess > p) {
     // we have a shock situation
-    return (pguess -  p) * std::sqrt(A / (pguess + B));
+    return (pguess - p) * std::sqrt(A / (pguess + B));
   }
   // we have a rarefaction situation
   return cst::TWOOVERGAMMAM1 * cs * (std::pow(pguess / p, cst::BETA) - 1.);
@@ -128,9 +135,15 @@ inline Float riemann::RiemannExact::fp(const Float pguess, const idealGas::Primi
  * @param B   B_L or B_R (Eq. TODO)
  * @param cs  soundspeed of state
  */
-inline Float riemann::RiemannExact::dfpdp(const Float pguess, const idealGas::PrimitiveState& state, const Float A, const Float B, const Float cs){
+inline Float riemann::RiemannExact::dfpdp(
+  const Float                     pguess,
+  const idealGas::PrimitiveState& state,
+  const Float                     A,
+  const Float                     B,
+  const Float                     cs
+) {
 
-  Float p = state.getP();
+  Float p   = state.getP();
   Float rho = state.getRho();
 
   if (pguess > p) {
@@ -140,5 +153,3 @@ inline Float riemann::RiemannExact::dfpdp(const Float pguess, const idealGas::Pr
   // we have a rarefaction situation
   return 1. / (rho * cs) * std::pow(pguess / p, -0.5 * cst::GP1 / cst::GAMMA);
 }
-
-

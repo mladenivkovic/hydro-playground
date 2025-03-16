@@ -5,8 +5,9 @@
  * @brief Contains (physical) constants used across the project.
  */
 
-#include "Config.h"
 #include <cstddef>
+
+#include "Config.h"
 
 namespace cst {
 
@@ -28,15 +29,14 @@ namespace cst {
   static constexpr Float SMALLV   = 1e-6;
   static constexpr Float SMALLP   = 1e-6;
 
-  static constexpr Float DT_MIN       = 1e-10;
-  static constexpr Float EPSILON_ITER = 1e-6;
+  static constexpr Float       DT_MIN                = 1e-10;
+  static constexpr Float       EPSILON_ITER          = 1e-6;
   static constexpr std::size_t EXACT_SOLVER_MAX_ITER = 100;
 
 
   // define slope of each cell in MUSCL scheme as
   //  slope = 0.5* (1 + omega) (U_{i}-U_{i-1}) +  0.5 * (1 - omega) (U_{i+1} - U_{i})
   constexpr Float MUSCL_SLOPE_OMEGA = 0.;
-
 
 
 } // namespace cst

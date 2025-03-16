@@ -16,15 +16,26 @@ namespace riemann {
   class RiemannExact: public RiemannBase {
 
   private:
-
     //! Compute the star state pressure and velocity iteratively.
     void computeStarStates();
 
     //!
-    Float fp(const Float pguess, const idealGas::PrimitiveState& state, const Float A, const Float B, const Float cs);
+    Float fp(
+      const Float                     pguess,
+      const idealGas::PrimitiveState& state,
+      const Float                     A,
+      const Float                     B,
+      const Float                     cs
+    );
 
     //!
-    Float dfpdp(const Float pguess, const idealGas::PrimitiveState& state, const Float A, const Float B, const Float cs);
+    Float dfpdp(
+      const Float                     pguess,
+      const idealGas::PrimitiveState& state,
+      const Float                     A,
+      const Float                     B,
+      const Float                     cs
+    );
 
 
   public:
