@@ -2,6 +2,7 @@
 
 #include <cmath>
 
+#include "Constants.h"
 #include "Gas.h"
 #include "Timer.h"
 
@@ -17,14 +18,13 @@ idealGas::ConservedFlux riemann::RiemannHLLC::solve() {
 
   if (hasVacuum()) {
     idealGas::PrimitiveState vac = solveVacuum();
-    idealGas::ConservedFlux  sol;
-    sol.getCFluxFromPState(vac, _dim);
+    idealGas::ConservedFlux  sol(vac, _dim);
     return sol;
   }
 
   computeWaveSpeedEstimates();
 
-  return sampleSolution();
+  return sampleHLLCSolution();
 }
 
 
@@ -105,9 +105,9 @@ void riemann::RiemannHLLC::computeWaveSpeedEstimates() {
       vstar = ((pLRbeta - 1.) / cst::GM1HALF + vL * aLinv * pLRbeta + vR * aRinv)
               / (aRinv + aLinv * pLRbeta);
 
-      pstar
-        = 0.5
-          * (pR * std::pow((1. + aRinv * cst::GM1HALF * (vstar - vR)), 1. / cst::BETA) + pL * std::pow((1. + aLinv * cst::GM1HALF * (vL - vstar)), 1. / cst::BETA));
+      pstar = 0.5 * (
+          pR * std::pow((1. + aRinv * cst::GM1HALF * (vstar - vR)), 1. / cst::BETA) +
+          pL * std::pow((1. + aLinv * cst::GM1HALF * (vL - vstar)), 1. / cst::BETA));
     }
 
     else {
@@ -170,7 +170,7 @@ void riemann::RiemannHLLC::computeStarCStates(
   UStarL.setRhov(_dim, lcomp * _Sstar);
   UStarL.setRhov(other, lcomp * vLother);
 
-  Float EL    = 0.5 * rhoL * _left.getVSquared() + pL / cst::GM1;
+  Float EL    = 0.5 * rhoL * _left.getVSquared() + pL * cst::ONEOVERGAMMAM1;
   Float EnewL = lcomp * ((EL / rhoL) + (_Sstar - vLdim) * (_Sstar + pL / (rhoL * SLMUL)));
   UStarL.setE(EnewL);
 
@@ -179,7 +179,7 @@ void riemann::RiemannHLLC::computeStarCStates(
   UStarR.setRhov(_dim, rcomp * _Sstar);
   UStarR.setRhov(other, rcomp * vRother);
 
-  Float ER    = 0.5 * rhoR * _right.getVSquared() + pR / cst::GM1;
+  Float ER    = 0.5 * rhoR * _right.getVSquared() + pR * cst::ONEOVERGAMMAM1;
   Float EnewR = rcomp * ((ER / rhoR) + (_Sstar - vRdim) * (_Sstar + pR / (rhoR * SRMUR)));
   UStarR.setE(EnewR);
 }
@@ -188,10 +188,13 @@ void riemann::RiemannHLLC::computeStarCStates(
 /**
  * Sample the solution. This assumes the wave speeds SL, SR, and Sstar
  * have been computed already.
+ * We need to do this differently for the HLLC solver because it delivers us
+ * directly with a conserved state, whereas other Riemann solvers give us
+ * primitive states.
  *
  * @return the intercell flux of primitive variables
  */
-idealGas::ConservedFlux riemann::RiemannHLLC::sampleSolution() {
+idealGas::ConservedFlux riemann::RiemannHLLC::sampleHLLCSolution() {
 #if DEBUG_LEVEL > 0
   if (_SL == 0. and _SR == 0. and _Sstar == 0.)
     warning("Suspicious wave speed estimates.");
@@ -280,8 +283,6 @@ idealGas::ConservedFlux riemann::RiemannHLLC::sampleSolution() {
   assert(not std::isnan(E_sol));
 #endif
 
-
-  // Dirty, dirty hack
   idealGas::ConservedFlux Fsol(rho_sol, rhovx_sol, rhovy_sol, E_sol);
   return Fsol;
 }

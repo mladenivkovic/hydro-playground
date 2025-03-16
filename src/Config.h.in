@@ -56,10 +56,5 @@ constexpr bool color_term = false;
 // whether to use an adaptive, or a simple wave speed estimate for the HLLC
 // Riemann solver
 #define HLLC_USE_ADAPTIVE_SPEED_ESTIMATE
-
-// define slope of each cell in MUSCL scheme as
-//  slope = 0.5* (1 + omega) (U_{i}-U_{i-1}) +  0.5 * (1 - omega) (U_{i+1} - U_{i})
-constexpr Float MUSCL_SLOPE_OMEGA = 0.;
 #endif
-
 

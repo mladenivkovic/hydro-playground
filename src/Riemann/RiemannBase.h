@@ -37,6 +37,8 @@ namespace riemann {
     //! Get the vacuum solution
     idealGas::PrimitiveState solveVacuum();
 
+    //! Sample the solved Riemann problem.
+    idealGas::ConservedFlux sampleSolution();
 
   public:
     RiemannBase(idealGas::PrimitiveState& l, idealGas::PrimitiveState& r, const size_t dimension):

@@ -62,18 +62,14 @@ void solver::SolverBase::writeLog(const std::string& timingstr) {
   msg << step_count;
   msg << " ";
   msg << std::setw(w) << std::setprecision(p) << std::scientific << std::left;
-  msg << t;
-  msg << " ";
-  msg << std::setw(w) << std::setprecision(p) << std::scientific << std::left;
+  msg << t << " ";
   msg << dt_old;
   msg << " ";
 #if DEBUG_LEVEL > 1
-  msg << std::setw(w) << std::setprecision(p) << std::scientific << std::left;
   msg << total_mass_current / total_mass_init;
   msg << " ";
 #endif
-  msg << std::setw(w) << std::left;
-  msg << timingstr;
+  msg << std::right << std::setw(w) << timingstr;
   message(msg.str());
 }
 
@@ -94,18 +90,14 @@ void solver::SolverBase::writeLogHeader() {
   msg << std::setw(w) << std::left;
   msg << "step";
   msg << " ";
-  msg << std::setw(w) << std::left;
   msg << "time";
   msg << " ";
-  msg << std::setw(w) << std::left;
   msg << "dt";
   msg << " ";
 #if DEBUG_LEVEL > 1
-  msg << std::setw(w) << std::left;
-  msg << "Mnow/Minit";
+  msg << "M_now/M_init";
   msg << " ";
 #endif
-  msg << std::setw(w) << std::left;
   msg << "step duration";
   message(msg.str());
 }
