@@ -129,6 +129,7 @@ int main() {
 
   testConversion(generator);
 
+  message("Done.");
 
   return 0;
 }

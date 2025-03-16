@@ -4,8 +4,8 @@
  */
 
 #include "Config.h"
-#include "RiemannExact.h"
-#include "RiemannHLLC.h"
+#include "Riemann/RiemannExact.h"
+#include "Riemann/RiemannHLLC.h"
 
 
 namespace riemann {

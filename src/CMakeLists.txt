@@ -1,6 +1,9 @@
 # OBJECT: create "object libraries".
 # See https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#object-libraries
 
+include_directories(Solver)
+include_directories(Riemann)
+
 add_library(Version OBJECT "${CMAKE_BINARY_DIR}/Version.cpp" Version.h)
 target_include_directories(Version PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -33,38 +36,44 @@ target_include_directories(IO PUBLIC "${PROJECT_BINARY_DIR}") # we need this for
 target_link_libraries(IO Logging)
 target_link_libraries(IO Utils)
 
-add_library(SolverBase OBJECT Solver.h SolverBase.h SolverBase.cpp)
+add_library(SolverBase OBJECT Solver.h Solver/SolverBase.h Solver/SolverBase.cpp)
 target_include_directories(SolverBase PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_include_directories(SolverBase PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}") # we need this for Config.h
 target_link_libraries(SolverBase Grid)
 target_link_libraries(SolverBase IO)
 target_link_libraries(SolverBase Logging)
 target_link_libraries(SolverBase Parameters)
 
-add_library(SolverMUSCL OBJECT Solver.h SolverMUSCL.h SolverMUSCL.cpp)
+add_library(SolverMUSCL OBJECT Solver.h Solver/SolverMUSCL.h Solver/SolverMUSCL.cpp)
 target_include_directories(SolverMUSCL PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_include_directories(SolverMUSCL PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}") # we need this for Config.h
 target_link_libraries(SolverMUSCL SolverBase)
 target_link_libraries(SolverMUSCL RiemannBase)
 target_link_libraries(SolverMUSCL RiemannHLLC)
 target_link_libraries(SolverMUSCL RiemannExact)
 
-add_library(SolverGodunov OBJECT Solver.h SolverGodunov.h SolverGodunov.cpp)
+add_library(SolverGodunov OBJECT Solver.h Solver/SolverGodunov.h Solver/SolverGodunov.cpp)
 target_include_directories(SolverGodunov PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_include_directories(SolverGodunov PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}") # we need this for Config.h
 target_link_libraries(SolverGodunov SolverBase)
 target_link_libraries(SolverGodunov RiemannBase)
 target_link_libraries(SolverGodunov RiemannHLLC)
 target_link_libraries(SolverGodunov RiemannExact)
 
 
-add_library(RiemannBase OBJECT Riemann.h RiemannBase.h RiemannBase.cpp)
+add_library(RiemannBase OBJECT Riemann.h Riemann/RiemannBase.h Riemann/RiemannBase.cpp)
 target_include_directories(RiemannBase PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_include_directories(RiemannBase PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}") # we need this for Config.h
 target_link_libraries(RiemannBase Logging)
 
-add_library(RiemannExact OBJECT Riemann.h RiemannExact.h RiemannExact.cpp)
+add_library(RiemannExact OBJECT Riemann.h Riemann/RiemannExact.h Riemann/RiemannExact.cpp)
 target_include_directories(RiemannExact PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_include_directories(RiemannExact PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}") # we need this for Config.h
 target_link_libraries(RiemannExact RiemannBase)
 
-add_library(RiemannHLLC OBJECT Riemann.h RiemannHLLC.h RiemannHLLC.cpp)
+add_library(RiemannHLLC OBJECT Riemann.h Riemann/RiemannHLLC.h Riemann/RiemannHLLC.cpp)
 target_include_directories(RiemannHLLC PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
+target_include_directories(RiemannHLLC PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}") # we need this for Config.h
 target_link_libraries(RiemannHLLC RiemannBase)
 
 

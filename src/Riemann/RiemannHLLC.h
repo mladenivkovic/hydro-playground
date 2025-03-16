@@ -35,7 +35,7 @@ namespace riemann {
     void computeStarCStates(idealGas::ConservedState& UStarL, idealGas::ConservedState& UStarR);
 
     //! Sample the solution.
-    idealGas::ConservedFlux sampleSolution();
+    idealGas::ConservedFlux sampleHLLCSolution();
 
   public:
     RiemannHLLC(idealGas::PrimitiveState& l, idealGas::PrimitiveState& r, const size_t dimension):

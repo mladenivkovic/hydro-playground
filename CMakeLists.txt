@@ -130,7 +130,7 @@ message(STATUS "RIEMANN is set to: ${RIEMANN}")
 
 if(RIEMANN STREQUAL "HLLC")
     add_definitions(-DRIEMANN_SOLVER=21)
-elseif(SOLVER STREQUAL "RIEMANN")
+elseif(RIEMANN STREQUAL "EXACT")
     add_definitions(-DRIEMANN_SOLVER=22)
 else()
     message(FATAL_ERROR

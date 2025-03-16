@@ -2,6 +2,7 @@
 
 #include <iomanip>
 
+#include "Constants.h"
 #include "Logging.h"
 
 
@@ -147,6 +148,17 @@ idealGas::ConservedState::ConservedState(
   _rhov[1] = rhovy;
 }
 
+/**
+ * Initialise a conserved flux along a dimension using primitive variables of
+ * the state.
+ */
+idealGas::ConservedState::ConservedState(
+  const idealGas::PrimitiveState& prim, const size_t dimension
+) {
+
+  getCFluxFromPState(prim, dimension);
+}
+
 
 /**
  * Compute the conserved state vector of a given primitive state.
@@ -157,7 +169,7 @@ void idealGas::ConservedState::fromPrim(const PrimitiveState& p) {
   setRho(p.getRho());
   setRhov(0, p.getRho() * p.getV(0));
   setRhov(1, p.getRho() * p.getV(1));
-  setE(0.5 * p.getRho() * p.getVSquared() + p.getP() / cst::GM1);
+  setE(0.5 * p.getRho() * p.getVSquared() + p.getP() * cst::ONEOVERGAMMAM1);
 }
 
 
@@ -178,21 +190,24 @@ void idealGas::ConservedState::getCFluxFromPState(
   const PrimitiveState& pstate, const size_t dimension
 ) {
 
-  Float rhoflux = pstate.getRho() * pstate.getV(dimension);
-  setRho(rhoflux);
+  size_t other  = (dimension + 1) % 2;
+  Float  rho    = pstate.getRho();
+  Float  vdim   = pstate.getV(dimension);
+  Float  vother = pstate.getV(other);
+  Float  p      = pstate.getP();
 
+
+  // mass flux
+  setRho(rho * vdim);
   // momentum flux along the requested dimension
-  Float rhov_dim = pstate.getRho() * pstate.getV(dimension) * pstate.getV(dimension) + pstate.getP();
-  setRhov(dimension, rhov_dim);
+  setRhov(dimension, rho * vdim * vdim + p);
 
   // momentum flux along the other dimension
-  Float rhov_other = pstate.getRho() * pstate.getV(0) * pstate.getV(1);
-  setRhov((dimension + 1) % 2, rhov_other);
+  setRhov(other, rho * vdim * vother);
 
   // gas energy flux
-  Float E     = 0.5 * pstate.getRho() * pstate.getVSquared() + pstate.getP() / cst::GM1;
-  Float Eflux = (E + pstate.getP()) * pstate.getV(dimension);
-  setE(Eflux);
+  Float E = 0.5 * rho * pstate.getVSquared() + p * cst::ONEOVERGAMMA;
+  setE((E + p) * vdim);
 }
 
 
