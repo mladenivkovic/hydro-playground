@@ -34,17 +34,29 @@ endif(NOT CMAKE_BUILD_TYPE)
 #   - Wno-unused-parameter:
 #       Ignore warnings about unused function parameters.
 
+
+
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     add_compile_options(
         -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3
     )
     set(DEBUG_LEVEL 0)
 
+    if (CMAKE_CXX_COMPILER_ID MATCHES "IntelLLVM")
+        add_compile_options( -ipo )
+        add_link_options(-ipo)
+    endif()
+
 elseif (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     add_compile_options(
         -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3 -g
     )
     set(DEBUG_LEVEL 1)
+
+    if (CMAKE_CXX_COMPILER_ID MATCHES "IntelLLVM")
+        add_compile_options(-ipo)
+        add_link_options(-ipo)
+    endif()
 
 elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(
