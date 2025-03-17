@@ -83,9 +83,11 @@ void solver::SolverBase::computeDt() {
 /**
  * @brief Apply the actual time integration step.
  *
- * @param dimension In which dimension to apply the updates.
+ * @param dt_step time interval to integrate over. In more sophisticated
+ * schemes, like MUSCL-Hancock, we do several time integrations over
+ * sub-intervals in a single step. So this is necessary.
  */
-void solver::SolverBase::integrateHydro() {
+void solver::SolverBase::integrateHydro(const Float dt_step) {
 
   message("Integrating dim=" + std::to_string(dimension), logging::LogLevel::Debug);
   timer::Timer tick(timer::Category::HydroIntegrate);
@@ -98,7 +100,8 @@ void solver::SolverBase::integrateHydro() {
   size_t first = grid.getFirstCellIndex();
   size_t last  = grid.getLastCellIndex();
 
-  const Float dtdx = dt / grid.getDx();
+  const Float dtdx = dt_step / grid.getDx();
+
   if (dimension == 0) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
@@ -185,8 +188,7 @@ void solver::SolverBase::solve() {
 
   // Show the output header.
   writeLogHeader();
-
-  bool write_output = false;
+  bool written_output = false;
 
   // Main loop.
   while (keepRunning()) {
@@ -194,7 +196,8 @@ void solver::SolverBase::solve() {
     dt_old = dt;
 
     // Do this first, since it may modify dt.
-    write_output = writer.dumpThisStep(step_count, t, dt);
+    bool write_output = writer.dumpThisStep(step_count, t, dt);
+    written_output = false;
 
     timer::Timer tickStep(timer::Category::Step);
 
@@ -215,7 +218,7 @@ void solver::SolverBase::solve() {
     // Write output files
     if (write_output){
       writer.dump(t, step_count);
-      write_output = false;
+      written_output = true;
     }
 
     // Talk to me
@@ -223,7 +226,7 @@ void solver::SolverBase::solve() {
   }
 
   // if you haven't written the output in the final step, do it now
-  if (not write_output)
+  if (not written_output)
     writer.dump(t, step_count);
 
   timing("Main solver took " + tick.tock());

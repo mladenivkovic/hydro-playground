@@ -58,7 +58,7 @@ void solver::SolverGodunov::computeIntercellFluxes(cell::Cell& left, cell::Cell&
   riemann::Riemann        solver(left.getPrim(), right.getPrim(), dimension);
   idealGas::ConservedFlux csol = solver.solve();
 
-  left.getCFlux() = csol;
+  left.setCFlux(csol);
 }
 
 
@@ -86,7 +86,7 @@ void solver::SolverGodunov::step() {
   computeFluxes();
 
   // Apply fluxes and update current states
-  integrateHydro();
+  integrateHydro(dt);
 
   // Second sweep
   // -----------------
@@ -103,7 +103,7 @@ void solver::SolverGodunov::step() {
   // Compute updated fluxes
   computeFluxes();
   // Apply fluxes and update current states
-  integrateHydro();
+  integrateHydro(dt);
 
 
   // Get solution from previous step from conserved into primitive vars.

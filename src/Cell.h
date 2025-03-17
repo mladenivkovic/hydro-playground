@@ -47,8 +47,8 @@ namespace cell {
 
 #if SOLVER == SOLVER_MUSCL
     //! Intermediate extrapolated states
-    idealGas::ConservedState _U_left_mid;
-    idealGas::ConservedState _U_right_mid;
+    idealGas::ConservedState U_left_mid;
+    idealGas::ConservedState U_right_mid;
 #endif
 
   public:
@@ -71,17 +71,24 @@ namespace cell {
     //! Getters and setters
     idealGas::PrimitiveState& getPrim();
     idealGas::ConservedState& getCons();
-    // idealGas::PrimitiveState& getPFlux();
-    idealGas::ConservedState& getCFlux();
-    idealGas::ConservedState& getULMid();
-    idealGas::ConservedState& getURMid();
-
     // const versions to shush the compiler
     [[nodiscard]] const idealGas::PrimitiveState& getPrim() const;
     [[nodiscard]] const idealGas::ConservedState& getCons() const;
-
     void setPrim(const idealGas::PrimitiveState& prim);
     void setCons(const idealGas::ConservedState& cons);
+
+    // idealGas::PrimitiveState& getPFlux();
+
+    idealGas::ConservedState& getCFlux();
+    void setCFlux(idealGas::ConservedFlux& flux);
+
+    idealGas::ConservedState& getULMid();
+    idealGas::ConservedState& getURMid();
+    void setULMid(const idealGas::ConservedState& state);
+    void setURMid(const idealGas::ConservedState& state);
+
+
+
   };
 
 } // namespace cell
@@ -152,9 +159,14 @@ inline idealGas::ConservedState& cell::Cell::getCFlux() {
 }
 
 
+inline void cell::Cell::setCFlux(idealGas::ConservedFlux& flux) {
+  _cflux = flux;
+}
+
+
 inline idealGas::ConservedState& cell::Cell::getULMid() {
 #if SOLVER == SOLVER_MUSCL
-  return _U_left_mid;
+  return U_left_mid;
 #else
   error("Shouldn't be used!");
 #endif
@@ -164,12 +176,31 @@ inline idealGas::ConservedState& cell::Cell::getULMid() {
 
 inline idealGas::ConservedState& cell::Cell::getURMid() {
 #if SOLVER == SOLVER_MUSCL
-  return _U_right_mid;
+  return U_right_mid;
 #else
   error("Shouldn't be used!");
 #endif
   return _cflux;
 }
+
+
+inline void cell::Cell::setULMid(const idealGas::ConservedState& state) {
+#if SOLVER == SOLVER_MUSCL
+  U_left_mid = state;
+#else
+  error("Shouldn't be used!");
+#endif
+}
+
+
+inline void cell::Cell::setURMid(const idealGas::ConservedState& state) {
+#if SOLVER == SOLVER_MUSCL
+  U_right_mid = state;
+#else
+  error("Shouldn't be used!");
+#endif
+}
+
 
 
 inline const idealGas::PrimitiveState& cell::Cell::getPrim() const {

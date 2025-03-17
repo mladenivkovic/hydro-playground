@@ -48,7 +48,7 @@ namespace solver {
     static void applyTimeUpdate(cell::Cell& left, cell::Cell& right, const Float dtdx);
 
     //! Apply the actual time integration step.
-    void integrateHydro();
+    void integrateHydro(const Float dt_step);
 
     //! Do we still need to run?
     bool keepRunning();
