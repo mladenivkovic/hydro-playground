@@ -7,7 +7,6 @@
  */
 
 #include "Config.h"
-
 #include "Gas.h"
 
 
@@ -67,19 +66,19 @@ namespace limiter {
    * @param r:     where flow parameter r for every conserved state will be stored
    */
   inline void limiterGetRCstate(
-      const idealGas::ConservedState& UiP1,
-      const idealGas::ConservedState& Ui,
-      const idealGas::ConservedState& UiM1,
-      idealGas::ConservedState& r){
+    const idealGas::ConservedState& UiP1,
+    const idealGas::ConservedState& Ui,
+    const idealGas::ConservedState& UiM1,
+    idealGas::ConservedState&       r
+  ) {
 
-    Float rho = limiterR(Ui.getRho(), UiM1.getRho(), UiP1.getRho());
+    Float rho   = limiterR(Ui.getRho(), UiM1.getRho(), UiP1.getRho());
     Float rhovx = limiterR(Ui.getRhov(0), UiM1.getRhov(0), UiP1.getRhov(0));
     Float rhovy = limiterR(Ui.getRhov(1), UiM1.getRhov(1), UiP1.getRhov(1));
-    Float E = limiterR(Ui.getE(), UiM1.getE(), UiP1.getE());
+    Float E     = limiterR(Ui.getE(), UiM1.getE(), UiP1.getE());
 
     r = idealGas::ConservedState(rho, rhovx, rhovy, E);
   }
-
 
 
   /**
@@ -94,46 +93,39 @@ namespace limiter {
    * @param UiM1: State of cell U_{i-1}
    */
   inline void limiterGetLimitedSlope(
-      const idealGas::ConservedState& UiP1,
-      const idealGas::ConservedState& Ui,
-      const idealGas::ConservedState& UiM1,
-      idealGas::ConservedState& slope){
+    const idealGas::ConservedState& UiP1,
+    const idealGas::ConservedState& Ui,
+    const idealGas::ConservedState& UiM1,
+    idealGas::ConservedState&       slope
+  ) {
 
     idealGas::ConservedState r;
     limiterGetRCstate(UiP1, Ui, UiM1, r);
 
-    Float xi_rho = limiterXiOfR(r.getRho());
+    Float xi_rho   = limiterXiOfR(r.getRho());
     Float xi_rhovx = limiterXiOfR(r.getRhov(0));
     Float xi_rhovy = limiterXiOfR(r.getRhov(1));
-    Float xi_E = limiterXiOfR(r.getE());
+    Float xi_E     = limiterXiOfR(r.getE());
 
     constexpr Float OMEGA = cst::MUSCL_SLOPE_OMEGA;
 
     idealGas::ConservedState xi(xi_rho, xi_rhovx, xi_rhovy, xi_E);
 
-    Float slope_rho =
-      xi_rho * 0.5 * (
-          (1. + OMEGA) * (Ui.getRho() - UiM1.getRho()) +
-          (1. - OMEGA) * (UiP1.getRho() - Ui.getRho())
-          );
-    Float slope_rhovx =
-      xi_rhovx * 0.5 * (
-          (1. + OMEGA) * (Ui.getRhov(0) - UiM1.getRhov(0)) +
-          (1. - OMEGA) * (UiP1.getRhov(0) - Ui.getRhov(0))
-          );
-    Float slope_rhovy =
-      xi_rhovy * 0.5 * (
-          (1. + OMEGA) * (Ui.getRhov(1) - UiM1.getRhov(1)) +
-          (1. - OMEGA) * (UiP1.getRhov(1) - Ui.getRhov(1))
-          );
-    Float slope_E =
-      xi_E * 0.5 * (
-          (1. + OMEGA) * (Ui.getE() - UiM1.getE()) +
-          (1. - OMEGA) * (UiP1.getE() - Ui.getE())
-          );
+    Float slope_rho
+      = xi_rho * 0.5
+        * ((1. + OMEGA) * (Ui.getRho() - UiM1.getRho()) + (1. - OMEGA) * (UiP1.getRho() - Ui.getRho()));
+    Float slope_rhovx
+      = xi_rhovx * 0.5
+        * ((1. + OMEGA) * (Ui.getRhov(0) - UiM1.getRhov(0)) + (1. - OMEGA) * (UiP1.getRhov(0) - Ui.getRhov(0)));
+    Float slope_rhovy
+      = xi_rhovy * 0.5
+        * ((1. + OMEGA) * (Ui.getRhov(1) - UiM1.getRhov(1)) + (1. - OMEGA) * (UiP1.getRhov(1) - Ui.getRhov(1)));
+    Float slope_E
+      = xi_E * 0.5
+        * ((1. + OMEGA) * (Ui.getE() - UiM1.getE()) + (1. - OMEGA) * (UiP1.getE() - Ui.getE()));
 
     slope = idealGas::ConservedState(slope_rho, slope_rhovx, slope_rhovy, slope_E);
   }
 
 
-}  // namespace limiter
+} // namespace limiter

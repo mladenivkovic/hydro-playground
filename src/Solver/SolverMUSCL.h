@@ -16,10 +16,11 @@ namespace solver {
 
     //! Compute the boundary extrapolated values.
     void getBoundaryExtrapolatedValues(
-        cell::Cell& c,
-        const idealGas::ConservedState& UiP1,
-        const idealGas::ConservedState& UiM1,
-        const Float dt_half);
+      cell::Cell&                     c,
+      const idealGas::ConservedState& UiP1,
+      const idealGas::ConservedState& UiM1,
+      const Float                     dt_half
+    );
 
     //! Compute the intercell fluxes between two cells along the given
     //! dimension.

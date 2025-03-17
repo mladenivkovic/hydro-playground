@@ -13,7 +13,7 @@ namespace limiter {
    * Compute the actual slope limiter xi(r) for the minmod limiter
    * Eq. 104 in theory document.
    */
-  inline Float limiterXiOfR(const Float r){
+  inline Float limiterXiOfR(const Float r) {
 
     Float xi = r > 0. ? r : 0.;
     if (r > 1.) {
@@ -27,6 +27,4 @@ namespace limiter {
     return xi;
   }
 
-}  // namespace limiter
-
-
+} // namespace limiter

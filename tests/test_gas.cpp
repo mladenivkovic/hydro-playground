@@ -19,12 +19,12 @@ constexpr int nrepeat = 10000;
 #if PRECISION == SINGLE_PRECISION
 // how many digits to check for
 constexpr Float TOLERANCE_RHO = 1.e-4;
-constexpr Float TOLERANCE_V = 1.e-4;
-constexpr Float TOLERANCE_P = 1.e-4;
+constexpr Float TOLERANCE_V   = 1.e-4;
+constexpr Float TOLERANCE_P   = 1.e-4;
 #elif PRECISION == DOUBLE_PRECISION
 constexpr Float TOLERANCE_RHO = 1.e-12;
-constexpr Float TOLERANCE_V = 1.e-12;
-constexpr Float TOLERANCE_P = 1.e-12;
+constexpr Float TOLERANCE_V   = 1.e-12;
+constexpr Float TOLERANCE_P   = 1.e-12;
 #else
 #error invalid presicion defined
 #endif
@@ -60,7 +60,9 @@ void testConversion(std::mt19937& generator) {
     // When converting back, in particularly for the pressure, we
     // can get heavy precision errors.
     Float vmax = std::max(std::abs(vx), std::abs(vy));
-    Float mag = std::ceil(std::max(std::abs(std::log10(rho / vmax)), std::abs(std::log10(vmax / rho))));
+    Float mag  = std::ceil(
+      std::max(std::abs(std::log10(rho / vmax)), std::abs(std::log10(vmax / rho)))
+    );
     Float ABS_TOL_P = TOLERANCE_P * std::pow(10., mag * mag) * p;
 
     ps prim(rho, vx, vy, p);
@@ -148,14 +150,14 @@ void testConversion(std::mt19937& generator) {
     cf1y.getCFluxFromPState(prim, 1);
 
     idealGas::ConservedFlux cf2x;
-    cf2x.getCFluxFromCstate(cons,0);
+    cf2x.getCFluxFromCstate(cons, 0);
 
     idealGas::ConservedFlux cf2y;
-    cf2y.getCFluxFromCstate(cons,1);
+    cf2y.getCFluxFromCstate(cons, 1);
 
     // Float ABS_TOL_E = TOLERANCE_P * std::pow(10., mag * mag) * cons.getE();
 
-    if (not isEqual(cf1x.getRho(), cf2x.getRho(), TOLERANCE_RHO)){
+    if (not isEqual(cf1x.getRho(), cf2x.getRho(), TOLERANCE_RHO)) {
       std::stringstream msg;
       msg << cf1x.getRho() << ", ";
       msg << cf2x.getRho() << ", ";
@@ -163,7 +165,7 @@ void testConversion(std::mt19937& generator) {
       error(msg.str());
     }
 
-    if (not isEqual(cf1x.getRhov(0), cf2x.getRhov(0), TOLERANCE_V)){
+    if (not isEqual(cf1x.getRhov(0), cf2x.getRhov(0), TOLERANCE_V)) {
       std::stringstream msg;
       msg << cf1x.getRhov(0) << ", ";
       msg << cf2x.getRhov(0) << ", ";
@@ -171,7 +173,7 @@ void testConversion(std::mt19937& generator) {
       error(msg.str());
     }
 
-    if (not isEqual(cf1x.getRhov(1), cf2x.getRhov(1), TOLERANCE_V)){
+    if (not isEqual(cf1x.getRhov(1), cf2x.getRhov(1), TOLERANCE_V)) {
       std::stringstream msg;
       msg << cf1x.getRhov(1) << ", ";
       msg << cf2x.getRhov(1) << ", ";
@@ -179,7 +181,7 @@ void testConversion(std::mt19937& generator) {
       error(msg.str());
     }
 
-    if (not isEqual(cf1x.getE(), cf2x.getE(), TOLERANCE_P)){
+    if (not isEqual(cf1x.getE(), cf2x.getE(), TOLERANCE_P)) {
       std::stringstream msg;
       msg << cf1x.getE() << ", ";
       msg << cf2x.getE() << ", ";
@@ -187,7 +189,7 @@ void testConversion(std::mt19937& generator) {
       error(msg.str());
     }
 
-    if (not isEqual(cf1y.getRho(), cf2y.getRho(), TOLERANCE_RHO)){
+    if (not isEqual(cf1y.getRho(), cf2y.getRho(), TOLERANCE_RHO)) {
       std::stringstream msg;
       msg << cf1y.getRho() << ", ";
       msg << cf2y.getRho() << ", ";
@@ -195,7 +197,7 @@ void testConversion(std::mt19937& generator) {
       error(msg.str());
     }
 
-    if (not isEqual(cf1y.getRhov(0), cf2y.getRhov(0), TOLERANCE_V)){
+    if (not isEqual(cf1y.getRhov(0), cf2y.getRhov(0), TOLERANCE_V)) {
       std::stringstream msg;
       msg << cf1y.getRhov(0) << ", ";
       msg << cf2y.getRhov(0) << ", ";
@@ -203,7 +205,7 @@ void testConversion(std::mt19937& generator) {
       error(msg.str());
     }
 
-    if (not isEqual(cf1y.getRhov(1), cf2y.getRhov(1), TOLERANCE_V)){
+    if (not isEqual(cf1y.getRhov(1), cf2y.getRhov(1), TOLERANCE_V)) {
       std::stringstream msg;
       msg << cf1y.getRhov(1) << ", ";
       msg << cf2y.getRhov(1) << ", ";
@@ -211,14 +213,13 @@ void testConversion(std::mt19937& generator) {
       error(msg.str());
     }
 
-    if (not isEqual(cf1y.getE(), cf2y.getE(), TOLERANCE_P)){
+    if (not isEqual(cf1y.getE(), cf2y.getE(), TOLERANCE_P)) {
       std::stringstream msg;
       msg << cf1y.getE() << ", ";
       msg << cf2y.getE() << ", ";
       msg << 1. - cf1y.getE() / cf2y.getE();
       error(msg.str());
     }
-
   }
 }
 

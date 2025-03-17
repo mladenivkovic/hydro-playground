@@ -36,7 +36,7 @@ solver::SolverMUSCL::SolverMUSCL(parameters::Parameters& params_, grid::Grid& gr
  * @param left:  cell which stores the left state
  * @param right: cell which stores the right state
  */
-void solver::SolverMUSCL::computeIntercellFluxes(cell::Cell& left, cell::Cell& right){
+void solver::SolverMUSCL::computeIntercellFluxes(cell::Cell& left, cell::Cell& right) {
 
   idealGas::PrimitiveState WL;
   WL.fromCons(left.getURMid());
@@ -51,7 +51,6 @@ void solver::SolverMUSCL::computeIntercellFluxes(cell::Cell& left, cell::Cell& r
 }
 
 
-
 /**
  * For the MUSCL-Hancock scheme, we need to first compute the slopes for each
  * conserved variable and each cell, and then compute the updated boundary
@@ -61,28 +60,29 @@ void solver::SolverMUSCL::computeIntercellFluxes(cell::Cell& left, cell::Cell& r
  * intermediate state for each cell, and stores them in the cell.
  */
 void solver::SolverMUSCL::getBoundaryExtrapolatedValues(
-    cell::Cell& c,
-    const idealGas::ConservedState& UiP1,
-    const idealGas::ConservedState& UiM1,
-    const Float dt_half){
+  cell::Cell&                     c,
+  const idealGas::ConservedState& UiP1,
+  const idealGas::ConservedState& UiM1,
+  const Float                     dt_half
+) {
 
   // First get the slope.
-  idealGas::ConservedState slope;
+  idealGas::ConservedState       slope;
   const idealGas::ConservedState Ui = c.getCons();
 
   limiter::limiterGetLimitedSlope(UiP1, Ui, UiM1, slope);
 
-  Float rhoi = Ui.getRho() ;
+  Float rhoi   = Ui.getRho();
   Float rhovxi = Ui.getRhov(0);
   Float rhovyi = Ui.getRhov(1);
-  Float Ei = Ui.getE() ;
+  Float Ei     = Ui.getE();
 
 
   // Get the left sloped state
-  Float rhoL = rhoi - 0.5 * slope.getRho();
-  Float rhovxL = rhovxi - 0.5 * slope.getRhov(0);
-  Float rhovyL = rhovyi - 0.5 * slope.getRhov(1);
-  Float EL = Ei - 0.5 * slope.getE();
+  Float                    rhoL   = rhoi - 0.5 * slope.getRho();
+  Float                    rhovxL = rhovxi - 0.5 * slope.getRhov(0);
+  Float                    rhovyL = rhovyi - 0.5 * slope.getRhov(1);
+  Float                    EL     = Ei - 0.5 * slope.getE();
   idealGas::ConservedState UL(rhoL, rhovxL, rhovyL, EL);
 
   // Get the left flux given the states.
@@ -90,10 +90,10 @@ void solver::SolverMUSCL::getBoundaryExtrapolatedValues(
   FL.getCFluxFromCstate(UL, _direction);
 
   // Get the right sloped state
-  Float rhoR = rhoi + 0.5 * slope.getRho();
-  Float rhovxR = rhovxi + 0.5 * slope.getRhov(0);
-  Float rhovyR = rhovyi + 0.5 * slope.getRhov(1);
-  Float ER = Ei + 0.5 * slope.getE();
+  Float                    rhoR   = rhoi + 0.5 * slope.getRho();
+  Float                    rhovxR = rhovxi + 0.5 * slope.getRhov(0);
+  Float                    rhovyR = rhovyi + 0.5 * slope.getRhov(1);
+  Float                    ER     = Ei + 0.5 * slope.getE();
   idealGas::ConservedState UR(rhoR, rhovxR, rhovyR, ER);
 
   // Get the right flux given the states.
@@ -103,19 +103,19 @@ void solver::SolverMUSCL::getBoundaryExtrapolatedValues(
   Float dtdx_half = dt_half / _grid.getDx();
 
 
-  Float rhoLmid   = rhoi   + dtdx_half * (FL.getRho()   - FR.getRho())   - 0.5 * slope.getRho();
+  Float rhoLmid   = rhoi + dtdx_half * (FL.getRho() - FR.getRho()) - 0.5 * slope.getRho();
   Float rhovxLmid = rhovxi + dtdx_half * (FL.getRhov(0) - FR.getRhov(0)) - 0.5 * slope.getRhov(0);
   Float rhovyLmid = rhovyi + dtdx_half * (FL.getRhov(1) - FR.getRhov(1)) - 0.5 * slope.getRhov(1);
-  Float ELmid     = Ei     + dtdx_half * (FL.getE()     - FR.getE())     - 0.5 * slope.getE();
+  Float ELmid     = Ei + dtdx_half * (FL.getE() - FR.getE()) - 0.5 * slope.getE();
 
   idealGas::ConservedState ULmid(rhoLmid, rhovxLmid, rhovyLmid, ELmid);
   c.setULMid(ULmid);
 
 
-  Float rhoRmid = rhoi + dtdx_half * (FL.getRho() - FR.getRho()) + 0.5 * slope.getRho();
+  Float rhoRmid   = rhoi + dtdx_half * (FL.getRho() - FR.getRho()) + 0.5 * slope.getRho();
   Float rhovxRmid = rhovxi + dtdx_half * (FL.getRhov(0) - FR.getRhov(0)) + 0.5 * slope.getRhov(0);
   Float rhovyRmid = rhovyi + dtdx_half * (FL.getRhov(1) - FR.getRhov(1)) + 0.5 * slope.getRhov(1);
-  Float ERmid = Ei + dtdx_half * (FL.getE() - FR.getE()) + 0.5 * slope.getE();
+  Float ERmid     = Ei + dtdx_half * (FL.getE() - FR.getE()) + 0.5 * slope.getE();
 
   idealGas::ConservedState URmid(rhoRmid, rhovxRmid, rhovyRmid, ERmid);
   c.setURMid(URmid);
@@ -143,12 +143,12 @@ void solver::SolverMUSCL::computeFluxes(const Float dt_step) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
 
-        cell::Cell& cp1  = _grid.getCell(i+1, j);
+        cell::Cell&              cp1  = _grid.getCell(i + 1, j);
         idealGas::ConservedState UiP1 = cp1.getCons();
 
-        cell::Cell& c  = _grid.getCell(i, j);
+        cell::Cell& c = _grid.getCell(i, j);
 
-        cell::Cell& cm1  = _grid.getCell(i-1, j);
+        cell::Cell&              cm1  = _grid.getCell(i - 1, j);
         idealGas::ConservedState UiM1 = cm1.getCons();
 
         getBoundaryExtrapolatedValues(c, UiP1, UiM1, dt_half);
@@ -173,12 +173,12 @@ void solver::SolverMUSCL::computeFluxes(const Float dt_step) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
 
-        cell::Cell& cp1  = _grid.getCell(i, j+1);
+        cell::Cell&              cp1  = _grid.getCell(i, j + 1);
         idealGas::ConservedState UiP1 = cp1.getCons();
 
-        cell::Cell& c  = _grid.getCell(i, j);
+        cell::Cell& c = _grid.getCell(i, j);
 
-        cell::Cell& cm1  = _grid.getCell(i, j-1);
+        cell::Cell&              cm1  = _grid.getCell(i, j - 1);
         idealGas::ConservedState UiM1 = cm1.getCons();
 
         getBoundaryExtrapolatedValues(c, UiP1, UiM1, dt_half);
@@ -196,7 +196,6 @@ void solver::SolverMUSCL::computeFluxes(const Float dt_step) {
     }
   }
 }
-
 
 
 /**
@@ -279,4 +278,3 @@ void solver::SolverMUSCL::step() {
   // Compute next time step.
   computeDt();
 }
-

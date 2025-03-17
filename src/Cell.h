@@ -74,21 +74,18 @@ namespace cell {
     // const versions to shush the compiler
     [[nodiscard]] const idealGas::PrimitiveState& getPrim() const;
     [[nodiscard]] const idealGas::ConservedState& getCons() const;
-    void setPrim(const idealGas::PrimitiveState& prim);
-    void setCons(const idealGas::ConservedState& cons);
+    void                                          setPrim(const idealGas::PrimitiveState& prim);
+    void                                          setCons(const idealGas::ConservedState& cons);
 
     // idealGas::PrimitiveState& getPFlux();
 
     idealGas::ConservedState& getCFlux();
-    void setCFlux(idealGas::ConservedFlux& flux);
+    void                      setCFlux(idealGas::ConservedFlux& flux);
 
     idealGas::ConservedState& getULMid();
     idealGas::ConservedState& getURMid();
-    void setULMid(const idealGas::ConservedState& state);
-    void setURMid(const idealGas::ConservedState& state);
-
-
-
+    void                      setULMid(const idealGas::ConservedState& state);
+    void                      setURMid(const idealGas::ConservedState& state);
   };
 
 } // namespace cell
@@ -200,7 +197,6 @@ inline void cell::Cell::setURMid(const idealGas::ConservedState& state) {
   error("Shouldn't be used!");
 #endif
 }
-
 
 
 inline const idealGas::PrimitiveState& cell::Cell::getPrim() const {

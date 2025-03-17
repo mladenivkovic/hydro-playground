@@ -13,17 +13,17 @@ namespace cst {
 
   static constexpr Float GAMMA = (5.0 / 3.0);
 
-  static constexpr Float GM1            = (GAMMA - 1.);
-  static constexpr Float GP1            = (GAMMA + 1.);
-  static constexpr Float GP1OGM1        = ((GAMMA + 1.) / (GAMMA - 1.));
-  static constexpr Float GM1OGP1        = ((GAMMA - 1.) / (GAMMA + 1.));
-  static constexpr Float ONEOVERGAMMA   = (1. / GAMMA);
-  static constexpr Float ONEOVERGM1     = (1. / (GAMMA - 1.));
-  static constexpr Float TWOOVERGM1     = (2. / (GAMMA - 1.));
-  static constexpr Float TWOOVERGP1     = (2. / (GAMMA + 1.));
-  static constexpr Float GM1HALF        = (0.5 * (GAMMA - 1.));
-  static constexpr Float BETA           = (0.5 * (GAMMA - 1.) / GAMMA);
-  static constexpr Float ONEOVERBETA    = (2. * GAMMA / (GAMMA - 1.));
+  static constexpr Float GM1          = (GAMMA - 1.);
+  static constexpr Float GP1          = (GAMMA + 1.);
+  static constexpr Float GP1OGM1      = ((GAMMA + 1.) / (GAMMA - 1.));
+  static constexpr Float GM1OGP1      = ((GAMMA - 1.) / (GAMMA + 1.));
+  static constexpr Float ONEOVERGAMMA = (1. / GAMMA);
+  static constexpr Float ONEOVERGM1   = (1. / (GAMMA - 1.));
+  static constexpr Float TWOOVERGM1   = (2. / (GAMMA - 1.));
+  static constexpr Float TWOOVERGP1   = (2. / (GAMMA + 1.));
+  static constexpr Float GM1HALF      = (0.5 * (GAMMA - 1.));
+  static constexpr Float BETA         = (0.5 * (GAMMA - 1.) / GAMMA);
+  static constexpr Float ONEOVERBETA  = (2. * GAMMA / (GAMMA - 1.));
 
   // "cheat" for stability in Godunov type finite volume schemes
   static constexpr Float SMALLRHO = 1e-8;

@@ -221,7 +221,6 @@ inline void idealGas::PrimitiveState::setP(const Float val) {
 }
 
 
-
 inline Float idealGas::PrimitiveState::getP() const {
   // These checks will fail because we (ab)use the PrimitiveState
   // as fluxes too, which can be negative
@@ -323,11 +322,10 @@ inline Float idealGas::ConservedState::getP() const {
   // this also makes it worse.
   // return (cst::GM1 * getE() - cst::GM1 * 0.5 * rv2);
 
-  Float rho = getRho();
+  Float rho          = getRho();
   Float one_over_rho = 1. / rho;
-  Float vx = getRhov(0) * one_over_rho;
-  Float vy = getRhov(1) * one_over_rho;
-  Float rv2 = rho * (vx * vx + vy * vy);
+  Float vx           = getRhov(0) * one_over_rho;
+  Float vy           = getRhov(1) * one_over_rho;
+  Float rv2          = rho * (vx * vx + vy * vy);
   return cst::GM1 * (getE() - 0.5 * rv2);
-
 }

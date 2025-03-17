@@ -195,7 +195,7 @@ void solver::SolverBase::solve() {
 
     // Do this first, since it may modify dt.
     bool write_output = writer.dumpThisStep(_step_count, _t, _dt);
-    written_output = false;
+    written_output    = false;
 
     timer::Timer tickStep(timer::Category::Step);
 
@@ -214,7 +214,7 @@ void solver::SolverBase::solve() {
 #endif
 
     // Write output files
-    if (write_output){
+    if (write_output) {
       writer.dump(_t, _step_count);
       written_output = true;
     }
@@ -306,5 +306,3 @@ void solver::SolverBase::writeLogHeader() {
   msg << "step duration";
   message(msg.str());
 }
-
-

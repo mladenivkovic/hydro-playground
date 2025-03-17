@@ -100,7 +100,7 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum() {
     // ------------------------
 
     Float SL  = vLdim + aL * cst::TWOOVERGM1; // vacuum front speed
-    Float SHL = vLdim - aL;                       // speed of head of left rarefaction fan
+    Float SHL = vLdim - aL;                   // speed of head of left rarefaction fan
 
     if (xovert >= SL) {
       // right vacuum
@@ -316,7 +316,8 @@ idealGas::ConservedFlux riemann::RiemannBase::sampleSolution() {
       // right shock
 
       // right shock speed
-      Float SR = vRdim + aR * std::sqrt(0.5 * cst::GP1 * cst::ONEOVERGAMMA * pstaroverpR + cst::BETA);
+      Float SR = vRdim
+                 + aR * std::sqrt(0.5 * cst::GP1 * cst::ONEOVERGAMMA * pstaroverpR + cst::BETA);
 
       if (xovert > SR) {
         // we're outside the shock
