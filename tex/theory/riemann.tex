@@ -569,140 +569,140 @@ perform adequately. We outline some of them here.
 
 
 
-
-%===============================================================================
-\subsubsection{Two-Rarefaction Riemann Solver (TRRS)}\label{chap:riemann-trrs}
-%===============================================================================
-
-
-
-
-The big idea is to assume a priori that both the left and right waves are
-going to be rarefaction waves, and to use that assumption to get an expression
-for $p^*$ and $v^*$, the pressure and velocity in the star region, respectively.
-
-We get
-
-\begin{align}
-\beta &\equiv
-	\frac{\gamma - 1}{2 \gamma} \\
-v^* &=
-	\frac{
-		\frac{2}{\gamma - 1}
-		\left[
-			\left(\frac{p_L}{p_R} \right) ^ \beta - 1
-		\right] +
-		\frac{v_L}{a_L}
-		\left(
-			\frac{p_L}{p_R}
-		\right) ^ \beta  + \frac{v_R}{a_R}
-	}{
-		\frac{1}{a_R} +
-		\frac{1}{a_L}\left(\frac{p_L}{p_R} \right) ^ \beta
-	} \\
-p^* &=
-	\frac{1}{2}
-	\left[
-		p_R
-		\left[
-			\frac{\gamma - 1}{2 a_R} (v^* - v_R) + 1
-		\right] ^ \frac{1}{\beta} + p_L
-		\left[
-			\frac{\gamma - 1}{2 a_L} (v_L - v^*) + 1
-		\right] ^ \frac{1}{\beta}
-	\right] \label{eq:pstar-trrs}
-\end{align}
-
-Note that we may also write $p^*$ independently of $v^*$:
-
-\begin{align}
-p^* =
-	\left[
-		\frac{
-			a_L + a_R - \frac{\gamma - 1}{2} (v_R - v_L)
-		}{
-			\frac{a_L}{p_L^\beta} +		\frac{a_R}{p_R^\beta}
-		}
-	\right] ^ \frac{1}{\beta}
-\end{align}
-
-But Eq.~\ref{eq:pstar-trrs} is computationally more efficient if we compute
-$v^*$ first. (Way fewer uses of fractional powers.)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-% %=============================================================================
-\subsubsection{Two-Shock Riemann Solver (TSRS)}\label{chap:riemann-tsrs}
-% %=============================================================================
-
-
-The big idea is to assume a priori that both the left and right waves are
-going to be shock waves, and to use that assumption to get an expression for
-$p^*$ and $v^*$, the pressure and velocity in the star region, respectively.
-
-
-The equation for the pressure in the star region (eq.
-\ref{eq:riemann-pressure-equation}) then is given by
-
-\begin{align}
-f(p) &=
-	(p - p_L) g_L(p) + (p - p_R) g_R(p) + v_R - v_L = 0
-	\label{eq:riemann-pressure-tsrs} \\
 %
-g_{L,R}(p) &=
-	\left[
-		\frac{A_{L,R}}{p + B_{L,R}}
-	\right] ^{\half} \\
+% %===============================================================================
+% \subsubsection{Two-Rarefaction Riemann Solver (TRRS)}\label{chap:riemann-trrs}
+% %===============================================================================
 %
-A_{L,R} &=
-	\frac{2}{(\gamma + 1) \rho_{L,R}}\\
-B_{L,R} &=
-	\frac{\gamma - 1}{\gamma + 1} p_{L,R}
-\end{align}
-
-Unfortunately, this approximation does not lead to a closed form solution. So
-we can either use an iterative method again, or use further approximations.
-Then the idea is to find $p_0$, an estimate for the pressure to use in
-Eq.~\ref{eq:riemann-pressure-tsrs}, and to use that to get a better
-approximation for $p^*$:
-
-\begin{align}
-p^* =
-	\frac{
-		g_L(p_0) p_L + g_R(p_0)p_R - (v_R - v_L)
-	}{
-		g_L(p_0) + g_R(p_0)
-	}
-	\label{eq:pstar-tsrs}
-\end{align}
-
-and
-
-\begin{align}
-v^*  =
-	\frac{1}{2} (v_L + v_R) +
-	\frac{1}{2}
-	\left[
-		(p^* - p_R) g_R(p_0) - (p^* - p_L) g_L(p_0)
-	\right]
-\end{align}
-
-
-A good choice for $p_0$ is coming from the solution of the linearised
-primitive variables approach (Eq.~\ref{eq:pPV}).
-
+%
+%
+%
+% The big idea is to assume a priori that both the left and right waves are
+% going to be rarefaction waves, and to use that assumption to get an expression
+% for $p^*$ and $v^*$, the pressure and velocity in the star region, respectively.
+%
+% We get
+%
+% \begin{align}
+% \beta &\equiv
+% 	\frac{\gamma - 1}{2 \gamma} \\
+% v^* &=
+% 	\frac{
+% 		\frac{2}{\gamma - 1}
+% 		\left[
+% 			\left(\frac{p_L}{p_R} \right) ^ \beta - 1
+% 		\right] +
+% 		\frac{v_L}{a_L}
+% 		\left(
+% 			\frac{p_L}{p_R}
+% 		\right) ^ \beta  + \frac{v_R}{a_R}
+% 	}{
+% 		\frac{1}{a_R} +
+% 		\frac{1}{a_L}\left(\frac{p_L}{p_R} \right) ^ \beta
+% 	} \\
+% p^* &=
+% 	\frac{1}{2}
+% 	\left[
+% 		p_R
+% 		\left[
+% 			\frac{\gamma - 1}{2 a_R} (v^* - v_R) + 1
+% 		\right] ^ \frac{1}{\beta} + p_L
+% 		\left[
+% 			\frac{\gamma - 1}{2 a_L} (v_L - v^*) + 1
+% 		\right] ^ \frac{1}{\beta}
+% 	\right] \label{eq:pstar-trrs}
+% \end{align}
+%
+% Note that we may also write $p^*$ independently of $v^*$:
+%
+% \begin{align}
+% p^* =
+% 	\left[
+% 		\frac{
+% 			a_L + a_R - \frac{\gamma - 1}{2} (v_R - v_L)
+% 		}{
+% 			\frac{a_L}{p_L^\beta} +		\frac{a_R}{p_R^\beta}
+% 		}
+% 	\right] ^ \frac{1}{\beta}
+% \end{align}
+%
+% But Eq.~\ref{eq:pstar-trrs} is computationally more efficient if we compute
+% $v^*$ first. (Way fewer uses of fractional powers.)
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+% % %=============================================================================
+% \subsubsection{Two-Shock Riemann Solver (TSRS)}\label{chap:riemann-tsrs}
+% % %=============================================================================
+%
+%
+% The big idea is to assume a priori that both the left and right waves are
+% going to be shock waves, and to use that assumption to get an expression for
+% $p^*$ and $v^*$, the pressure and velocity in the star region, respectively.
+%
+%
+% The equation for the pressure in the star region (eq.
+% \ref{eq:riemann-pressure-equation}) then is given by
+%
+% \begin{align}
+% f(p) &=
+% 	(p - p_L) g_L(p) + (p - p_R) g_R(p) + v_R - v_L = 0
+% 	\label{eq:riemann-pressure-tsrs} \\
+% %
+% g_{L,R}(p) &=
+% 	\left[
+% 		\frac{A_{L,R}}{p + B_{L,R}}
+% 	\right] ^{\half} \\
+% %
+% A_{L,R} &=
+% 	\frac{2}{(\gamma + 1) \rho_{L,R}}\\
+% B_{L,R} &=
+% 	\frac{\gamma - 1}{\gamma + 1} p_{L,R}
+% \end{align}
+%
+% Unfortunately, this approximation does not lead to a closed form solution. So
+% we can either use an iterative method again, or use further approximations.
+% Then the idea is to find $p_0$, an estimate for the pressure to use in
+% Eq.~\ref{eq:riemann-pressure-tsrs}, and to use that to get a better
+% approximation for $p^*$:
+%
+% \begin{align}
+% p^* =
+% 	\frac{
+% 		g_L(p_0) p_L + g_R(p_0)p_R - (v_R - v_L)
+% 	}{
+% 		g_L(p_0) + g_R(p_0)
+% 	}
+% 	\label{eq:pstar-tsrs}
+% \end{align}
+%
+% and
+%
+% \begin{align}
+% v^*  =
+% 	\frac{1}{2} (v_L + v_R) +
+% 	\frac{1}{2}
+% 	\left[
+% 		(p^* - p_R) g_R(p_0) - (p^* - p_L) g_L(p_0)
+% 	\right]
+% \end{align}
+%
+%
+% A good choice for $p_0$ is coming from the solution of the linearised
+% primitive variables approach (Eq.~\ref{eq:pPV}).
+%
 
 
 
