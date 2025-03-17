@@ -64,7 +64,7 @@ void parameters::Parameters::initDerivedAndValidate() {
 
     setBoxsize(getBoxsize() * static_cast<Float>(getReplicate()));
     std::stringstream msg;
-    msg << "Resizing box to" << getBoxsize() << " to accommodate replications";
+    msg << "Resizing box to " << getBoxsize() << " to accommodate replications";
     message(msg.str(), logging::LogLevel::Verbose);
   }
 
