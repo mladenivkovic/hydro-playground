@@ -7,7 +7,6 @@
 
 #include "Config.h"
 
-#include "Cell.h"
 #include "Gas.h"
 
 
@@ -58,9 +57,9 @@ namespace limiter {
    * We always compute r = (u_{i} - u_{i-1}) / (u_{i+1} - u_{i}), and for hydro
    * purposes, we don't really need to care about upwinding.
    *
-   * @param Uip1:  U_{i+1}
+   * @param UiP1:  U_{i+1}
    * @param Ui:    U_{i}
-   * @param Uim1:  U_{i-1}
+   * @param UiM1:  U_{i-1}
    * @param r:     where flow parameter r for every conserved state will be stored
    */
   inline void limiterGetRCstate(
@@ -86,9 +85,9 @@ namespace limiter {
    *  slope = 0.5(1 + omega)(U_{i} - U_{i-1}) + 0.5(1 - omega)(U_{i+1} - U_{i})
    * where omega is set in defines.h
    *
-   * @param UiM1: State of cell U_{i-1}
-   * @param Ui: State of cell U_{i}
    * @param UiP1: State of cell U_{i+1}
+   * @param Ui: State of cell U_{i}
+   * @param UiM1: State of cell U_{i-1}
    */
   inline void limiterGetLimitedSlope(
       const idealGas::ConservedState& UiP1,
@@ -97,7 +96,7 @@ namespace limiter {
       idealGas::ConservedState& slope){
 
     idealGas::ConservedState r;
-    limiterGetRCstate(UiM1, Ui, UiP1, r);
+    limiterGetRCstate(UiP1, Ui, UiM1, r);
 
     Float xi_rho = limiterXiOfR(r.getRho());
     Float xi_rhovx = limiterXiOfR(r.getRhov(0));
