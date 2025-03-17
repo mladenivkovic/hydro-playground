@@ -35,7 +35,7 @@ void cell::Cell::copyBoundaryData(const cell::Cell* other) {
  * @brief Copies the gas data needed for boundaries from a real cell to a ghost
  * cell. Here for a reflective boundary condition, where we need to invert the
  * velocities. Should be called from within the ghost cell.
- * TODO: Refer to equations in theory doc
+ * See Section 6 in theory document.
  *
  * @param other: pointer to real cell from which we take data
  * @param dimension: in which dimension the reflection is supposed to be

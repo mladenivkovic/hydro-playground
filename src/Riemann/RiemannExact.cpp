@@ -29,8 +29,9 @@ idealGas::ConservedFlux riemann::RiemannExact::solve() {
 
 
 /**
- * computes the star region pressure and velocity given the left and right
- * primitive states.
+ * Computes the star region pressure and velocity given the left and right
+ * primitive states. This is the iterative part that determines the star
+ * state pressure. See Section 3.3 in the theory document.
  */
 inline void riemann::RiemannExact::computeStarStates() {
 
@@ -98,12 +99,12 @@ inline void riemann::RiemannExact::computeStarStates() {
 
 /**
  * The left/right part of the pressure function.
- * TODO: Add reference to equation in Theory document.
+ * Equation 60-63 in Theory document.
  *
  * @param pguess Star state pressure guess
  * @param state The left or right state for which to compute f_p
- * @param A   A_L or A_R (Eq. TODO)
- * @param B   B_L or B_R (Eq. TODO)
+ * @param A   A_L or A_R (Eq. 62)
+ * @param B   B_L or B_R (Eq. 63)
  * @param cs  soundspeed of state
  */
 inline Float riemann::RiemannExact::fp(
@@ -127,12 +128,12 @@ inline Float riemann::RiemannExact::fp(
 
 /**
  * The derivative of the left/right part of the pressure function.
- * TODO: Add reference to equation in Theory document.
+ * Equation 64 in Theory document.
  *
  * @param pguess Star state pressure guess
  * @param state The left or right state for which to compute f_p
- * @param A   A_L or A_R (Eq. TODO)
- * @param B   B_L or B_R (Eq. TODO)
+ * @param A   A_L or A_R (Eq. 65)
+ * @param B   B_L or B_R (Eq. 66)
  * @param cs  soundspeed of state
  */
 inline Float riemann::RiemannExact::dfpdp(
@@ -148,7 +149,7 @@ inline Float riemann::RiemannExact::dfpdp(
 
   if (pguess > p) {
     // we have a shock situation
-    return sqrtf(A / (pguess + B)) * (1. - 0.5 * (pguess - p) / (pguess + B));
+    return std::sqrt(A / (pguess + B)) * (1. - 0.5 * (pguess - p) / (pguess + B));
   }
   // we have a rarefaction situation
   return 1. / (rho * cs) * std::pow(pguess / p, -0.5 * cst::GP1 * cst::ONEOVERGAMMA);
