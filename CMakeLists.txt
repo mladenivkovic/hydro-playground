@@ -24,12 +24,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS On)
 
 if(NOT CMAKE_BUILD_TYPE)
     message("* No build type provided. Set with -DCMAKE_BUILD_TYPE=[Debug,Release,RelWithDebInfo].")
-    message("* Setting to Debug and continuing.")
-    set(CMAKE_BUILD_TYPE Debug
+    message("* Setting to Release and continuing.")
+    set(CMAKE_BUILD_TYPE Release
         CACHE STRING "Choose the type of build : [Debug,Release,RelWithDebInfo]."
         FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
-# TODO: Move this back to release once dev has converged
 
 # Notes:
 #   - Wno-unused-parameter:
@@ -74,7 +73,7 @@ message("* Current build type is : ${CMAKE_BUILD_TYPE}")
 
 # Terminal colours
 
-option(TERMINAL_COLORS "Enable colour logging outputs" ON)
+option(TERMINAL_COLORS "Enable colour logging outputs" OFF)
 if (TERMINAL_COLORS)
     add_definitions(-DTERMINAL_COLORS)
 endif(TERMINAL_COLORS)
@@ -124,7 +123,7 @@ endif()
 
 # Riemann Solver
 
-set(RIEMANN "HLLC" CACHE STRING "Select Riemann solver (HLLC EXACT)")
+set(RIEMANN "EXACT" CACHE STRING "Select Riemann solver (HLLC EXACT)")
 set_property(CACHE RIEMANN PROPERTY STRINGS "HLLC" "EXACT")
 message(STATUS "RIEMANN is set to: ${RIEMANN}")
 
@@ -145,7 +144,7 @@ endif()
 
 # Slope Limiter
 
-set(LIMITER "MINMOD" CACHE STRING "Select slope limiter (MINMOD VANLEER)")
+set(LIMITER "VANLEER" CACHE STRING "Select slope limiter (MINMOD VANLEER)")
 set_property(CACHE LIMITER PROPERTY STRINGS "MINMOD" "VANLEER")
 message(STATUS "LIMITER is set to: ${LIMITER}")
 
