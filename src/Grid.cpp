@@ -268,7 +268,7 @@ void grid::Grid::resetFluxes() {
 
   for (size_t j = first; j < last; j++) {
     for (size_t i = first; i < last; i++) {
-      getCell(i, j).getPFlux().clear();
+      // getCell(i, j).getPFlux().clear();
       getCell(i, j).getCFlux().clear();
     }
   }

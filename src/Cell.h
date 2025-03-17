@@ -40,8 +40,7 @@ namespace cell {
     idealGas::ConservedState _cons;
 
     //! Fluxes of primitive state
-    //! TODO: can we get rid of this?
-    idealGas::PrimitiveState _pflux;
+    // idealGas::PrimitiveState _pflux;
 
     //! Fluxes of conserved state
     idealGas::ConservedState _cflux;
@@ -72,7 +71,7 @@ namespace cell {
     //! Getters and setters
     idealGas::PrimitiveState& getPrim();
     idealGas::ConservedState& getCons();
-    idealGas::PrimitiveState& getPFlux();
+    // idealGas::PrimitiveState& getPFlux();
     idealGas::ConservedState& getCFlux();
     idealGas::ConservedState& getULMid();
     idealGas::ConservedState& getURMid();
@@ -143,9 +142,9 @@ inline idealGas::ConservedState& cell::Cell::getCons() {
 }
 
 
-inline idealGas::PrimitiveState& cell::Cell::getPFlux() {
-  return _pflux;
-}
+// inline idealGas::PrimitiveState& cell::Cell::getPFlux() {
+//   return _pflux;
+// }
 
 
 inline idealGas::ConservedState& cell::Cell::getCFlux() {
