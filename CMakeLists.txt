@@ -151,7 +151,7 @@ message(STATUS "LIMITER is set to: ${LIMITER}")
 
 if(LIMITER STREQUAL "MINMOD")
     add_definitions(-DLIMITER=31)
-elseif(SOLVER STREQUAL "VANLEER")
+elseif(LIMITER STREQUAL "VANLEER")
     add_definitions(-DLIMITER=32)
 else()
     message(FATAL_ERROR
