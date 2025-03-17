@@ -4,7 +4,7 @@
 
 cmake_minimum_required(VERSION 3.21)
 
-project(hydro_playground VERSION 0.1)
+project(hydro_playground VERSION 1.0)
 set(LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
