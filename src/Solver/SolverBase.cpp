@@ -7,6 +7,7 @@
 #include "Gas.h"
 #include "IO.h"
 #include "Logging.h"
+#include "Riemann.h"
 #include "Timer.h"
 
 
@@ -17,93 +18,12 @@ solver::SolverBase::SolverBase(parameters::Parameters& params_, grid::Grid& grid
   t(0.),
   dt(0.),
   dt_old(0.),
+  dimension(0),
   step_count(0),
   total_mass_init(0.),
   total_mass_current(0.),
   params(params_),
   grid(grid_) {};
-
-
-/**
- * @brief Do we need to run another step?
- */
-bool solver::SolverBase::keepRunning() {
-
-  Float tmax = params.getTmax();
-  if (tmax > 0 and t >= tmax)
-    return false;
-
-  size_t nsteps = params.getNsteps();
-  if (nsteps > 0 and step_count == nsteps)
-    return false;
-
-  return true;
-}
-
-
-/**
- * @brief Write a log to screen, if requested.
- *
- * @param timingstr: String returned from a timer object
- * containing the time measurement fo the step to be logged
- */
-void solver::SolverBase::writeLog(const std::string& timingstr) {
-
-  size_t nstepsLog = params.getNstepsLog();
-  bool   write     = ((nstepsLog == 0) or (step_count % nstepsLog == 0));
-  if (not write)
-    return;
-
-  std::stringstream msg;
-  constexpr size_t  w = 14;
-  constexpr size_t  p = 6;
-
-  msg << std::setw(w) << std::left;
-  msg << step_count;
-  msg << " ";
-  msg << std::setw(w) << std::setprecision(p) << std::scientific << std::left;
-  msg << t << " ";
-  msg << dt_old;
-  msg << " ";
-#if DEBUG_LEVEL > 1
-  msg << total_mass_current / total_mass_init;
-  msg << " ";
-#endif
-  msg << std::right << std::setw(w) << timingstr;
-  message(msg.str());
-}
-
-
-/**
- * @brief Write a log to screen, if requested.
- */
-void solver::SolverBase::writeLogHeader() {
-
-  size_t nsteps_log = params.getNstepsLog();
-  bool   write      = ((nsteps_log == 0) or (step_count % nsteps_log == 0));
-  if (not write)
-    return;
-
-  std::stringstream msg;
-  constexpr size_t  w = 14;
-
-  msg << std::setw(w) << std::left;
-  msg << "step";
-  msg << " ";
-  msg << std::setw(w) << std::left;
-  msg << "time";
-  msg << " ";
-  msg << std::setw(w) << std::left;
-  msg << "dt";
-  msg << " ";
-#if DEBUG_LEVEL > 1
-  msg << std::setw(w) << std::left;
-  msg << "M_now/M_init";
-  msg << " ";
-#endif
-  msg << "step duration";
-  message(msg.str());
-}
 
 
 /**
@@ -165,7 +85,7 @@ void solver::SolverBase::computeDt() {
  *
  * @param dimension In which dimension to apply the updates.
  */
-void solver::SolverBase::integrateHydro(const size_t dimension) {
+void solver::SolverBase::integrateHydro() {
 
   message("Integrating dim=" + std::to_string(dimension), logging::LogLevel::Debug);
   timer::Timer tick(timer::Category::HydroIntegrate);
@@ -266,13 +186,15 @@ void solver::SolverBase::solve() {
   // Show the output header.
   writeLogHeader();
 
+  bool write_output = false;
+
   // Main loop.
   while (keepRunning()) {
 
     dt_old = dt;
 
     // Do this first, since it may modify dt.
-    bool write_output = writer.dumpThisStep(step_count, t, dt);
+    write_output = writer.dumpThisStep(step_count, t, dt);
 
     timer::Timer tickStep(timer::Category::Step);
 
@@ -291,16 +213,102 @@ void solver::SolverBase::solve() {
 #endif
 
     // Write output files
-    if (write_output)
+    if (write_output){
       writer.dump(t, step_count);
+      write_output = false;
+    }
 
     // Talk to me
     writeLog(timingStep);
   }
 
   // if you haven't written the output in the final step, do it now
-  if (not writer.dumpThisStep(step_count, t, dt))
+  if (not write_output)
     writer.dump(t, step_count);
 
   timing("Main solver took " + tick.tock());
 }
+
+
+/**
+ * @brief Do we need to run another step?
+ */
+bool solver::SolverBase::keepRunning() {
+
+  Float tmax = params.getTmax();
+  if (tmax > 0 and t >= tmax)
+    return false;
+
+  size_t nsteps = params.getNsteps();
+  if (nsteps > 0 and step_count == nsteps)
+    return false;
+
+  return true;
+}
+
+
+/**
+ * @brief Write a log to screen, if requested.
+ *
+ * @param timingstr: String returned from a timer object
+ * containing the time measurement fo the step to be logged
+ */
+void solver::SolverBase::writeLog(const std::string& timingstr) {
+
+  size_t nstepsLog = params.getNstepsLog();
+  bool   write     = ((nstepsLog == 0) or (step_count % nstepsLog == 0));
+  if (not write)
+    return;
+
+  std::stringstream msg;
+  constexpr size_t  w = 14;
+  constexpr size_t  p = 6;
+
+  msg << std::setw(w) << std::left;
+  msg << step_count;
+  msg << " ";
+  msg << std::setw(w) << std::setprecision(p) << std::scientific << std::left;
+  msg << t << " ";
+  msg << dt_old;
+  msg << " ";
+#if DEBUG_LEVEL > 1
+  msg << total_mass_current / total_mass_init;
+  msg << " ";
+#endif
+  msg << std::right << std::setw(w) << timingstr;
+  message(msg.str());
+}
+
+
+/**
+ * @brief Write a log to screen, if requested.
+ */
+void solver::SolverBase::writeLogHeader() {
+
+  size_t nsteps_log = params.getNstepsLog();
+  bool   write      = ((nsteps_log == 0) or (step_count % nsteps_log == 0));
+  if (not write)
+    return;
+
+  std::stringstream msg;
+  constexpr size_t  w = 14;
+
+  msg << std::setw(w) << std::left;
+  msg << "step";
+  msg << " ";
+  msg << std::setw(w) << std::left;
+  msg << "time";
+  msg << " ";
+  msg << std::setw(w) << std::left;
+  msg << "dt";
+  msg << " ";
+#if DEBUG_LEVEL > 1
+  msg << std::setw(w) << std::left;
+  msg << "M_now/M_init";
+  msg << " ";
+#endif
+  msg << "step duration";
+  message(msg.str());
+}
+
+

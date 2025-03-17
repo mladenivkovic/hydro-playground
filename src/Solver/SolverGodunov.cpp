@@ -16,25 +16,10 @@ solver::SolverGodunov::SolverGodunov(parameters::Parameters& params_, grid::Grid
 
 
 /**
- * Compute the intercell fluxes between two cells along the given dimension.
- * We store the result in the left cell.
- */
-inline void solver::SolverGodunov::computeIntercellFluxes(
-  cell::Cell& left, cell::Cell& right, const size_t dimension
-) {
-
-  riemann::Riemann        solver(left.getPrim(), right.getPrim(), dimension);
-  idealGas::ConservedFlux csol = solver.solve();
-
-  left.getCFlux() = csol;
-}
-
-
-/**
  * Compute all the intercell fluxes needed for a step update along the
  * direction of @param dimension.
  */
-void solver::SolverGodunov::computeFluxes(const size_t dimension) {
+void solver::SolverGodunov::computeFluxes() {
 
   timer::Timer tick(timer::Category::HydroFluxes);
 
@@ -47,7 +32,7 @@ void solver::SolverGodunov::computeFluxes(const size_t dimension) {
       for (size_t i = first; i < last; i++) {
         cell::Cell& left  = grid.getCell(i, j);
         cell::Cell& right = grid.getCell(i + 1, j);
-        computeIntercellFluxes(left, right, dimension);
+        computeIntercellFluxes(left, right);
       }
     }
   } else if (dimension == 1) {
@@ -55,7 +40,7 @@ void solver::SolverGodunov::computeFluxes(const size_t dimension) {
       for (size_t i = first; i < last; i++) {
         cell::Cell& left  = grid.getCell(i, j);
         cell::Cell& right = grid.getCell(i, j + 1);
-        computeIntercellFluxes(left, right, dimension);
+        computeIntercellFluxes(left, right);
       }
     }
   }
@@ -64,7 +49,22 @@ void solver::SolverGodunov::computeFluxes(const size_t dimension) {
 }
 
 
-//! Run a single step.
+/**
+ * Compute the intercell fluxes between two cells along the given dimension.
+ * We store the result in the left cell.
+ */
+void solver::SolverGodunov::computeIntercellFluxes(cell::Cell& left, cell::Cell& right) {
+
+  riemann::Riemann        solver(left.getPrim(), right.getPrim(), dimension);
+  idealGas::ConservedFlux csol = solver.solve();
+
+  left.getCFlux() = csol;
+}
+
+
+/**
+ * Run a simulation step.
+ */
 void solver::SolverGodunov::step() {
 
   if (Dimensions != 2)
@@ -73,7 +73,7 @@ void solver::SolverGodunov::step() {
   // First sweep
   // -----------------
 
-  size_t dimension = step_count % 2;
+  dimension = step_count % 2;
 
   // zero out fluxes.
   grid.resetFluxes();
@@ -83,10 +83,10 @@ void solver::SolverGodunov::step() {
   grid.applyBoundaryConditions();
 
   // Compute updated fluxes
-  computeFluxes(dimension);
+  computeFluxes();
 
   // Apply fluxes and update current states
-  integrateHydro(dimension);
+  integrateHydro();
 
   // Second sweep
   // -----------------
@@ -101,9 +101,9 @@ void solver::SolverGodunov::step() {
   grid.applyBoundaryConditions();
 
   // Compute updated fluxes
-  computeFluxes(dimension);
+  computeFluxes();
   // Apply fluxes and update current states
-  integrateHydro(dimension);
+  integrateHydro();
 
 
   // Get solution from previous step from conserved into primitive vars.

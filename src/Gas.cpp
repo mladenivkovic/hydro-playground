@@ -94,7 +94,6 @@ void idealGas::PrimitiveState::fromCons(const ConservedState& cons) {
 
     // handle negative pressure
     if (getP() <= cst::SMALLP) {
-      std::cout << "SMALL PRESSURE" << getP();
       setP(cst::SMALLP);
     }
   }

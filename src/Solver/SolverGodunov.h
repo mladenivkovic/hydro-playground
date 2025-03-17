@@ -13,11 +13,11 @@ namespace solver {
   class SolverGodunov: public SolverBase {
 
     //! Compute the intercell fluxes needed for the update
-    void computeFluxes(const size_t dimension);
+    void computeFluxes();
 
     //! Compute the intercell fluxes between two cells along the given
     //! dimension.
-    static void computeIntercellFluxes(cell::Cell& left, cell::Cell& right, const size_t dimension);
+    void computeIntercellFluxes(cell::Cell& left, cell::Cell& right);
 
   public:
     SolverGodunov(parameters::Parameters& params_, grid::Grid& grid_);

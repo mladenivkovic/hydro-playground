@@ -233,7 +233,7 @@ inline Float idealGas::PrimitiveState::getSoundSpeed() const {
  * Get the total gas energy from a primitive state
  */
 inline Float idealGas::PrimitiveState::getE() const {
-  return 0.5 * getRho() * getVSquared() + getP() / cst::GM1;
+  return 0.5 * getRho() * getVSquared() + getP() * cst::ONEOVERGAMMAM1;
 }
 
 

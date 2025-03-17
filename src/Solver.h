@@ -1,3 +1,5 @@
+#pragma once
+
 /**
  * @file Solver.h
  * @brief Main header to include solvers.

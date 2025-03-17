@@ -2,6 +2,7 @@
 
 #include "Config.h"
 #include "Gas.h"
+#include "Logging.h"
 
 
 namespace cell {
@@ -39,10 +40,17 @@ namespace cell {
     idealGas::ConservedState _cons;
 
     //! Fluxes of primitive state
+    //! TODO: can we get rid of this?
     idealGas::PrimitiveState _pflux;
 
     //! Fluxes of conserved state
     idealGas::ConservedState _cflux;
+
+#if SOLVER == SOLVER_MUSCL
+    //! Intermediate extrapolated states
+    idealGas::ConservedState _U_left_mid;
+    idealGas::ConservedState _U_right_mid;
+#endif
 
   public:
     //! Set cell centre position X,Y
@@ -66,6 +74,8 @@ namespace cell {
     idealGas::ConservedState& getCons();
     idealGas::PrimitiveState& getPFlux();
     idealGas::ConservedState& getCFlux();
+    idealGas::ConservedState& getULMid();
+    idealGas::ConservedState& getURMid();
 
     // const versions to shush the compiler
     [[nodiscard]] const idealGas::PrimitiveState& getPrim() const;
@@ -139,6 +149,26 @@ inline idealGas::PrimitiveState& cell::Cell::getPFlux() {
 
 
 inline idealGas::ConservedState& cell::Cell::getCFlux() {
+  return _cflux;
+}
+
+
+inline idealGas::ConservedState& cell::Cell::getULMid() {
+#if SOLVER == SOLVER_MUSCL
+  return _U_left_mid;
+#else
+  error("Shouldn't be used!");
+#endif
+  return _cflux;
+}
+
+
+inline idealGas::ConservedState& cell::Cell::getURMid() {
+#if SOLVER == SOLVER_MUSCL
+  return _U_right_mid;
+#else
+  error("Shouldn't be used!");
+#endif
   return _cflux;
 }
 

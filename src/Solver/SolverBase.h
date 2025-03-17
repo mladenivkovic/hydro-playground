@@ -25,6 +25,9 @@ namespace solver {
     //! Previous time step
     Float dt_old;
 
+    //! Current dimension (direction) to solve for.
+    size_t dimension;
+
     //! Current step
     size_t step_count;
 
@@ -41,8 +44,11 @@ namespace solver {
     //! Compute current time step size.
     void computeDt();
 
+    //! Apply the time update for a pair of cells.
+    static void applyTimeUpdate(cell::Cell& left, cell::Cell& right, const Float dtdx);
+
     //! Apply the actual time integration step.
-    void integrateHydro(const size_t dim);
+    void integrateHydro();
 
     //! Do we still need to run?
     bool keepRunning();
@@ -52,9 +58,6 @@ namespace solver {
 
     //! Write the log header to screen
     void writeLogHeader();
-
-    //! Apply the time update for a pair of cells.
-    static void applyTimeUpdate(cell::Cell& left, cell::Cell& right, const Float dtdx);
 
   public:
     SolverBase(parameters::Parameters& params_, grid::Grid& grid_);
