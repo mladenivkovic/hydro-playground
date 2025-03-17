@@ -44,8 +44,8 @@ inline void riemann::RiemannExact::computeStarStates() {
   Float vRdim = _right.getV(_dim);
 
 
-  Float AL = cst::TWOOVERGAMMAP1 / rhoL;
-  Float AR = cst::TWOOVERGAMMAP1 / rhoR;
+  Float AL = cst::TWOOVERGP1 / rhoL;
+  Float AR = cst::TWOOVERGP1 / rhoR;
   Float BL = cst::GM1OGP1 * pL;
   Float BR = cst::GM1OGP1 * pR;
   Float aL = _left.getSoundSpeed();
@@ -121,7 +121,7 @@ inline Float riemann::RiemannExact::fp(
     return (pguess - p) * std::sqrt(A / (pguess + B));
   }
   // we have a rarefaction situation
-  return cst::TWOOVERGAMMAM1 * cs * (std::pow(pguess / p, cst::BETA) - 1.);
+  return cst::TWOOVERGM1 * cs * (std::pow(pguess / p, cst::BETA) - 1.);
 }
 
 
@@ -151,5 +151,5 @@ inline Float riemann::RiemannExact::dfpdp(
     return sqrtf(A / (pguess + B)) * (1. - 0.5 * (pguess - p) / (pguess + B));
   }
   // we have a rarefaction situation
-  return 1. / (rho * cs) * std::pow(pguess / p, -0.5 * cst::GP1 / cst::GAMMA);
+  return 1. / (rho * cs) * std::pow(pguess / p, -0.5 * cst::GP1 * cst::ONEOVERGAMMA);
 }

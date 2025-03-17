@@ -201,11 +201,14 @@ void solver::SolverMUSCL::computeFluxes(const Float dt_step) {
 
 /**
  * Run a simulation step.
+ * We're using the second order accurate dimensional splitting approach here
+ * (Section 7 in theory document).
  */
 void solver::SolverMUSCL::step() {
 
   if (Dimensions != 2)
     error("Not implemented.");
+
 
   // First sweep: One direction, half dt
   // -----------------------------------

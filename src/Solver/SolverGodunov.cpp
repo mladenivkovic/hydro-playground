@@ -64,6 +64,8 @@ void solver::SolverGodunov::computeIntercellFluxes(cell::Cell& left, cell::Cell&
 
 /**
  * Run a simulation step.
+ * We're using the first order accurate dimensional splitting approach here
+ * (Section 7 in theory document).
  */
 void solver::SolverGodunov::step() {
 

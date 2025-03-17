@@ -13,6 +13,7 @@ namespace riemann {
 
   /**
    * The HLLC Riemann solver.
+   * See Section 3.4 in theory document.
    */
   class RiemannHLLC: public RiemannBase {
 

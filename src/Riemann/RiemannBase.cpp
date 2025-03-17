@@ -9,7 +9,7 @@
 /**
  * Do we have a vacuum or vacuum generating conditions?
  *
- * TODO: Refer to equations in theory document
+ * Section 3.5 in theory document, and eq. 86
  */
 bool riemann::RiemannBase::hasVacuum() {
 
@@ -19,7 +19,7 @@ bool riemann::RiemannBase::hasVacuum() {
     return true;
 
   Float delta_v = _right.getV(_dim) - _left.getV(_dim);
-  Float v_crit  = cst::TWOOVERGAMMAM1 * (_left.getSoundSpeed() + _right.getSoundSpeed());
+  Float v_crit  = cst::TWOOVERGM1 * (_left.getSoundSpeed() + _right.getSoundSpeed());
 
   return delta_v >= v_crit;
 }
@@ -67,8 +67,8 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum() {
     // ------------------------
     // Left vacuum state
     // ------------------------
-    Float SR  = vRdim - aR * cst::TWOOVERGAMMAM1; // vacuum front speed
-    Float SHR = vRdim + aR;                       // speed of head of right rarefaction fan
+    Float SR  = vRdim - aR * cst::TWOOVERGM1; // vacuum front speed
+    Float SHR = vRdim + aR;                   // speed of head of right rarefaction fan
 
     if (xovert <= SR) {
       // left vacuum
@@ -79,10 +79,10 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum() {
     } else if (xovert < SHR) {
       // inside rarefaction
       Float precomp = std::pow(
-        (cst::TWOOVERGAMMAP1 - cst::GM1OGP1 / aR * (vRdim - xovert)), cst::TWOOVERGAMMAM1
+        (cst::TWOOVERGP1 - cst::GM1OGP1 / aR * (vRdim - xovert)), cst::TWOOVERGM1
       );
       rho_sol    = rhoR * precomp;
-      vdim_sol   = cst::TWOOVERGAMMAP1 * (cst::GM1HALF * vRdim - aR + xovert);
+      vdim_sol   = cst::TWOOVERGP1 * (cst::GM1HALF * vRdim - aR + xovert);
       vother_sol = vRother;
       p_sol      = pR * std::pow(precomp, cst::GAMMA);
     } else {
@@ -99,7 +99,7 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum() {
     // Right vacuum state
     // ------------------------
 
-    Float SL  = vLdim + aL * cst::TWOOVERGAMMAM1; // vacuum front speed
+    Float SL  = vLdim + aL * cst::TWOOVERGM1; // vacuum front speed
     Float SHL = vLdim - aL;                       // speed of head of left rarefaction fan
 
     if (xovert >= SL) {
@@ -111,10 +111,10 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum() {
     } else if (xovert > SHL) {
       // inside rarefaction
       Float precomp = std::pow(
-        (cst::TWOOVERGAMMAP1 + cst::GM1OGP1 / aL * (vLdim - xovert)), (cst::TWOOVERGAMMAP1)
+        (cst::TWOOVERGP1 + cst::GM1OGP1 / aL * (vLdim - xovert)), (cst::TWOOVERGP1)
       );
       rho_sol    = rhoL * precomp;
-      vdim_sol   = cst::TWOOVERGAMMAP1 * (cst::GM1HALF * vLdim + aL + xovert);
+      vdim_sol   = cst::TWOOVERGP1 * (cst::GM1HALF * vLdim + aL + xovert);
       vother_sol = vLother;
       p_sol      = pL * std::pow(precomp, cst::GAMMA);
     } else {
@@ -129,10 +129,10 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum() {
     // Vacuum generating case
     // ------------------------
 
-    Float SL  = vLdim + aL * cst::TWOOVERGAMMAM1; // vacuum front speed
-    Float SR  = vRdim - aR * cst::TWOOVERGAMMAM1; // vacuum front speed
-    Float SHL = vLdim - aL;                       // speed of head of left rarefaction fan
-    Float SHR = vRdim + aR;                       // speed of head of right rarefaction fan
+    Float SL  = vLdim + aL * cst::TWOOVERGM1; // vacuum front speed
+    Float SR  = vRdim - aR * cst::TWOOVERGM1; // vacuum front speed
+    Float SHL = vLdim - aL;                   // speed of head of left rarefaction fan
+    Float SHR = vRdim + aR;                   // speed of head of right rarefaction fan
 
     if (xovert <= SHL) {
       // left original pstate
@@ -143,10 +143,10 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum() {
     } else if (xovert < SL) {
       // inside rarefaction fan from right to left
       Float precomp = std::pow(
-        (cst::TWOOVERGAMMAP1 + cst::GM1OGP1 / aL * (vLdim - xovert)), (cst::TWOOVERGAMMAM1)
+        (cst::TWOOVERGP1 + cst::GM1OGP1 / aL * (vLdim - xovert)), cst::TWOOVERGM1
       );
       rho_sol    = rhoL * precomp;
-      vdim_sol   = cst::TWOOVERGAMMAP1 * (cst::GM1HALF * vLdim + aL + xovert);
+      vdim_sol   = cst::TWOOVERGP1 * (cst::GM1HALF * vLdim + aL + xovert);
       vother_sol = vLother;
       p_sol      = pL * std::pow(precomp, cst::GAMMA);
     } else if (xovert < SR) {
@@ -158,10 +158,10 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum() {
     } else if (xovert < SHR) {
       // inside rarefaction fan from left to right
       Float precomp = std::pow(
-        (cst::TWOOVERGAMMAP1 - cst::GM1OGP1 / aR * (vRdim - xovert)), (cst::TWOOVERGAMMAM1)
+        (cst::TWOOVERGP1 - cst::GM1OGP1 / aR * (vRdim - xovert)), cst::TWOOVERGM1
       );
       rho_sol    = rhoR * precomp;
-      vdim_sol   = cst::TWOOVERGAMMAP1 * (cst::GM1HALF * vRdim - aR + xovert);
+      vdim_sol   = cst::TWOOVERGP1 * (cst::GM1HALF * vRdim - aR + xovert);
       vother_sol = vRother;
       p_sol      = pR * std::pow(precomp, cst::GAMMA);
     } else {
@@ -192,6 +192,7 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum() {
  * Compute the solution of the riemann problem at given time t and x,
  * specified as xovert = x/t. Here, we always set x/t = x = 0 at the
  * cell interface.
+ * Section 3.6 in theory document.
  */
 idealGas::ConservedFlux riemann::RiemannBase::sampleSolution() {
 
@@ -240,10 +241,10 @@ idealGas::ConservedFlux riemann::RiemannBase::sampleSolution() {
         if (xovert < STL) {
           // we're inside the fan
           Float precomp = std::pow(
-            (cst::TWOOVERGAMMAP1 + cst::GM1OGP1 / aL * (vLdim - xovert)), (cst::TWOOVERGAMMAM1)
+            (cst::TWOOVERGP1 + cst::GM1OGP1 / aL * (vLdim - xovert)), cst::TWOOVERGM1
           );
           rho_sol    = rhoL * precomp;
-          vdim_sol   = cst::TWOOVERGAMMAP1 * (cst::GM1HALF * vLdim + aL + xovert);
+          vdim_sol   = cst::TWOOVERGP1 * (cst::GM1HALF * vLdim + aL + xovert);
           vother_sol = vLother;
           p_sol      = pL * pow(precomp, cst::GAMMA);
         } else {
@@ -296,10 +297,10 @@ idealGas::ConservedFlux riemann::RiemannBase::sampleSolution() {
         if (xovert > STR) {
           // we're inside the fan
           Float precomp = std::pow(
-            (cst::TWOOVERGAMMAP1 - cst::GM1OGP1 / aR * (vRdim - xovert)), (cst::TWOOVERGAMMAM1)
+            (cst::TWOOVERGP1 - cst::GM1OGP1 / aR * (vRdim - xovert)), cst::TWOOVERGM1
           );
           rho_sol    = rhoR * precomp;
-          vdim_sol   = cst::TWOOVERGAMMAP1 * (cst::GM1HALF * vRdim - aR + xovert);
+          vdim_sol   = cst::TWOOVERGP1 * (cst::GM1HALF * vRdim - aR + xovert);
           vother_sol = vRother;
           p_sol      = pR * std::pow(precomp, cst::GAMMA);
         } else {
@@ -314,20 +315,17 @@ idealGas::ConservedFlux riemann::RiemannBase::sampleSolution() {
 
       // right shock
 
-      Float SR = vRdim
-                 + aR * std::sqrt(0.5 * cst::GP1 / cst::GAMMA * pstaroverpR + cst::BETA); /* right
-                                                                                             shock
-                                                                                             speed
-                                                                                           */
+      // right shock speed
+      Float SR = vRdim + aR * std::sqrt(0.5 * cst::GP1 * cst::ONEOVERGAMMA * pstaroverpR + cst::BETA);
 
       if (xovert > SR) {
-        /* we're outside the shock */
+        // we're outside the shock
         rho_sol    = rhoR;
         vdim_sol   = vRdim;
         vother_sol = vRother;
         p_sol      = pR;
       } else {
-        /* we're in the star region */
+        // we're in the star region
         rho_sol    = (pstaroverpR + cst::GM1OGP1) / (cst::GM1OGP1 * pstaroverpR + 1.) * rhoR;
         vdim_sol   = _vstar;
         vother_sol = vRother;

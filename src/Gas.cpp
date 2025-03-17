@@ -75,6 +75,7 @@ idealGas::PrimitiveState::PrimitiveState(
 /**
  * Convert a conserved state to a (this) primitive state.
  * Overwrites the contents of this primitive state.
+ * See Eq. 19-21 in Theory document.
  */
 void idealGas::PrimitiveState::fromCons(const ConservedState& cons) {
   if (cons.getRho() <= cst::SMALLRHO) {
@@ -85,12 +86,12 @@ void idealGas::PrimitiveState::fromCons(const ConservedState& cons) {
     setP(cst::SMALLP);
   } else {
     setRho(cons.getRho());
-    Float vx = cons.getRhov(0) / cons.getRho();
-    Float vy = cons.getRhov(1) / cons.getRho();
+    Float one_over_rho = 1. / cons.getRho();
+    Float vx = cons.getRhov(0) * one_over_rho;
+    Float vy = cons.getRhov(1) * one_over_rho;
     setV(0, vx);
     setV(1, vy);
-    Float rv2 = cons.getRho() * (vx * vx + vy * vy);
-    setP(cst::GM1 * (cons.getE() - 0.5 * rv2));
+    setP(cons.getP());
 
     // handle negative pressure
     if (getP() <= cst::SMALLP) {
@@ -138,7 +139,8 @@ idealGas::ConservedState::ConservedState(
   const Float rho, const Float rhovx, const Float rhovy, const Float E
 ):
   _rho(rho),
-  _energy(E) {
+  _energy(E)
+{
 #if DEBUG_LEVEL > 0
   if (Dimensions != 2)
     error("This is for 2D only!");
@@ -162,13 +164,13 @@ idealGas::ConservedState::ConservedState(
 /**
  * Compute the conserved state vector of a given primitive state.
  *
- * See eqns. 16 - 18
+ * See eqns. 16 - 18 in theory document.
  */
 void idealGas::ConservedState::fromPrim(const PrimitiveState& p) {
   setRho(p.getRho());
   setRhov(0, p.getRho() * p.getV(0));
   setRhov(1, p.getRho() * p.getV(1));
-  setE(0.5 * p.getRho() * p.getVSquared() + p.getP() * cst::ONEOVERGAMMAM1);
+  setE(p.getE());
 }
 
 
@@ -182,8 +184,8 @@ void idealGas::ConservedState::fromPrim(const PrimitiveState& p) {
  * documentation TeX files.
  * That's why you need to specify the dimension.
  *
- *
- * TODO: make sure latex documentation has these equations
+ * The flux terms for each dimension are given as the second and
+ * third term in Eq. 13.
  */
 void idealGas::ConservedState::getCFluxFromPState(
   const PrimitiveState& pstate, const size_t dimension
@@ -195,7 +197,6 @@ void idealGas::ConservedState::getCFluxFromPState(
   Float  vother = pstate.getV(other);
   Float  p      = pstate.getP();
 
-
   // mass flux
   setRho(rho * vdim);
   // momentum flux along the requested dimension
@@ -205,7 +206,7 @@ void idealGas::ConservedState::getCFluxFromPState(
   setRhov(other, rho * vdim * vother);
 
   // gas energy flux
-  Float E = 0.5 * rho * pstate.getVSquared() + p * cst::ONEOVERGAMMA;
+  Float E = pstate.getE();
   setE((E + p) * vdim);
 }
 
@@ -220,34 +221,35 @@ void idealGas::ConservedState::getCFluxFromPState(
  * documentation TeX files.
  * That's why you need to specify the dimension.
  *
- * Everything about this is copied from the original C code.
- * For now, just need to get the machinery in before making
- * it C++ style.
- *
- * TODO: make sure latex documentation has these equations
+ * The flux terms for each dimension are given as the second and
+ * third term in Eq. 13.
  */
 void idealGas::ConservedState::getCFluxFromCstate(
   const ConservedState& cons, const size_t dimension
 ) {
 
   // Mass flux
-  setRho(cons.getRhov(dimension));
+  Float rho = cons.getRho();
 
-  if (cons.getRho() > 0.) {
-    Float rho = cons.getRho();
-    Float v   = cons.getRhov(dimension) / rho;
-    Float p   = cst::GM1 * (cons.getE() - 0.5 * cons.getRhoVSquared() / rho);
+  if (rho > 0.) {
+
+    setRho(cons.getRhov(dimension));
+
+    size_t other = (dimension + 1) % 2;
+    Float one_over_rho = 1. / rho;
+    Float vdim = cons.getRhov(dimension) * one_over_rho;
+    Float p    = cons.getP();
 
     // momentum flux along the requested dimension
-    Float momentum_dim = rho * v * v + p;
+    Float momentum_dim = rho * vdim * vdim + p;
+
     setRhov(dimension, momentum_dim);
 
     // momentum flux along the other dimension
-    size_t other_index    = (dimension + 1) % 2;
-    Float  momentum_other = cons.getRhov(other_index) * v;
-    setRhov(other_index, momentum_other);
+    Float  momentum_other = cons.getRhov(other) * vdim;
+    setRhov(other, momentum_other);
 
-    Float E = (cons.getE() + p) * v;
+    Float E = (cons.getE() + p) * vdim;
     setE(E);
 
   } else {
