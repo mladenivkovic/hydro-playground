@@ -106,9 +106,9 @@ void riemann::RiemannHLLC::computeWaveSpeedEstimates() {
       vstar = ((pLRbeta - 1.) / cst::GM1HALF + vL * aLinv * pLRbeta + vR * aRinv)
               / (aRinv + aLinv * pLRbeta);
 
-      Float p1 = pR * std::pow((1. + aRinv * cst::GM1HALF * (vstar - vR)), cst::ONEOVERBETA) ;
-      Float p2 =  pL * std::pow((1. + aLinv * cst::GM1HALF * (vL - vstar)), cst::ONEOVERBETA);
-      pstar = 0.5 * (p1 + p2);
+      Float p1 = pR * std::pow((1. + aRinv * cst::GM1HALF * (vstar - vR)), cst::ONEOVERBETA);
+      Float p2 = pL * std::pow((1. + aLinv * cst::GM1HALF * (vL - vstar)), cst::ONEOVERBETA);
+      pstar    = 0.5 * (p1 + p2);
     }
 
     else {
