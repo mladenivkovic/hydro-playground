@@ -23,7 +23,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Configure CMake 
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=@{{matrix.build}} -DSOLVER=GODUNOV -DRIEMANN=${{matrix.riemann}} -DPRECISION=${{matrix.precision}}
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.build}} -DSOLVER=GODUNOV -DRIEMANN=${{matrix.riemann}} -DPRECISION=${{matrix.precision}}
 
     - name: Build 
       # Build your program with the given configuration
