@@ -90,11 +90,14 @@ void solver::SolverBase::writeLogHeader() {
   msg << std::setw(w) << std::left;
   msg << "step";
   msg << " ";
+  msg << std::setw(w) << std::left;
   msg << "time";
   msg << " ";
+  msg << std::setw(w) << std::left;
   msg << "dt";
   msg << " ";
 #if DEBUG_LEVEL > 1
+  msg << std::setw(w) << std::left;
   msg << "M_now/M_init";
   msg << " ";
 #endif
