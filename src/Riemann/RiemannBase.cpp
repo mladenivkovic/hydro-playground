@@ -111,7 +111,7 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum() {
     } else if (xovert > SHL) {
       // inside rarefaction
       Float precomp = std::pow(
-        (cst::TWOOVERGP1 + cst::GM1OGP1 / aL * (vLdim - xovert)), (cst::TWOOVERGP1)
+        (cst::TWOOVERGP1 + cst::GM1OGP1 / aL * (vLdim - xovert)), (cst::TWOOVERGM1)
       );
       rho_sol    = rhoL * precomp;
       vdim_sol   = cst::TWOOVERGP1 * (cst::GM1HALF * vLdim + aL + xovert);
@@ -260,8 +260,9 @@ idealGas::ConservedFlux riemann::RiemannBase::sampleSolution() {
       // left shock
 
       // left shock speed
-      Float SL = vLdim
-                 - aL * std::sqrt(0.5 * cst::GP1 * cst::ONEOVERGAMMA * pstaroverpL + cst::BETA);
+      Float tempsqrt = 0.5 * cst::GP1 * cst::ONEOVERGAMMA * pstaroverpL + cst::BETA;
+      Float SL = vLdim - aL * std::sqrt(tempsqrt);
+
       if (xovert < SL) {
         // we're outside the shock
         rho_sol    = rhoL;
@@ -280,6 +281,7 @@ idealGas::ConservedFlux riemann::RiemannBase::sampleSolution() {
     // We're on the right side
     Float aR          = _right.getSoundSpeed();
     Float pstaroverpR = _pstar / pR;
+
     if (_pstar <= pR) {
 
       // right rarefaction
@@ -316,8 +318,8 @@ idealGas::ConservedFlux riemann::RiemannBase::sampleSolution() {
       // right shock
 
       // right shock speed
-      Float SR = vRdim
-                 + aR * std::sqrt(0.5 * cst::GP1 * cst::ONEOVERGAMMA * pstaroverpR + cst::BETA);
+      Float tempsqrt = 0.5 * cst::GP1 * cst::ONEOVERGAMMA * pstaroverpR + cst::BETA;
+      Float SR = vRdim + aR * std::sqrt(tempsqrt);
 
       if (xovert > SR) {
         // we're outside the shock

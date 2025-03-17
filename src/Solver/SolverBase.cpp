@@ -191,11 +191,12 @@ void solver::SolverBase::solve() {
   // Main loop.
   while (keepRunning()) {
 
-    _dt_old = _dt;
-
     // Do this first, since it may modify dt.
     bool write_output = writer.dumpThisStep(_step_count, _t, _dt);
     written_output    = false;
+
+    // Store this time step.
+    _dt_old = _dt;
 
     timer::Timer tickStep(timer::Category::Step);
 

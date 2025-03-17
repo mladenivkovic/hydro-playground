@@ -21,8 +21,7 @@ namespace limiter {
     Float d   = 1. - cst::MUSCL_SLOPE_OMEGA + (1. + cst::MUSCL_SLOPE_OMEGA) * r;
     Float xiR = 2. / d;
 
-    if (xiR < xi)
-      xi = xiR;
+    if (xiR < xi) xi = xiR;
 
     return xi;
   }
