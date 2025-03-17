@@ -109,20 +109,20 @@ namespace limiter {
 
     constexpr Float OMEGA = cst::MUSCL_SLOPE_OMEGA;
 
-    Float r1 = (1. + OMEGA) * (Ui.getRho() - UiM1.getRho());
-    Float r2 = (1. - OMEGA) * (UiP1.getRho() - Ui.getRho());
+    Float r1        = (1. + OMEGA) * (Ui.getRho() - UiM1.getRho());
+    Float r2        = (1. - OMEGA) * (UiP1.getRho() - Ui.getRho());
     Float slope_rho = xi_rho * 0.5 * (r1 + r2);
 
-    Float vx1 = (1. + OMEGA) * (Ui.getRhov(0) - UiM1.getRhov(0));
-    Float vx2 = (1. - OMEGA) * (UiP1.getRhov(0) - Ui.getRhov(0));
+    Float vx1         = (1. + OMEGA) * (Ui.getRhov(0) - UiM1.getRhov(0));
+    Float vx2         = (1. - OMEGA) * (UiP1.getRhov(0) - Ui.getRhov(0));
     Float slope_rhovx = xi_rhovx * 0.5 * (vx1 + vx2);
 
-    Float vy1 = (1. + OMEGA) * (Ui.getRhov(1) - UiM1.getRhov(1)) ;
-    Float vy2 = (1. - OMEGA) * (UiP1.getRhov(1) - Ui.getRhov(1));
+    Float vy1         = (1. + OMEGA) * (Ui.getRhov(1) - UiM1.getRhov(1));
+    Float vy2         = (1. - OMEGA) * (UiP1.getRhov(1) - Ui.getRhov(1));
     Float slope_rhovy = xi_rhovy * 0.5 * (vy1 + vy2);
 
-    Float E1 = (1. + OMEGA) * (Ui.getE() - UiM1.getE()) ;
-    Float E2 = (1. - OMEGA) * (UiP1.getE() - Ui.getE());
+    Float E1      = (1. + OMEGA) * (Ui.getE() - UiM1.getE());
+    Float E2      = (1. - OMEGA) * (UiP1.getE() - Ui.getE());
     Float slope_E = xi_E * 0.5 * (E1 + E2);
 
     slope = idealGas::ConservedState(slope_rho, slope_rhovx, slope_rhovy, slope_E);

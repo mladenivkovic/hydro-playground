@@ -65,7 +65,7 @@ inline void riemann::RiemannExact::computeStarStates() {
 
   // Newton-Raphson iteration
   int   niter = 0;
-  Float pold = pguess;
+  Float pold  = pguess;
 
   do {
     niter++;
@@ -86,8 +86,7 @@ inline void riemann::RiemannExact::computeStarStates() {
       );
       break;
     }
-  }
-  while (2. * std::abs((pguess - pold) / (pguess + pold)) >= cst::EPSILON_ITER);
+  } while (2. * std::abs((pguess - pold) / (pguess + pold)) >= cst::EPSILON_ITER);
 
   if (pguess <= cst::SMALLP) {
     pguess = cst::SMALLP;

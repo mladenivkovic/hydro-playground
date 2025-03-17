@@ -67,7 +67,7 @@ void solver::SolverMUSCL::getBoundaryExtrapolatedValues(
 ) {
 
   using CState = idealGas::ConservedState;
-  using CFlux = idealGas::ConservedFlux;
+  using CFlux  = idealGas::ConservedFlux;
 
   // First get the slope.
   CState       slope;
@@ -148,13 +148,13 @@ void solver::SolverMUSCL::computeFluxes(const Float dt_step) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
 
-        cell::Cell&              cp1  = _grid.getCell(i + 1, j);
-        CState UiP1 = cp1.getCons();
+        cell::Cell& cp1  = _grid.getCell(i + 1, j);
+        CState      UiP1 = cp1.getCons();
 
         cell::Cell& c = _grid.getCell(i, j);
 
-        cell::Cell&              cm1  = _grid.getCell(i - 1, j);
-        CState UiM1 = cm1.getCons();
+        cell::Cell& cm1  = _grid.getCell(i - 1, j);
+        CState      UiM1 = cm1.getCons();
 
         getBoundaryExtrapolatedValues(c, UiP1, UiM1, dt_half);
       }
@@ -178,13 +178,13 @@ void solver::SolverMUSCL::computeFluxes(const Float dt_step) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
 
-        cell::Cell&              cp1  = _grid.getCell(i, j + 1);
-        CState UiP1 = cp1.getCons();
+        cell::Cell& cp1  = _grid.getCell(i, j + 1);
+        CState      UiP1 = cp1.getCons();
 
         cell::Cell& c = _grid.getCell(i, j);
 
-        cell::Cell&              cm1  = _grid.getCell(i, j - 1);
-        CState UiM1 = cm1.getCons();
+        cell::Cell& cm1  = _grid.getCell(i, j - 1);
+        CState      UiM1 = cm1.getCons();
 
         getBoundaryExtrapolatedValues(c, UiP1, UiM1, dt_half);
       }

@@ -261,7 +261,7 @@ idealGas::ConservedFlux riemann::RiemannBase::sampleSolution() {
 
       // left shock speed
       Float tempsqrt = 0.5 * cst::GP1 * cst::ONEOVERGAMMA * pstaroverpL + cst::BETA;
-      Float SL = vLdim - aL * std::sqrt(tempsqrt);
+      Float SL       = vLdim - aL * std::sqrt(tempsqrt);
 
       if (xovert < SL) {
         // we're outside the shock
@@ -319,7 +319,7 @@ idealGas::ConservedFlux riemann::RiemannBase::sampleSolution() {
 
       // right shock speed
       Float tempsqrt = 0.5 * cst::GP1 * cst::ONEOVERGAMMA * pstaroverpR + cst::BETA;
-      Float SR = vRdim + aR * std::sqrt(tempsqrt);
+      Float SR       = vRdim + aR * std::sqrt(tempsqrt);
 
       if (xovert > SR) {
         // we're outside the shock
