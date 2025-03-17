@@ -359,7 +359,7 @@ inline BC::BoundaryCondition parameters::Parameters::getBoundaryType() const {
 
 
 inline void parameters::Parameters::setBoundaryType(BC::BoundaryCondition boundary_type) {
-  _boundaryType = boundary_type;
+  _boundary_type = boundary_type;
   paramSetLog((int)boundary_type);
 #if DEBUG_LEVEL > 0
   if (_locked)
