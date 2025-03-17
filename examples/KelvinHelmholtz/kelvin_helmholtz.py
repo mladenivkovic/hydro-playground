@@ -48,4 +48,4 @@ for i in range(nx):
             u[i, j, 0] = -0.5 + 0.5 * np.exp((0.75 - y) / dy)
 
 
-write_ic("kelvin-helmholtz.dat", 2, rho, u, p)
+write_ic("kelvin_helmholtz.dat", 2, rho, u, p)
