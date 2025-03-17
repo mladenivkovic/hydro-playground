@@ -248,15 +248,13 @@ File Format Specifications
 
 | name              |  default value    | type  | description                                                                   |
 |-------------------|-------------------|-------|-------------------------------------------------------------------------------|
-| `nx`              | = 100             | `int` | Number of cells to use if you're running with a two-state type IC file. Otherwise, it needs to be specified in the initial conditions.  If you're not using a two-state IC, the value will be overwritten by the value given in the IC file.  |
+| `nx`              | = 0               | `int` | Number of cells to use if you're running with a two-state type IC file. Otherwise, it needs to be specified in the initial conditions.  If you're not using a two-state IC, the value will be overwritten by the value given in the IC file.  |
 |                   |                   |       |                                                                               |
 | `ccfl`            | = 0.9             |`float`| Courant factor; `dt = ccfl * dx / vmax`                                       |
 |                   |                   |       |                                                                               |
-| `nsteps`          | = 1               | `int` | Up to how many steps to do. If = 0, run until `t >= tmax`                     |
+| `nsteps`          | = 0               | `int` | Up to how many steps to do. If = 0, run until `t >= tmax`                     |
 |                   |                   |       |                                                                               |
-| `tmax`            | = 0               |`float`|  Up to which time to simulate. If `nsteps` is given, will stop running if `nsteps` steps are reached before `tmax` is.     |
-|                   |                   |       |                                                                               |
-| `force_dt`        | = 0               |`float`| force a time step size. If a smaller time step is required, the sim will stop.|
+| `tmax`            | = 0.              |`float`| Up to which time to simulate. If `nsteps` is given, will stop running if `nsteps` steps are reached before `tmax` is.     |
 |                   |                   |       |                                                                               |
 | `boundary`        | = 0               | `int` | Boundary conditions  0: periodic. 1: reflective. 2: transmissive. This sets the boundary conditions for all walls. |
 |                   |                   |       |                                                                               |

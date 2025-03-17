@@ -47,7 +47,7 @@ Name & Default & Type & Description \\
 \hline
 \hline
 \texttt{nx} &
-    = 100 &
+    = 0 &
     \texttt{int} &
     Number of cells to use if you're running with a two-state type IC file.
     Otherwise, it needs to be specified in the initial conditions. If you're not
@@ -60,7 +60,7 @@ Name & Default & Type & Description \\
     Courant factor; \texttt{dt\ =\ ccfl\ *\ dx\ /\ vmax}
 \\ \hline
 \texttt{nsteps} &
-    = 1 &
+    = 0 &
     \texttt{int} &
     Up to how many steps to do. If = 0, run until \texttt{t}
     $\geq$ \texttt{tmax}
@@ -70,12 +70,6 @@ Name & Default & Type & Description \\
     \texttt{float} &
     Up to which time to simulate. If \texttt{nsteps} is given, will stop running
     if \texttt{nsteps} steps are reached before \texttt{tmax} is.
-\\ \hline
-\texttt{force\_dt} &
-    = 0 &
-    \texttt{float} &
-    force a time step size. If a smaller time step is required, the simulation
-    will stop.
 \\ \hline
 \texttt{boundary} &
     = 0 &
