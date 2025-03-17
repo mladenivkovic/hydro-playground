@@ -16,7 +16,7 @@ ccfl = 0.5                  // Courant factor
 nsteps = 0                  // Number of steps to run for. Will stop the run even if tmax isn't
                             // reached.
 
-tmax = 10.0                 // end time for simulation in arbitrary units. Will stop the run even if
+tmax = 5.0                 // end time for simulation in arbitrary units. Will stop the run even if
                             // nsteps isn't reached.
 
 boundary = 1                // boundary conditions. 0: periodic; 1: reflective; 2: transmissive 

@@ -31,11 +31,16 @@ p = np.ones((nx, nx)) * p0
 dx = 1.0 / nx
 
 if nx % 2 == 0:
-    c = int(nx / 2) - 1
+    #  c = int(nx / 2) - 1
+    c = 20
     p[c, c] = pblast
     p[c + 1, c] = pblast
     p[c, c + 1] = pblast
     p[c + 1, c + 1] = pblast
+    #  p[c, c] = pblast
+    #  p[c + 1, c] = pblast
+    #  p[c, c + 1] = pblast
+    #  p[c + 1, c + 1] = pblast
 else:
     c = int(nx / 2)
     p[c, c] = 1.0 / dx
