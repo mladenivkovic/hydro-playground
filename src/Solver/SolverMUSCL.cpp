@@ -44,7 +44,7 @@ void solver::SolverMUSCL::computeIntercellFluxes(cell::Cell& left, cell::Cell& r
   idealGas::PrimitiveState WR;
   WR.fromCons(right.getULMid());
 
-  riemann::Riemann        solver(WL, WR, dimension);
+  riemann::Riemann        solver(WL, WR, _direction);
   idealGas::ConservedFlux csol = solver.solve();
 
   left.setCFlux(csol);
@@ -68,7 +68,7 @@ void solver::SolverMUSCL::getBoundaryExtrapolatedValues(
 
   // First get the slope.
   idealGas::ConservedState slope;
-  idealGas::ConservedState Ui = c.getCons();
+  const idealGas::ConservedState Ui = c.getCons();
 
   limiter::limiterGetLimitedSlope(UiP1, Ui, UiM1, slope);
 
@@ -87,7 +87,7 @@ void solver::SolverMUSCL::getBoundaryExtrapolatedValues(
 
   // Get the left flux given the states.
   idealGas::ConservedFlux FL;
-  FL.getCFluxFromCstate(UL, dimension);
+  FL.getCFluxFromCstate(UL, _direction);
 
   // Get the right sloped state
   Float rhoR = rhoi + 0.5 * slope.getRho();
@@ -98,9 +98,9 @@ void solver::SolverMUSCL::getBoundaryExtrapolatedValues(
 
   // Get the right flux given the states.
   idealGas::ConservedFlux FR;
-  FR.getCFluxFromCstate(UR, dimension);
+  FR.getCFluxFromCstate(UR, _direction);
 
-  Float dtdx_half = dt_half / grid.getDx();
+  Float dtdx_half = dt_half / _grid.getDx();
 
 
   Float rhoLmid   = rhoi   + dtdx_half * (FL.getRho()   - FR.getRho())   - 0.5 * slope.getRho();
@@ -133,22 +133,22 @@ void solver::SolverMUSCL::computeFluxes(const Float dt_step) {
   Float dt_half = 0.5 * dt_step;
 
   // NOTE: we start earlier here!
-  size_t first = grid.getFirstCellIndex() - 1;
-  size_t last  = grid.getLastCellIndex() + 1;
+  size_t first = _grid.getFirstCellIndex() - 1;
+  size_t last  = _grid.getLastCellIndex() + 1;
 
-  if (dimension == 0) {
+  if (_direction == 0) {
 
     // First, get the boundary extrapolated values.
 
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
 
-        cell::Cell& cp1  = grid.getCell(i+1, j);
+        cell::Cell& cp1  = _grid.getCell(i+1, j);
         idealGas::ConservedState UiP1 = cp1.getCons();
 
-        cell::Cell& c  = grid.getCell(i, j);
+        cell::Cell& c  = _grid.getCell(i, j);
 
-        cell::Cell& cm1  = grid.getCell(i-1, j);
+        cell::Cell& cm1  = _grid.getCell(i-1, j);
         idealGas::ConservedState UiM1 = cm1.getCons();
 
         getBoundaryExtrapolatedValues(c, UiP1, UiM1, dt_half);
@@ -159,26 +159,26 @@ void solver::SolverMUSCL::computeFluxes(const Float dt_step) {
 
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
-        cell::Cell& left  = grid.getCell(i, j);
-        cell::Cell& right = grid.getCell(i + 1, j);
+        cell::Cell& left  = _grid.getCell(i, j);
+        cell::Cell& right = _grid.getCell(i + 1, j);
         computeIntercellFluxes(left, right);
       }
     }
 
 
-  } else if (dimension == 1) {
+  } else if (_direction == 1) {
 
     // First, get the boundary extrapolated values.
 
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
 
-        cell::Cell& cp1  = grid.getCell(i, j+1);
+        cell::Cell& cp1  = _grid.getCell(i, j+1);
         idealGas::ConservedState UiP1 = cp1.getCons();
 
-        cell::Cell& c  = grid.getCell(i, j);
+        cell::Cell& c  = _grid.getCell(i, j);
 
-        cell::Cell& cm1  = grid.getCell(i, j-1);
+        cell::Cell& cm1  = _grid.getCell(i, j-1);
         idealGas::ConservedState UiM1 = cm1.getCons();
 
         getBoundaryExtrapolatedValues(c, UiP1, UiM1, dt_half);
@@ -189,8 +189,8 @@ void solver::SolverMUSCL::computeFluxes(const Float dt_step) {
 
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
-        cell::Cell& left  = grid.getCell(i, j);
-        cell::Cell& right = grid.getCell(i, j + 1);
+        cell::Cell& left  = _grid.getCell(i, j);
+        cell::Cell& right = _grid.getCell(i, j + 1);
         computeIntercellFluxes(left, right);
       }
     }
@@ -213,56 +213,58 @@ void solver::SolverMUSCL::step() {
   // First sweep: One direction, half dt
   // -----------------------------------
 
-  dimension = step_count % 2;
+  _direction = _step_count % 2;
 
   // zero out fluxes.
-  grid.resetFluxes();
+  _grid.resetFluxes();
   // No need to convert conserved quantities to primitive ones - see below.
   // grid.convertCons2Prim();
   // Send around updated boundary values
-  grid.applyBoundaryConditions();
+  _grid.applyBoundaryConditions();
 
   // Compute updated fluxes over half time step
-  computeFluxes(0.5 * dt);
+  computeFluxes(0.5 * _dt);
 
   // Apply fluxes and update current states
-  integrateHydro(0.5 * dt);
+  integrateHydro(0.5 * _dt);
 
 
   // Second sweep: Other direction, full dt
   // --------------------------------------
 
   // change dimension
-  dimension = (step_count + 1) % 2;
+  _direction = (_step_count + 1) % 2;
   // zero out fluxes.
-  grid.resetFluxes();
+  _grid.resetFluxes();
   // Transfer results from conserved states to primitive ones.
-  grid.convertCons2Prim();
+  // TODO: I'm pretty sure we can skip this unless we're writing output or computing dt.
+  _grid.convertCons2Prim();
   // Send around updated boundary values
-  grid.applyBoundaryConditions();
+  _grid.applyBoundaryConditions();
 
   // Compute updated fluxes
-  computeFluxes(dt);
+  computeFluxes(_dt);
   // Apply fluxes and update current states
-  integrateHydro(dt);
+  integrateHydro(_dt);
 
 
   // Third sweep: First direction, full dt
   // --------------------------------------
 
   // change dimension
-  dimension = step_count % 2;
+  _direction = _step_count % 2;
   // zero out fluxes.
-  grid.resetFluxes();
+  _grid.resetFluxes();
   // Transfer results from conserved states to primitive ones.
-  grid.convertCons2Prim();
+  // TODO: I'm pretty sure we can skip this unless we're writing output or computing dt.
+  _grid.convertCons2Prim();
   // Send around updated boundary values
-  grid.applyBoundaryConditions();
+  _grid.applyBoundaryConditions();
 
   // Compute updated fluxes
-  computeFluxes(0.5 * dt);
+  computeFluxes(0.5 * _dt);
   // Apply fluxes and update current states
-  integrateHydro(0.5 * dt);
+  integrateHydro(0.5 * _dt);
 
 
   // Wrap-up
@@ -272,7 +274,7 @@ void solver::SolverMUSCL::step() {
   // Do this here instead of at the start of this function so we can compute
   // dt. During startup, primitive values are correct already since that's
   // what we read from the ICs.
-  grid.convertCons2Prim();
+  _grid.convertCons2Prim();
 
   // Compute next time step.
   computeDt();

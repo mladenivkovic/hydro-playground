@@ -3,6 +3,7 @@
 /**
  * @file Limiter.h
  * @brief Main header to include slope limiters.
+ * See Section 5.2 in theory document.
  */
 
 #include "Config.h"
@@ -24,6 +25,8 @@
 namespace limiter {
 
   /**
+   * Eq. 107 in theory document.
+   *
    * in case of advection:
    * if v > 0:
    *    compute r = (u_{i} - u_{i-1}) / (u_{i+1} - u_{i})
@@ -46,7 +49,8 @@ namespace limiter {
    */
   inline Float limiterR(const Float topleft, const Float topright, const Float bottomleft) {
 
-    if (bottomleft == topleft)
+    // avoid div by zero
+    if (std::abs(bottomleft - topleft) < 1.e-6 * std::abs(topleft))
       return ((topleft - topright) * 1.e6);
     return ((topleft - topright) / (bottomleft - topleft));
   }

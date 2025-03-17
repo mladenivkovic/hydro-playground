@@ -18,28 +18,29 @@ solver::SolverGodunov::SolverGodunov(parameters::Parameters& params_, grid::Grid
 /**
  * Compute all the intercell fluxes needed for a step update along the
  * direction of @param dimension.
+ * This is where we solve the Riemann problems.
  */
 void solver::SolverGodunov::computeFluxes() {
 
   timer::Timer tick(timer::Category::HydroFluxes);
 
   // NOTE: we start earlier here!
-  size_t first = grid.getFirstCellIndex() - 1;
-  size_t last  = grid.getLastCellIndex();
+  size_t first = _grid.getFirstCellIndex() - 1;
+  size_t last  = _grid.getLastCellIndex();
 
-  if (dimension == 0) {
+  if (_direction == 0) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
-        cell::Cell& left  = grid.getCell(i, j);
-        cell::Cell& right = grid.getCell(i + 1, j);
+        cell::Cell& left  = _grid.getCell(i, j);
+        cell::Cell& right = _grid.getCell(i + 1, j);
         computeIntercellFluxes(left, right);
       }
     }
-  } else if (dimension == 1) {
+  } else if (_direction == 1) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
-        cell::Cell& left  = grid.getCell(i, j);
-        cell::Cell& right = grid.getCell(i, j + 1);
+        cell::Cell& left  = _grid.getCell(i, j);
+        cell::Cell& right = _grid.getCell(i, j + 1);
         computeIntercellFluxes(left, right);
       }
     }
@@ -55,7 +56,7 @@ void solver::SolverGodunov::computeFluxes() {
  */
 void solver::SolverGodunov::computeIntercellFluxes(cell::Cell& left, cell::Cell& right) {
 
-  riemann::Riemann        solver(left.getPrim(), right.getPrim(), dimension);
+  riemann::Riemann        solver(left.getPrim(), right.getPrim(), _direction);
   idealGas::ConservedFlux csol = solver.solve();
 
   left.setCFlux(csol);
@@ -75,44 +76,44 @@ void solver::SolverGodunov::step() {
   // First sweep
   // -----------------
 
-  dimension = step_count % 2;
+  _direction = _step_count % 2;
 
   // zero out fluxes.
-  grid.resetFluxes();
+  _grid.resetFluxes();
   // No need to convert conserved quantities to primitive ones - see below.
   // grid.convertCons2Prim();
   // Send around updated boundary values
-  grid.applyBoundaryConditions();
+  _grid.applyBoundaryConditions();
 
   // Compute updated fluxes
   computeFluxes();
 
   // Apply fluxes and update current states
-  integrateHydro(dt);
+  integrateHydro(_dt);
 
   // Second sweep
   // -----------------
 
   // change dimension
-  dimension = (step_count + 1) % 2;
+  _direction = (_step_count + 1) % 2;
   // zero out fluxes.
-  grid.resetFluxes();
+  _grid.resetFluxes();
   // Transfer results from conserved states to primitive ones.
-  grid.convertCons2Prim();
+  _grid.convertCons2Prim();
   // Send around updated boundary values
-  grid.applyBoundaryConditions();
+  _grid.applyBoundaryConditions();
 
   // Compute updated fluxes
   computeFluxes();
   // Apply fluxes and update current states
-  integrateHydro(dt);
+  integrateHydro(_dt);
 
 
   // Get solution from previous step from conserved into primitive vars.
   // Do this here instead of at the start of this function so we can compute
   // dt. During startup, primitive values are correct already since that's
   // what we read from the ICs.
-  grid.convertCons2Prim();
+  _grid.convertCons2Prim();
 
   // Compute next time step.
   computeDt();
