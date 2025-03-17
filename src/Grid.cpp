@@ -161,9 +161,6 @@ void grid::Grid::replicateICs() {
   // Timer for global IC duration is already set up above in call stack
   timer::Timer tick(timer::Category::Ignore);
 
-
-  printGrid("rho");
-
   size_t nxNorep    = getNxNorep();
   size_t first      = getFirstCellIndex();
   size_t last       = nxNorep + first;
@@ -186,7 +183,6 @@ void grid::Grid::replicateICs() {
 #endif
 
         getCell(target, j) = getCell(i, j);
-        printGrid("rho");
       }
     }
 
