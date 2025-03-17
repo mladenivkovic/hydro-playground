@@ -30,7 +30,7 @@ idealGas::ConservedFlux riemann::RiemannHLLC::solve() {
 
 /**
  * Compute q_{L,R} needed for the wave speed estimate.
- * TODO: Add equation in theory
+ * Eq. 78 in theory document.
  *
  * pstar:   (estimated) pressure of the star state
  * pLR:     left or right pressure, depending whether
@@ -39,7 +39,7 @@ idealGas::ConservedFlux riemann::RiemannHLLC::solve() {
 inline Float riemann::RiemannHLLC::_qLR(Float pstar, Float pLR) {
   if (pstar > pLR) {
     // shock relation
-    return (std::sqrt(1. + 0.5 * (cst::GAMMA + 1.) / cst::GAMMA * (pstar / pLR - 1.)));
+    return std::sqrt(1. + 0.5 * cst::GP1 * cst::ONEOVERGAMMA / (pstar / pLR - 1.));
   }
   // Else: rarefaction relation
   return 1.;
@@ -48,6 +48,7 @@ inline Float riemann::RiemannHLLC::_qLR(Float pstar, Float pLR) {
 
 /**
  * Compute the wave speed (estimates) SL, SR, and Sstar.
+ * (Eqs. 76 - 80 in theory document)
  */
 void riemann::RiemannHLLC::computeWaveSpeedEstimates() {
 
@@ -105,16 +106,16 @@ void riemann::RiemannHLLC::computeWaveSpeedEstimates() {
       vstar = ((pLRbeta - 1.) / cst::GM1HALF + vL * aLinv * pLRbeta + vR * aRinv)
               / (aRinv + aLinv * pLRbeta);
 
-      pstar
-        = 0.5
-          * (pR * std::pow((1. + aRinv * cst::GM1HALF * (vstar - vR)), 1. / cst::BETA) + pL * std::pow((1. + aLinv * cst::GM1HALF * (vL - vstar)), 1. / cst::BETA));
+      Float p1 = pR * std::pow((1. + aRinv * cst::GM1HALF * (vstar - vR)), cst::ONEOVERBETA);
+      Float p2 = pL * std::pow((1. + aLinv * cst::GM1HALF * (vL - vstar)), cst::ONEOVERBETA);
+      pstar    = 0.5 * (p1 + p2);
     }
 
     else {
       // If not rarefactions, you'll encounter shocks, so use TSRS solver
 
-      Float AL = cst::TWOOVERGAMMAP1 / rhoL;
-      Float AR = cst::TWOOVERGAMMAP1 / rhoR;
+      Float AL = cst::TWOOVERGP1 / rhoL;
+      Float AR = cst::TWOOVERGP1 / rhoR;
       Float BL = cst::GM1OGP1 * pL;
       Float BR = cst::GM1OGP1 * pR;
 
@@ -170,7 +171,7 @@ void riemann::RiemannHLLC::computeStarCStates(
   UStarL.setRhov(_dim, lcomp * _Sstar);
   UStarL.setRhov(other, lcomp * vLother);
 
-  Float EL    = 0.5 * rhoL * _left.getVSquared() + pL * cst::ONEOVERGAMMAM1;
+  Float EL    = 0.5 * rhoL * _left.getVSquared() + pL * cst::ONEOVERGM1;
   Float EnewL = lcomp * ((EL / rhoL) + (_Sstar - vLdim) * (_Sstar + pL / (rhoL * SLMUL)));
   UStarL.setE(EnewL);
 
@@ -179,7 +180,7 @@ void riemann::RiemannHLLC::computeStarCStates(
   UStarR.setRhov(_dim, rcomp * _Sstar);
   UStarR.setRhov(other, rcomp * vRother);
 
-  Float ER    = 0.5 * rhoR * _right.getVSquared() + pR * cst::ONEOVERGAMMAM1;
+  Float ER    = 0.5 * rhoR * _right.getVSquared() + pR * cst::ONEOVERGM1;
   Float EnewR = rcomp * ((ER / rhoR) + (_Sstar - vRdim) * (_Sstar + pR / (rhoR * SRMUR)));
   UStarR.setE(EnewR);
 }

@@ -899,8 +899,8 @@ bool IO::OutputWriter::dumpThisStep(size_t current_step, Float t_current, Float&
     // We're writing outputs based on time intervals.
     // Trim down time step size to fit, if necessary.
     if (t_current + dt_current >= _t_next_dump) {
-      dt_current = _t_next_dump - t_current;
 
+      dt_current = _t_next_dump - t_current;
       message(
         "Trimmed dt to " + std::to_string(dt_current) + " for output.", logging::LogLevel::Debug
       );

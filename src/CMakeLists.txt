@@ -44,7 +44,7 @@ target_link_libraries(SolverBase IO)
 target_link_libraries(SolverBase Logging)
 target_link_libraries(SolverBase Parameters)
 
-add_library(SolverMUSCL OBJECT Solver.h Solver/SolverMUSCL.h Solver/SolverMUSCL.cpp)
+add_library(SolverMUSCL OBJECT Solver.h Solver/SolverMUSCL.h Solver/SolverMUSCL.cpp Limiter.h Limiter/LimiterMinmod.h Limiter/LimiterVanLeer.h)
 target_include_directories(SolverMUSCL PUBLIC "${PROJECT_BINARY_DIR}") # we need this for Config.h
 target_include_directories(SolverMUSCL PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}") # we need this for Config.h
 target_link_libraries(SolverMUSCL SolverBase)

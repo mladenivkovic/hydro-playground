@@ -49,7 +49,7 @@ namespace parameters {
     Float _ccfl;
 
     //! boundary condition
-    BC::BoundaryCondition _boundaryType;
+    BC::BoundaryCondition _boundary_type;
 
     //! box size
     Float _boxsize;
@@ -194,7 +194,7 @@ namespace parameters {
      * @brief Get the type of boundary condition used
      */
     [[nodiscard]] BC::BoundaryCondition getBoundaryType() const;
-    void                                setBoundaryType(const BC::BoundaryCondition boundary);
+    void                                setBoundaryType(const BC::BoundaryCondition boundary_type);
 
 
     /**
@@ -354,13 +354,13 @@ inline void parameters::Parameters::setCcfl(const Float ccfl) {
 
 
 inline BC::BoundaryCondition parameters::Parameters::getBoundaryType() const {
-  return _boundaryType;
+  return _boundary_type;
 }
 
 
-inline void parameters::Parameters::setBoundaryType(BC::BoundaryCondition boundaryType) {
-  _boundaryType = boundaryType;
-  paramSetLog((int)boundaryType);
+inline void parameters::Parameters::setBoundaryType(BC::BoundaryCondition boundary_type) {
+  _boundary_type = boundary_type;
+  paramSetLog((int)boundary_type);
 #if DEBUG_LEVEL > 0
   if (_locked)
     error("Trying to overwrite locked parameters!");

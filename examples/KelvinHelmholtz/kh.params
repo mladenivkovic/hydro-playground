@@ -1,11 +1,3 @@
-// An example parameter file for hydro program.
-// All available parameters are listed here.
-
-// C++ style comments are accepted.
-/* C style comments are accepted. */
-/* empty lines are accepted too.  */
-
-
 // Talking Parameters
 // ------------------
 
@@ -19,17 +11,12 @@ verbose = 1                 // Verbosity level of the run. 0: Quiet. 1: Verbose.
 // Simulation Parameters
 // ---------------------
 
-nx = 100                    // Number of cells to use if you're running with a two-state type IC
-                            // file. Otherwise, it needs to be specified in the initial conditions.
-                            // If you're not using a two-state IC, the value will be overwritten by
-                            // the value given in the IC file.  
-
 ccfl = 0.5                  // Courant factor
 
 nsteps = 0                  // Number of steps to run for. Will stop the run even if tmax isn't
                             // reached.
 
-tmax = 1.00                 // end time for simulation in arbitrary units. Will stop the run even if
+tmax = 10.00                // end time for simulation in arbitrary units. Will stop the run even if
                             // nsteps isn't reached.
 
 boundary = 0                // boundary conditions. 0: periodic; 1: reflective; 2: transmissive 
@@ -44,7 +31,7 @@ replicate = 0               // When running with arbitrary-type initial conditio
 // Output Parameters
 // -----------------
 
-dt_out = 0.10               // Frequency of writing outputs in time intervals. Code will always
+dt_out = 0.25               // Frequency of writing outputs in time intervals. Code will always
                             // write initial and final steps as well.
 
 foutput = 0                 // Frequency of writing outputs in number of steps. If = 0, will only

@@ -97,7 +97,24 @@ where $S_{max}^n$ is the highest wave propagation speed at the current time,
 and $C_{cfl} \in [0, 1($ is the Courant number.
 
 
-However, this is not the most practical way of doing things.
+In 2D, things get a little more complicated. Rather than just prohibiting a
+wave to pass through its entire neighbouring cell, the condition needs to be
+more restrictive. This follows from more rigorous stability analysis, which is
+out of scope for this work. Instead, we just list the CFL condition in 2D,
+which we will be using:
+
+
+\begin{align}
+\Delta t_{max} \leq \frac{C_{cfl} \Delta x}{|S_{x,max}^n| + |S_{y,max}^n|}
+\label{eq:godunov-cfl-2D}
+\end{align}
+
+where $S_{x,max}^n$ and $S_{y,max}^n$ are the highest wave propagation speeds
+at the current time in $x$ and $y$ direction, respectively.
+
+
+However, taking the actual wave speeds is not the most practical way of doing
+things.
 In 2D, using dimensional splitting (Section~\ref{chap:dimensional-splitting}),
 we'd have to first solve everything in one direction to find the wave speeds,
 then advance the time step of the sweep, then do the other sweep and hope that
@@ -107,7 +124,7 @@ Or re-do the first sweep iteratively until we get decent time steps.
 Instead, we use the estimate
 
 \begin{align}
-	S^n_{max} = \max\{ |v_i^n| + a_i^n \}
+	S^n_{max} = \max\limits_i \{ |v_i^n| + a_i^n \}
 \end{align}
 
 This is not always accurate, and the wave speed can be underestimated, leading
@@ -130,11 +147,10 @@ Toro recommends to use $C_{cfl} < 0.8 - 0.9$.
 \subsubsection{Algorithm Details}\label{chap:godunov-details}
 %===================================================================
 
-Each cell contains 4 gas states:
+Each cell contains 3 gas states:
 
 \begin{enumerate}
 \item The primitive state $\mathbf{W} = (\rho, \V, p)$ of the gas as \code{prim}
-\item The flux of the primitive state $\F(\mathbf{W})$ as \code{pflux}
 \item The conserved state $\U = (\rho, \rho \V, E)$ of the gas as \code{cons}
 \item The flux of the conserved state $\F(\U)$ as \code{cflux}
 \end{enumerate}
@@ -150,12 +166,11 @@ flux at $x_{-\half}$ will be stored in \verb|grid[BC-1]|, where \texttt{BC} is
 the number of boundary cells used.
  
 
-\todo{Adapt function name}
-
 We treat the 2D solution using dimensional splitting
 (Section~\ref{chap:dimensional-splitting}). Here, we describe the 1D algorithm.
 
-The \verb|solver_step(...)| function does the following for the 1D case:
+The \verb|solver::SolverGodunov::step()| function does the following for
+the 1D case:
 
 \begin{itemize}
 

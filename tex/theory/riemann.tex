@@ -117,10 +117,10 @@ Pressure and velocity remain constant across the contact wave.
 This gives us the relations
 
 
-\begin{align*}
+\begin{align}
 	p^*_L &= p^*_R = p^*\\
-	v^*_L &= v^*_R = v^*\\
-\end{align*}
+	v^*_L &= v^*_R = v^*
+\end{align}
 
 For this reason, the star state pressure and velocity will have no index
 indicating whether they are the left or right star state, and will be referred
@@ -142,7 +142,7 @@ All three primitive variables $\rho$, $p$, and $v$ change across a shock wave.
 A shock wave is a jump discontinuity too. If the \textbf{leftmost} wave (wave
 (1) in Fig. \ref{fig:riemann-solution}) is a shock wave, we have
 
-\begin{align*}
+\begin{align}
 \rho^*_L &=
 	\frac{\frac{p^*}{p_L} + \frac{\gamma - 1}{\gamma+1}}
 	{\frac{\gamma - 1}{\gamma+1} \frac{p^*}{p_L} + 1}
@@ -154,13 +154,13 @@ A_L &=
 	\frac{2}{(\gamma + 1) \rho_L}\\
 B_L &=
 	\frac{\gamma - 1}{\gamma + 1} p_L
-\end{align*}
+\end{align}
 
 $f_{L}$ is given in eq. \ref{eq:riemann-pstar}, and the shock speed is
-\begin{align*}
+\begin{align}
 S_L = v_L - a_L \left[\frac{\gamma + 1}{2 \gamma} \frac{p^*}{p_L} +
 	\frac{\gamma - 1}{2\gamma} \right]^{\half}
-\end{align*}
+\end{align}
 
 where $a_L$ is the sound speed (Eq.~\ref{eq:soundspeed}) in the left state
 $\U_L$.
@@ -171,7 +171,7 @@ For a \textbf{right shock wave}, i.e. when wave (3) is a shock wave, we have
 the relations
 
 
-\begin{align*}
+\begin{align}
 \rho^*_R &=
 	\frac{\frac{p^*}{p_R} + \frac{\gamma - 1}{\gamma+1}}
 		{\frac{\gamma - 1}{\gamma+1} \frac{p^*}{p_R} + 1}
@@ -183,13 +183,13 @@ A_R &=
 	\frac{2}{(\gamma + 1) \rho_R}\\
 B_R &=
 	\frac{\gamma - 1}{\gamma + 1} p_R
-\end{align*}
+\end{align}
 
 and the shock speed is
-\begin{align*}
+\begin{align}
 S_R = v_R + a_R \left[\frac{\gamma + 1}{2 \gamma} \frac{p^*}{p_R} +
 	\frac{\gamma - 1}{2\gamma} \right]^{\half}
-\end{align*}
+\end{align}
 
 where $a_R$ is the sound speed in the right state $\U_R$. $f_R$ is given in
 equation \ref{eq:riemann-pstar}.
@@ -219,17 +219,18 @@ The wave speeds of the head, $S_H$, and of the tail, $S_T$, are both given
 below.
 
 
-If we have a \textbf{left-facing} rarefaction, i.e. if wave (1) is a rarefaction wave, we have
+If we have a \textbf{left-facing} rarefaction, i.e. if wave (1) is a rarefaction
+wave, we have
 
-\begin{align*}
+\begin{align}
 \rho^*_L &=
 	\rho_L \left( \frac{p^*}{p_L} \right) ^ \frac{1}{\gamma}\\
 v^* &=
 	v_L - \frac{2 a_L}{\gamma - 1} \left[
 		\left( \frac{p^*}{p_L} \right) ^ \frac{\gamma - 1}{2 \gamma} -1
 	\right]\\
-	& = v_L - f_L(p^*) \\
-\end{align*}
+	& = v_L - f_L(p^*)
+\end{align}
 
 $f_{L}$ is given in eq. \ref{eq:riemann-pstar}, and $a_L$ is the sound speed in
 the left state $U_L$.
@@ -238,11 +239,11 @@ the left state $U_L$.
 The wave speeds of the head, $S_H$, and the tail, $S_T$, for the left facing
 wave are:
 
-\begin{align*}
+\begin{align}
 	S_{HL} &= v_L - a_L\\
 	S_{TL} &= v^* - a^*_L\\
 	a^*_L  &= a_L \left( \frac{p^*}{p_L} \right) ^ \frac{\gamma - 1}{2 \gamma}
-\end{align*}
+\end{align}
 
 
 Finally, the solution inside the rarefaction fan, i.e. in regions where $S_{HL}
@@ -282,7 +283,7 @@ p_{\text{fan}, L} &=
 If we have a \textbf{right-facing rarefaction}, i.e. if wave (3) is a
 rarefaction wave, we have:
 
-\begin{align*}
+\begin{align}
 \rho^*_R &=
 	\rho_R \left( \frac{p^*}{p_R} \right) ^ \frac{1}{\gamma}\\
 v^* &=
@@ -291,7 +292,7 @@ v^* &=
 		1 - \left( \frac{p^*}{p_R} \right) ^ \frac{\gamma - 1}{2 \gamma}
 	\right]\\
 	&= v_R + f_R(p^*)
-\end{align*}
+\end{align}
 
 where $a_R$ is the sound speed in the left state $\U_R$.
 $f_R$ is given in Equation~\ref{eq:riemann-pstar}.
@@ -303,11 +304,11 @@ $f_R$ is given in Equation~\ref{eq:riemann-pstar}.
 The wave speeds of the head, $S_H$, and the tail, $S_T$, for the right facing
 wave are:
 
-\begin{align*}
+\begin{align}
 	S_{HR} &= v_R + a_R\\
 	S_{TR} &= v^* + a^*_R\\
 	a^*_R  &= a_R \left( \frac{p^*}{p_R} \right) ^ \frac{\gamma - 1}{2 \gamma}
-\end{align*}
+\end{align}
 
 
 
@@ -480,7 +481,7 @@ The equation for $p^*$, the pressure in the star region
 iteratively. Since we have the analytic function and the first derivative
 w.r.t. $p$ can be computed, i.e.
 
-\begin{align*}
+\begin{align}
 \frac{\del f_{L,R}}{\del p} &=
 	\begin{cases}
 		\left[
@@ -501,7 +502,7 @@ A_{L,R} &=
 	\frac{2}{(\gamma + 1) \rho_{L,R}}\\
 B_{L,R} &=
 	\frac{\gamma - 1}{\gamma + 1} p_{L,R}
-\end{align*}
+\end{align}
 
 
 Then, using the Newton-Raphson iterative root finding method, we can find the
@@ -524,9 +525,9 @@ where $\epsilon$ is some tolerance.
 However, we need to find a first guess for the pressure, $p_0$.
 An okay way to do it is to take the average:
 
-\begin{align*}
+\begin{align}
 	p_0^* = \frac{1}{2} (p_L + p_R)
-\end{align*}
+\end{align}
 
 The implemented way is based on a linearised solution based on the linearized
 primitive variable Riemann solver:
@@ -568,140 +569,140 @@ perform adequately. We outline some of them here.
 
 
 
-
-%===============================================================================
-\subsubsection{Two-Rarefaction Riemann Solver (TRRS)}\label{chap:riemann-trrs}
-%===============================================================================
-
-
-
-
-The big idea is to assume a priori that both the left and right waves are
-going to be rarefaction waves, and to use that assumption to get an expression
-for $p^*$ and $v^*$, the pressure and velocity in the star region, respectively.
-
-We get
-
-\begin{align}
-\beta &\equiv
-	\frac{\gamma - 1}{2 \gamma} \\
-v^* &=
-	\frac{
-		\frac{2}{\gamma - 1}
-		\left[
-			\left(\frac{p_L}{p_R} \right) ^ \beta - 1
-		\right] +
-		\frac{v_L}{a_L}
-		\left(
-			\frac{p_L}{p_R}
-		\right) ^ \beta  + \frac{v_R}{a_R}
-	}{
-		\frac{1}{a_R} +
-		\frac{1}{a_L}\left(\frac{p_L}{p_R} \right) ^ \beta
-	} \\
-p^* &=
-	\frac{1}{2}
-	\left[
-		p_R
-		\left[
-			\frac{\gamma - 1}{2 a_R} (v^* - v_R) + 1
-		\right] ^ \frac{1}{\beta} + p_L
-		\left[
-			\frac{\gamma - 1}{2 a_L} (v_L - v^*) + 1
-		\right] ^ \frac{1}{\beta}
-	\right] \label{eq:pstar-trrs}
-\end{align}
-
-Note that we may also write $p^*$ independently of $v^*$:
-
-\begin{align}
-p^* =
-	\left[
-		\frac{
-			a_L + a_R - \frac{\gamma - 1}{2} (v_R - v_L)
-		}{
-			\frac{a_L}{p_L^\beta} +		\frac{a_R}{p_R^\beta}
-		}
-	\right] ^ \frac{1}{\beta}
-\end{align}
-
-But Eq.~\ref{eq:pstar-trrs} is computationally more efficient if we compute
-$v^*$ first. (Way fewer uses of fractional powers.)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-% %=============================================================================
-\subsubsection{Two-Shock Riemann Solver (TSRS)}\label{chap:riemann-tsrs}
-% %=============================================================================
-
-
-The big idea is to assume a priori that both the left and right waves are
-going to be shock waves, and to use that assumption to get an expression for
-$p^*$ and $v^*$, the pressure and velocity in the star region, respectively.
-
-
-The equation for the pressure in the star region (eq.
-\ref{eq:riemann-pressure-equation}) then is given by
-
-\begin{align}
-f(p) &=
-	(p - p_L) g_L(p) + (p - p_R) g_R(p) + v_R - v_L = 0
-	\label{eq:riemann-pressure-tsrs} \\
 %
-g_{L,R}(p) &=
-	\left[
-		\frac{A_{L,R}}{p + B_{L,R}}
-	\right] ^{\half} \\
+% %===============================================================================
+% \subsubsection{Two-Rarefaction Riemann Solver (TRRS)}\label{chap:riemann-trrs}
+% %===============================================================================
 %
-A_{L,R} &=
-	\frac{2}{(\gamma + 1) \rho_{L,R}}\\
-B_{L,R} &=
-	\frac{\gamma - 1}{\gamma + 1} p_{L,R}
-\end{align}
-
-Unfortunately, this approximation does not lead to a closed form solution. So
-we can either use an iterative method again, or use further approximations.
-Then the idea is to find $p_0$, an estimate for the pressure to use in
-Eq.~\ref{eq:riemann-pressure-tsrs}, and to use that to get a better
-approximation for $p^*$:
-
-\begin{align}
-p^* =
-	\frac{
-		g_L(p_0) p_L + g_R(p_0)p_R - (v_R - v_L)
-	}{
-		g_L(p_0) + g_R(p_0)
-	}
-	\label{eq:pstar-tsrs}
-\end{align}
-
-and
-
-\begin{align}
-v^*  =
-	\frac{1}{2} (v_L + v_R) +
-	\frac{1}{2}
-	\left[
-		(p^* - p_R) g_R(p_0) - (p^* - p_L) g_L(p_0)
-	\right]
-\end{align}
-
-
-A good choice for $p_0$ is coming from the solution of the linearised
-primitive variables approach (Eq.~\ref{eq:pPV}).
-
+%
+%
+%
+% The big idea is to assume a priori that both the left and right waves are
+% going to be rarefaction waves, and to use that assumption to get an expression
+% for $p^*$ and $v^*$, the pressure and velocity in the star region, respectively.
+%
+% We get
+%
+% \begin{align}
+% \beta &\equiv
+% 	\frac{\gamma - 1}{2 \gamma} \\
+% v^* &=
+% 	\frac{
+% 		\frac{2}{\gamma - 1}
+% 		\left[
+% 			\left(\frac{p_L}{p_R} \right) ^ \beta - 1
+% 		\right] +
+% 		\frac{v_L}{a_L}
+% 		\left(
+% 			\frac{p_L}{p_R}
+% 		\right) ^ \beta  + \frac{v_R}{a_R}
+% 	}{
+% 		\frac{1}{a_R} +
+% 		\frac{1}{a_L}\left(\frac{p_L}{p_R} \right) ^ \beta
+% 	} \\
+% p^* &=
+% 	\frac{1}{2}
+% 	\left[
+% 		p_R
+% 		\left[
+% 			\frac{\gamma - 1}{2 a_R} (v^* - v_R) + 1
+% 		\right] ^ \frac{1}{\beta} + p_L
+% 		\left[
+% 			\frac{\gamma - 1}{2 a_L} (v_L - v^*) + 1
+% 		\right] ^ \frac{1}{\beta}
+% 	\right] \label{eq:pstar-trrs}
+% \end{align}
+%
+% Note that we may also write $p^*$ independently of $v^*$:
+%
+% \begin{align}
+% p^* =
+% 	\left[
+% 		\frac{
+% 			a_L + a_R - \frac{\gamma - 1}{2} (v_R - v_L)
+% 		}{
+% 			\frac{a_L}{p_L^\beta} +		\frac{a_R}{p_R^\beta}
+% 		}
+% 	\right] ^ \frac{1}{\beta}
+% \end{align}
+%
+% But Eq.~\ref{eq:pstar-trrs} is computationally more efficient if we compute
+% $v^*$ first. (Way fewer uses of fractional powers.)
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+% % %=============================================================================
+% \subsubsection{Two-Shock Riemann Solver (TSRS)}\label{chap:riemann-tsrs}
+% % %=============================================================================
+%
+%
+% The big idea is to assume a priori that both the left and right waves are
+% going to be shock waves, and to use that assumption to get an expression for
+% $p^*$ and $v^*$, the pressure and velocity in the star region, respectively.
+%
+%
+% The equation for the pressure in the star region (eq.
+% \ref{eq:riemann-pressure-equation}) then is given by
+%
+% \begin{align}
+% f(p) &=
+% 	(p - p_L) g_L(p) + (p - p_R) g_R(p) + v_R - v_L = 0
+% 	\label{eq:riemann-pressure-tsrs} \\
+% %
+% g_{L,R}(p) &=
+% 	\left[
+% 		\frac{A_{L,R}}{p + B_{L,R}}
+% 	\right] ^{\half} \\
+% %
+% A_{L,R} &=
+% 	\frac{2}{(\gamma + 1) \rho_{L,R}}\\
+% B_{L,R} &=
+% 	\frac{\gamma - 1}{\gamma + 1} p_{L,R}
+% \end{align}
+%
+% Unfortunately, this approximation does not lead to a closed form solution. So
+% we can either use an iterative method again, or use further approximations.
+% Then the idea is to find $p_0$, an estimate for the pressure to use in
+% Eq.~\ref{eq:riemann-pressure-tsrs}, and to use that to get a better
+% approximation for $p^*$:
+%
+% \begin{align}
+% p^* =
+% 	\frac{
+% 		g_L(p_0) p_L + g_R(p_0)p_R - (v_R - v_L)
+% 	}{
+% 		g_L(p_0) + g_R(p_0)
+% 	}
+% 	\label{eq:pstar-tsrs}
+% \end{align}
+%
+% and
+%
+% \begin{align}
+% v^*  =
+% 	\frac{1}{2} (v_L + v_R) +
+% 	\frac{1}{2}
+% 	\left[
+% 		(p^* - p_R) g_R(p_0) - (p^* - p_L) g_L(p_0)
+% 	\right]
+% \end{align}
+%
+%
+% A good choice for $p_0$ is coming from the solution of the linearised
+% primitive variables approach (Eq.~\ref{eq:pPV}).
+%
 
 
 
@@ -808,12 +809,12 @@ Then we assume that the primitive variable estimate is ok as long as:
 \end{itemize}
 %
 %
-If that is not the case, then we switch to the star state solutions of other
-approximate Riemann solvers: If $p_{PV} \leq p_{min}$, then we will certainly
-expect two rarefactions to form, so we use the star state estimates of the Two
-Rarefaction Riemann Solver (TRRS, eq. \ref{eq:pstar-trrs}).
-Otherwise, we have at least one shock, so use the star state estimates of the
-Two Shock Riemann Solver (TSRS, eq. \ref{eq:pstar-tsrs}).
+% If that is not the case, then we switch to the star state solutions of other
+% approximate Riemann solvers: If $p_{PV} \leq p_{min}$, then we will certainly
+% expect two rarefactions to form, so we use the star state estimates of the Two
+% Rarefaction Riemann Solver (TRRS, eq. \ref{eq:pstar-trrs}).
+% Otherwise, we have at least one shock, so use the star state estimates of the
+% Two Shock Riemann Solver (TSRS, eq. \ref{eq:pstar-tsrs}).
 
 
 % The adaptive wave speed estimate is used by default in the code, but can be

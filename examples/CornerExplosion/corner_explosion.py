@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 # ---------------------------------------------------
-# Create IC conditions for an explosion in the lower
-# center of the box.
+# Basically same as SedovBlast - a point explosion,
+# but located in the lower left corner.
 # ---------------------------------------------------
 
 
@@ -31,21 +31,14 @@ p = np.ones((nx, nx)) * p0
 dx = 1.0 / nx
 
 if nx % 2 == 0:
-    #  c = int(nx / 2) - 1
     c = 20
     p[c, c] = pblast
     p[c + 1, c] = pblast
     p[c, c + 1] = pblast
     p[c + 1, c + 1] = pblast
-    #  p[c, c] = pblast
-    #  p[c + 1, c] = pblast
-    #  p[c, c + 1] = pblast
-    #  p[c + 1, c + 1] = pblast
 else:
     c = int(nx / 2)
     p[c, c] = 1.0 / dx
 
-#  print("c=", c, "nx", nx)
-
-write_ic("sedov.dat", 2, rho, v, p)
-print("Written sedov.dat")
+write_ic("corner_explosion.dat", 2, rho, v, p)
+print("Written corner_explosion.dat")

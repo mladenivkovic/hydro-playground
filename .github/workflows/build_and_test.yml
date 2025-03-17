@@ -37,7 +37,10 @@ jobs:
       working-directory: ${{github.workspace}}/build_release/tests
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ./test_logging
+      run: |
+        ./test_logging
+        ./test_io
+        ./test_gas
 
   build_debug:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
@@ -62,7 +65,10 @@ jobs:
       working-directory: ${{github.workspace}}/build_debug/tests
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ./test_logging
+      run: |
+        ./test_logging
+        ./test_io
+        ./test_gas
 
       
   build_relWithDebugInfo:
@@ -88,5 +94,8 @@ jobs:
       working-directory: ${{github.workspace}}/build_rel_with_deb_info/tests
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ./test_logging
+      run: |
+        ./test_logging
+        ./test_io
+        ./test_gas
 

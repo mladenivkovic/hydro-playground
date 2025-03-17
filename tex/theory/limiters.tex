@@ -79,8 +79,6 @@ the references given in the Introduction for more details.
 \subsubsection{Slope limiters $\xi(r)$}
 %=============================================================================
 
-\todo{Clear out what isn't implemented in \hydro}
-
 Some popular (and implemented) limiters are:
 \begin{flalign}
 \text{Minmod}
@@ -91,22 +89,21 @@ Some popular (and implemented) limiters are:
 		\min\{1, \xi_R(r)\}, & r \geq 1\\
 	\end{cases}
 \\
-\text{Superbee}
-	&&\quad \xi(r) &=
-	\begin{cases}
-		0, & r \leq 0\\
-		2r, & 0 \leq r \leq \frac{1}{2}\\
-		1, & \frac{1}{2} \leq r \leq 1 \\
-		\min\{r, \xi_R(r), 2\}, & r \geq 1\\
-	\end{cases}
-\\
+% \text{Superbee}
+% 	&&\quad \xi(r) &=
+% 	\begin{cases}
+% 		0, & r \leq 0\\
+% 		2r, & 0 \leq r \leq \frac{1}{2}\\
+% 		1, & \frac{1}{2} \leq r \leq 1 \\
+% 		\min\{r, \xi_R(r), 2\}, & r \geq 1\\
+% 	\end{cases}
+% \\
 \text{van Leer}
 	&&\quad \xi(r) &=
 	\begin{cases}
 		0, & r \leq 0\\
 		\min\{\frac{2r}{1+r},  \xi_R(r)\}, & r \geq 0\\
 	\end{cases}
-\\
 \end{flalign}
 
 where

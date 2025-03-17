@@ -19,19 +19,19 @@ parameters::Parameters::Parameters() {
   _nstepsLog = 0;
   _verbose   = 0;
 
-  _nsteps       = 0;
-  _tmax         = 0.;
-  _nx           = 0;
-  _ccfl         = 0.9;
-  _boundaryType = BC::BoundaryCondition::Periodic;
-  _boxsize      = 1.;
-  _nbc          = 2;
-  _replicate    = 0;
+  _nsteps        = 0;
+  _tmax          = 0.;
+  _nx            = 0;
+  _ccfl          = 0.9;
+  _boundary_type = BC::BoundaryCondition::Periodic;
+  _boxsize       = 1.;
+  _nbc           = 2;
+  _replicate     = 0;
 
   _write_replications = false;
   _outputfilebase     = "";
   _foutput            = 0;
-  _dt_out             = 0;
+  _dt_out             = 0.;
 
   _locked = false;
   _read   = false;
@@ -64,7 +64,7 @@ void parameters::Parameters::initDerivedAndValidate() {
 
     setBoxsize(getBoxsize() * static_cast<Float>(getReplicate()));
     std::stringstream msg;
-    msg << "Resizing box to" << getBoxsize() << " to accommodate replications";
+    msg << "Resizing box to " << getBoxsize() << " to accommodate replications";
     message(msg.str(), logging::LogLevel::Verbose);
   }
 

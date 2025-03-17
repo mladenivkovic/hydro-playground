@@ -7,6 +7,7 @@
 
 #include "Config.h"
 #include "Constants.h"
+#include "Logging.h"
 
 
 namespace idealGas {
@@ -147,6 +148,8 @@ namespace idealGas {
 
     void                setE(const Float val);
     [[nodiscard]] Float getE() const;
+
+    [[nodiscard]] Float getP() const;
   };
 } // namespace idealGas
 
@@ -197,7 +200,14 @@ inline Float idealGas::PrimitiveState::getV(const size_t index) const {
 
 
 inline Float idealGas::PrimitiveState::getVSquared() const {
-  return _v[0] * _v[0] + _v[1] * _v[1];
+  if (Dimensions == 1)
+    return _v[0] * _v[0];
+
+  if (Dimensions == 2)
+    return _v[0] * _v[0] + _v[1] * _v[1];
+
+  error("Not implemented");
+  return 0.;
 }
 
 
@@ -222,7 +232,8 @@ inline Float idealGas::PrimitiveState::getP() const {
 
 
 /**
- * Compute the local sound speed given a primitive state
+ * Compute the local sound speed given a primitive state.
+ * Eq. 6
  */
 inline Float idealGas::PrimitiveState::getSoundSpeed() const {
   return std::sqrt(cst::GAMMA * getP() / getRho());
@@ -230,10 +241,12 @@ inline Float idealGas::PrimitiveState::getSoundSpeed() const {
 
 
 /**
- * Get the total gas energy from a primitive state
+ * Get the total gas energy from a primitive state.
+ * Eq. 18
  */
 inline Float idealGas::PrimitiveState::getE() const {
-  return 0.5 * getRho() * getVSquared() + getP() / cst::GM1;
+
+  return 0.5 * getRho() * getVSquared() + getP() * cst::ONEOVERGM1;
 }
 
 
@@ -300,4 +313,19 @@ inline void idealGas::ConservedState::setRho(const Float val) {
   //   assert(val >= 0.);
   // #endif
   _rho = val;
+}
+
+inline Float idealGas::ConservedState::getP() const {
+  // this makes prim->cons->prim conversion worse due to roundoff errors.
+  // Float one_over_rho = 1. / rho;
+  // Float rv2 = cons.getRhoVSquared() * one_over_rho;
+  // this also makes it worse.
+  // return (cst::GM1 * getE() - cst::GM1 * 0.5 * rv2);
+
+  Float rho          = getRho();
+  Float one_over_rho = 1. / rho;
+  Float vx           = getRhov(0) * one_over_rho;
+  Float vy           = getRhov(1) * one_over_rho;
+  Float rv2          = rho * (vx * vx + vy * vy);
+  return cst::GM1 * (getE() - 0.5 * rv2);
 }

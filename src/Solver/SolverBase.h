@@ -17,32 +17,38 @@ namespace solver {
 
   protected:
     //! Current time
-    Float t;
+    Float _t;
 
     //! Current time step
-    Float dt;
+    Float _dt;
 
     //! Previous time step
-    Float dt_old;
+    Float _dt_old;
+
+    //! Current dimension (direction) to solve for.
+    size_t _direction;
 
     //! Current step
-    size_t step_count;
+    size_t _step_count;
 
     //! Total mass in grid.
-    Float total_mass_init;
-    Float total_mass_current;
+    Float _total_mass_init;
+    Float _total_mass_current;
 
     //! Reference to runtime parameters
-    parameters::Parameters& params;
+    parameters::Parameters& _params;
 
     //! Reference to the grid.
-    grid::Grid& grid;
+    grid::Grid& _grid;
 
     //! Compute current time step size.
     void computeDt();
 
+    //! Apply the time update for a pair of cells.
+    static void applyTimeUpdate(cell::Cell& left, cell::Cell& right, const Float dtdx);
+
     //! Apply the actual time integration step.
-    void integrateHydro(const size_t dim);
+    void integrateHydro(const Float dt_step);
 
     //! Do we still need to run?
     bool keepRunning();
@@ -51,10 +57,7 @@ namespace solver {
     void writeLog(const std::string& timingstr);
 
     //! Write the log header to screen
-    void writeLogHeader();
-
-    //! Apply the time update for a pair of cells.
-    static void applyTimeUpdate(cell::Cell& left, cell::Cell& right, const Float dtdx);
+    static void writeLogHeader();
 
   public:
     SolverBase(parameters::Parameters& params_, grid::Grid& grid_);

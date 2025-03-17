@@ -1,15 +1,7 @@
-// An example parameter file for hydro program.
-// All available parameters are listed here.
-
-// C++ style comments are accepted.
-/* C style comments are accepted. */
-/* empty lines are accepted too.  */
-
-
 // Talking Parameters
 // ------------------
 
-nstep_log = 1               // Write step log messages only ever `nstep_log` steps. If 0, will write
+nstep_log = 10              // Write step log messages only ever `nstep_log` steps. If 0, will write
                             // every step.
 
 verbose = 1                 // Verbosity level of the run. 0: Quiet. 1: Verbose. 2: Debug. If `-v`
@@ -19,15 +11,15 @@ verbose = 1                 // Verbosity level of the run. 0: Quiet. 1: Verbose.
 // Simulation Parameters
 // ---------------------
 
-ccfl = 0.8                  // Courant factor
+ccfl = 0.5                  // Courant factor
 
-nsteps = 10                 // Number of steps to run for. Will stop the run even if tmax isn't
+nsteps = 0                  // Number of steps to run for. Will stop the run even if tmax isn't
                             // reached.
 
-tmax = 0.20                 // end time for simulation in arbitrary units. Will stop the run even if
+tmax = 12.0                 // end time for simulation in arbitrary units. Will stop the run even if
                             // nsteps isn't reached.
 
-boundary = 2                // boundary conditions. 0: periodic; 1: reflective; 2: transmissive 
+boundary = 1                // boundary conditions. 0: periodic; 1: reflective; 2: transmissive 
 
 replicate = 0               // When running with arbitrary-type initial conditions, replicate (=
                             // copy-paste) the initial conditions this many times in each dimension.
@@ -39,13 +31,13 @@ replicate = 0               // When running with arbitrary-type initial conditio
 // Output Parameters
 // -----------------
 
-dt_out = 0.0                // Frequency of writing outputs in time intervals. Code will always
+dt_out = 0.2                // Frequency of writing outputs in time intervals. Code will always
                             // write initial and final steps as well.
 
-foutput = 1                 // Frequency of writing outputs in number of steps. If = 0, will only
+foutput = 0                 // Frequency of writing outputs in number of steps. If = 0, will only
                             // write initial and final steps
 
-basename = None             // Basename for output file names. If not given, a basename will be
+basename = output           // Basename for output file names. If not given, a basename will be
                             // based on compilation parameters and IC filename. 
 
 write_replications = false  // If replicate > 1, setting this to true will write the entire content

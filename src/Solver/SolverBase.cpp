@@ -7,6 +7,7 @@
 #include "Gas.h"
 #include "IO.h"
 #include "Logging.h"
+#include "Riemann.h"
 #include "Timer.h"
 
 
@@ -14,93 +15,15 @@
  * Constructor
  */
 solver::SolverBase::SolverBase(parameters::Parameters& params_, grid::Grid& grid_):
-  t(0.),
-  dt(0.),
-  dt_old(0.),
-  step_count(0),
-  total_mass_init(0.),
-  total_mass_current(0.),
-  params(params_),
-  grid(grid_) {};
-
-
-/**
- * @brief Do we need to run another step?
- */
-bool solver::SolverBase::keepRunning() {
-
-  Float tmax = params.getTmax();
-  if (tmax > 0 and t >= tmax)
-    return false;
-
-  size_t nsteps = params.getNsteps();
-  if (nsteps > 0 and step_count == nsteps)
-    return false;
-
-  return true;
-}
-
-
-/**
- * @brief Write a log to screen, if requested.
- *
- * @param timingstr: String returned from a timer object
- * containing the time measurement fo the step to be logged
- */
-void solver::SolverBase::writeLog(const std::string& timingstr) {
-
-  size_t nstepsLog = params.getNstepsLog();
-  bool   write     = ((nstepsLog == 0) or (step_count % nstepsLog == 0));
-  if (not write)
-    return;
-
-  std::stringstream msg;
-  constexpr size_t  w = 14;
-  constexpr size_t  p = 6;
-
-  msg << std::setw(w) << std::left;
-  msg << step_count;
-  msg << " ";
-  msg << std::setw(w) << std::setprecision(p) << std::scientific << std::left;
-  msg << t << " ";
-  msg << dt_old;
-  msg << " ";
-#if DEBUG_LEVEL > 1
-  msg << total_mass_current / total_mass_init;
-  msg << " ";
-#endif
-  msg << std::right << std::setw(w) << timingstr;
-  message(msg.str());
-}
-
-
-/**
- * @brief Write a log to screen, if requested.
- */
-void solver::SolverBase::writeLogHeader() {
-
-  size_t nsteps_log = params.getNstepsLog();
-  bool   write      = ((nsteps_log == 0) or (step_count % nsteps_log == 0));
-  if (not write)
-    return;
-
-  std::stringstream msg;
-  constexpr size_t  w = 14;
-
-  msg << std::setw(w) << std::left;
-  msg << "step";
-  msg << " ";
-  msg << "time";
-  msg << " ";
-  msg << "dt";
-  msg << " ";
-#if DEBUG_LEVEL > 1
-  msg << "M_now/M_init";
-  msg << " ";
-#endif
-  msg << "step duration";
-  message(msg.str());
-}
+  _t(0.),
+  _dt(0.),
+  _dt_old(0.),
+  _direction(0),
+  _step_count(0),
+  _total_mass_init(0.),
+  _total_mass_current(0.),
+  _params(params_),
+  _grid(grid_) {};
 
 
 /**
@@ -116,15 +39,15 @@ void solver::SolverBase::computeDt() {
     return;
   }
 
-  size_t first = grid.getFirstCellIndex();
-  size_t last  = grid.getLastCellIndex();
+  size_t first = _grid.getFirstCellIndex();
+  size_t last  = _grid.getLastCellIndex();
 
   Float vxmax = 0.;
   Float vymax = 0.;
 
   for (size_t j = first; j < last; j++) {
     for (size_t i = first; i < last; i++) {
-      cell::Cell&               c  = grid.getCell(i, j);
+      cell::Cell&               c  = _grid.getCell(i, j);
       idealGas::PrimitiveState& p  = c.getPrim();
       Float                     vx = std::abs(p.getV(0));
       Float                     vy = std::abs(p.getV(1));
@@ -136,20 +59,20 @@ void solver::SolverBase::computeDt() {
     }
   }
 
-  Float dx_inv = 1. / grid.getDx();
+  Float dx_inv = 1. / _grid.getDx();
   Float vxdx   = vxmax * dx_inv;
   Float vydx   = vymax * dx_inv;
 
-  dt = params.getCcfl() / (vxdx + vydx);
+  _dt = _params.getCcfl() / (vxdx + vydx);
 
   // sometimes there might be trouble with sharp discontinuities at the
   // beginning, so reduce the timestep for the first few steps.
-  if (step_count <= 5)
-    dt *= 0.2;
+  if (_step_count <= 5)
+    _dt *= 0.2;
 
-  if (dt < cst::DT_MIN) {
+  if (_dt < cst::DT_MIN) {
     std::stringstream msg;
-    msg << "Got weird time step? dt=" << dt;
+    msg << "Got weird time step? dt=" << _dt;
     error(msg.str());
   }
 
@@ -160,11 +83,13 @@ void solver::SolverBase::computeDt() {
 /**
  * @brief Apply the actual time integration step.
  *
- * @param dimension In which dimension to apply the updates.
+ * @param dt_step time interval to integrate over. In more sophisticated
+ * schemes, like MUSCL-Hancock, we do several time integrations over
+ * sub-intervals in a single step. So this is necessary.
  */
-void solver::SolverBase::integrateHydro(const size_t dimension) {
+void solver::SolverBase::integrateHydro(const Float dt_step) {
 
-  message("Integrating dim=" + std::to_string(dimension), logging::LogLevel::Debug);
+  message("Integrating dim=" + std::to_string(_direction), logging::LogLevel::Debug);
   timer::Timer tick(timer::Category::HydroIntegrate);
 
   if (Dimensions != 2) {
@@ -172,28 +97,29 @@ void solver::SolverBase::integrateHydro(const size_t dimension) {
     return;
   }
 
-  size_t first = grid.getFirstCellIndex();
-  size_t last  = grid.getLastCellIndex();
+  size_t first = _grid.getFirstCellIndex();
+  size_t last  = _grid.getLastCellIndex();
 
-  const Float dtdx = dt / grid.getDx();
-  if (dimension == 0) {
+  const Float dtdx = dt_step / _grid.getDx();
+
+  if (_direction == 0) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
-        cell::Cell& left  = grid.getCell(i - 1, j);
-        cell::Cell& right = grid.getCell(i, j);
+        cell::Cell& left  = _grid.getCell(i - 1, j);
+        cell::Cell& right = _grid.getCell(i, j);
         applyTimeUpdate(left, right, dtdx);
       }
     }
-  } else if (dimension == 1) {
+  } else if (_direction == 1) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
-        cell::Cell& left  = grid.getCell(i, j - 1);
-        cell::Cell& right = grid.getCell(i, j);
+        cell::Cell& left  = _grid.getCell(i, j - 1);
+        cell::Cell& right = _grid.getCell(i, j);
         applyTimeUpdate(left, right, dtdx);
       }
     }
   } else {
-    error("Unknown dimension " + std::to_string(dimension));
+    error("Unknown dimension " + std::to_string(_direction));
   }
 
   // timing("Hydro integration took " + tick.tock());
@@ -202,9 +128,7 @@ void solver::SolverBase::integrateHydro(const size_t dimension) {
 
 /**
  * Apply the time update for a pair of cells. This Updates the conserved state
- * using the fluxes in the cells.
- *
- * TODO: Write down equation from theory document
+ * using the fluxes in the cells. Eq. 87 and 91 in theory document.
  *
  * @param right is the cell with index i that we are trying to update;
  * @param left is the cell i-1, which stores the flux at i-1/2
@@ -244,32 +168,35 @@ void solver::SolverBase::solve() {
   timer::Timer tick(timer::Category::SolverTot);
 
   // Fill out conserved variables from read-in primitive ones.
-  grid.convertPrim2Cons();
+  _grid.convertPrim2Cons();
 
 
 #if DEBUG_LEVEL > 1
   // Collect the total mass to verify that we're actually conservative.
-  total_mass_init = grid.collectTotalMass();
+  _total_mass_init = _grid.collectTotalMass();
 #endif
 
-  auto writer = IO::OutputWriter(params, grid);
+  auto writer = IO::OutputWriter(_params, _grid);
 
   // Dump step 0 data first
-  writer.dump(t, step_count);
+  writer.dump(_t, _step_count);
 
   // Get current time step size
   computeDt();
 
   // Show the output header.
   writeLogHeader();
+  bool written_output = false;
 
   // Main loop.
   while (keepRunning()) {
 
-    dt_old = dt;
-
     // Do this first, since it may modify dt.
-    bool write_output = writer.dumpThisStep(step_count, t, dt);
+    bool write_output = writer.dumpThisStep(_step_count, _t, _dt);
+    written_output    = false;
+
+    // Store this time step.
+    _dt_old = _dt;
 
     timer::Timer tickStep(timer::Category::Step);
 
@@ -279,20 +206,104 @@ void solver::SolverBase::solve() {
     std::string timingStep = tickStep.tock();
 
     // update time and step. dt is next time step size at this point.
-    t += dt_old;
-    step_count++;
+    _t += _dt_old;
+    _step_count++;
+
+#if DEBUG_LEVEL > 1
+    // Collect the total mass to verify that we're actually conservative.
+    _total_mass_current = _grid.collectTotalMass();
+#endif
 
     // Write output files
-    if (write_output)
-      writer.dump(t, step_count);
+    if (write_output) {
+      writer.dump(_t, _step_count);
+      written_output = true;
+    }
 
     // Talk to me
     writeLog(timingStep);
   }
 
   // if you haven't written the output in the final step, do it now
-  if (not writer.dumpThisStep(step_count, t, dt))
-    writer.dump(t, step_count);
+  if (not written_output)
+    writer.dump(_t, _step_count);
 
   timing("Main solver took " + tick.tock());
+}
+
+
+/**
+ * @brief Do we need to run another step?
+ */
+bool solver::SolverBase::keepRunning() {
+
+  Float tmax = _params.getTmax();
+  if (tmax > 0. and _t >= tmax)
+    return false;
+
+  size_t nsteps = _params.getNsteps();
+  if (nsteps > 0 and _step_count == nsteps)
+    return false;
+
+  return true;
+}
+
+
+/**
+ * @brief Write a log to screen, if requested.
+ *
+ * @param timingstr: String returned from a timer object
+ * containing the time measurement fo the step to be logged
+ */
+void solver::SolverBase::writeLog(const std::string& timingstr) {
+
+  size_t nstepsLog = _params.getNstepsLog();
+  bool   write     = ((nstepsLog == 0) or (_step_count % nstepsLog == 0));
+  if (not write)
+    return;
+
+  std::stringstream msg;
+  constexpr size_t  w = 14;
+  constexpr size_t  p = 6;
+
+  msg << std::setw(w) << std::left;
+  msg << _step_count;
+  msg << " ";
+  msg << std::setw(w) << std::setprecision(p) << std::scientific << std::left;
+  msg << _t << " ";
+  msg << _dt_old;
+  msg << " ";
+#if DEBUG_LEVEL > 1
+  msg << _total_mass_current / _total_mass_init;
+  msg << " ";
+#endif
+  msg << std::right << std::setw(w) << timingstr;
+  message(msg.str());
+}
+
+
+/**
+ * @brief Write a log to screen, if requested.
+ */
+void solver::SolverBase::writeLogHeader() {
+
+  std::stringstream msg;
+  constexpr size_t  w = 14;
+
+  msg << std::setw(w) << std::left;
+  msg << "step";
+  msg << " ";
+  msg << std::setw(w) << std::left;
+  msg << "time";
+  msg << " ";
+  msg << std::setw(w) << std::left;
+  msg << "dt";
+  msg << " ";
+#if DEBUG_LEVEL > 1
+  msg << std::setw(w) << std::left;
+  msg << "M_now/M_init";
+  msg << " ";
+#endif
+  msg << "step duration";
+  message(msg.str());
 }
