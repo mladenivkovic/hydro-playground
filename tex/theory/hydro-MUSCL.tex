@@ -234,12 +234,11 @@ Additionally, we need to store the evolved extrapolated boundary states
 $\overline{\U}_i^L$ and $\overline{\U}_i^R$ for each cell.
 
 
-\todo{Adapt function name}
-
 We treat the 2D solution using dimensional splitting
 (Section~\ref{chap:dimensional-splitting}). Here, we describe the 1D algorithm.
 
-The \verb|solver_step(...)| function does the following for the 1D case:
+The \verb|solver::SolverMUSCL::step()| function does the following for the
+1D case:
 
 \begin{itemize}
 
