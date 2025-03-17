@@ -114,8 +114,8 @@ void riemann::RiemannHLLC::computeWaveSpeedEstimates() {
     else {
       // If not rarefactions, you'll encounter shocks, so use TSRS solver
 
-      Float AL = cst::TWOOVERGAMMAP1 / rhoL;
-      Float AR = cst::TWOOVERGAMMAP1 / rhoR;
+      Float AL = cst::TWOOVERGP1 / rhoL;
+      Float AR = cst::TWOOVERGP1 / rhoR;
       Float BL = cst::GM1OGP1 * pL;
       Float BR = cst::GM1OGP1 * pR;
 
