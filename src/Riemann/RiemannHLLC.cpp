@@ -12,13 +12,13 @@
  * @return the intercell flux of conserved variables corresponding to the
  * solution sampled at x=0.
  */
-idealGas::ConservedFlux riemann::RiemannHLLC::solve() {
+ConservedFlux RiemannHLLC::solve() {
 
   timer::Timer tick(timer::Category::Riemann);
 
   if (hasVacuum()) {
-    idealGas::PrimitiveState vac = solveVacuum();
-    idealGas::ConservedFlux  sol(vac, _dim);
+    PrimitiveState vac = solveVacuum();
+    ConservedFlux  sol(vac, _dim);
     return sol;
   }
 
@@ -36,7 +36,7 @@ idealGas::ConservedFlux riemann::RiemannHLLC::solve() {
  * pLR:     left or right pressure, depending whether
  *          you want q_L or q_R
  */
-inline Float riemann::RiemannHLLC::_qLR(Float pstar, Float pLR) {
+inline Float RiemannHLLC::_qLR(Float pstar, Float pLR) {
   if (pstar > pLR) {
     // shock relation
     return std::sqrt(1. + 0.5 * cst::GP1 * cst::ONEOVERGAMMA / (pstar / pLR - 1.));
@@ -50,7 +50,7 @@ inline Float riemann::RiemannHLLC::_qLR(Float pstar, Float pLR) {
  * Compute the wave speed (estimates) SL, SR, and Sstar.
  * (Eqs. 76 - 80 in theory document)
  */
-void riemann::RiemannHLLC::computeWaveSpeedEstimates() {
+void RiemannHLLC::computeWaveSpeedEstimates() {
 
   /* Start by computint the simple primitive variable speed estimate */
   /* --------------------------------------------------------------- */
@@ -139,8 +139,8 @@ void riemann::RiemannHLLC::computeWaveSpeedEstimates() {
  * of the Riemann problem.
  * Assumes that the wave speed estimates have been computed already.
  */
-void riemann::RiemannHLLC::computeStarCStates(
-  idealGas::ConservedState& UStarL, idealGas::ConservedState& UStarR
+void RiemannHLLC::computeStarCStates(
+  ConservedState& UStarL, ConservedState& UStarR
 ) {
 
 #if DEBUG_LEVEL > 0
@@ -195,7 +195,7 @@ void riemann::RiemannHLLC::computeStarCStates(
  *
  * @return the intercell flux of primitive variables
  */
-idealGas::ConservedFlux riemann::RiemannHLLC::sampleHLLCSolution() {
+ConservedFlux RiemannHLLC::sampleHLLCSolution() {
 #if DEBUG_LEVEL > 0
   if (_SL == 0. and _SR == 0. and _Sstar == 0.)
     warning("Suspicious wave speed estimates.");
@@ -208,23 +208,23 @@ idealGas::ConservedFlux riemann::RiemannHLLC::sampleHLLCSolution() {
 
   // compute left and right star !conserved! states
 
-  idealGas::ConservedState UL;
+  ConservedState UL;
   UL.fromPrim(_left);
 
-  idealGas::ConservedState UR;
+  ConservedState UR;
   UR.fromPrim(_right);
 
-  idealGas::ConservedState UStarL;
-  idealGas::ConservedState UStarR;
+  ConservedState UStarL;
+  ConservedState UStarR;
 
   computeStarCStates(UStarL, UStarR);
 
   // Compute left and right fluxes
 
-  idealGas::ConservedState FL;
+  ConservedState FL;
   FL.getCFluxFromCstate(UL, _dim);
 
-  idealGas::ConservedState FR;
+  ConservedState FR;
   FR.getCFluxFromCstate(UR, _dim);
 
 
@@ -234,13 +234,13 @@ idealGas::ConservedFlux riemann::RiemannHLLC::sampleHLLCSolution() {
   Float                    rhovLx = FL.getRhov(0) + _SL * (UStarL.getRhov(0) - UL.getRhov(0));
   Float                    rhovLy = FL.getRhov(1) + _SL * (UStarL.getRhov(1) - UL.getRhov(1));
   Float                    EL     = FL.getE() + _SL * (UStarL.getE() - UL.getE());
-  idealGas::ConservedState FstarL(rhoL, rhovLx, rhovLy, EL);
+  ConservedState FstarL(rhoL, rhovLx, rhovLy, EL);
 
   Float                    rhoR   = FR.getRho() + _SR * (UStarR.getRho() - UR.getRho());
   Float                    rhovRx = FR.getRhov(0) + _SR * (UStarR.getRhov(0) - UR.getRhov(0));
   Float                    rhovRy = FR.getRhov(1) + _SR * (UStarR.getRhov(1) - UR.getRhov(1));
   Float                    ER     = FR.getE() + _SR * (UStarR.getE() - UR.getE());
-  idealGas::ConservedState FstarR(rhoR, rhovRx, rhovRy, ER);
+  ConservedState FstarR(rhoR, rhovRx, rhovRy, ER);
 
 
   // finally, sample the solution
@@ -284,6 +284,6 @@ idealGas::ConservedFlux riemann::RiemannHLLC::sampleHLLCSolution() {
   assert(not std::isnan(E_sol));
 #endif
 
-  idealGas::ConservedFlux Fsol(rho_sol, rhovx_sol, rhovy_sol, E_sol);
+  ConservedFlux Fsol(rho_sol, rhovx_sol, rhovy_sol, E_sol);
   return Fsol;
 }

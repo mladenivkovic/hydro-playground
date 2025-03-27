@@ -24,11 +24,11 @@
 /**
  * paramEntry constructors
  */
-IO::ParamEntry::ParamEntry(std::string parameter):
+ParamEntry::ParamEntry(std::string parameter):
   param(std::move(parameter)),
   used(false) {};
 
-IO::ParamEntry::ParamEntry(std::string parameter, std::string value):
+ParamEntry::ParamEntry(std::string parameter, std::string value):
   param(std::move(parameter)),
   value(std::move(value)),
   used(false) {};
@@ -43,7 +43,7 @@ IO::ParamEntry::ParamEntry(std::string parameter, std::string value):
  * @brief Constructor. Takes over cmdline args from main(), checks them,
  * and stores them internally.
  */
-IO::InputParse::InputParse(const int argc, char* argv[]) {
+InputParse::InputParse(const int argc, char* argv[]) {
 
   constexpr int argc_max = 20;
 
@@ -95,7 +95,7 @@ IO::InputParse::InputParse(const int argc, char* argv[]) {
 /**
  * Read the parameter file and fill out the parameters object.
  */
-void IO::InputParse::readParamFile(parameters::Parameters& params) {
+void InputParse::readParamFile(Parameters& params) {
 
   message("Parsing param file.", logging::LogLevel::Verbose);
 
@@ -243,7 +243,7 @@ void IO::InputParse::readParamFile(parameters::Parameters& params) {
 /**
  * Read initial conditions.
  */
-void IO::InputParse::readICFile(grid::Grid& grid) {
+void InputParse::readICFile(Grid& grid) {
 
   logging::setStage(logging::LogStage::IO);
   timer::Timer tick(timer::Category::IC);
@@ -272,7 +272,7 @@ void IO::InputParse::readICFile(grid::Grid& grid) {
  * If something goes wrong during the partising, name and value will be
  * utils::somethingWrong().
  */
-std::pair<std::string, std::string> IO::InputParse::extractParameter(std::string& line) {
+std::pair<std::string, std::string> InputParse::extractParameter(std::string& line) {
 
   std::string name;
   std::string value;
@@ -294,7 +294,7 @@ std::pair<std::string, std::string> IO::InputParse::extractParameter(std::string
 /**
  * Returns the help message.
  */
-std::string IO::InputParse::_helpMessage() {
+std::string InputParse::_helpMessage() {
 
   std::stringstream msg;
   msg << "This is the hydro code help message.\n\nUsage: \n\n";
@@ -318,7 +318,7 @@ std::string IO::InputParse::_helpMessage() {
  * May exit if help flag was raised.
  * Sets the verbosity level if it was provided.
  */
-void IO::InputParse::_checkCmdLineArgsAreValid() {
+void InputParse::_checkCmdLineArgsAreValid() {
 
   // If help is requested, print help and exit.
   if (_commandOptionExists("-h") or _commandOptionExists("--help")) {
@@ -380,7 +380,7 @@ void IO::InputParse::_checkCmdLineArgsAreValid() {
 /**
  * Has a cmdline option been provided?
  */
-bool IO::InputParse::_commandOptionExists(const std::string& option) {
+bool InputParse::_commandOptionExists(const std::string& option) {
 
   auto search = _cmdlargs.find(option);
   return (search != _cmdlargs.end());
@@ -390,7 +390,7 @@ bool IO::InputParse::_commandOptionExists(const std::string& option) {
 /**
  * Get the value provided by the command option @param option.
  */
-std::string IO::InputParse::_getCommandOption(const std::string& option) {
+std::string InputParse::_getCommandOption(const std::string& option) {
 
   auto search = _cmdlargs.find(option);
   if (search == _cmdlargs.end()) {
@@ -407,7 +407,7 @@ std::string IO::InputParse::_getCommandOption(const std::string& option) {
  * Find and list unused parameters. Prints unused params to screen with a
  * warning.
  */
-void IO::InputParse::_checkUnusedParameters() {
+void InputParse::_checkUnusedParameters() {
 
   for (auto& _config_param : _config_params) {
     ParamEntry& entry = _config_param.second;
@@ -430,7 +430,7 @@ void IO::InputParse::_checkUnusedParameters() {
 /**
  * Do we have a two-state format for initial conditions?
  */
-bool IO::InputParse::_icIsTwoState() {
+bool InputParse::_icIsTwoState() {
 
   std::string   line;
   std::ifstream conf_ifs(_icfile);
@@ -475,7 +475,7 @@ bool IO::InputParse::_icIsTwoState() {
 /**
  * Extract the value from a single line of the two-state IC file.
  */
-Float IO::InputParse::_extractTwoStateVal(
+Float InputParse::_extractTwoStateVal(
   std::string& line, const char* expected_name, const char* alternative_name
 ) {
 
@@ -503,7 +503,7 @@ Float IO::InputParse::_extractTwoStateVal(
  * @param line the line to work on
  * @param linenr the current line number in the IC. Used in case of errors.
  */
-idealGas::PrimitiveState IO::InputParse::_extractArbitraryICVal(std::string& line, size_t linenr) {
+PrimitiveState InputParse::_extractArbitraryICVal(std::string& line, size_t linenr) {
 
   Float rho = 0;
   Float vx  = 0;
@@ -549,7 +549,7 @@ idealGas::PrimitiveState IO::InputParse::_extractArbitraryICVal(std::string& lin
     vx  = utils::string2float(split[1]);
     p   = utils::string2float(split[2]);
 
-    return idealGas::PrimitiveState(rho, vx, p);
+    return PrimitiveState(rho, vx, p);
   }
   if (Dimensions == 2) {
 
@@ -565,7 +565,7 @@ idealGas::PrimitiveState IO::InputParse::_extractArbitraryICVal(std::string& lin
     vy  = utils::string2float(split[2]);
     p   = utils::string2float(split[3]);
 
-    return idealGas::PrimitiveState(rho, vx, vy, p);
+    return PrimitiveState(rho, vx, vy, p);
   }
 
   // Dim != 1, != 2
@@ -575,7 +575,7 @@ idealGas::PrimitiveState IO::InputParse::_extractArbitraryICVal(std::string& lin
 
 
 //! Read an IC file with the Two-State format
-void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
+void InputParse::_readTwoStateIC(Grid& grid) {
 
   // first, read the file.
   std::string   line;
@@ -618,15 +618,15 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
   std::getline(icts_ifs, line);
   Float p_R = _extractTwoStateVal(line, "p_R");
 
-  idealGas::PrimitiveState left;
-  idealGas::PrimitiveState right;
+  PrimitiveState left;
+  PrimitiveState right;
 
   if (Dimensions == 1) {
-    left  = idealGas::PrimitiveState(rho_L, v_L, p_L);
-    right = idealGas::PrimitiveState(rho_R, v_R, p_R);
+    left  = PrimitiveState(rho_L, v_L, p_L);
+    right = PrimitiveState(rho_R, v_R, p_R);
   } else if (Dimensions == 2) {
-    left  = idealGas::PrimitiveState(rho_L, v_L, 0., p_L);
-    right = idealGas::PrimitiveState(rho_R, v_R, 0., p_R);
+    left  = PrimitiveState(rho_L, v_L, 0., p_L);
+    right = PrimitiveState(rho_R, v_R, 0., p_R);
   } else {
     error("Not Implemented.");
   }
@@ -642,11 +642,11 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
   if (Dimensions == 1) {
 
     for (size_t i = first; i < nxhalf; i++) {
-      cell::Cell& c = grid.getCell(i);
+      Cell& c = grid.getCell(i);
       c.setPrim(left);
     }
     for (size_t i = nxhalf; i < last; i++) {
-      cell::Cell& c = grid.getCell(i);
+      Cell& c = grid.getCell(i);
       c.setPrim(right);
     }
 
@@ -654,11 +654,11 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
 
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < nxhalf; i++) {
-        cell::Cell& c = grid.getCell(i, j);
+        Cell& c = grid.getCell(i, j);
         c.setPrim(left);
       }
       for (size_t i = nxhalf; i < last; i++) {
-        cell::Cell& c = grid.getCell(i, j);
+        Cell& c = grid.getCell(i, j);
         c.setPrim(right);
       }
     }
@@ -670,7 +670,7 @@ void IO::InputParse::_readTwoStateIC(grid::Grid& grid) {
 
 
 //! Read an IC file with the arbitrary format
-void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
+void InputParse::_readArbitraryIC(Grid& grid) {
 
   // first, read the file.
   std::string                         nocomment;
@@ -770,7 +770,7 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
       if (utils::isComment(line) or utils::isWhitespace(line))
         continue;
 
-      idealGas::PrimitiveState pstate = _extractArbitraryICVal(line, linenr);
+      PrimitiveState pstate = _extractArbitraryICVal(line, linenr);
       grid.getCell(i, j).setPrim(pstate);
       i++;
 
@@ -795,7 +795,7 @@ void IO::InputParse::_readArbitraryIC(grid::Grid& grid) {
 /**
  * Generate the output file name to write into.
  */
-std::string IO::OutputWriter::_getOutputFileName() {
+std::string OutputWriter::_getOutputFileName() {
 
   std::stringstream fname;
   if (_params.getOutputFileBase() == "") {
@@ -814,7 +814,7 @@ std::string IO::OutputWriter::_getOutputFileName() {
 /**
  * Write the output.
  */
-void IO::OutputWriter::dump(Float t_current, size_t step) {
+void OutputWriter::dump(Float t_current, size_t step) {
 
   if (Dimensions != 2) {
     error("Not Implemented Yet");
@@ -851,13 +851,13 @@ void IO::OutputWriter::dump(Float t_current, size_t step) {
 
   for (size_t j = first; j < last; j++) {
     for (size_t i = first; i < last; i++) {
-      cell::Cell& c = _grid.getCell(i, j);
+      Cell& c = _grid.getCell(i, j);
       out << std::setw(fwidth) << std::scientific << std::setprecision(fprec) << c.getX();
       out << " ";
       out << c.getY();
       out << " ";
 
-      idealGas::PrimitiveState& p = c.getPrim();
+      PrimitiveState& p = c.getPrim();
       out << p.getRho();
       out << " ";
       out << p.getV(0);
@@ -893,7 +893,7 @@ void IO::OutputWriter::dump(Float t_current, size_t step) {
  * @param tCurrent the current simulation time
  * @param dtCurrent the current simulation time step size
  */
-bool IO::OutputWriter::dumpThisStep(size_t current_step, Float t_current, Float& dt_current) {
+bool OutputWriter::dumpThisStep(size_t current_step, Float t_current, Float& dt_current) {
 
   if (_params.getDtOut() > 0.) {
     // We're writing outputs based on time intervals.

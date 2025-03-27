@@ -11,7 +11,7 @@
  *
  * Section 3.5 in theory document, and eq. 86
  */
-bool riemann::RiemannBase::hasVacuum() {
+bool RiemannBase::hasVacuum() {
 
   if (_left.getRho() <= cst::SMALLRHO)
     return true;
@@ -31,7 +31,7 @@ bool riemann::RiemannBase::hasVacuum() {
  * @return the state in primitive variables corresponding to the solution
  * sampled at x=0.
  */
-idealGas::PrimitiveState riemann::RiemannBase::solveVacuum() {
+PrimitiveState RiemannBase::solveVacuum() {
 
   size_t otherdim = (_dim + 1) % 2;
   // x / t. We always center the problem at x=0, but to sample the solution in
@@ -55,7 +55,7 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum() {
 
   // Both vacuum states
   if (rhoL <= cst::SMALLRHO and rhoR <= cst::SMALLRHO) {
-    return idealGas::PrimitiveState(cst::SMALLRHO, cst::SMALLV, cst::SMALLV, cst::SMALLP);
+    return PrimitiveState(cst::SMALLRHO, cst::SMALLV, cst::SMALLV, cst::SMALLP);
   }
 
   Float rho_sol    = NAN;
@@ -181,7 +181,7 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum() {
   assert(not std::isnan(p_sol));
 #endif
 
-  idealGas::PrimitiveState sol(rho_sol, 0., 0., p_sol);
+  PrimitiveState sol(rho_sol, 0., 0., p_sol);
   sol.setV(_dim, vdim_sol);
   sol.setV(otherdim, vother_sol);
   return sol;
@@ -194,7 +194,7 @@ idealGas::PrimitiveState riemann::RiemannBase::solveVacuum() {
  * cell interface.
  * Section 3.6 in theory document.
  */
-idealGas::ConservedFlux riemann::RiemannBase::sampleSolution() {
+ConservedFlux RiemannBase::sampleSolution() {
 
   constexpr Float xovert   = 0.;
   size_t          otherdim = (_dim + 1) % 2;
@@ -349,8 +349,8 @@ idealGas::ConservedFlux riemann::RiemannBase::sampleSolution() {
   v_sol[_dim]     = vdim_sol;
   v_sol[otherdim] = vother_sol;
 
-  idealGas::PrimitiveState sol(rho_sol, v_sol, p_sol);
+  PrimitiveState sol(rho_sol, v_sol, p_sol);
 
-  idealGas::ConservedFlux Fsol(sol, _dim);
+  ConservedFlux Fsol(sol, _dim);
   return Fsol;
 }

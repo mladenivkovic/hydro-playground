@@ -281,55 +281,55 @@ void testExtractParamLine() {
   std::string                         value;
   std::string                         no = utils::somethingWrong();
 
-  out   = IO::InputParse::extractParameter(line_valid1);
+  out   = InputParse::extractParameter(line_valid1);
   name  = out.first;
   value = out.second;
   if (name != "myname" or value != "myvalue")
     error("Wrong: '" + name + "', '" + value + "'");
 
-  out   = IO::InputParse::extractParameter(line_valid2);
+  out   = InputParse::extractParameter(line_valid2);
   name  = out.first;
   value = out.second;
   if (name != "mynameNospace" or value != "myvalueNospace")
     error("Wrong: '" + name + "', '" + value + "'");
 
-  out   = IO::InputParse::extractParameter(line_valid3);
+  out   = InputParse::extractParameter(line_valid3);
   name  = out.first;
   value = out.second;
   if (name != "mynameStartWithSpace" or value != "myvalueNospace")
     error("Wrong: '" + name + "', '" + value + "'");
 
-  out   = IO::InputParse::extractParameter(line_valid4);
+  out   = InputParse::extractParameter(line_valid4);
   name  = out.first;
   value = out.second;
   if (name != "mynameStartWithSpace" or value != "myvalueNospace")
     error("Wrong: '" + name + "', '" + value + "'");
 
-  out   = IO::InputParse::extractParameter(line_valid5);
+  out   = InputParse::extractParameter(line_valid5);
   name  = out.first;
   value = out.second;
   if (name != "mynameStartWithSpace" or value != "myvalueNospace")
     error("Wrong: '" + name + "', '" + value + "'");
 
-  out   = IO::InputParse::extractParameter(line_1);
+  out   = InputParse::extractParameter(line_1);
   name  = out.first;
   value = out.second;
   if (name != "" or value != "")
     error("Wrong: '" + name + "', '" + value + "'");
 
-  out   = IO::InputParse::extractParameter(line_2);
+  out   = InputParse::extractParameter(line_2);
   name  = out.first;
   value = out.second;
   if (name != "" or value != "")
     error("Wrong: '" + name + "', '" + value + "'");
 
-  out   = IO::InputParse::extractParameter(line_3);
+  out   = InputParse::extractParameter(line_3);
   name  = out.first;
   value = out.second;
   if (name != no or value != no)
     error("Wrong: '" + name + "', '" + value + "'");
 
-  out   = IO::InputParse::extractParameter(line_4);
+  out   = InputParse::extractParameter(line_4);
   name  = out.first;
   value = out.second;
   if (name != "" or value != "")

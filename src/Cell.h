@@ -5,9 +5,7 @@
 #include "Logging.h"
 
 
-namespace cell {
-
-  class Cell {
+class Cell {
 
   public:
     //! Standard constructor
@@ -34,21 +32,21 @@ namespace cell {
     Float _y;
 
     //! Primitive gas state
-    idealGas::PrimitiveState _prim;
+    PrimitiveState _prim;
 
     //! Conserved gas state
-    idealGas::ConservedState _cons;
+    ConservedState _cons;
 
     //! Fluxes of primitive state
-    // idealGas::PrimitiveState _pflux;
+    // PrimitiveState _pflux;
 
     //! Fluxes of conserved state
-    idealGas::ConservedState _cflux;
+    ConservedState _cflux;
 
 #if SOLVER == SOLVER_MUSCL
     //! Intermediate extrapolated states
-    idealGas::ConservedState U_left_mid;
-    idealGas::ConservedState U_right_mid;
+    ConservedState U_left_mid;
+    ConservedState U_right_mid;
 #endif
 
   public:
@@ -69,99 +67,98 @@ namespace cell {
     // std::pair<std::size_t, std::size_t> getIJ(const std::size_t nxtot);
 
     //! Getters and setters
-    idealGas::PrimitiveState& getPrim();
-    idealGas::ConservedState& getCons();
+    PrimitiveState& getPrim();
+    ConservedState& getCons();
     // const versions to shush the compiler
-    [[nodiscard]] const idealGas::PrimitiveState& getPrim() const;
-    [[nodiscard]] const idealGas::ConservedState& getCons() const;
-    void                                          setPrim(const idealGas::PrimitiveState& prim);
-    void                                          setCons(const idealGas::ConservedState& cons);
+    [[nodiscard]] const PrimitiveState& getPrim() const;
+    [[nodiscard]] const ConservedState& getCons() const;
+    void                                          setPrim(const PrimitiveState& prim);
+    void                                          setCons(const ConservedState& cons);
 
-    // idealGas::PrimitiveState& getPFlux();
+    // PrimitiveState& getPFlux();
 
-    idealGas::ConservedState& getCFlux();
-    void                      setCFlux(idealGas::ConservedFlux& flux);
+    ConservedState& getCFlux();
+    void                      setCFlux(ConservedFlux& flux);
 
-    idealGas::ConservedState& getULMid();
-    idealGas::ConservedState& getURMid();
-    void                      setULMid(const idealGas::ConservedState& state);
-    void                      setURMid(const idealGas::ConservedState& state);
-  };
+    ConservedState& getULMid();
+    ConservedState& getURMid();
+    void                      setULMid(const ConservedState& state);
+    void                      setURMid(const ConservedState& state);
+};
 
-} // namespace cell
 
 
 // --------------------------------------------------------
 // Definitions
 // --------------------------------------------------------
 
-inline void cell::Cell::cons2prim() {
+inline void Cell::cons2prim() {
   _prim.fromCons(_cons);
 };
 
 
-inline void cell::Cell::prim2cons() {
+inline void Cell::prim2cons() {
   _cons.fromPrim(_prim);
 };
 
 
 //! Set cell centre position X
-inline void cell::Cell::setX(const Float x) {
+inline void Cell::setX(const Float x) {
   _x = x;
 }
 
-inline Float cell::Cell::getX() const {
+inline Float Cell::getX() const {
   return _x;
 }
 
 
 //! Set cell centre position Y
-inline void cell::Cell::setY(const Float y) {
+inline void Cell::setY(const Float y) {
   _y = y;
 }
 
 
-inline Float cell::Cell::getY() const {
+inline Float Cell::getY() const {
   return _y;
 }
 
 
-// inline void cell::Cell::setId(const size_t id) {
+// inline void Cell::setId(const size_t id) {
 //   _id = id;
 // }
 
 
-// inline size_t cell::Cell::getID() const {
+// inline size_t Cell::getID() const {
 //   return _id;
 // }
 
 
-inline idealGas::PrimitiveState& cell::Cell::getPrim() {
+inline PrimitiveState& Cell::getPrim() {
   return _prim;
 }
 
 
-inline idealGas::ConservedState& cell::Cell::getCons() {
+inline ConservedState& Cell::getCons() {
   return _cons;
 }
 
 
-// inline idealGas::PrimitiveState& cell::Cell::getPFlux() {
+// inline PrimitiveState& Cell::getPFlux() {
 //   return _pflux;
 // }
 
 
-inline idealGas::ConservedState& cell::Cell::getCFlux() {
+inline ConservedState& Cell::getCFlux() {
   return _cflux;
 }
 
 
-inline void cell::Cell::setCFlux(idealGas::ConservedFlux& flux) {
+inline void Cell::setCFlux(ConservedFlux& flux) {
   _cflux = flux;
 }
 
 
-inline idealGas::ConservedState& cell::Cell::getULMid() {
+inline ConservedState& Cell::getULMid() {
 #if SOLVER == SOLVER_MUSCL
   return U_left_mid;
 #else
@@ -171,7 +168,7 @@ inline idealGas::ConservedState& cell::Cell::getULMid() {
 }
 
 
-inline idealGas::ConservedState& cell::Cell::getURMid() {
+inline ConservedState& Cell::getURMid() {
 #if SOLVER == SOLVER_MUSCL
   return U_right_mid;
 #else
@@ -181,7 +178,7 @@ inline idealGas::ConservedState& cell::Cell::getURMid() {
 }
 
 
-inline void cell::Cell::setULMid(const idealGas::ConservedState& state) {
+inline void Cell::setULMid(const ConservedState& state) {
 #if SOLVER == SOLVER_MUSCL
   U_left_mid = state;
 #else
@@ -190,7 +187,7 @@ inline void cell::Cell::setULMid(const idealGas::ConservedState& state) {
 }
 
 
-inline void cell::Cell::setURMid(const idealGas::ConservedState& state) {
+inline void Cell::setURMid(const ConservedState& state) {
 #if SOLVER == SOLVER_MUSCL
   U_right_mid = state;
 #else
@@ -199,21 +196,21 @@ inline void cell::Cell::setURMid(const idealGas::ConservedState& state) {
 }
 
 
-inline const idealGas::PrimitiveState& cell::Cell::getPrim() const {
+inline const PrimitiveState& Cell::getPrim() const {
   return _prim;
 }
 
 
-inline const idealGas::ConservedState& cell::Cell::getCons() const {
+inline const ConservedState& Cell::getCons() const {
   return _cons;
 }
 
 
-inline void cell::Cell::setPrim(const idealGas::PrimitiveState& prim) {
+inline void Cell::setPrim(const PrimitiveState& prim) {
   _prim = prim;
 }
 
 
-inline void cell::Cell::setCons(const idealGas::ConservedState& cons) {
+inline void Cell::setCons(const ConservedState& cons) {
   _cons = cons;
 }

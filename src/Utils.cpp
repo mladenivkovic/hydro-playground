@@ -124,7 +124,7 @@ void utils::printHeader() {
 
   std::stringstream cellsize;
   cellsize << std::setw(w) << std::left;
-  cellsize << "sizeof(cell::Cell): " << sizeof(cell::Cell);
+  cellsize << "sizeof(cell::Cell): " << sizeof(Cell);
   message(cellsize.str());
 
 #if DEBUG_LEVEL > 0

@@ -8,43 +8,40 @@
 #include "Gas.h"
 #include "RiemannBase.h"
 
-namespace riemann {
+/**
+ * The Exact riemann solver.
+ */
+class RiemannExact: public RiemannBase {
 
-  /**
-   * The Exact riemann solver.
-   */
-  class RiemannExact: public RiemannBase {
+private:
+  //! Compute the star state pressure and velocity iteratively.
+  void computeStarStates();
 
-  private:
-    //! Compute the star state pressure and velocity iteratively.
-    void computeStarStates();
+  //! f(p)
+  Float fp(
+    const Float                     pguess,
+    const PrimitiveState& state,
+    const Float                     A,
+    const Float                     B,
+    const Float                     cs
+  );
 
-    //!
-    Float fp(
-      const Float                     pguess,
-      const idealGas::PrimitiveState& state,
-      const Float                     A,
-      const Float                     B,
-      const Float                     cs
-    );
-
-    //!
-    Float dfpdp(
-      const Float                     pguess,
-      const idealGas::PrimitiveState& state,
-      const Float                     A,
-      const Float                     B,
-      const Float                     cs
-    );
+  //! df(p)/dp
+  Float dfpdp(
+    const Float                     pguess,
+    const PrimitiveState& state,
+    const Float                     A,
+    const Float                     B,
+    const Float                     cs
+  );
 
 
-  public:
-    RiemannExact(idealGas::PrimitiveState& l, idealGas::PrimitiveState& r, const size_t dimension):
-      RiemannBase(l, r, dimension) {};
-    ~RiemannExact() = default;
+public:
+  RiemannExact(PrimitiveState& l, PrimitiveState& r, const size_t dimension):
+    RiemannBase(l, r, dimension) {};
+  ~RiemannExact() = default;
 
-    //! Call the actual solver.
-    idealGas::ConservedFlux solve() override;
-  };
+  //! Call the actual solver.
+  ConservedFlux solve() override;
+};
 
-} // namespace riemann

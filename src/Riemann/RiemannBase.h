@@ -10,48 +10,44 @@
 #include "Logging.h"
 
 
-namespace riemann {
+class RiemannBase {
 
+protected:
+  //! The left state
+  PrimitiveState& _left;
 
-  class RiemannBase {
+  //! The right state
+  PrimitiveState& _right;
 
-  protected:
-    //! The left state
-    idealGas::PrimitiveState& _left;
+  //! Star state pressure
+  Float _pstar;
 
-    //! The right state
-    idealGas::PrimitiveState& _right;
+  //! Star state velocity
+  Float _vstar;
 
-    //! Star state pressure
-    Float _pstar;
+  //! In which dimension/direction to solve the problem.
+  size_t _dim;
 
-    //! Star state velocity
-    Float _vstar;
+  //! Do we have vacuum generating conditions?
+  bool hasVacuum();
 
-    //! In which dimension/direction to solve the problem.
-    size_t _dim;
+  //! Get the vacuum solution
+  PrimitiveState solveVacuum();
 
-    //! Do we have vacuum generating conditions?
-    bool hasVacuum();
+  //! Sample the solved Riemann problem.
+  ConservedFlux sampleSolution();
 
-    //! Get the vacuum solution
-    idealGas::PrimitiveState solveVacuum();
+public:
+  RiemannBase(PrimitiveState& l, PrimitiveState& r, const size_t dimension):
+    _left(l),
+    _right(r),
+    _dim(dimension) {};
+  ~RiemannBase() = default;
 
-    //! Sample the solved Riemann problem.
-    idealGas::ConservedFlux sampleSolution();
+  //! Call the actual solver.
+  virtual ConservedFlux solve() {
+    error("Shouldn't be called.");
+    return {};
+  }
+};
 
-  public:
-    RiemannBase(idealGas::PrimitiveState& l, idealGas::PrimitiveState& r, const size_t dimension):
-      _left(l),
-      _right(r),
-      _dim(dimension) {};
-    ~RiemannBase() = default;
-
-    //! Call the actual solver.
-    virtual idealGas::ConservedFlux solve() {
-      error("Shouldn't be called.");
-      return {};
-    }
-  };
-
-} // namespace riemann

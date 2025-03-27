@@ -8,23 +8,20 @@
 #include "SolverBase.h"
 
 
-namespace solver {
+class SolverGodunov: public SolverBase {
 
-  class SolverGodunov: public SolverBase {
+  //! Compute the intercell fluxes needed for the update
+  void computeFluxes();
 
-    //! Compute the intercell fluxes needed for the update
-    void computeFluxes();
+  //! Compute the intercell fluxes between two cells along the given
+  //! dimension.
+  void computeIntercellFluxes(Cell& left, Cell& right);
 
-    //! Compute the intercell fluxes between two cells along the given
-    //! dimension.
-    void computeIntercellFluxes(cell::Cell& left, cell::Cell& right);
+public:
+  SolverGodunov(Parameters& params_, Grid& grid_);
+  ~SolverGodunov() = default;
 
-  public:
-    SolverGodunov(parameters::Parameters& params_, grid::Grid& grid_);
-    ~SolverGodunov() = default;
+  //! Run a single step.
+  void step() override;
+};
 
-    //! Run a single step.
-    void step() override;
-  };
-
-} // namespace solver
