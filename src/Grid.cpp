@@ -95,7 +95,7 @@ void Grid::initCells() {
     // set cell positions and IDs
     for (size_t i = 0; i < nxTot; i++) {
       Cell& c = getCell(i);
-      Float       x = (static_cast<Float>(i - first) + 0.5) * dx;
+      Float x = (static_cast<Float>(i - first) + 0.5) * dx;
       c.setX(x);
       // c.setId(i);
     }
@@ -110,8 +110,8 @@ void Grid::initCells() {
     for (size_t i = 0; i < nxTot; i++) {
       for (size_t j = 0; j < nxTot; j++) {
         Cell& c = getCell(i, j);
-        Float       x = (static_cast<Float>(i - first) + 0.5) * dx;
-        Float       y = (static_cast<Float>(j - first) + 0.5) * dx;
+        Float x = (static_cast<Float>(i - first) + 0.5) * dx;
+        Float y = (static_cast<Float>(j - first) + 0.5) * dx;
         c.setX(x);
         c.setY(y);
         // c.setId(i + j * nxTot);
@@ -406,7 +406,7 @@ void Grid::realToGhost(
   std::vector<Cell*> real_right,
   std::vector<Cell*> ghost_left,
   std::vector<Cell*> ghost_right,
-  const size_t             dimension
+  const size_t       dimension
 ) // dimension defaults to 0
 {
 

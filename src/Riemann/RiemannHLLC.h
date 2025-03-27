@@ -47,4 +47,3 @@ public:
   //! Call the actual solver.
   ConservedFlux solve() override;
 };
-

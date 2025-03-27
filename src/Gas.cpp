@@ -57,9 +57,7 @@ PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float p) {
  * @brief Specialized constructor with initial values for 2D.
  * Using setters instead of initialiser lists so the debugging checks kick in.
  */
-PrimitiveState::PrimitiveState(
-  const Float rho, const Float vx, const Float vy, const Float p
-) {
+PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float vy, const Float p) {
 #if DEBUG_LEVEL > 0
   if (Dimensions != 2) {
     error("This is a 2D function only!");
@@ -152,9 +150,7 @@ ConservedState::ConservedState(
  * Initialise a conserved flux along a dimension using primitive variables of
  * the state.
  */
-ConservedState::ConservedState(
-  const PrimitiveState& prim, const size_t dimension
-) {
+ConservedState::ConservedState(const PrimitiveState& prim, const size_t dimension) {
 
   getCFluxFromPState(prim, dimension);
 }
@@ -186,9 +182,7 @@ void ConservedState::fromPrim(const PrimitiveState& p) {
  * The flux terms for each dimension are given as the second and
  * third term in Eq. 13.
  */
-void ConservedState::getCFluxFromPState(
-  const PrimitiveState& pstate, const size_t dimension
-) {
+void ConservedState::getCFluxFromPState(const PrimitiveState& pstate, const size_t dimension) {
 
   size_t other  = (dimension + 1) % 2;
   Float  rho    = pstate.getRho();
@@ -223,9 +217,7 @@ void ConservedState::getCFluxFromPState(
  * The flux terms for each dimension are given as the second and
  * third term in Eq. 13.
  */
-void ConservedState::getCFluxFromCstate(
-  const ConservedState& cons, const size_t dimension
-) {
+void ConservedState::getCFluxFromCstate(const ConservedState& cons, const size_t dimension) {
 
   // Mass flux
   Float rho = cons.getRho();

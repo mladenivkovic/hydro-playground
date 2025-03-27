@@ -229,18 +229,18 @@ inline Float PrimitiveState::getP() const {
 
 
 /**
-* Compute the local sound speed given a primitive state.
-* Eq. 6
-*/
+ * Compute the local sound speed given a primitive state.
+ * Eq. 6
+ */
 inline Float PrimitiveState::getSoundSpeed() const {
   return std::sqrt(cst::GAMMA * getP() / getRho());
 }
 
 
 /**
-* Get the total gas energy from a primitive state.
-* Eq. 18
-*/
+ * Get the total gas energy from a primitive state.
+ * Eq. 18
+ */
 inline Float PrimitiveState::getE() const {
 
   return 0.5 * getRho() * getVSquared() + getP() * cst::ONEOVERGM1;

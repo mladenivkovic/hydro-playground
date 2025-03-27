@@ -24,4 +24,3 @@ public:
   //! Run a single step.
   void step() override;
 };
-

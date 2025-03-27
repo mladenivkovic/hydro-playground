@@ -108,11 +108,7 @@ inline void RiemannExact::computeStarStates() {
  * @param cs  soundspeed of state
  */
 inline Float RiemannExact::fp(
-  const Float                     pguess,
-  const PrimitiveState& state,
-  const Float                     A,
-  const Float                     B,
-  const Float                     cs
+  const Float pguess, const PrimitiveState& state, const Float A, const Float B, const Float cs
 ) {
 
   Float p = state.getP();
@@ -137,11 +133,7 @@ inline Float RiemannExact::fp(
  * @param cs  soundspeed of state
  */
 inline Float RiemannExact::dfpdp(
-  const Float                     pguess,
-  const PrimitiveState& state,
-  const Float                     A,
-  const Float                     B,
-  const Float                     cs
+  const Float pguess, const PrimitiveState& state, const Float A, const Float B, const Float cs
 ) {
 
   Float p   = state.getP();

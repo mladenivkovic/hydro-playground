@@ -56,8 +56,8 @@ void SolverGodunov::computeFluxes() {
  */
 void SolverGodunov::computeIntercellFluxes(Cell& left, Cell& right) {
 
-  riemann::Riemann        solver(left.getPrim(), right.getPrim(), _direction);
-  ConservedFlux csol = solver.solve();
+  riemann::Riemann solver(left.getPrim(), right.getPrim(), _direction);
+  ConservedFlux    csol = solver.solve();
 
   left.setCFlux(csol);
 }

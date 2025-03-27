@@ -44,8 +44,8 @@ void SolverMUSCL::computeIntercellFluxes(Cell& left, Cell& right) {
   PrimitiveState WR;
   WR.fromCons(right.getULMid());
 
-  riemann::Riemann        solver(WL, WR, _direction);
-  ConservedFlux csol = solver.solve();
+  riemann::Riemann solver(WL, WR, _direction);
+  ConservedFlux    csol = solver.solve();
 
   left.setCFlux(csol);
 }
@@ -60,10 +60,7 @@ void SolverMUSCL::computeIntercellFluxes(Cell& left, Cell& right) {
  * intermediate state for each cell, and stores them in the cell.
  */
 void SolverMUSCL::getBoundaryExtrapolatedValues(
-  Cell&                     c,
-  const ConservedState& UiP1,
-  const ConservedState& UiM1,
-  const Float                     dt_half
+  Cell& c, const ConservedState& UiP1, const ConservedState& UiM1, const Float dt_half
 ) {
 
   using CState = ConservedState;
@@ -148,13 +145,13 @@ void SolverMUSCL::computeFluxes(const Float dt_step) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
 
-        Cell& cp1  = _grid.getCell(i + 1, j);
-        CState      UiP1 = cp1.getCons();
+        Cell&  cp1  = _grid.getCell(i + 1, j);
+        CState UiP1 = cp1.getCons();
 
         Cell& c = _grid.getCell(i, j);
 
-        Cell& cm1  = _grid.getCell(i - 1, j);
-        CState      UiM1 = cm1.getCons();
+        Cell&  cm1  = _grid.getCell(i - 1, j);
+        CState UiM1 = cm1.getCons();
 
         getBoundaryExtrapolatedValues(c, UiP1, UiM1, dt_half);
       }
@@ -178,13 +175,13 @@ void SolverMUSCL::computeFluxes(const Float dt_step) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
 
-        Cell& cp1  = _grid.getCell(i, j + 1);
-        CState      UiP1 = cp1.getCons();
+        Cell&  cp1  = _grid.getCell(i, j + 1);
+        CState UiP1 = cp1.getCons();
 
         Cell& c = _grid.getCell(i, j);
 
-        Cell& cm1  = _grid.getCell(i, j - 1);
-        CState      UiM1 = cm1.getCons();
+        Cell&  cm1  = _grid.getCell(i, j - 1);
+        CState UiM1 = cm1.getCons();
 
         getBoundaryExtrapolatedValues(c, UiP1, UiM1, dt_half);
       }

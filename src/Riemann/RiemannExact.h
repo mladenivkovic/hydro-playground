@@ -19,20 +19,12 @@ private:
 
   //! f(p)
   Float fp(
-    const Float                     pguess,
-    const PrimitiveState& state,
-    const Float                     A,
-    const Float                     B,
-    const Float                     cs
+    const Float pguess, const PrimitiveState& state, const Float A, const Float B, const Float cs
   );
 
   //! df(p)/dp
   Float dfpdp(
-    const Float                     pguess,
-    const PrimitiveState& state,
-    const Float                     A,
-    const Float                     B,
-    const Float                     cs
+    const Float pguess, const PrimitiveState& state, const Float A, const Float B, const Float cs
   );
 
 
@@ -44,4 +36,3 @@ public:
   //! Call the actual solver.
   ConservedFlux solve() override;
 };
-

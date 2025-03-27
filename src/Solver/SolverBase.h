@@ -10,7 +10,6 @@
 #include "Parameters.h"
 
 
-
 class SolverBase {
 
 protected:
@@ -70,4 +69,3 @@ public:
     error("This should never be called.");
   };
 };
-

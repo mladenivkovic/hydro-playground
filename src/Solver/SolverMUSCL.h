@@ -14,10 +14,7 @@ class SolverMUSCL: public SolverBase {
 
   //! Compute the boundary extrapolated values.
   void getBoundaryExtrapolatedValues(
-    Cell&                     c,
-    const ConservedState& UiP1,
-    const ConservedState& UiM1,
-    const Float                     dt_half
+    Cell& c, const ConservedState& UiP1, const ConservedState& UiM1, const Float dt_half
   );
 
   //! Compute the intercell fluxes between two cells along the given
@@ -31,4 +28,3 @@ public:
   //! Run a single step.
   void step() override;
 };
-

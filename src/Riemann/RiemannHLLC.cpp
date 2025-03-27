@@ -139,9 +139,7 @@ void RiemannHLLC::computeWaveSpeedEstimates() {
  * of the Riemann problem.
  * Assumes that the wave speed estimates have been computed already.
  */
-void RiemannHLLC::computeStarCStates(
-  ConservedState& UStarL, ConservedState& UStarR
-) {
+void RiemannHLLC::computeStarCStates(ConservedState& UStarL, ConservedState& UStarR) {
 
 #if DEBUG_LEVEL > 0
   if (_SL == 0. and _SR == 0. and _Sstar == 0.)
@@ -230,16 +228,16 @@ ConservedFlux RiemannHLLC::sampleHLLCSolution() {
 
   // Compute left and right star fluxes
 
-  Float                    rhoL   = FL.getRho() + _SL * (UStarL.getRho() - UL.getRho());
-  Float                    rhovLx = FL.getRhov(0) + _SL * (UStarL.getRhov(0) - UL.getRhov(0));
-  Float                    rhovLy = FL.getRhov(1) + _SL * (UStarL.getRhov(1) - UL.getRhov(1));
-  Float                    EL     = FL.getE() + _SL * (UStarL.getE() - UL.getE());
+  Float          rhoL   = FL.getRho() + _SL * (UStarL.getRho() - UL.getRho());
+  Float          rhovLx = FL.getRhov(0) + _SL * (UStarL.getRhov(0) - UL.getRhov(0));
+  Float          rhovLy = FL.getRhov(1) + _SL * (UStarL.getRhov(1) - UL.getRhov(1));
+  Float          EL     = FL.getE() + _SL * (UStarL.getE() - UL.getE());
   ConservedState FstarL(rhoL, rhovLx, rhovLy, EL);
 
-  Float                    rhoR   = FR.getRho() + _SR * (UStarR.getRho() - UR.getRho());
-  Float                    rhovRx = FR.getRhov(0) + _SR * (UStarR.getRhov(0) - UR.getRhov(0));
-  Float                    rhovRy = FR.getRhov(1) + _SR * (UStarR.getRhov(1) - UR.getRhov(1));
-  Float                    ER     = FR.getE() + _SR * (UStarR.getE() - UR.getE());
+  Float          rhoR   = FR.getRho() + _SR * (UStarR.getRho() - UR.getRho());
+  Float          rhovRx = FR.getRhov(0) + _SR * (UStarR.getRhov(0) - UR.getRhov(0));
+  Float          rhovRy = FR.getRhov(1) + _SR * (UStarR.getRhov(1) - UR.getRhov(1));
+  Float          ER     = FR.getE() + _SR * (UStarR.getE() - UR.getE());
   ConservedState FstarR(rhoR, rhovRx, rhovRy, ER);
 
 

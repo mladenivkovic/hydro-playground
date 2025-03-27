@@ -47,15 +47,15 @@ void SolverBase::computeDt() {
 
   for (size_t j = first; j < last; j++) {
     for (size_t i = first; i < last; i++) {
-      Cell&               c  = _grid.getCell(i, j);
+      Cell&           c  = _grid.getCell(i, j);
       PrimitiveState& p  = c.getPrim();
-      Float                     vx = std::abs(p.getV(0));
-      Float                     vy = std::abs(p.getV(1));
-      Float                     a  = p.getSoundSpeed();
-      Float                     Sx = a + vx;
-      vxmax                        = Sx > vxmax ? Sx : vxmax;
-      Float Sy                     = a + vy;
-      vymax                        = Sy > vymax ? Sy : vymax;
+      Float           vx = std::abs(p.getV(0));
+      Float           vy = std::abs(p.getV(1));
+      Float           a  = p.getSoundSpeed();
+      Float           Sx = a + vx;
+      vxmax              = Sx > vxmax ? Sx : vxmax;
+      Float Sy           = a + vy;
+      vymax              = Sy > vymax ? Sy : vymax;
     }
   }
 
