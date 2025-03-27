@@ -10,7 +10,7 @@
 #include "Riemann.h"
 #include "Timer.h"
 
-solver::SolverGodunov::SolverGodunov(parameters::Parameters& params_, grid::Grid& grid_):
+SolverGodunov::SolverGodunov(Parameters& params_, Grid& grid_):
   SolverBase(params_, grid_) {
 }
 
@@ -20,7 +20,7 @@ solver::SolverGodunov::SolverGodunov(parameters::Parameters& params_, grid::Grid
  * direction of @param dimension.
  * This is where we solve the Riemann problems.
  */
-void solver::SolverGodunov::computeFluxes() {
+void SolverGodunov::computeFluxes() {
 
   timer::Timer tick(timer::Category::HydroFluxes);
 
@@ -31,16 +31,16 @@ void solver::SolverGodunov::computeFluxes() {
   if (_direction == 0) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
-        cell::Cell& left  = _grid.getCell(i, j);
-        cell::Cell& right = _grid.getCell(i + 1, j);
+        Cell& left  = _grid.getCell(i, j);
+        Cell& right = _grid.getCell(i + 1, j);
         computeIntercellFluxes(left, right);
       }
     }
   } else if (_direction == 1) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
-        cell::Cell& left  = _grid.getCell(i, j);
-        cell::Cell& right = _grid.getCell(i, j + 1);
+        Cell& left  = _grid.getCell(i, j);
+        Cell& right = _grid.getCell(i, j + 1);
         computeIntercellFluxes(left, right);
       }
     }
@@ -54,10 +54,10 @@ void solver::SolverGodunov::computeFluxes() {
  * Compute the intercell fluxes between two cells along the given dimension.
  * We store the result in the left cell.
  */
-void solver::SolverGodunov::computeIntercellFluxes(cell::Cell& left, cell::Cell& right) {
+void SolverGodunov::computeIntercellFluxes(Cell& left, Cell& right) {
 
-  riemann::Riemann        solver(left.getPrim(), right.getPrim(), _direction);
-  idealGas::ConservedFlux csol = solver.solve();
+  riemann::Riemann solver(left.getPrim(), right.getPrim(), _direction);
+  ConservedFlux    csol = solver.solve();
 
   left.setCFlux(csol);
 }
@@ -68,7 +68,7 @@ void solver::SolverGodunov::computeIntercellFluxes(cell::Cell& left, cell::Cell&
  * We're using the first order accurate dimensional splitting approach here
  * (Section 7 in theory document).
  */
-void solver::SolverGodunov::step() {
+void SolverGodunov::step() {
 
   if (Dimensions != 2)
     error("Not implemented.");

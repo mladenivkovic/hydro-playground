@@ -10,8 +10,8 @@
 #include "Logging.h"
 
 
-using ps = idealGas::PrimitiveState;
-using cs = idealGas::ConservedState;
+using ps = PrimitiveState;
+using cs = ConservedState;
 
 
 constexpr int nrepeat = 10000;
@@ -143,16 +143,16 @@ void testConversion(std::mt19937& generator) {
 
     // make sure you get the correct conserved fluxes
 
-    idealGas::ConservedFlux cf1x;
+    ConservedFlux cf1x;
     cf1x.getCFluxFromPState(prim, 0);
 
-    idealGas::ConservedFlux cf1y;
+    ConservedFlux cf1y;
     cf1y.getCFluxFromPState(prim, 1);
 
-    idealGas::ConservedFlux cf2x;
+    ConservedFlux cf2x;
     cf2x.getCFluxFromCstate(cons, 0);
 
-    idealGas::ConservedFlux cf2y;
+    ConservedFlux cf2y;
     cf2y.getCFluxFromCstate(cons, 1);
 
     // Float ABS_TOL_E = TOLERANCE_P * std::pow(10., mag * mag) * cons.getE();

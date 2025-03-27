@@ -14,7 +14,7 @@
 /**
  * Constructor
  */
-solver::SolverBase::SolverBase(parameters::Parameters& params_, grid::Grid& grid_):
+SolverBase::SolverBase(Parameters& params_, Grid& grid_):
   _t(0.),
   _dt(0.),
   _dt_old(0.),
@@ -29,7 +29,7 @@ solver::SolverBase::SolverBase(parameters::Parameters& params_, grid::Grid& grid
 /**
  * @brief Get the maximally perimissible time step size.
  */
-void solver::SolverBase::computeDt() {
+void SolverBase::computeDt() {
 
   message("Computing next dt.", logging::LogLevel::Debug);
   timer::Timer tick(timer::Category::CollectDt);
@@ -47,15 +47,15 @@ void solver::SolverBase::computeDt() {
 
   for (size_t j = first; j < last; j++) {
     for (size_t i = first; i < last; i++) {
-      cell::Cell&               c  = _grid.getCell(i, j);
-      idealGas::PrimitiveState& p  = c.getPrim();
-      Float                     vx = std::abs(p.getV(0));
-      Float                     vy = std::abs(p.getV(1));
-      Float                     a  = p.getSoundSpeed();
-      Float                     Sx = a + vx;
-      vxmax                        = Sx > vxmax ? Sx : vxmax;
-      Float Sy                     = a + vy;
-      vymax                        = Sy > vymax ? Sy : vymax;
+      Cell&           c  = _grid.getCell(i, j);
+      PrimitiveState& p  = c.getPrim();
+      Float           vx = std::abs(p.getV(0));
+      Float           vy = std::abs(p.getV(1));
+      Float           a  = p.getSoundSpeed();
+      Float           Sx = a + vx;
+      vxmax              = Sx > vxmax ? Sx : vxmax;
+      Float Sy           = a + vy;
+      vymax              = Sy > vymax ? Sy : vymax;
     }
   }
 
@@ -87,7 +87,7 @@ void solver::SolverBase::computeDt() {
  * schemes, like MUSCL-Hancock, we do several time integrations over
  * sub-intervals in a single step. So this is necessary.
  */
-void solver::SolverBase::integrateHydro(const Float dt_step) {
+void SolverBase::integrateHydro(const Float dt_step) {
 
   message("Integrating dim=" + std::to_string(_direction), logging::LogLevel::Debug);
   timer::Timer tick(timer::Category::HydroIntegrate);
@@ -105,16 +105,16 @@ void solver::SolverBase::integrateHydro(const Float dt_step) {
   if (_direction == 0) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
-        cell::Cell& left  = _grid.getCell(i - 1, j);
-        cell::Cell& right = _grid.getCell(i, j);
+        Cell& left  = _grid.getCell(i - 1, j);
+        Cell& right = _grid.getCell(i, j);
         applyTimeUpdate(left, right, dtdx);
       }
     }
   } else if (_direction == 1) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
-        cell::Cell& left  = _grid.getCell(i, j - 1);
-        cell::Cell& right = _grid.getCell(i, j);
+        Cell& left  = _grid.getCell(i, j - 1);
+        Cell& right = _grid.getCell(i, j);
         applyTimeUpdate(left, right, dtdx);
       }
     }
@@ -134,11 +134,11 @@ void solver::SolverBase::integrateHydro(const Float dt_step) {
  * @param left is the cell i-1, which stores the flux at i-1/2
  * @param dtdx: dt / dx
  */
-void solver::SolverBase::applyTimeUpdate(cell::Cell& left, cell::Cell& right, const Float dtdx) {
+void SolverBase::applyTimeUpdate(Cell& left, Cell& right, const Float dtdx) {
 
-  idealGas::ConservedState&       cr     = right.getCons();
-  const idealGas::ConservedState& lcflux = left.getCFlux();
-  const idealGas::ConservedState& rcflux = right.getCFlux();
+  ConservedState&       cr     = right.getCons();
+  const ConservedState& lcflux = left.getCFlux();
+  const ConservedState& rcflux = right.getCFlux();
 
   Float rho = cr.getRho() + dtdx * (lcflux.getRho() - rcflux.getRho());
   cr.setRho(rho);
@@ -161,7 +161,7 @@ void solver::SolverBase::applyTimeUpdate(cell::Cell& left, cell::Cell& right, co
  * Should be the same for all solvers. What differs is the contents of
  * Solver::step();
  */
-void solver::SolverBase::solve() {
+void SolverBase::solve() {
 
   // Set the stage.
   logging::setStage(logging::LogStage::Step);
@@ -176,7 +176,7 @@ void solver::SolverBase::solve() {
   _total_mass_init = _grid.collectTotalMass();
 #endif
 
-  auto writer = IO::OutputWriter(_params, _grid);
+  auto writer = OutputWriter(_params, _grid);
 
   // Dump step 0 data first
   writer.dump(_t, _step_count);
@@ -235,7 +235,7 @@ void solver::SolverBase::solve() {
 /**
  * @brief Do we need to run another step?
  */
-bool solver::SolverBase::keepRunning() {
+bool SolverBase::keepRunning() {
 
   Float tmax = _params.getTmax();
   if (tmax > 0. and _t >= tmax)
@@ -255,7 +255,7 @@ bool solver::SolverBase::keepRunning() {
  * @param timingstr: String returned from a timer object
  * containing the time measurement fo the step to be logged
  */
-void solver::SolverBase::writeLog(const std::string& timingstr) {
+void SolverBase::writeLog(const std::string& timingstr) {
 
   size_t nstepsLog = _params.getNstepsLog();
   bool   write     = ((nstepsLog == 0) or (_step_count % nstepsLog == 0));
@@ -285,7 +285,7 @@ void solver::SolverBase::writeLog(const std::string& timingstr) {
 /**
  * @brief Write a log to screen, if requested.
  */
-void solver::SolverBase::writeLogHeader() {
+void SolverBase::writeLogHeader() {
 
   std::stringstream msg;
   constexpr size_t  w = 14;

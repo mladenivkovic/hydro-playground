@@ -11,7 +11,7 @@
 #include "Timer.h"
 
 
-solver::SolverMUSCL::SolverMUSCL(parameters::Parameters& params_, grid::Grid& grid_):
+SolverMUSCL::SolverMUSCL(Parameters& params_, Grid& grid_):
   SolverBase(params_, grid_) {
 }
 
@@ -36,16 +36,16 @@ solver::SolverMUSCL::SolverMUSCL(parameters::Parameters& params_, grid::Grid& gr
  * @param left:  cell which stores the left state
  * @param right: cell which stores the right state
  */
-void solver::SolverMUSCL::computeIntercellFluxes(cell::Cell& left, cell::Cell& right) {
+void SolverMUSCL::computeIntercellFluxes(Cell& left, Cell& right) {
 
-  idealGas::PrimitiveState WL;
+  PrimitiveState WL;
   WL.fromCons(left.getURMid());
 
-  idealGas::PrimitiveState WR;
+  PrimitiveState WR;
   WR.fromCons(right.getULMid());
 
-  riemann::Riemann        solver(WL, WR, _direction);
-  idealGas::ConservedFlux csol = solver.solve();
+  riemann::Riemann solver(WL, WR, _direction);
+  ConservedFlux    csol = solver.solve();
 
   left.setCFlux(csol);
 }
@@ -59,15 +59,12 @@ void solver::SolverMUSCL::computeIntercellFluxes(cell::Cell& left, cell::Cell& r
  * This function first computes the fluxes, and then computes the updated
  * intermediate state for each cell, and stores them in the cell.
  */
-void solver::SolverMUSCL::getBoundaryExtrapolatedValues(
-  cell::Cell&                     c,
-  const idealGas::ConservedState& UiP1,
-  const idealGas::ConservedState& UiM1,
-  const Float                     dt_half
+void SolverMUSCL::getBoundaryExtrapolatedValues(
+  Cell& c, const ConservedState& UiP1, const ConservedState& UiM1, const Float dt_half
 ) {
 
-  using CState = idealGas::ConservedState;
-  using CFlux  = idealGas::ConservedFlux;
+  using CState = ConservedState;
+  using CFlux  = ConservedFlux;
 
   // First get the slope.
   CState       slope;
@@ -129,11 +126,11 @@ void solver::SolverMUSCL::getBoundaryExtrapolatedValues(
  * Compute all the intercell fluxes needed for a step update along the
  * direction of @param dimension.
  */
-void solver::SolverMUSCL::computeFluxes(const Float dt_step) {
+void SolverMUSCL::computeFluxes(const Float dt_step) {
 
   timer::Timer tick(timer::Category::HydroFluxes);
 
-  using CState = idealGas::ConservedState;
+  using CState = ConservedState;
 
   Float dt_half = 0.5 * dt_step;
 
@@ -148,13 +145,13 @@ void solver::SolverMUSCL::computeFluxes(const Float dt_step) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
 
-        cell::Cell& cp1  = _grid.getCell(i + 1, j);
-        CState      UiP1 = cp1.getCons();
+        Cell&  cp1  = _grid.getCell(i + 1, j);
+        CState UiP1 = cp1.getCons();
 
-        cell::Cell& c = _grid.getCell(i, j);
+        Cell& c = _grid.getCell(i, j);
 
-        cell::Cell& cm1  = _grid.getCell(i - 1, j);
-        CState      UiM1 = cm1.getCons();
+        Cell&  cm1  = _grid.getCell(i - 1, j);
+        CState UiM1 = cm1.getCons();
 
         getBoundaryExtrapolatedValues(c, UiP1, UiM1, dt_half);
       }
@@ -164,8 +161,8 @@ void solver::SolverMUSCL::computeFluxes(const Float dt_step) {
 
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
-        cell::Cell& left  = _grid.getCell(i, j);
-        cell::Cell& right = _grid.getCell(i + 1, j);
+        Cell& left  = _grid.getCell(i, j);
+        Cell& right = _grid.getCell(i + 1, j);
         computeIntercellFluxes(left, right);
       }
     }
@@ -178,13 +175,13 @@ void solver::SolverMUSCL::computeFluxes(const Float dt_step) {
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
 
-        cell::Cell& cp1  = _grid.getCell(i, j + 1);
-        CState      UiP1 = cp1.getCons();
+        Cell&  cp1  = _grid.getCell(i, j + 1);
+        CState UiP1 = cp1.getCons();
 
-        cell::Cell& c = _grid.getCell(i, j);
+        Cell& c = _grid.getCell(i, j);
 
-        cell::Cell& cm1  = _grid.getCell(i, j - 1);
-        CState      UiM1 = cm1.getCons();
+        Cell&  cm1  = _grid.getCell(i, j - 1);
+        CState UiM1 = cm1.getCons();
 
         getBoundaryExtrapolatedValues(c, UiP1, UiM1, dt_half);
       }
@@ -194,8 +191,8 @@ void solver::SolverMUSCL::computeFluxes(const Float dt_step) {
 
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
-        cell::Cell& left  = _grid.getCell(i, j);
-        cell::Cell& right = _grid.getCell(i, j + 1);
+        Cell& left  = _grid.getCell(i, j);
+        Cell& right = _grid.getCell(i, j + 1);
         computeIntercellFluxes(left, right);
       }
     }
@@ -208,7 +205,7 @@ void solver::SolverMUSCL::computeFluxes(const Float dt_step) {
  * We're using the second order accurate dimensional splitting approach here
  * (Section 7 in theory document).
  */
-void solver::SolverMUSCL::step() {
+void SolverMUSCL::step() {
 
   if (Dimensions != 2)
     error("Not implemented.");

@@ -15,7 +15,7 @@ static constexpr int gas_print_precision = 2;
 /**
  * @brief Default constructor.
  */
-idealGas::PrimitiveState::PrimitiveState():
+PrimitiveState::PrimitiveState():
   _rho(0.),
   _p(0.) {
   for (size_t i = 0; i < Dimensions; i++) {
@@ -27,7 +27,7 @@ idealGas::PrimitiveState::PrimitiveState():
  * @brief Specialized constructor with initial values.
  * Using setters instead of initialiser lists so the debugging checks kick in.
  */
-idealGas::PrimitiveState::PrimitiveState(
+PrimitiveState::PrimitiveState(
   const Float rho, const std::array<Float, Dimensions> vel, const Float p
 ) {
   setRho(rho);
@@ -42,7 +42,7 @@ idealGas::PrimitiveState::PrimitiveState(
  * @brief Specialized constructor with initial values for 1D.
  * Using setters instead of initialiser lists so the debugging checks kick in.
  */
-idealGas::PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float p) {
+PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float p) {
 #if DEBUG_LEVEL > 0
   if (Dimensions != 1) {
     error("This is a 1D function only!");
@@ -57,9 +57,7 @@ idealGas::PrimitiveState::PrimitiveState(const Float rho, const Float vx, const 
  * @brief Specialized constructor with initial values for 2D.
  * Using setters instead of initialiser lists so the debugging checks kick in.
  */
-idealGas::PrimitiveState::PrimitiveState(
-  const Float rho, const Float vx, const Float vy, const Float p
-) {
+PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float vy, const Float p) {
 #if DEBUG_LEVEL > 0
   if (Dimensions != 2) {
     error("This is a 2D function only!");
@@ -77,7 +75,7 @@ idealGas::PrimitiveState::PrimitiveState(
  * Overwrites the contents of this primitive state.
  * See Eq. 19-21 in Theory document.
  */
-void idealGas::PrimitiveState::fromCons(const ConservedState& cons) {
+void PrimitiveState::fromCons(const ConservedState& cons) {
   if (cons.getRho() <= cst::SMALLRHO) {
     // execption handling for vacuum
     setRho(cst::SMALLRHO);
@@ -105,7 +103,7 @@ void idealGas::PrimitiveState::fromCons(const ConservedState& cons) {
  * @brief construct a string with the contents.
  * Format: [rho, vx, vy, P]
  */
-std::string idealGas::PrimitiveState::toString() const {
+std::string PrimitiveState::toString() const {
 
   constexpr int w = gas_print_width;
   constexpr int p = gas_print_precision;
@@ -127,7 +125,7 @@ std::string idealGas::PrimitiveState::toString() const {
 // ------------------------------------
 
 
-idealGas::ConservedState::ConservedState():
+ConservedState::ConservedState():
   _rho(0.),
   _energy(0.) {
   for (size_t i = 0; i < Dimensions; i++) {
@@ -135,7 +133,7 @@ idealGas::ConservedState::ConservedState():
   }
 }
 
-idealGas::ConservedState::ConservedState(
+ConservedState::ConservedState(
   const Float rho, const Float rhovx, const Float rhovy, const Float E
 ):
   _rho(rho),
@@ -152,9 +150,7 @@ idealGas::ConservedState::ConservedState(
  * Initialise a conserved flux along a dimension using primitive variables of
  * the state.
  */
-idealGas::ConservedState::ConservedState(
-  const idealGas::PrimitiveState& prim, const size_t dimension
-) {
+ConservedState::ConservedState(const PrimitiveState& prim, const size_t dimension) {
 
   getCFluxFromPState(prim, dimension);
 }
@@ -165,7 +161,7 @@ idealGas::ConservedState::ConservedState(
  *
  * See eqns. 16 - 18 in theory document.
  */
-void idealGas::ConservedState::fromPrim(const PrimitiveState& p) {
+void ConservedState::fromPrim(const PrimitiveState& p) {
   setRho(p.getRho());
   setRhov(0, p.getRho() * p.getV(0));
   setRhov(1, p.getRho() * p.getV(1));
@@ -186,9 +182,7 @@ void idealGas::ConservedState::fromPrim(const PrimitiveState& p) {
  * The flux terms for each dimension are given as the second and
  * third term in Eq. 13.
  */
-void idealGas::ConservedState::getCFluxFromPState(
-  const PrimitiveState& pstate, const size_t dimension
-) {
+void ConservedState::getCFluxFromPState(const PrimitiveState& pstate, const size_t dimension) {
 
   size_t other  = (dimension + 1) % 2;
   Float  rho    = pstate.getRho();
@@ -223,9 +217,7 @@ void idealGas::ConservedState::getCFluxFromPState(
  * The flux terms for each dimension are given as the second and
  * third term in Eq. 13.
  */
-void idealGas::ConservedState::getCFluxFromCstate(
-  const ConservedState& cons, const size_t dimension
-) {
+void ConservedState::getCFluxFromCstate(const ConservedState& cons, const size_t dimension) {
 
   // Mass flux
   Float rho = cons.getRho();
@@ -264,7 +256,7 @@ void idealGas::ConservedState::getCFluxFromCstate(
  * @brief construct a string with the contents.
  * Format: [rho, rho * vx, rho * vy, E]
  */
-std::string idealGas::ConservedState::toString() const {
+std::string ConservedState::toString() const {
 
   constexpr int w = gas_print_width;
   constexpr int p = gas_print_precision;

@@ -12,18 +12,18 @@
  * @return the intercell flux of conserved variables corresponding to the
  * solution sampled at x=0.
  */
-idealGas::ConservedFlux riemann::RiemannExact::solve() {
+ConservedFlux RiemannExact::solve() {
 
   timer::Timer tick(timer::Category::Riemann);
 
   if (hasVacuum()) {
-    idealGas::PrimitiveState vac = solveVacuum();
-    idealGas::ConservedFlux  sol(vac, _dim);
+    PrimitiveState vac = solveVacuum();
+    ConservedFlux  sol(vac, _dim);
     return sol;
   }
 
   computeStarStates();
-  idealGas::ConservedFlux sol = sampleSolution();
+  ConservedFlux sol = sampleSolution();
   return sol;
 }
 
@@ -33,7 +33,7 @@ idealGas::ConservedFlux riemann::RiemannExact::solve() {
  * primitive states. This is the iterative part that determines the star
  * state pressure. See Section 3.3 in the theory document.
  */
-inline void riemann::RiemannExact::computeStarStates() {
+inline void RiemannExact::computeStarStates() {
 
   Float rhoL = _left.getRho();
   Float rhoR = _right.getRho();
@@ -107,12 +107,8 @@ inline void riemann::RiemannExact::computeStarStates() {
  * @param B   B_L or B_R (Eq. 63)
  * @param cs  soundspeed of state
  */
-inline Float riemann::RiemannExact::fp(
-  const Float                     pguess,
-  const idealGas::PrimitiveState& state,
-  const Float                     A,
-  const Float                     B,
-  const Float                     cs
+inline Float RiemannExact::fp(
+  const Float pguess, const PrimitiveState& state, const Float A, const Float B, const Float cs
 ) {
 
   Float p = state.getP();
@@ -136,12 +132,8 @@ inline Float riemann::RiemannExact::fp(
  * @param B   B_L or B_R (Eq. 66)
  * @param cs  soundspeed of state
  */
-inline Float riemann::RiemannExact::dfpdp(
-  const Float                     pguess,
-  const idealGas::PrimitiveState& state,
-  const Float                     A,
-  const Float                     B,
-  const Float                     cs
+inline Float RiemannExact::dfpdp(
+  const Float pguess, const PrimitiveState& state, const Float A, const Float B, const Float cs
 ) {
 
   Float p   = state.getP();

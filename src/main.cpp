@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
   logging::setVerbosity(logging::LogLevel::Quiet);
 
   // Get a handle on global vars so they're always in scope
-  auto params = parameters::Parameters();
+  auto params = Parameters();
 
   // Useless things first :)
   utils::printHeader();
@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
   timer::Timer tickInit(timer::Category::Init);
 
   // Fire up IO
-  IO::InputParse input(argc, argv);
+  InputParse input(argc, argv);
 
   // Read the parameters from the parameter file and initialise global paramters...
   input.readParamFile(params);
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
 
   // Get a grid started. Note that the cells are being allocated later, when
   // the ICs are being read.
-  auto grid = grid::Grid(params);
+  auto grid = Grid(params);
 
   // When very verbose, print out used parameters
   message("Running with parameters:", logging::LogLevel::Debug);

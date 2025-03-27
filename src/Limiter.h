@@ -66,10 +66,10 @@ namespace limiter {
    * @param r:     where flow parameter r for every conserved state will be stored
    */
   inline void limiterGetRCstate(
-    const idealGas::ConservedState& UiP1,
-    const idealGas::ConservedState& Ui,
-    const idealGas::ConservedState& UiM1,
-    idealGas::ConservedState&       r
+    const ConservedState& UiP1,
+    const ConservedState& Ui,
+    const ConservedState& UiM1,
+    ConservedState&       r
   ) {
 
     Float rho   = limiterR(Ui.getRho(), UiM1.getRho(), UiP1.getRho());
@@ -77,7 +77,7 @@ namespace limiter {
     Float rhovy = limiterR(Ui.getRhov(1), UiM1.getRhov(1), UiP1.getRhov(1));
     Float E     = limiterR(Ui.getE(), UiM1.getE(), UiP1.getE());
 
-    r = idealGas::ConservedState(rho, rhovx, rhovy, E);
+    r = ConservedState(rho, rhovx, rhovy, E);
   }
 
 
@@ -93,13 +93,13 @@ namespace limiter {
    * @param UiM1: State of cell U_{i-1}
    */
   inline void limiterGetLimitedSlope(
-    const idealGas::ConservedState& UiP1,
-    const idealGas::ConservedState& Ui,
-    const idealGas::ConservedState& UiM1,
-    idealGas::ConservedState&       slope
+    const ConservedState& UiP1,
+    const ConservedState& Ui,
+    const ConservedState& UiM1,
+    ConservedState&       slope
   ) {
 
-    idealGas::ConservedState r;
+    ConservedState r;
     limiterGetRCstate(UiP1, Ui, UiM1, r);
 
     Float xi_rho   = limiterXiOfR(r.getRho());
@@ -125,7 +125,7 @@ namespace limiter {
     Float E2      = (1. - OMEGA) * (UiP1.getE() - Ui.getE());
     Float slope_E = xi_E * 0.5 * (E1 + E2);
 
-    slope = idealGas::ConservedState(slope_rho, slope_rhovx, slope_rhovy, slope_E);
+    slope = ConservedState(slope_rho, slope_rhovx, slope_rhovy, slope_E);
   }
 
 

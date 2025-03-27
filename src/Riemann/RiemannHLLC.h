@@ -8,47 +8,42 @@
 #include "Gas.h"
 #include "RiemannBase.h"
 
-namespace riemann {
+/**
+ * The HLLC Riemann solver.
+ * See Section 3.4 in theory document.
+ */
+class RiemannHLLC: public RiemannBase {
 
+  //! Left wave speed
+  Float _SL;
 
-  /**
-   * The HLLC Riemann solver.
-   * See Section 3.4 in theory document.
-   */
-  class RiemannHLLC: public RiemannBase {
+  //! Right wave speed
+  Float _SR;
 
-    //! Left wave speed
-    Float _SL;
+  //! Star state wave speed
+  Float _Sstar;
 
-    //! Right wave speed
-    Float _SR;
+  //! Compute q_{L,R} needed for the wave speed estimate.
+  Float _qLR(Float pstar, Float pLR);
 
-    //! Star state wave speed
-    Float _Sstar;
+  //! Compute the wave speeds SL, SR, Sstar
+  void computeWaveSpeedEstimates();
 
-    //! Compute q_{L,R} needed for the wave speed estimate.
-    Float _qLR(Float pstar, Float pLR);
+  //! Compute the star states.
+  void computeStarCStates(ConservedState& UStarL, ConservedState& UStarR);
 
-    //! Compute the wave speeds SL, SR, Sstar
-    void computeWaveSpeedEstimates();
+  //! Sample the solution.
+  ConservedFlux sampleHLLCSolution();
 
-    //! Compute the star states.
-    void computeStarCStates(idealGas::ConservedState& UStarL, idealGas::ConservedState& UStarR);
+public:
+  RiemannHLLC(PrimitiveState& l, PrimitiveState& r, const size_t dimension):
+    RiemannBase(l, r, dimension),
+    _SL(0.),
+    _SR(0.),
+    _Sstar(0.) {};
 
-    //! Sample the solution.
-    idealGas::ConservedFlux sampleHLLCSolution();
+  ~RiemannHLLC() = default;
 
-  public:
-    RiemannHLLC(idealGas::PrimitiveState& l, idealGas::PrimitiveState& r, const size_t dimension):
-      RiemannBase(l, r, dimension),
-      _SL(0.),
-      _SR(0.),
-      _Sstar(0.) {};
-
-    ~RiemannHLLC() = default;
-
-    //! Call the actual solver.
-    idealGas::ConservedFlux solve() override;
-  };
-
-} // namespace riemann
+  //! Call the actual solver.
+  ConservedFlux solve() override;
+};

@@ -7,7 +7,7 @@
 #include "Logging.h"
 
 
-parameters::Parameters::Parameters() {
+Parameters::Parameters() {
 
   // Set up default values here.
   // "Proper" cpp prefers these members initialised in an initialiser
@@ -44,7 +44,7 @@ parameters::Parameters::Parameters() {
  * Initialise derived global quantities/parameters. Verify that the
  * configuration is valid. Lock the parameters struct.
  */
-void parameters::Parameters::initDerivedAndValidate() {
+void Parameters::initDerivedAndValidate() {
 
   if (not getParamFileHasBeenRead())
     error("Parameter file is unread; Need that at this stage!");
@@ -96,7 +96,7 @@ void parameters::Parameters::initDerivedAndValidate() {
 /**
  * Get a sring of all parameters for printouts.
  */
-std::string parameters::Parameters::toString() const {
+std::string Parameters::toString() const {
 
   constexpr int width = 20;
 

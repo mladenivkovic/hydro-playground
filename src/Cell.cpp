@@ -8,7 +8,7 @@
 /**
  * @brief Constructor for the cell.
  */
-cell::Cell::Cell():
+Cell::Cell():
   _x(0.),
   _y(0.)
 // _id(0),
@@ -24,7 +24,7 @@ cell::Cell::Cell():
  *
  * @param other the other cell, which we are copying data from
  */
-void cell::Cell::copyBoundaryData(const cell::Cell* other) {
+void Cell::copyBoundaryData(const Cell* other) {
   // copy gas data from the other
   _prim = other->getPrim();
   _cons = other->getCons();
@@ -40,7 +40,7 @@ void cell::Cell::copyBoundaryData(const cell::Cell* other) {
  * @param other: pointer to real cell from which we take data
  * @param dimension: in which dimension the reflection is supposed to be
  */
-void cell::Cell::copyBoundaryDataReflective(const cell::Cell* other, const size_t dimension) {
+void Cell::copyBoundaryDataReflective(const Cell* other, const size_t dimension) {
 
   // This should be called from within the ghost
   _prim = other->getPrim();
@@ -59,7 +59,7 @@ void cell::Cell::copyBoundaryDataReflective(const cell::Cell* other, const size_
 /**
  * Compute the i and j indexes of a cell in the grid
  */
-// std::pair<size_t, size_t> cell::Cell::getIJ(const size_t nxtot) {
+// std::pair<size_t, size_t> Cell::getIJ(const size_t nxtot) {
 //
 //   std::pair<size_t, size_t> output;
 //
@@ -80,7 +80,7 @@ void cell::Cell::copyBoundaryDataReflective(const cell::Cell* other, const size_
 /**
  * Retrieve a specific cell quantity. Intended for printouts.
  */
-Float cell::Cell::getQuantityForPrintout(const char* quantity) const {
+Float Cell::getQuantityForPrintout(const char* quantity) const {
 
   std::string q(quantity);
 

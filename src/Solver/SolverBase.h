@@ -10,67 +10,62 @@
 #include "Parameters.h"
 
 
-namespace solver {
+class SolverBase {
 
+protected:
+  //! Current time
+  Float _t;
 
-  class SolverBase {
+  //! Current time step
+  Float _dt;
 
-  protected:
-    //! Current time
-    Float _t;
+  //! Previous time step
+  Float _dt_old;
 
-    //! Current time step
-    Float _dt;
+  //! Current dimension (direction) to solve for.
+  size_t _direction;
 
-    //! Previous time step
-    Float _dt_old;
+  //! Current step
+  size_t _step_count;
 
-    //! Current dimension (direction) to solve for.
-    size_t _direction;
+  //! Total mass in grid.
+  Float _total_mass_init;
+  Float _total_mass_current;
 
-    //! Current step
-    size_t _step_count;
+  //! Reference to runtime parameters
+  Parameters& _params;
 
-    //! Total mass in grid.
-    Float _total_mass_init;
-    Float _total_mass_current;
+  //! Reference to the grid.
+  Grid& _grid;
 
-    //! Reference to runtime parameters
-    parameters::Parameters& _params;
+  //! Compute current time step size.
+  void computeDt();
 
-    //! Reference to the grid.
-    grid::Grid& _grid;
+  //! Apply the time update for a pair of cells.
+  static void applyTimeUpdate(Cell& left, Cell& right, const Float dtdx);
 
-    //! Compute current time step size.
-    void computeDt();
+  //! Apply the actual time integration step.
+  void integrateHydro(const Float dt_step);
 
-    //! Apply the time update for a pair of cells.
-    static void applyTimeUpdate(cell::Cell& left, cell::Cell& right, const Float dtdx);
+  //! Do we still need to run?
+  bool keepRunning();
 
-    //! Apply the actual time integration step.
-    void integrateHydro(const Float dt_step);
+  //! Write a log to screen, if requested.
+  void writeLog(const std::string& timingstr);
 
-    //! Do we still need to run?
-    bool keepRunning();
+  //! Write the log header to screen
+  static void writeLogHeader();
 
-    //! Write a log to screen, if requested.
-    void writeLog(const std::string& timingstr);
+public:
+  SolverBase(Parameters& params_, Grid& grid_);
+  ~SolverBase() = default;
 
-    //! Write the log header to screen
-    static void writeLogHeader();
+  //! Call the actual solver.
+  void solve();
 
-  public:
-    SolverBase(parameters::Parameters& params_, grid::Grid& grid_);
-    ~SolverBase() = default;
-
-    //! Call the actual solver.
-    void solve();
-
-    //! Run a single step.
-    virtual void step() {
-      // Virtual functions need a definition too somewhere.
-      error("This should never be called.");
-    };
+  //! Run a single step.
+  virtual void step() {
+    // Virtual functions need a definition too somewhere.
+    error("This should never be called.");
   };
-
-} // namespace solver
+};

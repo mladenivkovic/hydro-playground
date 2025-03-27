@@ -21,7 +21,7 @@ constexpr size_t grid_print_precision = 3;
  *
  * @param pars A Parameters object holding global simulation parameters
  */
-grid::Grid::Grid(const parameters::Parameters& params):
+Grid::Grid(const Parameters& params):
   _cells(nullptr),
   _nx(params.getNx()),
   _nx_norep(params.getNx()),
@@ -41,7 +41,7 @@ grid::Grid::Grid(const parameters::Parameters& params):
 /**
  * Destructor
  */
-grid::Grid::~Grid() {
+Grid::~Grid() {
   if (_cells == nullptr)
     error("Where did the cells array go??");
   delete[] _cells;
@@ -58,7 +58,7 @@ grid::Grid::~Grid() {
  * _cell(0,nxtot-1)       is the top-left cell
  * _cell(nxtot-1,nxtot-1) is the top-right cell
  */
-void grid::Grid::initCells() {
+void Grid::initCells() {
 
   message("Initialising cells.", logging::LogLevel::Debug);
   timer::Timer tick(timer::Category::Reset);
@@ -90,12 +90,12 @@ void grid::Grid::initCells() {
 
     // allocate space
     total_cells = nxTot;
-    _cells      = new cell::Cell[total_cells];
+    _cells      = new Cell[total_cells];
 
     // set cell positions and IDs
     for (size_t i = 0; i < nxTot; i++) {
-      cell::Cell& c = getCell(i);
-      Float       x = (static_cast<Float>(i - first) + 0.5) * dx;
+      Cell& c = getCell(i);
+      Float x = (static_cast<Float>(i - first) + 0.5) * dx;
       c.setX(x);
       // c.setId(i);
     }
@@ -104,14 +104,14 @@ void grid::Grid::initCells() {
 
     // allocate space
     total_cells = nxTot * nxTot;
-    _cells      = new cell::Cell[total_cells];
+    _cells      = new Cell[total_cells];
 
     // set cell positions and IDs
     for (size_t i = 0; i < nxTot; i++) {
       for (size_t j = 0; j < nxTot; j++) {
-        cell::Cell& c = getCell(i, j);
-        Float       x = (static_cast<Float>(i - first) + 0.5) * dx;
-        Float       y = (static_cast<Float>(j - first) + 0.5) * dx;
+        Cell& c = getCell(i, j);
+        Float x = (static_cast<Float>(i - first) + 0.5) * dx;
+        Float y = (static_cast<Float>(j - first) + 0.5) * dx;
         c.setX(x);
         c.setY(y);
         // c.setId(i + j * nxTot);
@@ -130,7 +130,7 @@ void grid::Grid::initCells() {
   constexpr size_t prec = 3;
   constexpr size_t wid  = 10;
 
-  auto              gridsize = static_cast<Float>(total_cells * sizeof(cell::Cell));
+  auto              gridsize = static_cast<Float>(total_cells * sizeof(Cell));
   std::stringstream msg;
   msg << "Grid memory takes [";
   msg << std::setprecision(prec) << std::setw(wid) << gridsize / KB << " KB /";
@@ -146,7 +146,7 @@ void grid::Grid::initCells() {
 /**
  * @brief replicate (copy-paste) the initial conditions over the entire grid.
  */
-void grid::Grid::replicateICs() {
+void Grid::replicateICs() {
 
   if (Dimensions != 2) {
     error("Not Implemented");
@@ -213,7 +213,7 @@ void grid::Grid::replicateICs() {
 /**
  * @brief get the total mass of the grid.
  */
-Float grid::Grid::collectTotalMass() {
+Float Grid::collectTotalMass() {
 
   timer::Timer tick(timer::Category::CollectMass);
   message("Collecting total mass in grid.", logging::LogLevel::Debug);
@@ -250,7 +250,7 @@ Float grid::Grid::collectTotalMass() {
 /**
  * Reset all fluxes of the grid (both primitive and conservative) to zero.
  */
-void grid::Grid::resetFluxes() {
+void Grid::resetFluxes() {
 
   timer::Timer tick(timer::Category::Reset);
 
@@ -277,7 +277,7 @@ void grid::Grid::resetFluxes() {
  * runs through interior cells and calls prim2cons()
  * on each.
  */
-void grid::Grid::convertPrim2Cons() {
+void Grid::convertPrim2Cons() {
 
   timer::Timer tick(timer::Category::Convert);
 
@@ -303,7 +303,7 @@ void grid::Grid::convertPrim2Cons() {
  * runs through interior cells and calls cons2prim()
  * on each.
  */
-void grid::Grid::convertCons2Prim() {
+void Grid::convertCons2Prim() {
 
   timer::Timer tick(timer::Category::Convert);
 
@@ -331,7 +331,7 @@ void grid::Grid::convertCons2Prim() {
  * and ghost cells in a row or column and then
  * calls the function that actually copies the data.
  */
-void grid::Grid::applyBoundaryConditions() {
+void Grid::applyBoundaryConditions() {
 
   timer::Timer tick(timer::Category::BoundaryConditions);
   message("Applying boundary conditions.", logging::LogLevel::Debug);
@@ -341,10 +341,10 @@ void grid::Grid::applyBoundaryConditions() {
   const size_t lastReal  = getLastCellIndex();
 
   // Make some space.
-  std::vector<cell::Cell*> real_left(nbc);
-  std::vector<cell::Cell*> real_right(nbc);
-  std::vector<cell::Cell*> ghost_left(nbc);
-  std::vector<cell::Cell*> ghost_right(nbc);
+  std::vector<Cell*> real_left(nbc);
+  std::vector<Cell*> real_right(nbc);
+  std::vector<Cell*> ghost_left(nbc);
+  std::vector<Cell*> ghost_right(nbc);
 
   if (Dimensions == 1) {
     for (size_t i = 0; i < firstReal; i++) {
@@ -401,12 +401,12 @@ void grid::Grid::applyBoundaryConditions() {
  * all arguments are arrays of size params::_nbc (number of boundary cells)
  * lowest array index is also lowest index of cell in grid
  */
-void grid::Grid::realToGhost(
-  std::vector<cell::Cell*> real_left,
-  std::vector<cell::Cell*> real_right,
-  std::vector<cell::Cell*> ghost_left,
-  std::vector<cell::Cell*> ghost_right,
-  const size_t             dimension
+void Grid::realToGhost(
+  std::vector<Cell*> real_left,
+  std::vector<Cell*> real_right,
+  std::vector<Cell*> ghost_left,
+  std::vector<Cell*> ghost_right,
+  const size_t       dimension
 ) // dimension defaults to 0
 {
 
@@ -459,7 +459,7 @@ void grid::Grid::realToGhost(
  * @param boundaries if true, print out boundary cells too.
  * @param conserved if true, print out conserved state instead of primitive state.
  */
-void grid::Grid::printGrid(bool boundaries, bool conserved) {
+void Grid::printGrid(bool boundaries, bool conserved) {
 
 
   size_t first = getFirstCellIndex();
@@ -549,8 +549,7 @@ void grid::Grid::printGrid(bool boundaries, bool conserved) {
  *
  * @param boundaries if true, print out boundary cells too.
  */
-void grid::Grid::printGrid(const char* quantity, bool boundaries) {
-
+void Grid::printGrid(const char* quantity, bool boundaries) {
 
   size_t first = getFirstCellIndex();
   size_t last  = getLastCellIndex();
