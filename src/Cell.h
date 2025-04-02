@@ -137,9 +137,11 @@ inline PrimitiveState& Cell::getPrim() {
 }
 
 
+#pragma omp declare target
 inline ConservedState& Cell::getCons() {
   return _cons;
 }
+#pragma omp end declare target
 
 
 // inline PrimitiveState& Cell::getPFlux() {
@@ -200,9 +202,11 @@ inline const PrimitiveState& Cell::getPrim() const {
 }
 
 
+#pragma omp declare target
 inline const ConservedState& Cell::getCons() const {
   return _cons;
 }
+#pragma omp end declare target
 
 
 inline void Cell::setPrim(const PrimitiveState& prim) {

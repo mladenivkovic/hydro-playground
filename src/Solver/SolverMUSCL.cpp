@@ -59,6 +59,7 @@ void SolverMUSCL::computeIntercellFluxes(Cell& left, Cell& right) {
  * This function first computes the fluxes, and then computes the updated
  * intermediate state for each cell, and stores them in the cell.
  */
+#pragma omp declare target
 void SolverMUSCL::getBoundaryExtrapolatedValues(
   Cell& c, const ConservedState& UiP1, const ConservedState& UiM1, const Float dt_half
 ) {
@@ -120,6 +121,7 @@ void SolverMUSCL::getBoundaryExtrapolatedValues(
   CState URmid(rhoRmid, rhovxRmid, rhovyRmid, ERmid);
   c.setURMid(URmid);
 }
+#pragma omp end declare target
 
 
 /**
