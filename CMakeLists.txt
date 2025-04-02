@@ -183,12 +183,35 @@ endif()
 # Main Target
 # ---------------------------
 
-add_executable(hydro src/main.cpp)
-add_subdirectory(src)
-
-target_include_directories(hydro PUBLIC "${PROJECT_BINARY_DIR}")
+# add_subdirectory(src) # this is for adding a CMakeLists.txt file in src/
 
 configure_file(src/Config.h.in Config.h)
+
+
+file(GLOB_RECURSE CPP_SRC_FILES FOLLOW_SYMLINKS ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE VERSION_CPP FOLLOW_SYMLINKS ${PROJECT_BINARY_DIR}/Version.cpp)
+# file(GLOB_RECURSE CUDA_SRC_FILES FOLLOW_SYMLINKS ${PROJECT_SOURCE_DIR}/src/*.cu)
+# file(GLOB_RECURSE HIP_SRC_FILES FOLLOW_SYMLINKS ${PROJECT_SOURCE_DIR}/src/*.hip)
+# file(GLOB_RECURSE SRC_FILES FOLLOW_SYMLINKS ${CPP_SRC_FILES} ${HIP_SRC_FILES})
+file(GLOB_RECURSE SRC_FILES FOLLOW_SYMLINKS ${CPP_SRC_FILES} ${VERSION_CPP})
+file(GLOB_RECURSE MAIN_FILE FOLLOW_SYMLINKS ${PROJECT_SOURCE_DIR}/src/main.cpp)
+list(REMOVE_ITEM CPP_SRC_FILES ${MAIN_FILE})
+
+set(COMMON_INCLUDES ${PROJECT_SOURCE_DIR}/src)                # allow subdirs to find main include files
+set(COMMON_INCLUDES ${COMMON_INCLUDES} ${PROJECT_BINARY_DIR}) # include generated Config.h
+include_directories(${COMMON_INCLUDES})
+
+
+add_library(objects OBJECT ${SRC_FILES})
+target_include_directories(objects PUBLIC "${COMMON_INCLUDES}")
+
+
+# EXECUTABLE : PROJECT_NAME
+add_executable(hydro ${MAIN_FILE} $<TARGET_OBJECTS:objects>)
+target_link_libraries(hydro PUBLIC objects)
+target_include_directories(hydro PUBLIC "${COMMON_INCLUDES}")
+
+
 
 
 
