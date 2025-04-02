@@ -11,6 +11,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS On)
 
+# Demand OpenMP support for pragmas
+find_package(OpenMP REQUIRED)
 
 
 #-------------------------------
@@ -204,6 +206,7 @@ add_library(objects OBJECT ${CPP_SRC_FILES} ${PROJECT_BINARY_DIR}/Version.cpp)
 # MAIN EXECUTABLE: hydro
 add_executable(hydro ${MAIN_FILE})
 target_link_libraries(hydro PUBLIC objects)
+target_link_libraries(hydro PUBLIC OpenMP::OpenMP_CXX)
 
 
 
