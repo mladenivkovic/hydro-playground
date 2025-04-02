@@ -150,9 +150,11 @@ inline ConservedState& Cell::getCons() {
 // }
 
 
+#pragma omp declare target
 inline ConservedState& Cell::getCFlux() {
   return _cflux;
 }
+#pragma omp end declare target
 
 
 inline void Cell::setCFlux(ConservedFlux& flux) {
