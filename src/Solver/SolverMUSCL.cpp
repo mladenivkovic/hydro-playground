@@ -175,6 +175,8 @@ void SolverMUSCL::computeFluxes(const Float dt_step) {
 
     // First, get the boundary extrapolated values.
 
+#pragma omp target teams distribute parallel for collapse(2 \
+) map(to : first, last, dt_half) map(tofrom : _grid)
     for (size_t j = first; j < last; j++) {
       for (size_t i = first; i < last; i++) {
 
