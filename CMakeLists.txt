@@ -11,8 +11,15 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS On)
 
+# ----------------------------------
 # Demand OpenMP support for pragmas
+# ----------------------------------
 find_package(OpenMP REQUIRED)
+
+if(OpenMP_CXX_FOUND)
+  # Example for GCC targeting NVIDIA GPUs; change as needed for your environment.
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -fopenmp-targets=nvptx-none")
+endif()
 
 
 #-------------------------------
