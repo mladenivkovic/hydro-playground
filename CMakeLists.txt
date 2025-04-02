@@ -17,7 +17,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS On)
 find_package(OpenMP REQUIRED)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "NVHPC")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -mp=omptargets=nvidia:cuda")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mp=gpu")
 endif()
 
 
