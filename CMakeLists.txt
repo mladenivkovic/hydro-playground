@@ -16,10 +16,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS On)
 # ----------------------------------
 find_package(OpenMP REQUIRED)
 
-if(OpenMP_CXX_FOUND)
-  # Example for GCC targeting NVIDIA GPUs; change as needed for your environment.
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -fopenmp-targets=nvptx-none")
+if(CMAKE_CXX_COMPILER_ID MATCHES "NVHPC")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -mp=omptargets=nvidia:cuda")
 endif()
+
 
 
 #-------------------------------
