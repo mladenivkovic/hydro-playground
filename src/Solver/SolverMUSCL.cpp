@@ -7,6 +7,7 @@
 
 #include "Gas.h"
 #include "Limiter.h"
+#include "omp.h"
 #include "Riemann.h"
 #include "Timer.h"
 

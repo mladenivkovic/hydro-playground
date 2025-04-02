@@ -3,6 +3,7 @@
 #include "Config.h"
 #include "Gas.h"
 #include "Logging.h"
+#include "omp.h"
 
 
 class Cell {
