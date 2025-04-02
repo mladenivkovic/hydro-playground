@@ -253,16 +253,12 @@ T InputParse::_convertParameterString(
   switch (argtype) {
   case ArgType::Integer:
     return static_cast<T>(utils::string2int(val));
-    break;
   case ArgType::Size_t:
     return static_cast<T>(utils::string2size_t(val));
-    break;
   case ArgType::Float:
     return static_cast<T>(utils::string2float(val));
-    break;
   case ArgType::Bool:
     return static_cast<T>(utils::string2bool(val));
-    break;
     // case ArgType::String:
     //   return static_cast<T>(val);
     //   break;
