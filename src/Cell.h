@@ -165,8 +165,8 @@ inline ConservedState& Cell::getULMid() {
   return U_left_mid;
 #else
   error("Shouldn't be used!");
-#endif
   return _cflux;
+#endif
 }
 
 
@@ -175,8 +175,8 @@ inline ConservedState& Cell::getURMid() {
   return U_right_mid;
 #else
   error("Shouldn't be used!");
-#endif
   return _cflux;
+#endif
 }
 
 
