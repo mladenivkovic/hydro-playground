@@ -228,6 +228,7 @@ inline Cell& Grid::getCell(const size_t i, const size_t j) {
   size_t nxTot = getNxTot();
   return _cells[i + j * nxTot];
 }
+#pragma omp end declare target
 
 
 inline size_t Grid::getNx() const {
