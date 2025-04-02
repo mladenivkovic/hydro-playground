@@ -183,12 +183,27 @@ endif()
 # Main Target
 # ---------------------------
 
-add_executable(hydro src/main.cpp)
-add_subdirectory(src)
-
-target_include_directories(hydro PUBLIC "${PROJECT_BINARY_DIR}")
-
 configure_file(src/Config.h.in Config.h)
+
+
+#  --------------------------------------------------------------------------------------------------------
+file(GLOB_RECURSE CPP_SRC_FILES FOLLOW_SYMLINKS ${PROJECT_SOURCE_DIR}/src/*.cpp)
+# file(GLOB_RECURSE CUDA_SRC_FILES FOLLOW_SYMLINKS ${PROJECT_SOURCE_DIR}/src/*.cu)
+# file(GLOB_RECURSE HIP_SRC_FILES FOLLOW_SYMLINKS ${PROJECT_SOURCE_DIR}/src/*.hip)
+file(GLOB_RECURSE MAIN_FILE FOLLOW_SYMLINKS ${PROJECT_SOURCE_DIR}/src/main.cpp)
+list(REMOVE_ITEM CPP_SRC_FILES ${MAIN_FILE})
+
+set(COMMON_INCLUDES ${PROJECT_SOURCE_DIR}/src)                # allow subdirs to find main include files
+set(COMMON_INCLUDES ${COMMON_INCLUDES} ${PROJECT_BINARY_DIR}) # include generated Config.h
+include_directories(${COMMON_INCLUDES})
+
+
+add_library(objects OBJECT ${CPP_SRC_FILES} ${PROJECT_BINARY_DIR}/Version.cpp)
+
+
+# MAIN EXECUTABLE: hydro
+add_executable(hydro ${MAIN_FILE})
+target_link_libraries(hydro PUBLIC objects)
 
 
 
@@ -203,6 +218,7 @@ enable_testing()
 add_test(NAME logging COMMAND test_logging)
 add_test(NAME io COMMAND test_io)
 add_test(NAME gas COMMAND test_gas)
+
 
 
 # ----------------------------------
