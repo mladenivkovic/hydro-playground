@@ -403,11 +403,11 @@ void Grid::applyBoundaryConditions() {
  * lowest array index is also lowest index of cell in grid
  */
 void Grid::realToGhost(
-  Boundary& real_left,
-  Boundary& real_right,
-  Boundary& ghost_left,
-  Boundary& ghost_right,
-  const size_t       dimension
+  Boundary&    real_left,
+  Boundary&    real_right,
+  Boundary&    ghost_left,
+  Boundary&    ghost_right,
+  const size_t dimension
 ) // dimension defaults to 0
 {
 

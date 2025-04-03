@@ -96,11 +96,11 @@ public:
 
   //! Apply the boundary conditions from real to ghost cells.
   void realToGhost(
-    Boundary& real_left,
-    Boundary& real_right,
-    Boundary& ghost_left,
-    Boundary& ghost_right,
-    const size_t       dimension = 0
+    Boundary&    real_left,
+    Boundary&    real_right,
+    Boundary&    ghost_left,
+    Boundary&    ghost_right,
+    const size_t dimension = 0
   );
 
 
