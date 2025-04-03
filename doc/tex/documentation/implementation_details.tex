@@ -15,18 +15,20 @@
 
     \item \verb|tests/| contains unit tests and functional tests.
 	
-    \item \verb|tex/| contains LaTeX documentation of the code:
+    \item \verb|doc/tex/| contains LaTeX documentation of the code:
 
     \begin{itemize}
-        \item   \verb|tex/documentation/| contains the code documentation,
+        \item   \verb|doc/tex/documentation/| contains the code documentation,
                 including how to get the code, first steps and getting started,
                 and developer notes.
 
-        \item   \verb|tex/theory/| contains equations being solved, and the
+        \item   \verb|doc/tex/theory/| contains equations being solved, and the
                 numerical methods used to solve them.
 
-%         \item   \verb|tex/results| contains results.
     \end{itemize}
+
+    \item \verb|doc/rtd/| contains documentation regarding parallelisation
+        efforts, instructions, and results.
 
     \item \verb|python_module/| is a git submodule containing the
                 \mhutils python module.
@@ -36,7 +38,6 @@
 
 \end{itemize}
 
-\todo{Results}
 
 
 
@@ -87,7 +88,7 @@ The grid is extended by a few cells on the outer boundaries to facilitate
 boundary conditions. (That number is typically 2).
 
 \item Global simulation parameters are held by an instance of the
-\code{parameters::Parameters} class.
+\code{Parameters} class.
 
 \item The main loop starts now:
 
@@ -125,11 +126,11 @@ respective documentation in \code{tex/theory}.
 
 \begin{itemize}
 \item The ``Grid'' contains a one-dimensional array of Cells
-(\code{Cell.h:cell::Cell()}). To access it correctly, use the provided getter
+(\code{Cell.h: Cell()}). To access it correctly, use the provided getter
 function
 %
 \begin{lstlisting}
-in Cell.h: cell::Cell().getCell(i, j);
+in Cell.h: Cell().getCell(i, j);
 \end{lstlisting}
 %
 Indices $(0, 0)$ represent the lower left corner of the simulation domain.
