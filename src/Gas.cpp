@@ -43,11 +43,6 @@ PrimitiveState::PrimitiveState(
  * Using setters instead of initialiser lists so the debugging checks kick in.
  */
 PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float p) {
-#if DEBUG_LEVEL > 0
-  if (Dimensions != 1) {
-    error("This is a 1D function only!");
-  }
-#endif
   setRho(rho);
   setV(0, vx);
   setP(p);
@@ -58,11 +53,6 @@ PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float p) {
  * Using setters instead of initialiser lists so the debugging checks kick in.
  */
 PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float vy, const Float p) {
-#if DEBUG_LEVEL > 0
-  if (Dimensions != 2) {
-    error("This is a 2D function only!");
-  }
-#endif
   setRho(rho);
   setV(0, vx);
   setV(1, vy);
