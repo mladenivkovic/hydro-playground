@@ -98,6 +98,16 @@ message("* Current build type is : ${CMAKE_BUILD_TYPE}")
 # Options
 # ---------------------------
 
+
+option(SANITIZER "Enable address sanitizers" OFF)
+if (SANITIZER)
+    add_compile_options(-fsanitize=address)
+    add_link_options(-fsanitize=address)
+endif(SANITIZER)
+
+message(STATUS "SANITIZER is set to: ${SANITIZER}")
+
+
 # Terminal colours
 
 option(TERMINAL_COLORS "Enable colour logging outputs" OFF)
