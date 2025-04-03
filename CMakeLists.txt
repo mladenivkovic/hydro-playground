@@ -23,7 +23,7 @@ find_package(OpenMP REQUIRED)
 # Automatically set GPU offloading flags if available
 # ---------------------------
 # These flags are added if the compiler supports OpenMP GPU offloading.
-# NVHPC, Clang, and (if available) GCC offloading flags are handled.
+# NVHPC, Clang, and GNU offloading flags are handled.
 set(GPU_OFFLOAD_FLAGS "")
 if(OpenMP_CXX_FOUND)
   if(CMAKE_CXX_COMPILER_ID MATCHES "NVHPC")
@@ -38,22 +38,19 @@ if(OpenMP_CXX_FOUND)
     if(COMPILER_SUPPORTS_GCC_OFFLOADING)
       set(GPU_OFFLOAD_FLAGS "-fopenmp-targets=nvptx-none")
     else()
-      message(WARNING "GCC does not support OpenMP offloading to NVPTX. Offloading will be disabled.")
+      message(FATAL_ERROR "GCC does not support OpenMP offloading to NVPTX. Offloading is required for this project.")
     endif()
   else()
-    message(WARNING "Unknown compiler or no GPU offloading flags defined for ${CMAKE_CXX_COMPILER_ID}.")
+    message(FATAL_ERROR "Unknown compiler ${CMAKE_CXX_COMPILER_ID} or no GPU offloading flags defined. GPU OpenMP offloading is required.")
   endif()
 endif()
 
-if(NOT GPU_OFFLOAD_FLAGS STREQUAL "")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GPU_OFFLOAD_FLAGS}")
-  message(STATUS "Using GPU offloading flags: ${GPU_OFFLOAD_FLAGS}")
+if(GPU_OFFLOAD_FLAGS STREQUAL "")
+  message(FATAL_ERROR "GPU OpenMP offloading support is required but not available with the current compiler.")
 endif()
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "NVHPC")
-  # Existing NVHPC flag, kept for compatibility if needed (may be redundant now)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mp=gpu")
-endif()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GPU_OFFLOAD_FLAGS}")
+message(STATUS "Using GPU offloading flags: ${GPU_OFFLOAD_FLAGS}")
 
 #-------------------------------
 # Set up build types
