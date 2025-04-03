@@ -16,11 +16,41 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS On)
 # ----------------------------------
 find_package(OpenMP REQUIRED)
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "NVHPC")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mp=gpu")
+# ---------------------------
+# Automatically set GPU offloading flags if available
+# ---------------------------
+# These flags are added if the compiler supports OpenMP GPU offloading.
+# NVHPC, Clang, and (if available) GCC offloading flags are handled.
+set(GPU_OFFLOAD_FLAGS "")
+if(OpenMP_CXX_FOUND)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "NVHPC")
+    # NVHPC offloading flag for GPU
+    set(GPU_OFFLOAD_FLAGS "-mp=gpu")
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    # Clang offloading for NVIDIA GPUs using NVPTX
+    set(GPU_OFFLOAD_FLAGS "-fopenmp -fopenmp-targets=nvptx64-nvidia-cuda")
+  elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    # Check if GCC supports offloading flag; this flag is only available in newer versions/builds
+    check_cxx_compiler_flag("-fopenmp-targets=nvptx-none" COMPILER_SUPPORTS_GCC_OFFLOADING)
+    if(COMPILER_SUPPORTS_GCC_OFFLOADING)
+      set(GPU_OFFLOAD_FLAGS "-fopenmp-targets=nvptx-none")
+    else()
+      message(WARNING "GCC does not support OpenMP offloading to NVPTX. Offloading will be disabled.")
+    endif()
+  else()
+    message(WARNING "Unknown compiler or no GPU offloading flags defined for ${CMAKE_CXX_COMPILER_ID}.")
+  endif()
 endif()
 
+if(NOT GPU_OFFLOAD_FLAGS STREQUAL "")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GPU_OFFLOAD_FLAGS}")
+  message(STATUS "Using GPU offloading flags: ${GPU_OFFLOAD_FLAGS}")
+endif()
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "NVHPC")
+  # Existing NVHPC flag, kept for compatibility if needed (may be redundant now)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mp=gpu")
+endif()
 
 #-------------------------------
 # Set up build types
@@ -76,7 +106,7 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 else()
     message(FATAL_ERROR
         "Invalid CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}. "
-        "Options are [Release, RelWithDebInfo, Debug]. "
+        "Options are [Debug,Release,RelWithDebInfo]. "
         "Pick one of those."
         )
 
@@ -271,5 +301,3 @@ execute_process(COMMAND
 configure_file("${CMAKE_SOURCE_DIR}/src/Version.cpp.in" "${CMAKE_BINARY_DIR}/Version.cpp" @ONLY)
 
 list(APPEND SOURCES "${CMAKE_BINARY_DIR}/Version.cpp" src/Version.h)
-
-
