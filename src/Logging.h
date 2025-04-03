@@ -73,7 +73,6 @@ namespace logging {
    * Extract the file name from the path by trimming the project
    * root directory from the prefix.
    */
-#pragma omp declare target
   constexpr std::string_view extractFileName(const char* path) {
 
     // First, get project root prefix
@@ -104,13 +103,11 @@ namespace logging {
 
     return trimmed;
   }
-#pragma omp end declare target
 
 
   /**
    * Extract the function name from func: remove return type and arguments
    */
-#pragma omp declare target
   constexpr std::string_view extractFunctionName(const char* func) {
 
     auto funcv = std::string_view(func);
@@ -128,7 +125,6 @@ namespace logging {
 
     return funcv;
   }
-#pragma omp end declare target
 
 
   /**
@@ -270,10 +266,8 @@ namespace logging {
      * @param line The current line in the file. Intended to be the
      *   (replacement of the) __LINE__ macro.
      */
-#pragma omp declare target
     template <AllowedMessageType T>
     void logError(const T text, const char* file, const char* function, const size_t line);
-#pragma omp end declare target
 
 
     /**
@@ -488,7 +482,6 @@ void logging::Log::logWarning(
 }
 
 
-#pragma omp declare target
 template <AllowedMessageType T>
 void logging::Log::logError(
   const T text, const char* file, const char* function, const size_t line
@@ -517,7 +510,6 @@ void logging::Log::logError(
   std::cout << std::flush;
   std::abort();
 }
-#pragma omp end declare target
 
 
 template <AllowedMessageType T>
@@ -547,7 +539,6 @@ void logging::Log::logTiming(
 }
 
 
-#pragma omp declare target
 template <AllowedMessageType T1, AllowedMessageType T2, AllowedMessageType T3, AllowedMessageType T4>
 std::string logging::Log::constructMessage(
   const T1     prefix,
@@ -584,4 +575,3 @@ std::string logging::Log::constructMessage(
 
   return out;
 }
-#pragma omp end declare target

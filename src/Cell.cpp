@@ -80,7 +80,6 @@ void Cell::copyBoundaryDataReflective(const Cell* other, const size_t dimension)
 /**
  * Retrieve a specific cell quantity. Intended for printouts.
  */
-#pragma omp declare target
 Float Cell::getQuantityForPrintout(const char* quantity) const {
 
   std::string q(quantity);
@@ -116,4 +115,3 @@ Float Cell::getQuantityForPrintout(const char* quantity) const {
   error("Unknown quantity " + q);
   return 0.;
 }
-#pragma omp end declare target
