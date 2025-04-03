@@ -412,13 +412,6 @@ std::function<void(Boundary&, Boundary&, Boundary&, Boundary&, const size_t)> Gr
 
   size_t nbc = getNBC();
 
-#if DEBUG_LEVEL > 0
-  assert(real_left.size() == nbc);
-  assert(real_right.size() == nbc);
-  assert(ghost_left.size() == nbc);
-  assert(ghost_right.size() == nbc);
-#endif
-
   std::function<void(Boundary&, Boundary&, Boundary&, Boundary&, const size_t)> real2ghost;
 
   switch (getBoundaryType()) {
@@ -431,6 +424,12 @@ std::function<void(Boundary&, Boundary&, Boundary&, Boundary&, const size_t)> Gr
         Boundary&    ghost_right,
         const size_t dimension
       ) {
+#if DEBUG_LEVEL > 0
+        assert(real_left.size() == nbc);
+        assert(real_right.size() == nbc);
+        assert(ghost_left.size() == nbc);
+        assert(ghost_right.size() == nbc);
+#endif
         for (size_t i = 0; i < nbc; i++) {
           ghost_left[i]->copyBoundaryData(real_right[i]);
           ghost_right[i]->copyBoundaryData(real_left[i]);
@@ -447,6 +446,12 @@ std::function<void(Boundary&, Boundary&, Boundary&, Boundary&, const size_t)> Gr
         Boundary&    ghost_right,
         const size_t dimension
       ) {
+#if DEBUG_LEVEL > 0
+        assert(real_left.size() == nbc);
+        assert(real_right.size() == nbc);
+        assert(ghost_left.size() == nbc);
+        assert(ghost_right.size() == nbc);
+#endif
         for (size_t i = 0; i < nbc; i++) {
           ghost_left[i]->copyBoundaryDataReflective(real_left[real_left.size() - i - 1], dimension);
           ghost_right[i]->copyBoundaryDataReflective(
@@ -465,6 +470,12 @@ std::function<void(Boundary&, Boundary&, Boundary&, Boundary&, const size_t)> Gr
         Boundary&    ghost_right,
         const size_t dimension
       ) {
+#if DEBUG_LEVEL > 0
+        assert(real_left.size() == nbc);
+        assert(real_right.size() == nbc);
+        assert(ghost_left.size() == nbc);
+        assert(ghost_right.size() == nbc);
+#endif
         for (size_t i = 0; i < nbc; i++) {
           ghost_left[i]->copyBoundaryData(real_left[real_left.size() - i - 1]);
           ghost_right[i]->copyBoundaryData(real_right[real_right.size() - i - 1]);
