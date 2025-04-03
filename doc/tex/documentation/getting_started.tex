@@ -15,7 +15,8 @@
 \item   \cmake 3.21 or above
 \item   (optional) \codename{Python 3} with \codename{numpy} and
         \codename{matplotlib} for plotting outputs and generating initial
-        conditions.
+        conditions. Additionally, \codename{sphinx} to build the
+        parallelisation documentation.
 \item   (optional) \codename{LaTeX} to create the \jargon{TeX} files. I
         hard-coded the \jargon{pdflatex} command in the scripts. It doesn't
         require any fancy \codename{LaTeX} packages.
@@ -54,9 +55,9 @@ using \jargon{ssh}.
 
 
 
-%======================================================
+%=====================================================================
 \subsection{Getting and Installing the Python Module}\label{chap:py}
-%======================================================
+%=====================================================================
 
 
 The entire \mhutils python module is stored within this repository as a git
@@ -128,12 +129,12 @@ shell's runtime configuration file, which is usually \verb|$HOME/.bashrc| for
 
 
 This documentation is stored within the repository in the
-\verb|hydro_playground/tex/documentation| directory. You can build it using the
-provided \verb|Makefile|, like so:
+\verb|hydro_playground/doc/tex/documentation| directory. You can build it using
+the provided \verb|Makefile|, like so:
 
 
 \begin{lstlisting}
-cd hydro_playground/tex/documentation
+cd hydro_playground/doc/tex/documentation
 make
 \end{lstlisting}
 
@@ -142,7 +143,7 @@ That should leave you with the resulting \verb|documentation.pdf| file.
 Alternately, you can run the latex compile command by hand:
 
 \begin{lstlisting}
-cd hydro_playground/tex/documentation
+cd hydro_playground/doc/tex/documentation
 pdflatex -jobname=documentation documentation.tex
 \end{lstlisting}
 
@@ -150,6 +151,30 @@ Another way yet is to import the documentation directory into your LaTeX editor
 of choice. The main file you need to import, open, and compile is
 \verb|documentation.tex|.
 
+
+
+
+
+
+There is also documentation on parallelisation strategies and paradigms in \verb|hydro_playgournd/doc/rtd|.
+You can build \code{html} or \code{latex-pdf} outputs using
+
+\begin{lstlisting}
+doc/rtd
+make html                      # to make html documentation
+firefox build/html/index.html  # to view the resulting documentation using firefox
+\end{lstlisting}
+
+
+for \code{html} outputs, or
+
+\begin{lstlisting}
+cd doc/rtd
+make latexpdf                                           # to make latex pdf documentation
+okular build/latex/hydro_playground_paralleisation.pdf  # to view the resulting documentation using okular
+\end{lstlisting}
+
+for \code{latex-pdf} outputs.
 
 
 

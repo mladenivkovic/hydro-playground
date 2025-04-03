@@ -22,7 +22,7 @@ Contents
   Note that you need to install it first for it to work. Instructions are given
   [below](#Getting-And-Installing-The-Python-Module).
 - `./src`: contains the actual software.
-- `./tex`: TeX documentation of the code and theory on the equations being solved.
+- `./doc`: Documentation of the code and theory on the equations being solved.
 - `./tests`: Unit tests and functional tests.
 
 
@@ -36,7 +36,7 @@ Getting Started
 - A good old C++ compiler. Code is written in C++20 standard.
 - `cmake` 3.21 or above
 - (optional) `python 3` with `numpy` and `matplotlib` for plotting outputs and generating initial
-  conditions.
+  conditions. Additionally with `sphinx` to build the parallelisation documentation.
 - (optional) LaTeX to create the TeX files. I hard-coded the `pdflatex` command in the scripts. It
   doesn't require any fancy LaTeX packages.
 
@@ -92,10 +92,10 @@ Alternatively (***albeit very discouraged***), you can add the directory
 
 ### Getting the Documentation
 
-Check the documentation in `tex/documentation`. You can build it using the provided `Makefile`:
+Check the documentation in `doc/tex/documentation`. You can build it using the provided `Makefile`:
 
 ```
-cd hydro_playground/tex/documentation
+cd hydro_playground/doc/tex/documentation
 make
 ```
 
@@ -104,13 +104,31 @@ That should leave you with the resulting `documentation.pdf` file.
 Alternately, you can run the latex compile command by hand:
 
 ```
-cd hydro_playground/tex/documentation
+cd hydro_playground/doc/tex/documentation
 pdflatex -jobname=documentation documentation.tex
 ```
 
-or open the main TeX document, `hydro_playground/tex/documentation/documentation.tex` with your
+or open the main TeX document, `hydro_playground/doc/tex/documentation/documentation.tex` with your
 favourite TeX IDE/Editor.
 
+
+
+There is also documentation on parallelisation strategies and paradigms in `hydro_playgournd/doc/rtd`.
+You can build `html` or `latex-pdf` outputs using:
+
+```
+cd doc/rtd
+make html                      # to make html documentation
+firefox build/html/index.html  # to view the resulting documentation using firefox
+```
+
+for `html` outputs, or
+
+```
+cd doc/rtd
+make latexpdf                                           # to make latex pdf documentation
+okular build/latex/hydro_playground_paralleisation.pdf  # to view the resulting documentation using okular
+```
 
 
 

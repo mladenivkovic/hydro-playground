@@ -20,7 +20,7 @@ jobs:
         uses: xu-cheng/latex-action@v3 
         with:
             root_file: documentation.tex
-            working_directory: tex/documentation
+            working_directory: doc/tex/documentation
 
   build_theory:
     # https://github.com/marketplace/actions/github-action-for-latex
@@ -33,5 +33,5 @@ jobs:
         uses: xu-cheng/latex-action@v3 
         with:
             root_file: theory.tex
-            working_directory: tex/theory
+            working_directory: doc/tex/theory
 
