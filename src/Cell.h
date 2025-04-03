@@ -133,10 +133,11 @@ inline Float Cell::getY() const {
 // }
 
 
+#pragma omp declare target
 inline PrimitiveState& Cell::getPrim() {
   return _prim;
 }
-
+#pragma omp end declare target
 
 #pragma omp declare target
 inline ConservedState& Cell::getCons() {
@@ -199,11 +200,11 @@ inline void Cell::setURMid(const ConservedState& state) {
 #endif
 }
 
-
+#pragma omp declare target
 inline const PrimitiveState& Cell::getPrim() const {
   return _prim;
 }
-
+#pragma omp end declare target
 
 #pragma omp declare target
 inline const ConservedState& Cell::getCons() const {
@@ -212,11 +213,14 @@ inline const ConservedState& Cell::getCons() const {
 #pragma omp end declare target
 
 
+#pragma omp declare target
 inline void Cell::setPrim(const PrimitiveState& prim) {
   _prim = prim;
 }
+#pragma omp end declare target
 
-
+#pragma omp declare target
 inline void Cell::setCons(const ConservedState& cons) {
   _cons = cons;
 }
+#pragma omp end declare target
