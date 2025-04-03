@@ -279,6 +279,3 @@ std::string ConservedState::toString() const {
 
   return out.str();
 }
-
-
-#pragma omp end declare target
