@@ -24,33 +24,45 @@ find_package(OpenMP REQUIRED)
 # ---------------------------
 # These flags are added if the compiler supports OpenMP GPU offloading.
 # NVHPC, Clang, and GNU offloading flags are handled.
-set(GPU_OFFLOAD_FLAGS "")
-if(OpenMP_CXX_FOUND)
-  if(CMAKE_CXX_COMPILER_ID MATCHES "NVHPC")
-    # NVHPC offloading flag for GPU
-    set(GPU_OFFLOAD_FLAGS "-mp=gpu")
-  elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    # Clang offloading for NVIDIA GPUs using NVPTX
-    set(GPU_OFFLOAD_FLAGS "-fopenmp -fopenmp-targets=nvptx64-nvidia-cuda")
-  elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    # Check if GCC supports offloading flag; this flag is only available in newer versions/builds
-    check_cxx_compiler_flag("-fopenmp-targets=nvptx-none" COMPILER_SUPPORTS_GCC_OFFLOADING)
-    if(COMPILER_SUPPORTS_GCC_OFFLOADING)
-      set(GPU_OFFLOAD_FLAGS "-fopenmp-targets=nvptx-none")
-    else()
-      message(FATAL_ERROR "GCC does not support OpenMP offloading to NVPTX. Offloading is required for this project.")
-    endif()
-  else()
-    message(FATAL_ERROR "Unknown compiler ${CMAKE_CXX_COMPILER_ID} or no GPU offloading flags defined. GPU OpenMP offloading is required.")
-  endif()
-endif()
+# set(GPU_OFFLOAD_FLAGS "")
+# if(OpenMP_CXX_FOUND)
+#   if(CMAKE_CXX_COMPILER_ID MATCHES "NVHPC")
+#     # NVHPC offloading flag for GPU
+#     set(GPU_OFFLOAD_FLAGS "-mp=gpu")
+#   elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+#     # Clang offloading for NVIDIA GPUs using NVPTX
+#     set(GPU_OFFLOAD_FLAGS "-fopenmp -fopenmp-targets=nvptx64-nvidia-cuda")
+#   elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+#     # Check if GCC supports offloading flag; this flag is only available in newer versions/builds
+#     check_cxx_compiler_flag("-fopenmp-targets=nvptx-none" COMPILER_SUPPORTS_GCC_OFFLOADING)
+#     if(COMPILER_SUPPORTS_GCC_OFFLOADING)
+#       set(GPU_OFFLOAD_FLAGS "-fopenmp-targets=nvptx-none")
+#     else()
+#       message(FATAL_ERROR "GCC does not support OpenMP offloading to NVPTX. Offloading is required for this project.")
+#     endif()
+#   else()
+#     message(FATAL_ERROR "Unknown compiler ${CMAKE_CXX_COMPILER_ID} or no GPU offloading flags defined. GPU OpenMP offloading is required.")
+#   endif()
+# endif()
+#
+# if(GPU_OFFLOAD_FLAGS STREQUAL "")
+#   message(FATAL_ERROR "GPU OpenMP offloading support is required but not available with the current compiler.")
+# endif()
+#
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GPU_OFFLOAD_FLAGS}")
+# message(STATUS "Using GPU offloading flags: ${GPU_OFFLOAD_FLAGS}")
 
-if(GPU_OFFLOAD_FLAGS STREQUAL "")
-  message(FATAL_ERROR "GPU OpenMP offloading support is required but not available with the current compiler.")
+string(REPLACE -O2 -O3 CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
+set(CMAKE_CXX_FLAGS_DEBUG "-ggdb")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+   # using Clang
+ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp --offload-arch=gfx942 -fstrict-aliasing")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+   # using GCC
+   set(CMAKE_CXX_FLAGS 
+ "${CMAKE_CXX_FLAGS} -fopenmp -foffload=-march=gfx942 -fstrict-aliasing -fopt-info-optimized-omp")
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "Cray")
 endif()
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GPU_OFFLOAD_FLAGS}")
-message(STATUS "Using GPU offloading flags: ${GPU_OFFLOAD_FLAGS}")
 
 #-------------------------------
 # Set up build types
