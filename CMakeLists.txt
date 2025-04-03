@@ -11,6 +11,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS On)
 
+# Include module for checking compiler flags
+include(CheckCXXCompilerFlag)
+
 # ----------------------------------
 # Demand OpenMP support for pragmas
 # ----------------------------------
