@@ -128,7 +128,7 @@ namespace logging {
 
     return funcv;
   }
-#pragma omp declare target
+#pragma omp end declare target
 
 
   /**
