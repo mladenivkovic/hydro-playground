@@ -64,6 +64,9 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Cray")
 endif()
 
+# Print the CXX flags we are using 
+message(STATUS "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+
 #-------------------------------
 # Set up build types
 #-------------------------------
