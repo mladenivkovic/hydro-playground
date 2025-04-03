@@ -20,15 +20,21 @@
 #define LIMITER_VANLEER 32
 
 
+#pragma omp declare target
 constexpr const char* CMAKE_BUILD_TYPE ="@CMAKE_BUILD_TYPE@";
+#pragma omp end declare target
 
 // make sure to add trailing slash here.
+#pragma omp declare target
 constexpr const char* CMAKE_SOURCE_DIR ="@CMAKE_SOURCE_DIR@/";
+#pragma omp end declare target
 
 
 // Global dimensions macro; change this to be fetched
 // from CMake in the future...
+#pragma omp declare target
 static constexpr int Dimensions = 2;
+#pragma omp end declare target
 
 
 #if (PRECISION == SINGLE_PRECISION)

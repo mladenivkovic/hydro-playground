@@ -262,6 +262,7 @@ void Grid::resetFluxes() {
   size_t first = getFirstCellIndex();
   size_t last  = getLastCellIndex();
 
+#pragma omp target teams loop
   for (size_t j = first; j < last; j++) {
     for (size_t i = first; i < last; i++) {
       // getCell(i, j).getPFlux().clear();
