@@ -103,6 +103,7 @@ void PrimitiveState::fromCons(const ConservedState& cons) {
  * @brief construct a string with the contents.
  * Format: [rho, vx, vy, P]
  */
+#pragma omp declare target
 std::string PrimitiveState::toString() const {
 
   constexpr int w = gas_print_width;
@@ -118,6 +119,7 @@ std::string PrimitiveState::toString() const {
 
   return out.str();
 }
+#pragma omp end declare target
 
 
 // ------------------------------------
