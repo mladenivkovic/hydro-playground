@@ -341,10 +341,10 @@ void Grid::applyBoundaryConditions() {
   const size_t lastReal  = getLastCellIndex();
 
   // Make some space.
-  std::vector<Cell*> real_left(nbc);
-  std::vector<Cell*> real_right(nbc);
-  std::vector<Cell*> ghost_left(nbc);
-  std::vector<Cell*> ghost_right(nbc);
+  Boundary real_left(nbc);
+  Boundary real_right(nbc);
+  Boundary ghost_left(nbc);
+  Boundary ghost_right(nbc);
 
   if (Dimensions == 1) {
     for (size_t i = 0; i < firstReal; i++) {
@@ -402,10 +402,10 @@ void Grid::applyBoundaryConditions() {
  * lowest array index is also lowest index of cell in grid
  */
 void Grid::realToGhost(
-  std::vector<Cell*> real_left,
-  std::vector<Cell*> real_right,
-  std::vector<Cell*> ghost_left,
-  std::vector<Cell*> ghost_right,
+  Boundary& real_left,
+  Boundary& real_right,
+  Boundary& ghost_left,
+  Boundary& ghost_right,
   const size_t       dimension
 ) // dimension defaults to 0
 {

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-
 #include "Cell.h"
 #include "Logging.h"
 #include "Parameters.h"
@@ -98,10 +96,10 @@ public:
 
   //! Apply the boundary conditions from real to ghost cells.
   void realToGhost(
-    std::vector<Cell*> real_left,
-    std::vector<Cell*> real_right,
-    std::vector<Cell*> ghost_left,
-    std::vector<Cell*> ghost_right,
+    Boundary& real_left,
+    Boundary& real_right,
+    Boundary& ghost_left,
+    Boundary& ghost_right,
     const size_t       dimension = 0
   );
 
