@@ -265,10 +265,8 @@ namespace logging {
      * @param line The current line in the file. Intended to be the
      *   (replacement of the) __LINE__ macro.
      */
-#pragma omp declare target
     template <AllowedMessageType T>
     void logError(const T text, const char* file, const char* function, const size_t line);
-#pragma omp end declare target
 
 
     /**
