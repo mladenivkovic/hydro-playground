@@ -141,10 +141,6 @@ ConservedState::ConservedState(
 ):
   _rho(rho),
   _energy(E) {
-#if DEBUG_LEVEL > 0
-  if (Dimensions != 2)
-    error("This is for 2D only!");
-#endif
   _rhov[0] = rhovx;
   _rhov[1] = rhovy;
 }
