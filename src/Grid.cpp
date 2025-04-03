@@ -340,6 +340,9 @@ void Grid::applyBoundaryConditions() {
   const size_t firstReal = getFirstCellIndex();
   const size_t lastReal  = getLastCellIndex();
 
+  // Select which BC to use.
+  auto real2ghost = selectBoundaryFunction();
+
   // Make some space.
   Boundary real_left(nbc);
   Boundary real_right(nbc);
@@ -353,7 +356,7 @@ void Grid::applyBoundaryConditions() {
       ghost_left[i]  = &(getCell(i));
       ghost_right[i] = &(getCell(lastReal + i));
     }
-    realToGhost(real_left, real_right, ghost_left, ghost_right);
+    real2ghost(real_left, real_right, ghost_left, ghost_right, 0);
   }
 
   else if (Dimensions == 2) {
@@ -366,7 +369,7 @@ void Grid::applyBoundaryConditions() {
         ghost_left[i]  = &(getCell(i, j));
         ghost_right[i] = &(getCell(lastReal + i, j));
       }
-      realToGhost(real_left, real_right, ghost_left, ghost_right, 0);
+      real2ghost(real_left, real_right, ghost_left, ghost_right, 0);
     }
 
     // upper-lower boundaries
@@ -378,7 +381,7 @@ void Grid::applyBoundaryConditions() {
         ghost_left[j]  = &(getCell(i, j));
         ghost_right[j] = &(getCell(i, lastReal + j));
       }
-      realToGhost(real_left, real_right, ghost_left, ghost_right, 1);
+      real2ghost(real_left, real_right, ghost_left, ghost_right, 1);
     }
   } else {
     error("Not implemented.");
@@ -389,8 +392,10 @@ void Grid::applyBoundaryConditions() {
 
 
 /**
- * apply the boundary conditions from real to ghost cells
+ * Selects and returns the function that applied the correct boundary
+ * conditions from ghost to real cells.
  *
+ * The returned function takes 5 parameters, in this order:
  * @param realL:     array of pointers to real cells with lowest index
  * @param realR:     array of pointers to real cells with highest index
  * @param ghostL:    array of pointers to ghost cells with lowest index
@@ -398,17 +403,11 @@ void Grid::applyBoundaryConditions() {
  * @param dimension: dimension integer. 0 for x, 1 for y. Needed for
  *                   reflective boundary conditions.
  *
- * all arguments are arrays of size params::_nbc (number of boundary cells)
- * lowest array index is also lowest index of cell in grid
+ * All arguments are arrays of size Grid::_nbc (number of boundary cells).
+ * Lowest array index is also lowest index of cell in grid.
  */
-void Grid::realToGhost(
-  Boundary&    real_left,
-  Boundary&    real_right,
-  Boundary&    ghost_left,
-  Boundary&    ghost_right,
-  const size_t dimension
-) // dimension defaults to 0
-{
+std::function<void(Boundary&, Boundary&, Boundary&, Boundary&, const size_t)>
+Grid::selectBoundaryFunction() {
 
   size_t nbc = getNBC();
 
@@ -419,27 +418,49 @@ void Grid::realToGhost(
   assert(ghost_right.size() == nbc);
 #endif
 
+  std::function<void(Boundary&, Boundary&, Boundary&, Boundary&, const size_t)> real2ghost;
 
   switch (getBoundaryType()) {
   case BC::BoundaryCondition::Periodic:
-    for (size_t i = 0; i < nbc; i++) {
-      ghost_left[i]->copyBoundaryData(real_right[i]);
-      ghost_right[i]->copyBoundaryData(real_left[i]);
-    }
+    real2ghost = [=](
+      Boundary&    real_left,
+      Boundary&    real_right,
+      Boundary&    ghost_left,
+      Boundary&    ghost_right,
+      const size_t dimension){
+        for (size_t i = 0; i < nbc; i++) {
+          ghost_left[i]->copyBoundaryData(real_right[i]);
+          ghost_right[i]->copyBoundaryData(real_left[i]);
+        }
+      };
     break;
 
   case BC::BoundaryCondition::Reflective:
-    for (size_t i = 0; i < nbc; i++) {
-      ghost_left[i]->copyBoundaryDataReflective(real_left[real_left.size() - i - 1], dimension);
-      ghost_right[i]->copyBoundaryDataReflective(real_right[real_right.size() - i - 1], dimension);
-    }
+    real2ghost = [=](
+      Boundary&    real_left,
+      Boundary&    real_right,
+      Boundary&    ghost_left,
+      Boundary&    ghost_right,
+      const size_t dimension){
+      for (size_t i = 0; i < nbc; i++) {
+        ghost_left[i]->copyBoundaryDataReflective(real_left[real_left.size() - i - 1], dimension);
+        ghost_right[i]->copyBoundaryDataReflective(real_right[real_right.size() - i - 1], dimension);
+      }
+    };
     break;
 
   case BC::BoundaryCondition::Transmissive:
-    for (size_t i = 0; i < nbc; i++) {
-      ghost_left[i]->copyBoundaryData(real_left[real_left.size() - i - 1]);
-      ghost_right[i]->copyBoundaryData(real_right[real_right.size() - i - 1]);
-    }
+    real2ghost = [=](
+      Boundary&    real_left,
+      Boundary&    real_right,
+      Boundary&    ghost_left,
+      Boundary&    ghost_right,
+      const size_t dimension){
+        for (size_t i = 0; i < nbc; i++) {
+          ghost_left[i]->copyBoundaryData(real_left[real_left.size() - i - 1]);
+          ghost_right[i]->copyBoundaryData(real_right[real_right.size() - i - 1]);
+        }
+      };
     break;
 
   default:
@@ -450,6 +471,8 @@ void Grid::realToGhost(
     error(msg.str());
     break;
   }
+
+  return real2ghost;
 }
 
 

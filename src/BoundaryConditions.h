@@ -46,17 +46,21 @@ namespace BC {
 
 
 /**
- * A simple container for boundary cells. You can in principle just use a list
- * or a vector, but those STL objects are not trivially copyable - something
- * e.g. openMP offloading is not happy about. So I write proper constructors
- * by myself.
+ * A simple container for boundary cells. Just think of it as an array of
+ * pointers to cells.
+ *
+ * I added this trying to avoid "<data type> is not trivially copyable and not
+ * guaranteed to be mapped correctly" warnings with OpenMP offloading, but this
+ * didn't really solve it. But it lets us avoid std::vectors and is simple enough,
+ * so let's keep it for now.
  */
 class Boundary {
 
-public:
+private:
   size_t _n;
   Cell** _cells;
 
+public:
   explicit Boundary(const size_t N):
     _n(N),
     _cells(new Cell*[N]) {};
@@ -93,7 +97,7 @@ public:
     return *this;
   }
 
-  // overload [] operator
+  // overload [] operator for access
   Cell*& operator[](size_t index) {
 #if DEBUG_LEVEL > 0
     if (index > _n)
@@ -102,6 +106,9 @@ public:
     return _cells[index];
   }
 
+  /**
+   * Get the size of the cell pointer array.
+   */
   size_t size() {
     return _n;
   }
