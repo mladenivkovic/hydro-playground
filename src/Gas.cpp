@@ -10,6 +10,7 @@ static constexpr int gas_print_width     = 5;
 static constexpr int gas_print_precision = 2;
 
 
+#pragma omp declare target
 // Stuff for primitive state
 
 /**
@@ -271,3 +272,6 @@ std::string ConservedState::toString() const {
 
   return out.str();
 }
+
+
+#pragma omp end declare target
