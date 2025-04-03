@@ -127,7 +127,6 @@ std::string PrimitiveState::toString() const {
 // ------------------------------------
 
 
-#pragma omp declare target
 ConservedState::ConservedState():
   _rho(0.),
   _energy(0.) {
@@ -135,9 +134,8 @@ ConservedState::ConservedState():
     _rhov[i] = 0.;
   }
 }
-#pragma omp end declare target
 
-#pragma omp declare target
+
 ConservedState::ConservedState(
   const Float rho, const Float rhovx, const Float rhovy, const Float E
 ):
@@ -150,18 +148,17 @@ ConservedState::ConservedState(
     _rhov[0] = rhovx;
     _rhov[1] = rhovy;
   }
-#pragma omp end declare target
 
-/**
- * Initialise a conserved flux along a dimension using primitive variables of
- * the state.
- */
-#pragma omp declare target
+
+  /**
+   * Initialise a conserved flux along a dimension using primitive variables of
+   * the state.
+   */
+
   ConservedState::ConservedState(const PrimitiveState& prim, const size_t dimension) {
 
     getCFluxFromPState(prim, dimension);
   }
-#pragma omp end declare target
 
 
   /**
@@ -190,7 +187,7 @@ ConservedState::ConservedState(
    * The flux terms for each dimension are given as the second and
    * third term in Eq. 13.
    */
-#pragma omp declare target
+
   void ConservedState::getCFluxFromPState(const PrimitiveState& pstate, const size_t dimension) {
 
     size_t other  = (dimension + 1) % 2;
@@ -211,22 +208,22 @@ ConservedState::ConservedState(
     Float E = pstate.getE();
     setE((E + p) * vdim);
   }
-#pragma omp end declare target
 
-/**
- * Compute the flux of conserved variables of the Euler
- * equations given a conserved state vector
- *
- * The flux is not an entire tensor for 3D Euler equations, but
- * correpsonds to the dimensionally split vectors F, G as
- * described in the "Euler equations in 2D" section of the
- * documentation TeX files.
- * That's why you need to specify the dimension.
- *
- * The flux terms for each dimension are given as the second and
- * third term in Eq. 13.
- */
-#pragma omp declare target
+
+  /**
+   * Compute the flux of conserved variables of the Euler
+   * equations given a conserved state vector
+   *
+   * The flux is not an entire tensor for 3D Euler equations, but
+   * correpsonds to the dimensionally split vectors F, G as
+   * described in the "Euler equations in 2D" section of the
+   * documentation TeX files.
+   * That's why you need to specify the dimension.
+   *
+   * The flux terms for each dimension are given as the second and
+   * third term in Eq. 13.
+   */
+
   void ConservedState::getCFluxFromCstate(const ConservedState& cons, const size_t dimension) {
 
     // Mass flux
@@ -260,7 +257,6 @@ ConservedState::ConservedState(
       setE(0.);
     }
   }
-#pragma omp end declare target
 
 
   /**

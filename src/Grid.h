@@ -194,7 +194,7 @@ public:
  * Get (reference to) a cell by its index.
  * This is for the 1D grid.
  */
-#pragma omp declare target
+
 inline Cell& Grid::getCell(const size_t i) {
 
 #if DEBUG_LEVEL > 0
@@ -204,14 +204,13 @@ inline Cell& Grid::getCell(const size_t i) {
 #endif
   return _cells[i];
 }
-#pragma omp end declare target
 
 
 /**
  * Get (reference to) a cell by its index.
  * This is for the 2D grid.
  */
-#pragma omp declare target
+
 inline Cell& Grid::getCell(const size_t i, const size_t j) {
 
 #if DEBUG_LEVEL > 1
@@ -228,7 +227,6 @@ inline Cell& Grid::getCell(const size_t i, const size_t j) {
   size_t nxTot = getNxTot();
   return _cells[i + j * nxTot];
 }
-#pragma omp end declare target
 
 
 inline size_t Grid::getNx() const {

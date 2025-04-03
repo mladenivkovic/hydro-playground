@@ -133,17 +133,14 @@ inline Float Cell::getY() const {
 // }
 
 
-#pragma omp declare target
 inline PrimitiveState& Cell::getPrim() {
   return _prim;
 }
-#pragma omp end declare target
 
-#pragma omp declare target
+
 inline ConservedState& Cell::getCons() {
   return _cons;
 }
-#pragma omp end declare target
 
 
 // inline PrimitiveState& Cell::getPFlux() {
@@ -151,11 +148,9 @@ inline ConservedState& Cell::getCons() {
 // }
 
 
-#pragma omp declare target
 inline ConservedState& Cell::getCFlux() {
   return _cflux;
 }
-#pragma omp end declare target
 
 
 inline void Cell::setCFlux(ConservedFlux& flux) {
@@ -200,27 +195,22 @@ inline void Cell::setURMid(const ConservedState& state) {
 #endif
 }
 
-#pragma omp declare target
+
 inline const PrimitiveState& Cell::getPrim() const {
   return _prim;
 }
-#pragma omp end declare target
 
-#pragma omp declare target
+
 inline const ConservedState& Cell::getCons() const {
   return _cons;
 }
-#pragma omp end declare target
 
 
-#pragma omp declare target
 inline void Cell::setPrim(const PrimitiveState& prim) {
   _prim = prim;
 }
-#pragma omp end declare target
 
-#pragma omp declare target
+
 inline void Cell::setCons(const ConservedState& cons) {
   _cons = cons;
 }
-#pragma omp end declare target

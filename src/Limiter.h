@@ -46,7 +46,7 @@ namespace limiter {
    * switch what topleft, topright, and bottomleft are, which is
    * done in the function that is calling this one.
    */
-#pragma omp declare target
+
   inline Float limiterR(const Float topleft, const Float topright, const Float bottomleft) {
 
     // avoid div by zero
@@ -54,7 +54,6 @@ namespace limiter {
       return ((topleft - topright) * 1.e6);
     return ((topleft - topright) / (bottomleft - topleft));
   }
-#pragma omp end declare target
 
 
   /**
@@ -67,7 +66,7 @@ namespace limiter {
    * @param UiM1:  U_{i-1}
    * @param r:     where flow parameter r for every conserved state will be stored
    */
-#pragma omp declare target
+
   inline void limiterGetRCstate(
     const ConservedState& UiP1,
     const ConservedState& Ui,
@@ -82,7 +81,6 @@ namespace limiter {
 
     r = ConservedState(rho, rhovx, rhovy, E);
   }
-#pragma omp end declare target
 
 
   /**
@@ -96,7 +94,7 @@ namespace limiter {
    * @param Ui: State of cell U_{i}
    * @param UiM1: State of cell U_{i-1}
    */
-#pragma omp declare target
+
   inline void limiterGetLimitedSlope(
     const ConservedState& UiP1,
     const ConservedState& Ui,
@@ -132,7 +130,6 @@ namespace limiter {
 
     slope = ConservedState(slope_rho, slope_rhovx, slope_rhovy, slope_E);
   }
-#pragma omp end declare target
 
 
 } // namespace limiter
