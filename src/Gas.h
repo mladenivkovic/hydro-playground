@@ -19,6 +19,7 @@ class PrimitiveState;
 using ConservedFlux = ConservedState;
 using PrimitiveFlux = PrimitiveState;
 
+#pragma omp declare target
 
 /**
  * @brief Holds a primitive state (density, velocity, pressure)
@@ -326,3 +327,5 @@ inline Float ConservedState::getP() const {
   Float rv2          = rho * (vx * vx + vy * vy);
   return cst::GM1 * (getE() - 0.5 * rv2);
 }
+
+#pragma omp end declare target
