@@ -36,7 +36,7 @@ Getting Started
 - A good old C++ compiler. Code is written in C++20 standard.
 - `cmake` 3.21 or above
 - (optional) `python 3` with `numpy` and `matplotlib` for plotting outputs and generating initial
-  conditions.
+  conditions. Additionally with `sphinx` to build the parallelisation documentation.
 - (optional) LaTeX to create the TeX files. I hard-coded the `pdflatex` command in the scripts. It
   doesn't require any fancy LaTeX packages.
 
@@ -111,6 +111,24 @@ pdflatex -jobname=documentation documentation.tex
 or open the main TeX document, `hydro_playground/doc/tex/documentation/documentation.tex` with your
 favourite TeX IDE/Editor.
 
+
+
+There is also documentation on parallelisation strategies and paradigms in `hydro_playgournd/doc/rtd`.
+You can build `html` or `latex-pdf` outputs using:
+
+```
+cd doc/rtd
+make html                      # to make html documentation
+firefox build/html/index.html  # to view the resulting documentation using firefox
+```
+
+for `html` outputs, or
+
+```
+cd doc/rtd
+make latexpdf                                           # to make latex pdf documentation
+okular build/latex/hydro_playground_paralleisation.pdf  # to view the resulting documentation using okular
+```
 
 
 

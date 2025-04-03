@@ -15,7 +15,8 @@
 \item   \cmake 3.21 or above
 \item   (optional) \codename{Python 3} with \codename{numpy} and
         \codename{matplotlib} for plotting outputs and generating initial
-        conditions.
+        conditions. Additionally, \codename{sphinx} to build the
+        parallelisation documentation.
 \item   (optional) \codename{LaTeX} to create the \jargon{TeX} files. I
         hard-coded the \jargon{pdflatex} command in the scripts. It doesn't
         require any fancy \codename{LaTeX} packages.
@@ -150,6 +151,30 @@ Another way yet is to import the documentation directory into your LaTeX editor
 of choice. The main file you need to import, open, and compile is
 \verb|documentation.tex|.
 
+
+
+
+
+
+There is also documentation on parallelisation strategies and paradigms in \verb|hydro_playgournd/doc/rtd|.
+You can build \code{html} or \code{latex-pdf} outputs using
+
+\begin{lstlisting}
+doc/rtd
+make html                      # to make html documentation
+firefox build/html/index.html  # to view the resulting documentation using firefox
+\end{lstlisting}
+
+
+for \code{html} outputs, or
+
+\begin{lstlisting}
+cd doc/rtd
+make latexpdf                                           # to make latex pdf documentation
+okular build/latex/hydro_playground_paralleisation.pdf  # to view the resulting documentation using okular
+\end{lstlisting}
+
+for \code{latex-pdf} outputs.
 
 
 
