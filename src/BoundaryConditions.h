@@ -6,8 +6,8 @@
 #pragma once
 
 #include <cstddef>
-#include <utility>
 #include <string>
+#include <utility>
 
 #include "Cell.h"
 
@@ -51,47 +51,50 @@ namespace BC {
  * e.g. openMP offloading is not happy about. So I write proper constructors
  * by myself.
  */
-class Boundary{
+class Boundary {
 
 public:
-
   size_t _n;
   Cell** _cells;
 
-  explicit Boundary(const size_t N) : _n(N), _cells(new Cell*[N]) {};
+  explicit Boundary(const size_t N):
+    _n(N),
+    _cells(new Cell*[N]) {};
 
   ~Boundary() {
     delete[] _cells;
   }
 
   // Copy operator
-  Boundary(const Boundary& other) : _n(other._n) {
+  Boundary(const Boundary& other):
+    _n(other._n) {
     for (size_t i = 0; i < _n; i++)
       _cells[i] = other._cells[i];
   }
 
   // Copy assignment
   Boundary& operator=(const Boundary& other) {
-    this->_n= other._n;
+    this->_n = other._n;
     for (size_t i = 0; i < _n; i++)
       this->_cells[i] = other._cells[i];
     return *this;
   }
 
   // Move operator
-  Boundary(const Boundary&& other)  noexcept : _n(other._n) {
+  Boundary(const Boundary&& other) noexcept:
+    _n(other._n) {
     _cells = std::move(other._cells);
   }
 
   // Move assignment
   Boundary& operator=(Boundary&& other) noexcept {
-    this->_n= other._n;
+    this->_n     = other._n;
     this->_cells = other._cells;
     return *this;
   }
 
   // overload [] operator
-  Cell*& operator[](size_t index){
+  Cell*& operator[](size_t index) {
 #if DEBUG_LEVEL > 0
     if (index > _n)
       error("Invalid index:" + std::to_string(index));
@@ -99,9 +102,7 @@ public:
     return _cells[index];
   }
 
-  size_t size(){
+  size_t size() {
     return _n;
   }
 };
-
-
