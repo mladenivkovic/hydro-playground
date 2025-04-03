@@ -11,7 +11,7 @@
  * @file Logging.h
  * @brief Utilities related to logging.
  */
-
+#pragma omp declare target
 template <typename T>
 concept AllowedMessageType = std::same_as<T, std::string> || std::same_as<T, const char*>
                              || std::same_as<T, char*> || std::same_as<T, std::string_view>;
@@ -575,3 +575,4 @@ std::string logging::Log::constructMessage(
 
   return out;
 }
+#pragma omp end declare target
