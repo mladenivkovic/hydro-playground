@@ -10,7 +10,6 @@ static constexpr int gas_print_width     = 5;
 static constexpr int gas_print_precision = 2;
 
 
-#pragma omp declare target
 // Stuff for primitive state
 
 /**
@@ -126,6 +125,7 @@ std::string PrimitiveState::toString() const {
 // ------------------------------------
 
 
+#pragma omp declare target
 ConservedState::ConservedState():
   _rho(0.),
   _energy(0.) {
@@ -133,7 +133,9 @@ ConservedState::ConservedState():
     _rhov[i] = 0.;
   }
 }
+#pragma omp end declare target
 
+#pragma omp declare target
 ConservedState::ConservedState(
   const Float rho, const Float rhovx, const Float rhovy, const Float E
 ):
@@ -146,15 +148,18 @@ ConservedState::ConservedState(
   _rhov[0] = rhovx;
   _rhov[1] = rhovy;
 }
+#pragma omp end declare target
 
 /**
  * Initialise a conserved flux along a dimension using primitive variables of
  * the state.
  */
+#pragma omp declare target
 ConservedState::ConservedState(const PrimitiveState& prim, const size_t dimension) {
 
   getCFluxFromPState(prim, dimension);
 }
+#pragma omp end declare target
 
 
 /**
@@ -218,6 +223,7 @@ void ConservedState::getCFluxFromPState(const PrimitiveState& pstate, const size
  * The flux terms for each dimension are given as the second and
  * third term in Eq. 13.
  */
+#pragma omp declare target
 void ConservedState::getCFluxFromCstate(const ConservedState& cons, const size_t dimension) {
 
   // Mass flux
@@ -251,6 +257,7 @@ void ConservedState::getCFluxFromCstate(const ConservedState& cons, const size_t
     setE(0.);
   }
 }
+#pragma omp end declare target
 
 
 /**
