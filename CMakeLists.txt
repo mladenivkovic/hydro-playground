@@ -73,6 +73,21 @@ else()
 
 endif()
 
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
+    message("Found Clang")
+    add_compile_options(-fopenmp --offload-arch=gfx942 -fstrict-aliasing)
+    set(AMD_GPU_OMP_FLAGS  -fopenmp --offload-arch=gfx942)
+
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    message("Found GNU")
+    add_compile_options(-fopenmp -foffload=-march=gfx942 -fstrict-aliasing -fopt-info-optimized-omp)
+    set(AMD_GPU_OMP_FLAGS -fopenmp -foffload=-march=gfx942)
+
+endif()
+
+
 message("* Current build type is : ${CMAKE_BUILD_TYPE}")
 
 
@@ -204,6 +219,7 @@ add_library(objects OBJECT ${CPP_SRC_FILES} ${PROJECT_BINARY_DIR}/Version.cpp)
 # MAIN EXECUTABLE: hydro
 add_executable(hydro ${MAIN_FILE})
 target_link_libraries(hydro PUBLIC objects)
+target_link_options(hydro PUBLIC ${AMD_GPU_OMP_FLAGS})
 
 
 
