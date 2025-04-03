@@ -11,7 +11,6 @@
  * @file Logging.h
  * @brief Utilities related to logging.
  */
-#pragma omp declare target
 template <typename T>
 concept AllowedMessageType = std::same_as<T, std::string> || std::same_as<T, const char*>
                              || std::same_as<T, char*> || std::same_as<T, std::string_view>;
@@ -266,8 +265,10 @@ namespace logging {
      * @param line The current line in the file. Intended to be the
      *   (replacement of the) __LINE__ macro.
      */
+#pragma omp declare target
     template <AllowedMessageType T>
     void logError(const T text, const char* file, const char* function, const size_t line);
+#pragma omp end declare target
 
 
     /**
@@ -483,6 +484,7 @@ void logging::Log::logWarning(
 
 
 template <AllowedMessageType T>
+#pragma omp declare target
 void logging::Log::logError(
   const T text, const char* file, const char* function, const size_t line
 ) {
@@ -510,6 +512,7 @@ void logging::Log::logError(
   std::cout << std::flush;
   std::abort();
 }
+#pragma omp end declare target
 
 
 template <AllowedMessageType T>
@@ -575,4 +578,3 @@ std::string logging::Log::constructMessage(
 
   return out;
 }
-#pragma omp end declare target
