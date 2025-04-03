@@ -4,7 +4,7 @@
 
 #include "Constants.h"
 #include "Logging.h"
-
+#include "omp.h"
 
 static constexpr int gas_print_width     = 5;
 static constexpr int gas_print_precision = 2;
@@ -142,12 +142,12 @@ ConservedState::ConservedState(
   _rho(rho),
   _energy(E) {
 #if DEBUG_LEVEL > 0
-  if (Dimensions != 2)
+  if (Dimensions != 2 && omp_is_initial_device()) {
     error("This is for 2D only!");
 #endif
-  _rhov[0] = rhovx;
-  _rhov[1] = rhovy;
-}
+    _rhov[0] = rhovx;
+    _rhov[1] = rhovy;
+  }
 #pragma omp end declare target
 
 /**
@@ -155,60 +155,61 @@ ConservedState::ConservedState(
  * the state.
  */
 #pragma omp declare target
-ConservedState::ConservedState(const PrimitiveState& prim, const size_t dimension) {
+  ConservedState::ConservedState(const PrimitiveState& prim, const size_t dimension) {
 
-  getCFluxFromPState(prim, dimension);
-}
+    getCFluxFromPState(prim, dimension);
+  }
 #pragma omp end declare target
 
 
-/**
- * Compute the conserved state vector of a given primitive state.
- *
- * See eqns. 16 - 18 in theory document.
- */
-void ConservedState::fromPrim(const PrimitiveState& p) {
-  setRho(p.getRho());
-  setRhov(0, p.getRho() * p.getV(0));
-  setRhov(1, p.getRho() * p.getV(1));
-  setE(p.getE());
-}
+  /**
+   * Compute the conserved state vector of a given primitive state.
+   *
+   * See eqns. 16 - 18 in theory document.
+   */
+  void ConservedState::fromPrim(const PrimitiveState& p) {
+    setRho(p.getRho());
+    setRhov(0, p.getRho() * p.getV(0));
+    setRhov(1, p.getRho() * p.getV(1));
+    setE(p.getE());
+  }
 
 
-/**
- * @brief Compute the flux of conserved variables of the Euler
- * equations given a primitive state vector
- *
- * The flux is not an entire tensor for 3D Euler equations, but
- * correpsonds to the dimensionally split vectors F, G as
- * described in the "Euler equations in 2D" section of the
- * documentation TeX files.
- * That's why you need to specify the dimension.
- *
- * The flux terms for each dimension are given as the second and
- * third term in Eq. 13.
- */
-void ConservedState::getCFluxFromPState(const PrimitiveState& pstate, const size_t dimension) {
+  /**
+   * @brief Compute the flux of conserved variables of the Euler
+   * equations given a primitive state vector
+   *
+   * The flux is not an entire tensor for 3D Euler equations, but
+   * correpsonds to the dimensionally split vectors F, G as
+   * described in the "Euler equations in 2D" section of the
+   * documentation TeX files.
+   * That's why you need to specify the dimension.
+   *
+   * The flux terms for each dimension are given as the second and
+   * third term in Eq. 13.
+   */
+#pragma omp declare target
+  void ConservedState::getCFluxFromPState(const PrimitiveState& pstate, const size_t dimension) {
 
-  size_t other  = (dimension + 1) % 2;
-  Float  rho    = pstate.getRho();
-  Float  vdim   = pstate.getV(dimension);
-  Float  vother = pstate.getV(other);
-  Float  p      = pstate.getP();
+    size_t other  = (dimension + 1) % 2;
+    Float  rho    = pstate.getRho();
+    Float  vdim   = pstate.getV(dimension);
+    Float  vother = pstate.getV(other);
+    Float  p      = pstate.getP();
 
-  // mass flux
-  setRho(rho * vdim);
-  // momentum flux along the requested dimension
-  setRhov(dimension, rho * vdim * vdim + p);
+    // mass flux
+    setRho(rho * vdim);
+    // momentum flux along the requested dimension
+    setRhov(dimension, rho * vdim * vdim + p);
 
-  // momentum flux along the other dimension
-  setRhov(other, rho * vdim * vother);
+    // momentum flux along the other dimension
+    setRhov(other, rho * vdim * vother);
 
-  // gas energy flux
-  Float E = pstate.getE();
-  setE((E + p) * vdim);
-}
-
+    // gas energy flux
+    Float E = pstate.getE();
+    setE((E + p) * vdim);
+  }
+#pragma omp end declare target
 
 /**
  * Compute the flux of conserved variables of the Euler
@@ -224,58 +225,58 @@ void ConservedState::getCFluxFromPState(const PrimitiveState& pstate, const size
  * third term in Eq. 13.
  */
 #pragma omp declare target
-void ConservedState::getCFluxFromCstate(const ConservedState& cons, const size_t dimension) {
+  void ConservedState::getCFluxFromCstate(const ConservedState& cons, const size_t dimension) {
 
-  // Mass flux
-  Float rho = cons.getRho();
+    // Mass flux
+    Float rho = cons.getRho();
 
-  if (rho > 0.) {
+    if (rho > 0.) {
 
-    setRho(cons.getRhov(dimension));
+      setRho(cons.getRhov(dimension));
 
-    size_t other        = (dimension + 1) % 2;
-    Float  one_over_rho = 1. / rho;
-    Float  vdim         = cons.getRhov(dimension) * one_over_rho;
-    Float  p            = cons.getP();
+      size_t other        = (dimension + 1) % 2;
+      Float  one_over_rho = 1. / rho;
+      Float  vdim         = cons.getRhov(dimension) * one_over_rho;
+      Float  p            = cons.getP();
 
-    // momentum flux along the requested dimension
-    Float momentum_dim = rho * vdim * vdim + p;
+      // momentum flux along the requested dimension
+      Float momentum_dim = rho * vdim * vdim + p;
 
-    setRhov(dimension, momentum_dim);
+      setRhov(dimension, momentum_dim);
 
-    // momentum flux along the other dimension
-    Float momentum_other = cons.getRhov(other) * vdim;
-    setRhov(other, momentum_other);
+      // momentum flux along the other dimension
+      Float momentum_other = cons.getRhov(other) * vdim;
+      setRhov(other, momentum_other);
 
-    Float E = (cons.getE() + p) * vdim;
-    setE(E);
+      Float E = (cons.getE() + p) * vdim;
+      setE(E);
 
-  } else {
+    } else {
 
-    setRhov(0, 0.);
-    setRhov(1, 0.);
-    setE(0.);
+      setRhov(0, 0.);
+      setRhov(1, 0.);
+      setE(0.);
+    }
   }
-}
 #pragma omp end declare target
 
 
-/**
- * @brief construct a string with the contents.
- * Format: [rho, rho * vx, rho * vy, E]
- */
-std::string ConservedState::toString() const {
+  /**
+   * @brief construct a string with the contents.
+   * Format: [rho, rho * vx, rho * vy, E]
+   */
+  std::string ConservedState::toString() const {
 
-  constexpr int w = gas_print_width;
-  constexpr int p = gas_print_precision;
+    constexpr int w = gas_print_width;
+    constexpr int p = gas_print_precision;
 
-  std::stringstream out;
-  out << "[";
-  out << std::setprecision(p) << std::setw(w) << getRho() << ",";
-  for (size_t i = 0; i < Dimensions; i++) {
-    out << std::setprecision(p) << std::setw(w) << getRhov(i) << ",";
+    std::stringstream out;
+    out << "[";
+    out << std::setprecision(p) << std::setw(w) << getRho() << ",";
+    for (size_t i = 0; i < Dimensions; i++) {
+      out << std::setprecision(p) << std::setw(w) << getRhov(i) << ",";
+    }
+    out << std::setprecision(p) << std::setw(w) << getE() << "]";
+
+    return out.str();
   }
-  out << std::setprecision(p) << std::setw(w) << getE() << "]";
-
-  return out.str();
-}
