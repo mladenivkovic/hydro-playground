@@ -97,8 +97,9 @@ public:
 
 
   //! Get the function that applies the correct boundary conditions.
-  std::function<void(Boundary&, Boundary&, Boundary&, Boundary&, const size_t)>
-  selectBoundaryFunction();
+  std::function<void(
+    Boundary&, Boundary&, Boundary&, Boundary&, const size_t
+  )> selectBoundaryFunction();
 
 
   //! Print out the grid.

@@ -406,8 +406,8 @@ void Grid::applyBoundaryConditions() {
  * All arguments are arrays of size Grid::_nbc (number of boundary cells).
  * Lowest array index is also lowest index of cell in grid.
  */
-std::function<void(Boundary&, Boundary&, Boundary&, Boundary&, const size_t)>
-Grid::selectBoundaryFunction() {
+std::function<void(Boundary&, Boundary&, Boundary&, Boundary&, const size_t)> Grid::
+  selectBoundaryFunction() {
 
   size_t nbc = getNBC();
 
@@ -422,12 +422,14 @@ Grid::selectBoundaryFunction() {
 
   switch (getBoundaryType()) {
   case BC::BoundaryCondition::Periodic:
-    real2ghost = [=](
-      Boundary&    real_left,
-      Boundary&    real_right,
-      Boundary&    ghost_left,
-      Boundary&    ghost_right,
-      const size_t dimension){
+    real2ghost =
+      [=](
+        Boundary&    real_left,
+        Boundary&    real_right,
+        Boundary&    ghost_left,
+        Boundary&    ghost_right,
+        const size_t dimension
+      ) {
         for (size_t i = 0; i < nbc; i++) {
           ghost_left[i]->copyBoundaryData(real_right[i]);
           ghost_right[i]->copyBoundaryData(real_left[i]);
@@ -436,26 +438,32 @@ Grid::selectBoundaryFunction() {
     break;
 
   case BC::BoundaryCondition::Reflective:
-    real2ghost = [=](
-      Boundary&    real_left,
-      Boundary&    real_right,
-      Boundary&    ghost_left,
-      Boundary&    ghost_right,
-      const size_t dimension){
-      for (size_t i = 0; i < nbc; i++) {
-        ghost_left[i]->copyBoundaryDataReflective(real_left[real_left.size() - i - 1], dimension);
-        ghost_right[i]->copyBoundaryDataReflective(real_right[real_right.size() - i - 1], dimension);
-      }
-    };
+    real2ghost =
+      [=](
+        Boundary&    real_left,
+        Boundary&    real_right,
+        Boundary&    ghost_left,
+        Boundary&    ghost_right,
+        const size_t dimension
+      ) {
+        for (size_t i = 0; i < nbc; i++) {
+          ghost_left[i]->copyBoundaryDataReflective(real_left[real_left.size() - i - 1], dimension);
+          ghost_right[i]->copyBoundaryDataReflective(
+            real_right[real_right.size() - i - 1], dimension
+          );
+        }
+      };
     break;
 
   case BC::BoundaryCondition::Transmissive:
-    real2ghost = [=](
-      Boundary&    real_left,
-      Boundary&    real_right,
-      Boundary&    ghost_left,
-      Boundary&    ghost_right,
-      const size_t dimension){
+    real2ghost =
+      [=](
+        Boundary&    real_left,
+        Boundary&    real_right,
+        Boundary&    ghost_left,
+        Boundary&    ghost_right,
+        const size_t dimension
+      ) {
         for (size_t i = 0; i < nbc; i++) {
           ghost_left[i]->copyBoundaryData(real_left[real_left.size() - i - 1]);
           ghost_right[i]->copyBoundaryData(real_right[real_right.size() - i - 1]);
