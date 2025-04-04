@@ -337,12 +337,108 @@ void Grid::applyBoundaryConditions() {
   timer::Timer tick(timer::Category::BoundaryConditions);
   message("Applying boundary conditions.", logging::LogLevel::Debug);
 
+
   const size_t nbc       = getNBC();
   const size_t firstReal = getFirstCellIndex();
   const size_t lastReal  = getLastCellIndex();
 
   // Select which BC to use.
   auto real2ghost = selectBoundaryFunction();
+
+  // default is periodic
+//  auto real2ghost_periodic = [=](
+//         Boundary&    real_left,
+//         Boundary&    real_right,
+//         Boundary&    ghost_left,
+//         Boundary&    ghost_right,
+//         const size_t dimension
+//       ) {
+//#if DEBUG_LEVEL > 0
+        // assert(real_left.size() == nbc);
+        // assert(real_right.size() == nbc);
+        // assert(ghost_left.size() == nbc);
+        // assert(ghost_right.size() == nbc);
+//#endif
+//         for (size_t i = 0; i < nbc; i++) {
+//           ghost_left[i]->copyBoundaryData(real_right[i]);
+//           ghost_right[i]->copyBoundaryData(real_left[i]);
+//         }
+//       };
+//
+//    auto real2ghost_reflective =
+//      [=](
+//        Boundary&    real_left,
+//        Boundary&    real_right,
+//        Boundary&    ghost_left,
+//        Boundary&    ghost_right,
+//        const size_t dimension
+//      ) {
+//#if DEBUG_LEVEL > 0
+//        // assert(real_left.size() == nbc);
+//        // assert(real_right.size() == nbc);
+//        // assert(ghost_left.size() == nbc);
+//        // assert(ghost_right.size() == nbc);
+//#endif
+//        for (size_t i = 0; i < nbc; i++) {
+//          ghost_left[i]->copyBoundaryDataReflective(real_left[real_left.size() - i - 1], dimension);
+//          ghost_right[i]->copyBoundaryDataReflective(
+//            real_right[real_right.size() - i - 1], dimension
+//          );
+//        }
+//      };
+//
+//    auto real2ghost_transmissive =
+//      [=](
+//        Boundary&    real_left,
+//        Boundary&    real_right,
+//        Boundary&    ghost_left,
+//        Boundary&    ghost_right,
+//        const size_t dimension
+//      ) {
+//#if DEBUG_LEVEL > 0
+//       // assert(real_left.size() == nbc);
+//       // assert(real_right.size() == nbc);
+//       // assert(ghost_left.size() == nbc);
+//       // assert(ghost_right.size() == nbc);
+//#endif
+//        for (size_t i = 0; i < nbc; i++) {
+//          ghost_left[i]->copyBoundaryData(real_left[real_left.size() - i - 1]);
+//          ghost_right[i]->copyBoundaryData(real_right[real_right.size() - i - 1]);
+//        }
+//      };
+//
+//  auto real2ghost =
+//    [=](
+//      Boundary&    real_left,
+//      Boundary&    real_right,
+//      Boundary&    ghost_left,
+//      Boundary&    ghost_right,
+//      const size_t dimension
+//    ){};
+//
+//  switch (getBoundaryType()) {
+//  case BC::BoundaryCondition::Periodic:
+//    real2ghost = real2ghost_periodic;
+//    break;
+//
+//  case BC::BoundaryCondition::Reflective:
+//    real2ghost = real2ghost_reflective;
+//    break;
+//
+//  case BC::BoundaryCondition::Transmissive:
+//    real2ghost = real2ghost_transmissive;
+//    break;
+//
+//  default:
+//    std::stringstream msg;
+//    msg << "Treatment for boundary conditions of type ";
+//    msg << BC::getBoundaryConditionName(getBoundaryType());
+//    msg << " not defined.";
+//    error(msg.str());
+//    break;
+//  }
+
+
 
   // Make some space.
   Boundary real_left(nbc);
@@ -357,12 +453,13 @@ void Grid::applyBoundaryConditions() {
       ghost_left[i]  = &(getCell(i));
       ghost_right[i] = &(getCell(lastReal + i));
     }
-    real2ghost(real_left, real_right, ghost_left, ghost_right, 0);
+    real2ghost(real_left, real_right, ghost_left, ghost_right, nbc, 0);
   }
 
   else if (Dimensions == 2) {
 
     // left-right boundaries
+#pragma omp target teams loop
     for (size_t j = firstReal; j < lastReal; j++) {
       for (size_t i = 0; i < firstReal; i++) {
         real_left[i]   = &(getCell(firstReal + i, j));
@@ -370,11 +467,15 @@ void Grid::applyBoundaryConditions() {
         ghost_left[i]  = &(getCell(i, j));
         ghost_right[i] = &(getCell(lastReal + i, j));
       }
-      real2ghost(real_left, real_right, ghost_left, ghost_right, 0);
+// #ifdef DONT_DO_THIS
+      real2ghost(real_left, real_right, ghost_left, ghost_right, nbc, 0);
+// #endif
     }
 
+#ifdef DONT_DO_THOS
     // upper-lower boundaries
     // left -> lower, right -> upper
+#pragma omp target teams loop
     for (size_t i = firstReal; i < lastReal; i++) {
       for (size_t j = 0; j < firstReal; j++) {
         real_left[j]   = &(getCell(i, firstReal + j));
@@ -382,14 +483,84 @@ void Grid::applyBoundaryConditions() {
         ghost_left[j]  = &(getCell(i, j));
         ghost_right[j] = &(getCell(i, lastReal + j));
       }
-      real2ghost(real_left, real_right, ghost_left, ghost_right, 1);
+      real2ghost(real_left, real_right, ghost_left, ghost_right, nbc, 1);
     }
+#endif
   } else {
     error("Not implemented.");
   }
 
   // timing("Applying boundary conditions took " + tick.tock());
 }
+
+
+void periodic(
+        Boundary&    real_left,
+        Boundary&    real_right,
+        Boundary&    ghost_left,
+        Boundary&    ghost_right,
+        const size_t nbc,
+        const size_t dimension){
+
+#if DEBUG_LEVEL > 0
+// assert(real_left.size() == nbc);
+// assert(real_right.size() == nbc);
+// assert(ghost_left.size() == nbc);
+// assert(ghost_right.size() == nbc);
+#endif
+
+  for (size_t i = 0; i < nbc; i++) {
+    ghost_left[i]->copyBoundaryData(real_right[i]);
+    ghost_right[i]->copyBoundaryData(real_left[i]);
+  }
+}
+
+
+void reflective(
+        Boundary&    real_left,
+        Boundary&    real_right,
+        Boundary&    ghost_left,
+        Boundary&    ghost_right,
+        const size_t nbc,
+        const size_t dimension){
+
+#if DEBUG_LEVEL > 0
+// assert(real_left.size() == nbc);
+// assert(real_right.size() == nbc);
+// assert(ghost_left.size() == nbc);
+// assert(ghost_right.size() == nbc);
+#endif
+
+  for (size_t i = 0; i < nbc; i++) {
+    ghost_left[i]->copyBoundaryDataReflective(real_left[real_left.size() - i - 1], dimension);
+    ghost_right[i]->copyBoundaryDataReflective(real_right[real_right.size() - i - 1], dimension);
+  }
+}
+
+
+void transmissive(
+        Boundary&    real_left,
+        Boundary&    real_right,
+        Boundary&    ghost_left,
+        Boundary&    ghost_right,
+        const size_t nbc,
+        const size_t dimension){
+
+#if DEBUG_LEVEL > 0
+// assert(real_left.size() == nbc);
+// assert(real_right.size() == nbc);
+// assert(ghost_left.size() == nbc);
+// assert(ghost_right.size() == nbc);
+#endif
+  for (size_t i = 0; i < nbc; i++) {
+    ghost_left[i]->copyBoundaryData(real_left[real_left.size() - i - 1]);
+    ghost_right[i]->copyBoundaryData(real_right[real_right.size() - i - 1]);
+  }
+}
+
+
+
+
 
 
 /**
@@ -407,93 +578,30 @@ void Grid::applyBoundaryConditions() {
  * All arguments are arrays of size Grid::_nbc (number of boundary cells).
  * Lowest array index is also lowest index of cell in grid.
  */
-std::function<void(Boundary&, Boundary&, Boundary&, Boundary&, const size_t)> Grid::
-  selectBoundaryFunction() {
-
-  size_t nbc = getNBC();
-
-  std::function<void(Boundary&, Boundary&, Boundary&, Boundary&, const size_t)> real2ghost;
+#pragma omp declare target
+//std::function<void(Boundary&, Boundary&, Boundary&, Boundary&, const size_t)> Grid::
+BC::BoundaryFunctionPtr Grid::selectBoundaryFunction() {
 
   switch (getBoundaryType()) {
   case BC::BoundaryCondition::Periodic:
-    real2ghost =
-      [=](
-        Boundary&    real_left,
-        Boundary&    real_right,
-        Boundary&    ghost_left,
-        Boundary&    ghost_right,
-        const size_t dimension
-      ) {
-#if DEBUG_LEVEL > 0
-        assert(real_left.size() == nbc);
-        assert(real_right.size() == nbc);
-        assert(ghost_left.size() == nbc);
-        assert(ghost_right.size() == nbc);
-#endif
-        for (size_t i = 0; i < nbc; i++) {
-          ghost_left[i]->copyBoundaryData(real_right[i]);
-          ghost_right[i]->copyBoundaryData(real_left[i]);
-        }
-      };
-    break;
+    return &periodic;
 
   case BC::BoundaryCondition::Reflective:
-    real2ghost =
-      [=](
-        Boundary&    real_left,
-        Boundary&    real_right,
-        Boundary&    ghost_left,
-        Boundary&    ghost_right,
-        const size_t dimension
-      ) {
-#if DEBUG_LEVEL > 0
-        assert(real_left.size() == nbc);
-        assert(real_right.size() == nbc);
-        assert(ghost_left.size() == nbc);
-        assert(ghost_right.size() == nbc);
-#endif
-        for (size_t i = 0; i < nbc; i++) {
-          ghost_left[i]->copyBoundaryDataReflective(real_left[real_left.size() - i - 1], dimension);
-          ghost_right[i]->copyBoundaryDataReflective(
-            real_right[real_right.size() - i - 1], dimension
-          );
-        }
-      };
-    break;
+    return &reflective;
 
   case BC::BoundaryCondition::Transmissive:
-    real2ghost =
-      [=](
-        Boundary&    real_left,
-        Boundary&    real_right,
-        Boundary&    ghost_left,
-        Boundary&    ghost_right,
-        const size_t dimension
-      ) {
-#if DEBUG_LEVEL > 0
-        assert(real_left.size() == nbc);
-        assert(real_right.size() == nbc);
-        assert(ghost_left.size() == nbc);
-        assert(ghost_right.size() == nbc);
-#endif
-        for (size_t i = 0; i < nbc; i++) {
-          ghost_left[i]->copyBoundaryData(real_left[real_left.size() - i - 1]);
-          ghost_right[i]->copyBoundaryData(real_right[real_right.size() - i - 1]);
-        }
-      };
-    break;
+    return &transmissive;
 
   default:
-    std::stringstream msg;
-    msg << "Treatment for boundary conditions of type ";
-    msg << BC::getBoundaryConditionName(getBoundaryType());
-    msg << " not defined.";
-    error(msg.str());
-    break;
+    // std::stringstream msg;
+    // msg << "Treatment for boundary conditions of type ";
+    // msg << BC::getBoundaryConditionName(getBoundaryType());
+    // msg << " not defined.";
+    // error(msg.str());
+    return &periodic;
   }
-
-  return real2ghost;
 }
+#pragma omp end declare target
 
 
 /**

@@ -97,9 +97,12 @@ public:
 
 
   //! Get the function that applies the correct boundary conditions.
-  std::function<void(
-    Boundary&, Boundary&, Boundary&, Boundary&, const size_t
-  )> selectBoundaryFunction();
+#pragma omp declare target
+// __attribute__((always_inline))  inline std::function<void(
+//     Boundary&, Boundary&, Boundary&, Boundary&, const size_t
+//   )> selectBoundaryFunction() noexcept  ;
+BC::BoundaryFunctionPtr selectBoundaryFunction();
+#pragma omp end declare target
 
 
   //! Print out the grid.
@@ -190,6 +193,7 @@ public:
  * Get (reference to) a cell by its index.
  * This is for the 1D grid.
  */
+#pragma omp declare target
 inline Cell& Grid::getCell(const size_t i) {
 
 #if DEBUG_LEVEL > 0
@@ -199,6 +203,7 @@ inline Cell& Grid::getCell(const size_t i) {
 #endif
   return _cells[i];
 }
+#pragma omp end declare target
 
 
 /**
