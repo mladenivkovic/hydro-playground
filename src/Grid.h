@@ -1,7 +1,5 @@
 #pragma once
 
-#include <functional>
-
 #include "BoundaryConditions.h"
 #include "Cell.h"
 #include "Logging.h"
@@ -99,9 +97,6 @@ public:
 
   //! Get the function that applies the correct boundary conditions.
 #pragma omp declare target
-  // __attribute__((always_inline))  inline std::function<void(
-  //     Boundary&, Boundary&, Boundary&, Boundary&, const size_t
-  //   )> selectBoundaryFunction() noexcept  ;
   BC::BoundaryFunctionPtr selectBoundaryFunction();
 #pragma omp end declare target
 
