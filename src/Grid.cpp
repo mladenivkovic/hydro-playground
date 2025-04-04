@@ -414,7 +414,6 @@ void Grid::applyBoundaryConditions() {
  * Lowest array index is also lowest index of cell in grid.
  */
 #pragma omp declare target
-// std::function<void(Boundary&, Boundary&, Boundary&, Boundary&, const size_t)> Grid::
 BC::BoundaryFunctionPtr Grid::selectBoundaryFunction() {
 
   switch (getBoundaryType()) {
