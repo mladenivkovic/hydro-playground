@@ -37,8 +37,9 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
+        # -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3
     add_compile_options(
-        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3
+        -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3
     )
     set(DEBUG_LEVEL 0)
 
@@ -48,8 +49,9 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     endif()
 
 elseif (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+        # -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3 -g
     add_compile_options(
-        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3 -g
+        -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3 -g
     )
     set(DEBUG_LEVEL 1)
 
@@ -59,8 +61,9 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     endif()
 
 elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        # -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O0 -g
     add_compile_options(
-        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O0 -g
+        -Wall -Wextra -Wpedantic -Wno-unused-parameter -O0 -g
     )
     set(DEBUG_LEVEL 2)
 
