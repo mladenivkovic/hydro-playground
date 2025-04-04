@@ -193,9 +193,9 @@ public:
 inline Cell& Grid::getCell(const size_t i) {
 
 #if DEBUG_LEVEL > 0
-  if (Dimensions != 1) {
-    error("This function is for 1D only!");
-  }
+//  if (Dimensions != 1) {
+//    error("This function is for 1D only!");
+//  }
 #endif
   return _cells[i];
 }
@@ -206,22 +206,24 @@ inline Cell& Grid::getCell(const size_t i) {
  * Get (reference to) a cell by its index.
  * This is for the 2D grid.
  */
+#pragma omp declare target
 inline Cell& Grid::getCell(const size_t i, const size_t j) {
 
 #if DEBUG_LEVEL > 1
-  if (_cells == nullptr)
-    error("Cells array not allocated.");
+//  if (_cells == nullptr)
+//    error("Cells array not allocated.");
 #endif
 
 #if DEBUG_LEVEL > 0
-  if (Dimensions != 2) {
-    error("This function is for 2D only!");
-  }
+//  if (Dimensions != 2) {
+//    error("This function is for 2D only!");
+//  }
 #endif
 
   size_t nxTot = getNxTot();
   return _cells[i + j * nxTot];
 }
+#pragma omp end declare target
 
 
 inline size_t Grid::getNx() const {

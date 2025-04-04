@@ -254,7 +254,7 @@ void Grid::resetFluxes() {
   timer::Timer tick(timer::Category::Reset);
 
   if (Dimensions != 2) {
-    error("Not Implemented");
+  //  error("Not Implemented");
     return;
   }
 
@@ -370,12 +370,9 @@ void Grid::applyBoundaryConditions() {
         ghost_left[i]  = &(getCell(i, j));
         ghost_right[i] = &(getCell(lastReal + i, j));
       }
-      // #ifdef DONT_DO_THIS
       real2ghost(real_left, real_right, ghost_left, ghost_right, nbc, 0);
-      // #endif
     }
 
-#ifdef DONT_DO_THOS
     // upper-lower boundaries
     // left -> lower, right -> upper
 #pragma omp target teams loop
@@ -388,9 +385,8 @@ void Grid::applyBoundaryConditions() {
       }
       real2ghost(real_left, real_right, ghost_left, ghost_right, nbc, 1);
     }
-#endif
   } else {
-    error("Not implemented.");
+    // error("Not implemented.");
   }
 
   // timing("Applying boundary conditions took " + tick.tock());
