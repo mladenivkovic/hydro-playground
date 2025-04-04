@@ -12,12 +12,13 @@
  *                   reflective boundary conditions.
  */
 void BC::periodic(
-        Boundary&    real_left,
-        Boundary&    real_right,
-        Boundary&    ghost_left,
-        Boundary&    ghost_right,
-        const size_t nbc,
-        const size_t dimension){
+  Boundary&    real_left,
+  Boundary&    real_right,
+  Boundary&    ghost_left,
+  Boundary&    ghost_right,
+  const size_t nbc,
+  const size_t dimension
+) {
 
 #if DEBUG_LEVEL > 0
   assert(real_left.size() == nbc);
@@ -45,12 +46,13 @@ void BC::periodic(
  *                   reflective boundary conditions.
  */
 void BC::reflective(
-        Boundary&    real_left,
-        Boundary&    real_right,
-        Boundary&    ghost_left,
-        Boundary&    ghost_right,
-        const size_t nbc,
-        const size_t dimension){
+  Boundary&    real_left,
+  Boundary&    real_right,
+  Boundary&    ghost_left,
+  Boundary&    ghost_right,
+  const size_t nbc,
+  const size_t dimension
+) {
 
 #if DEBUG_LEVEL > 0
   assert(real_left.size() == nbc);
@@ -78,12 +80,13 @@ void BC::reflective(
  *                   reflective boundary conditions.
  */
 void BC::transmissive(
-        Boundary&    real_left,
-        Boundary&    real_right,
-        Boundary&    ghost_left,
-        Boundary&    ghost_right,
-        const size_t nbc,
-        const size_t dimension){
+  Boundary&    real_left,
+  Boundary&    real_right,
+  Boundary&    ghost_left,
+  Boundary&    ghost_right,
+  const size_t nbc,
+  const size_t dimension
+) {
 
 #if DEBUG_LEVEL > 0
   assert(real_left.size() == nbc);
@@ -96,6 +99,3 @@ void BC::transmissive(
     ghost_right[i]->copyBoundaryData(real_right[real_right.size() - i - 1]);
   }
 }
-
-
-

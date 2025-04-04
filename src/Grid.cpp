@@ -370,9 +370,9 @@ void Grid::applyBoundaryConditions() {
         ghost_left[i]  = &(getCell(i, j));
         ghost_right[i] = &(getCell(lastReal + i, j));
       }
-// #ifdef DONT_DO_THIS
+      // #ifdef DONT_DO_THIS
       real2ghost(real_left, real_right, ghost_left, ghost_right, nbc, 0);
-// #endif
+      // #endif
     }
 
 #ifdef DONT_DO_THOS
@@ -414,7 +414,7 @@ void Grid::applyBoundaryConditions() {
  * Lowest array index is also lowest index of cell in grid.
  */
 #pragma omp declare target
-//std::function<void(Boundary&, Boundary&, Boundary&, Boundary&, const size_t)> Grid::
+// std::function<void(Boundary&, Boundary&, Boundary&, Boundary&, const size_t)> Grid::
 BC::BoundaryFunctionPtr Grid::selectBoundaryFunction() {
 
   switch (getBoundaryType()) {

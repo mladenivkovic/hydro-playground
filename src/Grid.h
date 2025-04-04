@@ -99,10 +99,10 @@ public:
 
   //! Get the function that applies the correct boundary conditions.
 #pragma omp declare target
-// __attribute__((always_inline))  inline std::function<void(
-//     Boundary&, Boundary&, Boundary&, Boundary&, const size_t
-//   )> selectBoundaryFunction() noexcept  ;
-BC::BoundaryFunctionPtr selectBoundaryFunction();
+  // __attribute__((always_inline))  inline std::function<void(
+  //     Boundary&, Boundary&, Boundary&, Boundary&, const size_t
+  //   )> selectBoundaryFunction() noexcept  ;
+  BC::BoundaryFunctionPtr selectBoundaryFunction();
 #pragma omp end declare target
 
 
