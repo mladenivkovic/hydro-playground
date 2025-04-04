@@ -50,8 +50,9 @@ Necessary Steps and Other Notes
 
 - **Problems**:
 
-- Make sure you add the `-fopenmp` et al. flags to both the compiler and the linker.
-- If the loop to be offloaded calls functions/subroutines, those functions/subroutines either need to be inlined, or you need to declare them a target using
+- Make sure you add the `-fopenmp` et al. flags to both the compiler *and the linker*.
+- If the loop to be offloaded calls functions/subroutines, those functions/subroutines either need
+  to be inlined, or you need to declare them a target using
 
 .. code-block:: cpp
 
@@ -67,5 +68,10 @@ Necessary Steps and Other Notes
     #pragma omp declare target
     constexpr int Dimensions = 2;
     #pragma omp end declare target
+
+- AMD's clang++ (v18.0.0 and v21.0.0) couldn't offload part of my code which uses
+  `std::function(...)`. I used that to select the function to be applied to the cells to enforce
+  boundary conditions. Several attempts with lambdas, inlining etc didn't work out.
+  Instead, I switched to good old function pointers. That worked out.
 
 
