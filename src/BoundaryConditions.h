@@ -81,6 +81,8 @@ public:
   }
 };
 
+
+
 namespace BC {
 
   //! Boundary condition types
@@ -111,8 +113,32 @@ namespace BC {
     }
   }
 
-
+  //! Convenience alias to use functions which return function pointers.
   using BoundaryFunctionPtr = void(*)(Boundary&, Boundary&, Boundary&, Boundary&, const size_t, const size_t);
-} // namespace BC
 
+  void periodic(
+        Boundary&    real_left,
+        Boundary&    real_right,
+        Boundary&    ghost_left,
+        Boundary&    ghost_right,
+        const size_t nbc,
+        const size_t dimension);
+
+  void reflective(
+        Boundary&    real_left,
+        Boundary&    real_right,
+        Boundary&    ghost_left,
+        Boundary&    ghost_right,
+        const size_t nbc,
+        const size_t dimension);
+
+  void transmissive(
+        Boundary&    real_left,
+        Boundary&    real_right,
+        Boundary&    ghost_left,
+        Boundary&    ghost_right,
+        const size_t nbc,
+        const size_t dimension);
+
+} // namespace BC
 

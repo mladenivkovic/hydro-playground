@@ -2,6 +2,7 @@
 
 #include <functional>
 
+#include "BoundaryConditions.h"
 #include "Cell.h"
 #include "Logging.h"
 #include "Parameters.h"

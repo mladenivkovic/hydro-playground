@@ -4,7 +4,6 @@
 #include <iomanip>
 #include <iostream>
 
-#include "BoundaryConditions.h"
 #include "Cell.h"
 #include "Logging.h"
 #include "Parameters.h"
@@ -337,108 +336,12 @@ void Grid::applyBoundaryConditions() {
   timer::Timer tick(timer::Category::BoundaryConditions);
   message("Applying boundary conditions.", logging::LogLevel::Debug);
 
-
   const size_t nbc       = getNBC();
   const size_t firstReal = getFirstCellIndex();
   const size_t lastReal  = getLastCellIndex();
 
   // Select which BC to use.
-  auto real2ghost = selectBoundaryFunction();
-
-  // default is periodic
-//  auto real2ghost_periodic = [=](
-//         Boundary&    real_left,
-//         Boundary&    real_right,
-//         Boundary&    ghost_left,
-//         Boundary&    ghost_right,
-//         const size_t dimension
-//       ) {
-//#if DEBUG_LEVEL > 0
-        // assert(real_left.size() == nbc);
-        // assert(real_right.size() == nbc);
-        // assert(ghost_left.size() == nbc);
-        // assert(ghost_right.size() == nbc);
-//#endif
-//         for (size_t i = 0; i < nbc; i++) {
-//           ghost_left[i]->copyBoundaryData(real_right[i]);
-//           ghost_right[i]->copyBoundaryData(real_left[i]);
-//         }
-//       };
-//
-//    auto real2ghost_reflective =
-//      [=](
-//        Boundary&    real_left,
-//        Boundary&    real_right,
-//        Boundary&    ghost_left,
-//        Boundary&    ghost_right,
-//        const size_t dimension
-//      ) {
-//#if DEBUG_LEVEL > 0
-//        // assert(real_left.size() == nbc);
-//        // assert(real_right.size() == nbc);
-//        // assert(ghost_left.size() == nbc);
-//        // assert(ghost_right.size() == nbc);
-//#endif
-//        for (size_t i = 0; i < nbc; i++) {
-//          ghost_left[i]->copyBoundaryDataReflective(real_left[real_left.size() - i - 1], dimension);
-//          ghost_right[i]->copyBoundaryDataReflective(
-//            real_right[real_right.size() - i - 1], dimension
-//          );
-//        }
-//      };
-//
-//    auto real2ghost_transmissive =
-//      [=](
-//        Boundary&    real_left,
-//        Boundary&    real_right,
-//        Boundary&    ghost_left,
-//        Boundary&    ghost_right,
-//        const size_t dimension
-//      ) {
-//#if DEBUG_LEVEL > 0
-//       // assert(real_left.size() == nbc);
-//       // assert(real_right.size() == nbc);
-//       // assert(ghost_left.size() == nbc);
-//       // assert(ghost_right.size() == nbc);
-//#endif
-//        for (size_t i = 0; i < nbc; i++) {
-//          ghost_left[i]->copyBoundaryData(real_left[real_left.size() - i - 1]);
-//          ghost_right[i]->copyBoundaryData(real_right[real_right.size() - i - 1]);
-//        }
-//      };
-//
-//  auto real2ghost =
-//    [=](
-//      Boundary&    real_left,
-//      Boundary&    real_right,
-//      Boundary&    ghost_left,
-//      Boundary&    ghost_right,
-//      const size_t dimension
-//    ){};
-//
-//  switch (getBoundaryType()) {
-//  case BC::BoundaryCondition::Periodic:
-//    real2ghost = real2ghost_periodic;
-//    break;
-//
-//  case BC::BoundaryCondition::Reflective:
-//    real2ghost = real2ghost_reflective;
-//    break;
-//
-//  case BC::BoundaryCondition::Transmissive:
-//    real2ghost = real2ghost_transmissive;
-//    break;
-//
-//  default:
-//    std::stringstream msg;
-//    msg << "Treatment for boundary conditions of type ";
-//    msg << BC::getBoundaryConditionName(getBoundaryType());
-//    msg << " not defined.";
-//    error(msg.str());
-//    break;
-//  }
-
-
+  BC::BoundaryFunctionPtr real2ghost = selectBoundaryFunction();
 
   // Make some space.
   Boundary real_left(nbc);
@@ -494,84 +397,16 @@ void Grid::applyBoundaryConditions() {
 }
 
 
-void periodic(
-        Boundary&    real_left,
-        Boundary&    real_right,
-        Boundary&    ghost_left,
-        Boundary&    ghost_right,
-        const size_t nbc,
-        const size_t dimension){
-
-#if DEBUG_LEVEL > 0
-// assert(real_left.size() == nbc);
-// assert(real_right.size() == nbc);
-// assert(ghost_left.size() == nbc);
-// assert(ghost_right.size() == nbc);
-#endif
-
-  for (size_t i = 0; i < nbc; i++) {
-    ghost_left[i]->copyBoundaryData(real_right[i]);
-    ghost_right[i]->copyBoundaryData(real_left[i]);
-  }
-}
-
-
-void reflective(
-        Boundary&    real_left,
-        Boundary&    real_right,
-        Boundary&    ghost_left,
-        Boundary&    ghost_right,
-        const size_t nbc,
-        const size_t dimension){
-
-#if DEBUG_LEVEL > 0
-// assert(real_left.size() == nbc);
-// assert(real_right.size() == nbc);
-// assert(ghost_left.size() == nbc);
-// assert(ghost_right.size() == nbc);
-#endif
-
-  for (size_t i = 0; i < nbc; i++) {
-    ghost_left[i]->copyBoundaryDataReflective(real_left[real_left.size() - i - 1], dimension);
-    ghost_right[i]->copyBoundaryDataReflective(real_right[real_right.size() - i - 1], dimension);
-  }
-}
-
-
-void transmissive(
-        Boundary&    real_left,
-        Boundary&    real_right,
-        Boundary&    ghost_left,
-        Boundary&    ghost_right,
-        const size_t nbc,
-        const size_t dimension){
-
-#if DEBUG_LEVEL > 0
-// assert(real_left.size() == nbc);
-// assert(real_right.size() == nbc);
-// assert(ghost_left.size() == nbc);
-// assert(ghost_right.size() == nbc);
-#endif
-  for (size_t i = 0; i < nbc; i++) {
-    ghost_left[i]->copyBoundaryData(real_left[real_left.size() - i - 1]);
-    ghost_right[i]->copyBoundaryData(real_right[real_right.size() - i - 1]);
-  }
-}
-
-
-
-
-
-
 /**
  * Selects and returns the function that applied the correct boundary
  * conditions from ghost to real cells.
  *
- * The returned function takes 5 parameters, in this order:
+ * The returned function takes 6 parameters, in this order:
  * @param realL:     array of pointers to real cells with lowest index
  * @param realR:     array of pointers to real cells with highest index
  * @param ghostL:    array of pointers to ghost cells with lowest index
  * @param ghostR:    array of pointers to ghost cells with highest index
+ * @param nbc:       number of boundary cells.
  * @param dimension: dimension integer. 0 for x, 1 for y. Needed for
  *                   reflective boundary conditions.
  *
@@ -584,13 +419,13 @@ BC::BoundaryFunctionPtr Grid::selectBoundaryFunction() {
 
   switch (getBoundaryType()) {
   case BC::BoundaryCondition::Periodic:
-    return &periodic;
+    return &BC::periodic;
 
   case BC::BoundaryCondition::Reflective:
-    return &reflective;
+    return &BC::reflective;
 
   case BC::BoundaryCondition::Transmissive:
-    return &transmissive;
+    return &BC::transmissive;
 
   default:
     // std::stringstream msg;
@@ -598,7 +433,7 @@ BC::BoundaryFunctionPtr Grid::selectBoundaryFunction() {
     // msg << BC::getBoundaryConditionName(getBoundaryType());
     // msg << " not defined.";
     // error(msg.str());
-    return &periodic;
+    return &BC::periodic;
   }
 }
 #pragma omp end declare target
