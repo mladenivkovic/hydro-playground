@@ -37,8 +37,9 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
+        # -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3
     add_compile_options(
-        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3
+        -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3
     )
     set(DEBUG_LEVEL 0)
 
@@ -48,8 +49,9 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     endif()
 
 elseif (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+        # -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3 -g
     add_compile_options(
-        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3 -g
+        -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3 -g
     )
     set(DEBUG_LEVEL 1)
 
@@ -59,8 +61,9 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     endif()
 
 elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        # -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O0 -g
     add_compile_options(
-        -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O0 -g
+        -Wall -Wextra -Wpedantic -Wno-unused-parameter -O0 -g
     )
     set(DEBUG_LEVEL 2)
 
@@ -73,6 +76,21 @@ else()
 
 endif()
 
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+
+    message("Found Clang")
+    add_compile_options(-fopenmp --offload-arch=gfx942 -fstrict-aliasing)
+    set(AMD_GPU_OMP_FLAGS  -fopenmp --offload-arch=gfx942)
+
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    message("Found GNU")
+    add_compile_options(-fopenmp -foffload=-march=gfx942 -fstrict-aliasing -fopt-info-optimized-omp)
+    set(AMD_GPU_OMP_FLAGS -fopenmp -foffload=-march=gfx942)
+
+endif()
+
+
 message("* Current build type is : ${CMAKE_BUILD_TYPE}")
 
 
@@ -82,6 +100,16 @@ message("* Current build type is : ${CMAKE_BUILD_TYPE}")
 # ---------------------------
 # Options
 # ---------------------------
+
+
+option(SANITIZER "Enable address sanitizers" OFF)
+if (SANITIZER)
+    add_compile_options(-fsanitize=address)
+    add_link_options(-fsanitize=address)
+endif(SANITIZER)
+
+message(STATUS "SANITIZER is set to: ${SANITIZER}")
+
 
 # Terminal colours
 
@@ -204,6 +232,7 @@ add_library(objects OBJECT ${CPP_SRC_FILES} ${PROJECT_BINARY_DIR}/Version.cpp)
 # MAIN EXECUTABLE: hydro
 add_executable(hydro ${MAIN_FILE})
 target_link_libraries(hydro PUBLIC objects)
+target_link_options(hydro PUBLIC ${AMD_GPU_OMP_FLAGS})
 
 
 

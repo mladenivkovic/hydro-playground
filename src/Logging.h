@@ -508,7 +508,7 @@ void logging::Log::logError(
 
   std::cerr << std::flush;
   std::cout << std::flush;
-  std::abort();
+  // std::abort();
 }
 
 

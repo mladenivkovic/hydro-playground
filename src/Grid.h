@@ -1,7 +1,6 @@
 #pragma once
 
-#include <vector>
-
+#include "BoundaryConditions.h"
 #include "Cell.h"
 #include "Logging.h"
 #include "Parameters.h"
@@ -96,14 +95,10 @@ public:
   void applyBoundaryConditions();
 
 
-  //! Apply the boundary conditions from real to ghost cells.
-  void realToGhost(
-    std::vector<Cell*> real_left,
-    std::vector<Cell*> real_right,
-    std::vector<Cell*> ghost_left,
-    std::vector<Cell*> ghost_right,
-    const size_t       dimension = 0
-  );
+  //! Get the function that applies the correct boundary conditions.
+#pragma omp declare target
+  BC::BoundaryFunctionPtr selectBoundaryFunction();
+#pragma omp end declare target
 
 
   //! Print out the grid.
@@ -194,37 +189,41 @@ public:
  * Get (reference to) a cell by its index.
  * This is for the 1D grid.
  */
+#pragma omp declare target
 inline Cell& Grid::getCell(const size_t i) {
 
 #if DEBUG_LEVEL > 0
-  if (Dimensions != 1) {
-    error("This function is for 1D only!");
-  }
+//  if (Dimensions != 1) {
+//    error("This function is for 1D only!");
+//  }
 #endif
   return _cells[i];
 }
+#pragma omp end declare target
 
 
 /**
  * Get (reference to) a cell by its index.
  * This is for the 2D grid.
  */
+#pragma omp declare target
 inline Cell& Grid::getCell(const size_t i, const size_t j) {
 
 #if DEBUG_LEVEL > 1
-  if (_cells == nullptr)
-    error("Cells array not allocated.");
+//  if (_cells == nullptr)
+//    error("Cells array not allocated.");
 #endif
 
 #if DEBUG_LEVEL > 0
-  if (Dimensions != 2) {
-    error("This function is for 2D only!");
-  }
+//  if (Dimensions != 2) {
+//    error("This function is for 2D only!");
+//  }
 #endif
 
   size_t nxTot = getNxTot();
   return _cells[i + j * nxTot];
 }
+#pragma omp end declare target
 
 
 inline size_t Grid::getNx() const {

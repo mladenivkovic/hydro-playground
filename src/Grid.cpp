@@ -4,7 +4,6 @@
 #include <iomanip>
 #include <iostream>
 
-#include "BoundaryConditions.h"
 #include "Cell.h"
 #include "Logging.h"
 #include "Parameters.h"
@@ -255,13 +254,14 @@ void Grid::resetFluxes() {
   timer::Timer tick(timer::Category::Reset);
 
   if (Dimensions != 2) {
-    error("Not Implemented");
+  //  error("Not Implemented");
     return;
   }
 
   size_t first = getFirstCellIndex();
   size_t last  = getLastCellIndex();
 
+#pragma omp target teams loop
   for (size_t j = first; j < last; j++) {
     for (size_t i = first; i < last; i++) {
       // getCell(i, j).getPFlux().clear();
@@ -340,11 +340,14 @@ void Grid::applyBoundaryConditions() {
   const size_t firstReal = getFirstCellIndex();
   const size_t lastReal  = getLastCellIndex();
 
+  // Select which BC to use.
+  BC::BoundaryFunctionPtr real2ghost = selectBoundaryFunction();
+
   // Make some space.
-  std::vector<Cell*> real_left(nbc);
-  std::vector<Cell*> real_right(nbc);
-  std::vector<Cell*> ghost_left(nbc);
-  std::vector<Cell*> ghost_right(nbc);
+  Boundary real_left(nbc);
+  Boundary real_right(nbc);
+  Boundary ghost_left(nbc);
+  Boundary ghost_right(nbc);
 
   if (Dimensions == 1) {
     for (size_t i = 0; i < firstReal; i++) {
@@ -353,12 +356,13 @@ void Grid::applyBoundaryConditions() {
       ghost_left[i]  = &(getCell(i));
       ghost_right[i] = &(getCell(lastReal + i));
     }
-    realToGhost(real_left, real_right, ghost_left, ghost_right);
+    real2ghost(real_left, real_right, ghost_left, ghost_right, nbc, 0);
   }
 
   else if (Dimensions == 2) {
 
     // left-right boundaries
+#pragma omp target teams loop
     for (size_t j = firstReal; j < lastReal; j++) {
       for (size_t i = 0; i < firstReal; i++) {
         real_left[i]   = &(getCell(firstReal + i, j));
@@ -366,11 +370,12 @@ void Grid::applyBoundaryConditions() {
         ghost_left[i]  = &(getCell(i, j));
         ghost_right[i] = &(getCell(lastReal + i, j));
       }
-      realToGhost(real_left, real_right, ghost_left, ghost_right, 0);
+      real2ghost(real_left, real_right, ghost_left, ghost_right, nbc, 0);
     }
 
     // upper-lower boundaries
     // left -> lower, right -> upper
+#pragma omp target teams loop
     for (size_t i = firstReal; i < lastReal; i++) {
       for (size_t j = 0; j < firstReal; j++) {
         real_left[j]   = &(getCell(i, firstReal + j));
@@ -378,10 +383,10 @@ void Grid::applyBoundaryConditions() {
         ghost_left[j]  = &(getCell(i, j));
         ghost_right[j] = &(getCell(i, lastReal + j));
       }
-      realToGhost(real_left, real_right, ghost_left, ghost_right, 1);
+      real2ghost(real_left, real_right, ghost_left, ghost_right, nbc, 1);
     }
   } else {
-    error("Not implemented.");
+    // error("Not implemented.");
   }
 
   // timing("Applying boundary conditions took " + tick.tock());
@@ -389,68 +394,44 @@ void Grid::applyBoundaryConditions() {
 
 
 /**
- * apply the boundary conditions from real to ghost cells
+ * Selects and returns the function that applied the correct boundary
+ * conditions from ghost to real cells.
  *
+ * The returned function takes 6 parameters, in this order:
  * @param realL:     array of pointers to real cells with lowest index
  * @param realR:     array of pointers to real cells with highest index
  * @param ghostL:    array of pointers to ghost cells with lowest index
  * @param ghostR:    array of pointers to ghost cells with highest index
+ * @param nbc:       number of boundary cells.
  * @param dimension: dimension integer. 0 for x, 1 for y. Needed for
  *                   reflective boundary conditions.
  *
- * all arguments are arrays of size params::_nbc (number of boundary cells)
- * lowest array index is also lowest index of cell in grid
+ * All arguments are arrays of size Grid::_nbc (number of boundary cells).
+ * Lowest array index is also lowest index of cell in grid.
  */
-void Grid::realToGhost(
-  std::vector<Cell*> real_left,
-  std::vector<Cell*> real_right,
-  std::vector<Cell*> ghost_left,
-  std::vector<Cell*> ghost_right,
-  const size_t       dimension
-) // dimension defaults to 0
-{
-
-  size_t nbc = getNBC();
-
-#if DEBUG_LEVEL > 0
-  assert(real_left.size() == nbc);
-  assert(real_right.size() == nbc);
-  assert(ghost_left.size() == nbc);
-  assert(ghost_right.size() == nbc);
-#endif
-
+#pragma omp declare target
+BC::BoundaryFunctionPtr Grid::selectBoundaryFunction() {
 
   switch (getBoundaryType()) {
   case BC::BoundaryCondition::Periodic:
-    for (size_t i = 0; i < nbc; i++) {
-      ghost_left[i]->copyBoundaryData(real_right[i]);
-      ghost_right[i]->copyBoundaryData(real_left[i]);
-    }
-    break;
+    return &BC::periodic;
 
   case BC::BoundaryCondition::Reflective:
-    for (size_t i = 0; i < nbc; i++) {
-      ghost_left[i]->copyBoundaryDataReflective(real_left[real_left.size() - i - 1], dimension);
-      ghost_right[i]->copyBoundaryDataReflective(real_right[real_right.size() - i - 1], dimension);
-    }
-    break;
+    return &BC::reflective;
 
   case BC::BoundaryCondition::Transmissive:
-    for (size_t i = 0; i < nbc; i++) {
-      ghost_left[i]->copyBoundaryData(real_left[real_left.size() - i - 1]);
-      ghost_right[i]->copyBoundaryData(real_right[real_right.size() - i - 1]);
-    }
-    break;
+    return &BC::transmissive;
 
   default:
-    std::stringstream msg;
-    msg << "Treatment for boundary conditions of type ";
-    msg << BC::getBoundaryConditionName(getBoundaryType());
-    msg << " not defined.";
-    error(msg.str());
-    break;
+    // std::stringstream msg;
+    // msg << "Treatment for boundary conditions of type ";
+    // msg << BC::getBoundaryConditionName(getBoundaryType());
+    // msg << " not defined.";
+    // error(msg.str());
+    return &BC::periodic;
   }
 }
+#pragma omp end declare target
 
 
 /**

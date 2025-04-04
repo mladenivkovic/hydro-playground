@@ -11,15 +11,23 @@ public:
   //! Standard constructor
   Cell();
 
+#pragma omp declare target
   void copyBoundaryData(const Cell* other);
+#pragma omp end declare target
 
+#pragma omp declare target
   void copyBoundaryDataReflective(const Cell* other, const std::size_t dimension);
+#pragma omp end declare target
 
   //! Update cell's primitive state to current conserved state
+#pragma omp declare target
   void cons2prim();
+#pragma omp end declare target
 
   //! Update cell's conserved state to current primitive state
+#pragma omp declare target
   void prim2cons();
+#pragma omp end declare target
 
 private:
   //! Cell ID

@@ -11,6 +11,8 @@
 
 namespace cst {
 
+#pragma omp declare target
+
   static constexpr Float GAMMA = (5.0 / 3.0);
 
   static constexpr Float GM1          = (GAMMA - 1.);
@@ -39,5 +41,5 @@ namespace cst {
   //  slope = 0.5* (1 + omega) (U_{i}-U_{i-1}) +  0.5 * (1 - omega) (U_{i+1} - U_{i})
   constexpr Float MUSCL_SLOPE_OMEGA = 0.;
 
-
+#pragma omp end declare target
 } // namespace cst
