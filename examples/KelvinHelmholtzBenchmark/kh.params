@@ -1,7 +1,7 @@
 // Talking Parameters
 // ------------------
 
-nstep_log = 10              // Write step log messages only ever `nstep_log` steps. If 0, will write
+nstep_log = 1               // Write step log messages only ever `nstep_log` steps. If 0, will write
                             // every step.
 
 verbose = 1                 // Verbosity level of the run. 0: Quiet. 1: Verbose. 2: Debug. If `-v`
@@ -13,7 +13,7 @@ verbose = 1                 // Verbosity level of the run. 0: Quiet. 1: Verbose.
 
 ccfl = 0.5                  // Courant factor
 
-nsteps = 0                  // Number of steps to run for. Will stop the run even if tmax isn't
+nsteps = 10                 // Number of steps to run for. Will stop the run even if tmax isn't
                             // reached.
 
 tmax = 10.00                // end time for simulation in arbitrary units. Will stop the run even if
@@ -21,7 +21,7 @@ tmax = 10.00                // end time for simulation in arbitrary units. Will 
 
 boundary = 0                // boundary conditions. 0: periodic; 1: reflective; 2: transmissive 
 
-replicate = 0               // When running with arbitrary-type initial conditions, replicate (=
+replicate = 10              // When running with arbitrary-type initial conditions, replicate (=
                             // copy-paste) the initial conditions this many times in each dimension.
                             // This is not used for the two-state type ICs because there you can
                             // simply specify the nx parameter as you wish.
