@@ -393,6 +393,9 @@ void Grid::applyBoundaryConditions() {
 /**
  * Selects and returns the function that applied the correct boundary
  * conditions from ghost to real cells.
+ * Originally I had a more elegant solution, but openMP offloading couldn't
+ * handle std::function calls due to the STL's internal exception
+ * handling/throwing. So instead, I had to move to function pointers.
  *
  * The returned function takes 6 parameters, in this order:
  * @param realL:     array of pointers to real cells with lowest index
