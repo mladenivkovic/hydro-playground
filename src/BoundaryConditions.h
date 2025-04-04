@@ -12,39 +12,6 @@
 #include "Cell.h"
 
 
-namespace BC {
-
-  //! Boundary condition types
-  enum BoundaryCondition {
-    Periodic     = 0,
-    Reflective   = 1,
-    Transmissive = 2,
-    Undefined,
-    Count
-  };
-
-
-  //! Get a name for your boundary condition.
-  inline const char* getBoundaryConditionName(const enum BoundaryCondition bc) {
-
-    switch (bc) {
-    case BoundaryCondition::Periodic:
-      return "Periodic";
-    case BoundaryCondition::Reflective:
-      return "Reflective";
-    case BoundaryCondition::Transmissive:
-      return "Transmissive";
-    case Count:
-      return "Count";
-    case BoundaryCondition::Undefined:
-    default:
-      return "Undefined";
-    }
-  }
-
-} // namespace BC
-
-
 /**
  * A simple container for boundary cells. Just think of it as an array of
  * pointers to cells.
@@ -113,3 +80,68 @@ public:
     return _n;
   }
 };
+
+
+namespace BC {
+
+  //! Boundary condition types
+  enum BoundaryCondition {
+    Periodic     = 0,
+    Reflective   = 1,
+    Transmissive = 2,
+    Undefined,
+    Count
+  };
+
+
+  //! Get a name for your boundary condition.
+  inline const char* getBoundaryConditionName(const enum BoundaryCondition bc) {
+
+    switch (bc) {
+    case BoundaryCondition::Periodic:
+      return "Periodic";
+    case BoundaryCondition::Reflective:
+      return "Reflective";
+    case BoundaryCondition::Transmissive:
+      return "Transmissive";
+    case Count:
+      return "Count";
+    case BoundaryCondition::Undefined:
+    default:
+      return "Undefined";
+    }
+  }
+
+  //! Convenience alias to use functions which return function pointers.
+  using BoundaryFunctionPtr = void (*)(
+    Boundary&, Boundary&, Boundary&, Boundary&, const size_t, const size_t
+  );
+
+  void periodic(
+    Boundary&    real_left,
+    Boundary&    real_right,
+    Boundary&    ghost_left,
+    Boundary&    ghost_right,
+    const size_t nbc,
+    const size_t dimension
+  );
+
+  void reflective(
+    Boundary&    real_left,
+    Boundary&    real_right,
+    Boundary&    ghost_left,
+    Boundary&    ghost_right,
+    const size_t nbc,
+    const size_t dimension
+  );
+
+  void transmissive(
+    Boundary&    real_left,
+    Boundary&    real_right,
+    Boundary&    ghost_left,
+    Boundary&    ghost_right,
+    const size_t nbc,
+    const size_t dimension
+  );
+
+} // namespace BC
