@@ -11,6 +11,18 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS On)
 
+find_package(CUDA REQUIRED)
+if (CUDA_FOUND)
+    message(STATUS "CUDA compiler found: ${CUDA_TOOLKIT_ROOT_DIR}")
+    enable_language(CUDA)
+    find_package(CUDAToolkit REQUIRED)
+    set(CMAKE_CUDA_STANDARD ${CMAKE_CXX_STANDARD} CACHE STRING
+      "CUDA standard to use.")
+
+    set( CUDA_FLAGS "-dc" )
+else()
+    message(FATAL_ERROR "CUDA not found - sad!!")
+endif()
 
 
 #-------------------------------
@@ -37,14 +49,14 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_compile_options(
+    set( CXX_FLAGS
         -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3
     )
     set(DEBUG_LEVEL 0)
 
     if (CMAKE_CXX_COMPILER_ID MATCHES "IntelLLVM")
-        add_compile_options( -ipo )
-        add_link_options(-ipo)
+#        add_compile_options( -ipo )
+#        add_link_options(-ipo)
     endif()
 
 elseif (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
@@ -187,8 +199,8 @@ configure_file(src/Config.h.in Config.h)
 
 
 #  --------------------------------------------------------------------------------------------------------
-file(GLOB_RECURSE CPP_SRC_FILES FOLLOW_SYMLINKS ${PROJECT_SOURCE_DIR}/src/*.cpp)
-# file(GLOB_RECURSE CUDA_SRC_FILES FOLLOW_SYMLINKS ${PROJECT_SOURCE_DIR}/src/*.cu)
+file(GLOB_RECURSE CPP_SRC_FILES  FOLLOW_SYMLINKS ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE CUDA_SRC_FILES FOLLOW_SYMLINKS ${PROJECT_SOURCE_DIR}/src/*.cu)
 # file(GLOB_RECURSE HIP_SRC_FILES FOLLOW_SYMLINKS ${PROJECT_SOURCE_DIR}/src/*.hip)
 file(GLOB_RECURSE MAIN_FILE FOLLOW_SYMLINKS ${PROJECT_SOURCE_DIR}/src/main.cpp)
 list(REMOVE_ITEM CPP_SRC_FILES ${MAIN_FILE})
@@ -197,15 +209,20 @@ set(COMMON_INCLUDES ${PROJECT_SOURCE_DIR}/src)                # allow subdirs to
 set(COMMON_INCLUDES ${COMMON_INCLUDES} ${PROJECT_BINARY_DIR}) # include generated Config.h
 include_directories(${COMMON_INCLUDES})
 
+set_source_files_properties(${CUDA_SRC_FILES} PROPERTIES LANGUAGE CUDA)
 
-add_library(objects OBJECT ${CPP_SRC_FILES} ${PROJECT_BINARY_DIR}/Version.cpp)
+add_library(cpp_objects OBJECT ${CPP_SRC_FILES} ${PROJECT_BINARY_DIR}/Version.cpp)
+add_library(cu_objects  OBJECT ${CUDA_SRC_FILES})
+message("CUDA SRC FILES ARE ${CUDA_SRC_FILES}")
 
+set_target_properties( cu_objects PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 # MAIN EXECUTABLE: hydro
 add_executable(hydro ${MAIN_FILE})
-target_link_libraries(hydro PUBLIC objects)
+target_link_libraries(hydro PUBLIC cpp_objects)
+target_link_libraries(hydro PUBLIC cu_objects)
 
-
+set_property(TARGET hydro PROPERTY CUDA_SEPARABLE_COMPILATION ON)
 
 
 # ----------------------------------

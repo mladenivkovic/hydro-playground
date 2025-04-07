@@ -6,9 +6,12 @@
 #include "Solver.h"
 #include "Timer.h"
 #include "Utils.h"
+#include "Dummy.cuh"
 
 
 int main(int argc, char* argv[]) {
+
+  launchDummyKernel();
 
   // Start timing!
   timer::Timer tickTotal(timer::Category::Total);
