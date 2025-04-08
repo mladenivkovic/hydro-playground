@@ -7,6 +7,8 @@
 
 #include <sstream>
 #include <string>
+#include <cuda.h>
+#include <cuda_runtime_api.h>
 
 #include "Config.h"
 
@@ -63,3 +65,19 @@ namespace utils {
   //! Get limiter name from macro.
   const char* getLimiterName();
 } // namespace utils
+
+
+// hacky way of getting this definition in
+#ifdef USE_CUDA
+
+#define HOST        __host__
+#define DEVICE      __device__
+#define HOST_DEVICE __host__ __device__
+
+#else
+
+#define HOST       
+#define DEVICE     
+#define HOST_DEVICE
+
+#endif

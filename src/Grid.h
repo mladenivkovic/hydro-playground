@@ -5,6 +5,7 @@
 #include "Cell.h"
 #include "Logging.h"
 #include "Parameters.h"
+#include "Utils.h"
 
 
 class Grid {
@@ -43,12 +44,13 @@ private:
 
 
   //! Fetch the desired quantity for printing given a cell index
+  //! TODO will not work on device
   Float _getQuanityForPrintout(Cell& cell, std::string& quantity);
 
 
 public:
-  explicit Grid(const Parameters& params);
-  ~Grid();
+  HOST explicit Grid(const Parameters& params);
+  HOST_DEVICE  ~Grid();
 
   // The grid is never intended to be used via several instances.
   // I could write all of this out, but I see no point.
@@ -58,30 +60,30 @@ public:
   /**
    * Get a cell by its index. Here 1D and 2D versions.
    */
-  Cell& getCell(const size_t i);
-  Cell& getCell(const size_t i, const size_t j);
+  HOST_DEVICE  Cell& getCell(const size_t i);
+  HOST_DEVICE  Cell& getCell(const size_t i, const size_t j);
 
 
   /**
    * @brief Initialise (and allocate) the cells.
    */
-  void initCells();
+  HOST void initCells();
 
 
   /**
    * @brief get the total mass of the grid.
    */
-  Float collectTotalMass();
+  HOST_DEVICE Float collectTotalMass();
 
 
   /**
    * @brief Replicate the initial conditions in every dimension.
    */
-  void replicateICs();
+  HOST void replicateICs();
 
 
   //! Run through the grid and get cstates from pstates
-  void convertPrim2Cons();
+  HOST_DEVICE void convertPrim2Cons();
 
 
   //! Run through the grid and get pstates from cstates
@@ -137,7 +139,7 @@ public:
    * @brief Get the number of cells with actual content per dimension
    * i.e. excluding boundary cells, including replications
    */
-  [[nodiscard]] size_t getNx() const;
+  HOST_DEVICE [[nodiscard]] size_t getNx() const;
   void                 setNx(const size_t nx);
 
 
@@ -227,7 +229,7 @@ inline Cell& Grid::getCell(const size_t i, const size_t j) {
 }
 
 
-inline size_t Grid::getNx() const {
+HOST_DEVICE inline size_t Grid::getNx() const {
   return _nx;
 }
 

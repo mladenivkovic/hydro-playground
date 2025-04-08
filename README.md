@@ -1,6 +1,10 @@
 TODO ON CUDA BRANCH
 ================
 - put a guard around the linking / compiling with cuda files (should only happen if cuda is really detected)
+- Device discovery - how much memory do we have?
+
+- I think we have to configure the grid on the host and then copy over to device!!
+
 
 hydro-playground
 ================

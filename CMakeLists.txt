@@ -18,6 +18,7 @@ if (CUDA_FOUND)
     find_package(CUDAToolkit REQUIRED)
     set(CMAKE_CUDA_STANDARD ${CMAKE_CXX_STANDARD} CACHE STRING
       "CUDA standard to use.")
+    add_definitions(-DUSE_CUDA)
 
     set( CUDA_FLAGS "-dc" )
 		message(STATUS "CUDA include dirs found: ${CUDA_INCLUDE_DIRS}")

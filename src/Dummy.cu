@@ -20,3 +20,19 @@ void launchDummyKernel(){
     printf("Finished launch!\n");
   }
 }
+
+
+__global__ void testGridKernel( Grid* g ) {
+  int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+  if (i==0) {
+    printf( "Copied grid! g->nx=%d\n", g->getNx() );
+  }
+    
+}
+
+
+void launchTestGridKernel(Grid* p) {
+  testGridKernel<<<1,1>>>(p);
+}
+
