@@ -4,8 +4,8 @@
 
 cmake_minimum_required(VERSION 3.21)
 
-project(hydro_playground VERSION 1.0)
-set(LANGUAGES CXX)
+project(hydro_playground VERSION 1.0 LANGUAGES CXX CUDA)
+# set(LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -20,6 +20,8 @@ if (CUDA_FOUND)
       "CUDA standard to use.")
 
     set( CUDA_FLAGS "-dc" )
+		message(STATUS "CUDA include dirs found: ${CUDA_INCLUDE_DIRS}")
+		include_directories(${CUDA_INCLUDE_DIRS})
 else()
     message(FATAL_ERROR "CUDA not found - sad!!")
 endif()

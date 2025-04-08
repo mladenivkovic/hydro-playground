@@ -1,6 +1,9 @@
+TODO ON CUDA BRANCH
+================
+- put a guard around the linking / compiling with cuda files (should only happen if cuda is really detected)
+
 hydro-playground
 ================
-
 
 `hydro-playground` is a simple C++ toy code solving finite volume hydrodynamics in 2D on a uniform
 grid. The main goal is to have simple working code as a playground for developments in terms of
