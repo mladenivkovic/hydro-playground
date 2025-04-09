@@ -21,9 +21,9 @@ Compile commands and flags
 .. csv-table:: Compile commands for GCC
     :header: "Language", "Command", "Flag"
 
-    C,       `amdclang` / `clang`,       `-fopenmp --foffload=-march=<gfx###>`
-    C++,     `amdclang++` / `clang++`,   `-fopenmp --foffload=-march=<gfx###>`
-    Fortran, `amdflang` / `flang`,       `-fopenmp --foffload=-march=<gfx###>`
+    C,       `gcc`,        `-fopenmp --foffload=-march=<gfx###>`
+    C++,     `g++`,        `-fopenmp --foffload=-march=<gfx###>`
+    Fortran, `gfortran`,   `-fopenmp --foffload=-march=<gfx###>`
 
 
 
@@ -73,5 +73,15 @@ Necessary Steps and Other Notes
   `std::function(...)`. I used that to select the function to be applied to the cells to enforce
   boundary conditions. Several attempts with lambdas, inlining etc didn't work out.
   Instead, I switched to good old function pointers. That worked out.
+
+- I keep getting a lot of `[-Wopenmp-mapping]` warnings in relation to having arrays of pointers.
+  Having explicit copy, move etc constructors and operators didn't help. The AMD experts assure me
+  that won't be an issue.
+
+.. code-block:: bash
+
+    warning: Type 'Boundary' is not trivially copyable and not guaranteed to be mapped correctly [-Wopenmp-mapping]
+
+  
 
 
