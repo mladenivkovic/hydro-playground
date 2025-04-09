@@ -5,9 +5,10 @@
 #include "Constants.h"
 #include "Logging.h"
 
-
+#pragma omp declare target
 static constexpr int gas_print_width     = 5;
 static constexpr int gas_print_precision = 2;
+#pragma omp end declare target
 
 
 // Stuff for primitive state
@@ -15,6 +16,7 @@ static constexpr int gas_print_precision = 2;
 /**
  * @brief Default constructor.
  */
+#pragma omp declare target
 PrimitiveState::PrimitiveState():
   _rho(0.),
   _p(0.) {
@@ -22,11 +24,13 @@ PrimitiveState::PrimitiveState():
     _v[i] = 0.;
   }
 }
+#pragma omp end declare target
 
 /**
  * @brief Specialized constructor with initial values.
  * Using setters instead of initialiser lists so the debugging checks kick in.
  */
+#pragma omp declare target
 PrimitiveState::PrimitiveState(
   const Float rho, const std::array<Float, Dimensions> vel, const Float p
 ) {
@@ -36,12 +40,14 @@ PrimitiveState::PrimitiveState(
   }
   setP(p);
 }
+#pragma omp end declare target
 
 
 /**
  * @brief Specialized constructor with initial values for 1D.
  * Using setters instead of initialiser lists so the debugging checks kick in.
  */
+#pragma omp declare target
 PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float p) {
 #if DEBUG_LEVEL > 0
   if (Dimensions != 1) {
@@ -52,11 +58,13 @@ PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float p) {
   setV(0, vx);
   setP(p);
 }
+#pragma omp end declare target
 
 /**
  * @brief Specialized constructor with initial values for 2D.
  * Using setters instead of initialiser lists so the debugging checks kick in.
  */
+#pragma omp declare target
 PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float vy, const Float p) {
 #if DEBUG_LEVEL > 0
   if (Dimensions != 2) {
@@ -68,6 +76,7 @@ PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float vy, 
   setV(1, vy);
   setP(p);
 }
+#pragma omp end declare target
 
 
 /**
@@ -75,6 +84,7 @@ PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float vy, 
  * Overwrites the contents of this primitive state.
  * See Eq. 19-21 in Theory document.
  */
+#pragma omp declare target
 void PrimitiveState::fromCons(const ConservedState& cons) {
   if (cons.getRho() <= cst::SMALLRHO) {
     // execption handling for vacuum
@@ -97,12 +107,14 @@ void PrimitiveState::fromCons(const ConservedState& cons) {
     }
   }
 }
+#pragma omp end declare target
 
 
 /**
  * @brief construct a string with the contents.
  * Format: [rho, vx, vy, P]
  */
+#pragma omp declare target
 std::string PrimitiveState::toString() const {
 
   constexpr int w = gas_print_width;
@@ -118,6 +130,7 @@ std::string PrimitiveState::toString() const {
 
   return out.str();
 }
+#pragma omp end declare target
 
 
 // ------------------------------------
@@ -125,6 +138,7 @@ std::string PrimitiveState::toString() const {
 // ------------------------------------
 
 
+#pragma omp declare target
 ConservedState::ConservedState():
   _rho(0.),
   _energy(0.) {
@@ -132,7 +146,10 @@ ConservedState::ConservedState():
     _rhov[i] = 0.;
   }
 }
+#pragma omp end declare target
 
+
+#pragma omp declare target
 ConservedState::ConservedState(
   const Float rho, const Float rhovx, const Float rhovy, const Float E
 ):
@@ -145,15 +162,19 @@ ConservedState::ConservedState(
   _rhov[0] = rhovx;
   _rhov[1] = rhovy;
 }
+#pragma omp end declare target
+
 
 /**
  * Initialise a conserved flux along a dimension using primitive variables of
  * the state.
  */
+#pragma omp declare target
 ConservedState::ConservedState(const PrimitiveState& prim, const size_t dimension) {
 
   getCFluxFromPState(prim, dimension);
 }
+#pragma omp end declare target
 
 
 /**
@@ -161,12 +182,14 @@ ConservedState::ConservedState(const PrimitiveState& prim, const size_t dimensio
  *
  * See eqns. 16 - 18 in theory document.
  */
+#pragma omp declare target
 void ConservedState::fromPrim(const PrimitiveState& p) {
   setRho(p.getRho());
   setRhov(0, p.getRho() * p.getV(0));
   setRhov(1, p.getRho() * p.getV(1));
   setE(p.getE());
 }
+#pragma omp end declare target
 
 
 /**
@@ -182,6 +205,7 @@ void ConservedState::fromPrim(const PrimitiveState& p) {
  * The flux terms for each dimension are given as the second and
  * third term in Eq. 13.
  */
+#pragma omp declare target
 void ConservedState::getCFluxFromPState(const PrimitiveState& pstate, const size_t dimension) {
 
   size_t other  = (dimension + 1) % 2;
@@ -202,6 +226,7 @@ void ConservedState::getCFluxFromPState(const PrimitiveState& pstate, const size
   Float E = pstate.getE();
   setE((E + p) * vdim);
 }
+#pragma omp end declare target
 
 
 /**
@@ -217,6 +242,7 @@ void ConservedState::getCFluxFromPState(const PrimitiveState& pstate, const size
  * The flux terms for each dimension are given as the second and
  * third term in Eq. 13.
  */
+#pragma omp declare target
 void ConservedState::getCFluxFromCstate(const ConservedState& cons, const size_t dimension) {
 
   // Mass flux
@@ -250,12 +276,14 @@ void ConservedState::getCFluxFromCstate(const ConservedState& cons, const size_t
     setE(0.);
   }
 }
+#pragma omp end declare target
 
 
 /**
  * @brief construct a string with the contents.
  * Format: [rho, rho * vx, rho * vy, E]
  */
+#pragma omp declare target
 std::string ConservedState::toString() const {
 
   constexpr int w = gas_print_width;
@@ -271,3 +299,4 @@ std::string ConservedState::toString() const {
 
   return out.str();
 }
+#pragma omp end declare target
