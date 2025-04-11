@@ -42,7 +42,7 @@ private:
   /**
    * @brief get the total number of boundary cells per dimension.
    */
-  [[nodiscard]] size_t _getNBCTot() const;
+  __host__ __device__ [[nodiscard]] size_t _getNBCTot() const;
 
 
   //! Fetch the desired quantity for printing given a cell index
@@ -55,14 +55,16 @@ public:
 
   // The grid is never intended to be used via several instances.
   // I could write all of this out, but I see no point.
-  Grid(const Grid& other)            = delete;
+
+  // Update - we wanna be able to launch kernels 
+  Grid(const Grid& other)            = default;
   Grid& operator=(const Grid& other) = delete;
 
   /**
    * Get a cell by its index. Here 1D and 2D versions.
    */
-   __host__ __device__ Cell& getCell(const size_t i);
-   __host__ __device__ Cell& getCell(const size_t i, const size_t j);
+  __host__ __device__ Cell& getCell(const size_t i);
+  __host__ __device__ Cell& getCell(const size_t i, const size_t j);
 
 
   /**
@@ -74,7 +76,8 @@ public:
   /**
    * @brief get the total mass of the grid.
    */
-  Float collectTotalMass();
+  __host__ Float collectTotalMass();
+  __host__ Float collectTotalMassFromGpu(); 
 
 
   /**
@@ -118,13 +121,13 @@ public:
    * @brief get the total number of cells per dimension. This includes
    * boundary cells and replicated cells.
    */
-  [[nodiscard]] size_t getNxTot() const;
+   __host__ __device__ [[nodiscard]] size_t getNxTot() const;
 
 
   /**
    * @brief get the index of the first actual (= non boundary/ghost) cell
    */
-  [[nodiscard]] size_t getFirstCellIndex() const;
+  __host__ __device__ [[nodiscard]] size_t getFirstCellIndex() const;
 
 
   /**
@@ -140,8 +143,8 @@ public:
    * @brief Get the number of cells with actual content per dimension
    * i.e. excluding boundary cells, including replications
    */
-  [[nodiscard]] size_t getNx() const;
-  void                 setNx(const size_t nx);
+  __host__ __device__ [[nodiscard]] size_t getNx() const;
+  void                                     setNx(const size_t nx);
 
 
   /**
@@ -162,8 +165,8 @@ public:
   /**
    * @brief Get the number of boundary cells on each side of the box
    */
-  [[nodiscard]] size_t getNBC() const;
-  void                 setNBC(size_t nbc);
+  __host__ __device__ [[nodiscard]] size_t getNBC() const;
+  void                                     setNBC(size_t nbc);
 
 
   /**
@@ -176,8 +179,8 @@ public:
   /**
    * @brief Get the cell size
    */
-  [[nodiscard]] Float getDx() const;
-  void                setDx(const Float dx);
+   __host__ __device__ [[nodiscard]] Float getDx() const;
+  void                                     setDx(const Float dx);
 
 
   /**
@@ -252,7 +255,7 @@ __host__ __device__ inline Cell& Grid::getCell(const size_t i, const size_t j) {
 }
 
 
-inline size_t Grid::getNx() const {
+__host__ __device__ inline size_t Grid::getNx() const {
   return _nx;
 }
 
@@ -282,7 +285,7 @@ inline void Grid::setBoundaryType(BC::BoundaryCondition boundaryType) {
 }
 
 
-inline size_t Grid::getNBC() const {
+__host__ __device__ inline size_t Grid::getNBC() const {
   return _nbc;
 }
 
@@ -302,7 +305,7 @@ inline void Grid::setReplicate(const size_t replicate) {
 }
 
 
-inline Float Grid::getDx() const {
+__host__ __device__ inline Float Grid::getDx() const {
   return _dx;
 }
 
@@ -322,17 +325,17 @@ inline void Grid::setBoxsize(const Float boxsize) {
 }
 
 
-inline size_t Grid::_getNBCTot() const {
+__host__ __device__ inline size_t Grid::_getNBCTot() const {
   return 2 * getNBC();
 }
 
 
-inline size_t Grid::getNxTot() const {
+__host__ __device__ inline size_t Grid::getNxTot() const {
   return getNx() + _getNBCTot();
 }
 
 
-inline size_t Grid::getFirstCellIndex() const {
+__host__ __device__ inline size_t Grid::getFirstCellIndex() const {
   return getNBC();
 }
 
@@ -340,3 +343,5 @@ inline size_t Grid::getFirstCellIndex() const {
 inline size_t Grid::getLastCellIndex() const {
   return getNx() + getNBC();
 }
+
+void checkYOnGpu( Grid& );

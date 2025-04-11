@@ -40,12 +40,13 @@ Grid::Grid(const Parameters& params):
 
 
 /**
- * Destructor
+ * Destructor - the non trivial stuff ended up in Grid::clean()
  */
 Grid::~Grid() {
   // if (_cells == nullptr)
   //   error("Where did the cells array go??");
   // delete[] _cells;
+  printf("Calling Grid Constructor");
 }
 
 
@@ -243,6 +244,12 @@ Float Grid::collectTotalMass() {
 
 
   // message("Collecting total mass in grid took" + tick.tock());
+  std::stringstream msg;
+  msg << std::setw(grid_print_width) << std::setprecision(grid_print_precision);
+
+  msg << "Collected " << total << " mass on the cpu. ";
+  msg << "Collected " << collectTotalMassFromGpu() << " mass on the gpu";
+  message(msg.str());
 
   return total;
 }

@@ -3,6 +3,7 @@
 #include "Config.h"
 #include "Gas.h"
 #include "Logging.h"
+#include "Utils.h"
 
 
 class Cell {
@@ -54,8 +55,8 @@ public:
   void                setX(const Float x);
   [[nodiscard]] Float getX() const;
 
-  void                setY(const Float y);
-  [[nodiscard]] Float getY() const;
+  void                                    setY(const Float y);
+  __host__ __device__ [[nodiscard]] Float getY() const;
 
   // void                 setId(const size_t id);
   // [[nodiscard]] size_t getID() const;
@@ -67,11 +68,11 @@ public:
   // std::pair<std::size_t, std::size_t> getIJ(const std::size_t nxtot);
 
   //! Getters and setters
-  PrimitiveState& getPrim();
-  ConservedState& getCons();
+  __host__ __device__ PrimitiveState& getPrim();
+  __host__ __device__ ConservedState& getCons();
   // const versions to shush the compiler
-  [[nodiscard]] const PrimitiveState& getPrim() const;
-  [[nodiscard]] const ConservedState& getCons() const;
+  __host__ __device__ [[nodiscard]] const PrimitiveState& getPrim() const;
+  [[nodiscard]]                     const ConservedState& getCons() const;
   void                                setPrim(const PrimitiveState& prim);
   void                                setCons(const ConservedState& cons);
 
@@ -117,7 +118,7 @@ inline void Cell::setY(const Float y) {
 }
 
 
-inline Float Cell::getY() const {
+__host__ __device__ inline Float Cell::getY() const {
   return _y;
 }
 
@@ -132,12 +133,12 @@ inline Float Cell::getY() const {
 // }
 
 
-inline PrimitiveState& Cell::getPrim() {
+__host__ __device__ inline PrimitiveState& Cell::getPrim() {
   return _prim;
 }
 
 
-inline ConservedState& Cell::getCons() {
+__host__ __device__ inline ConservedState& Cell::getCons() {
   return _cons;
 }
 
@@ -195,12 +196,12 @@ inline void Cell::setURMid(const ConservedState& state) {
 }
 
 
-inline const PrimitiveState& Cell::getPrim() const {
+__host__ __device__ inline const PrimitiveState& Cell::getPrim() const {
   return _prim;
 }
 
 
-inline const ConservedState& Cell::getCons() const {
+__host__ __device__ inline const ConservedState& Cell::getCons() const {
   return _cons;
 }
 

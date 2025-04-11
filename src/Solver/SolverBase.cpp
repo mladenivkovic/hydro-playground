@@ -45,6 +45,8 @@ void SolverBase::computeDt() {
   Float vxmax = 0.;
   Float vymax = 0.;
 
+  // we can calculate all of this on device!
+
   for (size_t j = first; j < last; j++) {
     for (size_t i = first; i < last; i++) {
       Cell&           c  = _grid.getCell(i, j);

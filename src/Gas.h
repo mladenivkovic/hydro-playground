@@ -8,6 +8,7 @@
 #include "Config.h"
 #include "Constants.h"
 #include "Logging.h"
+#include "Utils.h"
 
 
 class ConservedState;
@@ -136,8 +137,8 @@ public:
 
 
   // Getters and setters!
-  void                setRho(const Float val);
-  [[nodiscard]] Float getRho() const;
+  void                                    setRho(const Float val);
+  __host__ __device__ [[nodiscard]] Float getRho() const;
 
   // same for u
   void                setRhov(const std::size_t index, const Float val);
@@ -168,7 +169,7 @@ inline void PrimitiveState::setRho(const Float val) {
 }
 
 
-inline Float PrimitiveState::getRho() const {
+__host__ __device__ inline Float PrimitiveState::getRho() const {
   // These checks will fail because we (ab)use the PrimitiveState
   // as fluxes too, which can be negative
   // #if DEBUG_LEVEL > 0
