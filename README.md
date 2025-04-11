@@ -5,6 +5,16 @@ TODO ON CUDA BRANCH
 
 - I think we have to configure the grid on the host and then copy over to device!!
 
+- Lost a lot of time to some weird UB stuff on my local machine. 
+
+The way it should work for each class:
+
+Grid:
+  - Set up on host as usual
+  - Give it a method to move the cell array onto the device
+  - We then pass this object BY VALUE into any device code. That way any member attributes we need
+    like _nx etc can be copied over (minimal cost) each time we launch a kernel
+
 
 hydro-playground
 ================

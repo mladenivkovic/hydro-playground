@@ -7,11 +7,13 @@
 #include "Parameters.h"
 #include "Utils.h"
 
-
 class Grid {
 private:
-  //! Cell array.
-  Cell* _cells;
+  //! Cell array on host
+  Cell* _host_cells;
+  
+  //! Cell array on device
+  Cell* _dev_cells;
 
   //! number of cells to use (i.e. excluding boundaries, including replications)
   //! (in each dimension)
@@ -44,13 +46,12 @@ private:
 
 
   //! Fetch the desired quantity for printing given a cell index
-  //! TODO will not work on device
   Float _getQuanityForPrintout(Cell& cell, std::string& quantity);
 
 
 public:
-  HOST explicit Grid(const Parameters& params);
-  HOST_DEVICE  ~Grid();
+  explicit Grid(const Parameters& params);
+  ~Grid();
 
   // The grid is never intended to be used via several instances.
   // I could write all of this out, but I see no point.
@@ -60,30 +61,30 @@ public:
   /**
    * Get a cell by its index. Here 1D and 2D versions.
    */
-  HOST_DEVICE  Cell& getCell(const size_t i);
-  HOST_DEVICE  Cell& getCell(const size_t i, const size_t j);
+   __host__ __device__ Cell& getCell(const size_t i);
+   __host__ __device__ Cell& getCell(const size_t i, const size_t j);
 
 
   /**
    * @brief Initialise (and allocate) the cells.
    */
-  HOST void initCells();
+  void initCells();
 
 
   /**
    * @brief get the total mass of the grid.
    */
-  HOST_DEVICE Float collectTotalMass();
+  Float collectTotalMass();
 
 
   /**
    * @brief Replicate the initial conditions in every dimension.
    */
-  HOST void replicateICs();
+  void replicateICs();
 
 
   //! Run through the grid and get cstates from pstates
-  HOST_DEVICE void convertPrim2Cons();
+  void convertPrim2Cons();
 
 
   //! Run through the grid and get pstates from cstates
@@ -139,7 +140,7 @@ public:
    * @brief Get the number of cells with actual content per dimension
    * i.e. excluding boundary cells, including replications
    */
-  HOST_DEVICE [[nodiscard]] size_t getNx() const;
+  [[nodiscard]] size_t getNx() const;
   void                 setNx(const size_t nx);
 
 
@@ -184,6 +185,19 @@ public:
    */
   [[nodiscard]] Float getBoxsize() const;
   void                setBoxsize(const Float boxsize);
+
+
+  /**
+    Transfer cell array to device
+  
+  */
+  __host__ void transferCellsToDevice();
+
+  //! Plan to pass everything by value so we need to remove the 
+  //! Destructor behaviour and add a cleanup function
+  __host__ void clean();
+  
+
 }; // class Grid
 
 
@@ -196,14 +210,18 @@ public:
  * Get (reference to) a cell by its index.
  * This is for the 1D grid.
  */
-inline Cell& Grid::getCell(const size_t i) {
+__host__ __device__  inline Cell& Grid::getCell(const size_t i) {
 
 #if DEBUG_LEVEL > 0
   if (Dimensions != 1) {
     error("This function is for 1D only!");
   }
 #endif
-  return _cells[i];
+#if __CUDA_ARCH__
+  return _dev_cells[i];
+#else
+  return _host_cells[i];
+#endif
 }
 
 
@@ -211,10 +229,10 @@ inline Cell& Grid::getCell(const size_t i) {
  * Get (reference to) a cell by its index.
  * This is for the 2D grid.
  */
-inline Cell& Grid::getCell(const size_t i, const size_t j) {
+__host__ __device__ inline Cell& Grid::getCell(const size_t i, const size_t j) {
 
 #if DEBUG_LEVEL > 1
-  if (_cells == nullptr)
+  if (_host_cells == nullptr)
     error("Cells array not allocated.");
 #endif
 
@@ -225,11 +243,16 @@ inline Cell& Grid::getCell(const size_t i, const size_t j) {
 #endif
 
   size_t nxTot = getNxTot();
-  return _cells[i + j * nxTot];
+
+  #if __CUDA_ARCH__
+  return _dev_cells[i + j * nxTot];
+  #else
+  return _host_cells[i + j * nxTot];
+  #endif
 }
 
 
-HOST_DEVICE inline size_t Grid::getNx() const {
+inline size_t Grid::getNx() const {
   return _nx;
 }
 

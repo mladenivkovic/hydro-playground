@@ -6,7 +6,6 @@
 #include "Solver.h"
 #include "Timer.h"
 #include "Utils.h"
-#include "Dummy.cuh"
 
 // Cuda stuff for malloc etc
 #include <cuda.h>
@@ -14,8 +13,6 @@
 
 
 int main(int argc, char* argv[]) {
-
-  launchDummyKernel();
 
   // Start timing!
   timer::Timer tickTotal(timer::Category::Total);
@@ -47,7 +44,7 @@ int main(int argc, char* argv[]) {
 
   // Get a grid started. Note that the cells are being allocated later, when
   // the ICs are being read.
-  Grid* grid = new Grid(params);
+  auto grid = Grid(params);
 
   // When very verbose, print out used parameters
   message("Running with parameters:", logging::LogLevel::Debug);
@@ -57,20 +54,12 @@ int main(int argc, char* argv[]) {
   (void)tickInit.tock();
 
   // Read initial conditions
-  input.readICFile(*grid);
+  input.readICFile(grid);
 
-  // copy grid over to device
-  Grid* dev_grid;
-  cudaMalloc( (void**)&dev_grid, sizeof( Grid ) );
-
-  // Note that this doesn't copy the cell array yet!!
-  cudaMemcpy( (void*)dev_grid, (void*)grid, sizeof(Grid), cudaMemcpyHostToDevice );
-
-  launchTestGridKernel( dev_grid );
-
+  grid.transferCellsToDevice();
 
   // Launch the solver.
-  solver::Solver solver(params, *grid);
+  solver::Solver solver(params, grid);
   solver.solve();
 
   // Wrap-Up
@@ -80,9 +69,6 @@ int main(int argc, char* argv[]) {
   (void)tickTotal.tock();
   // Use message intead of timing here: Always print timing at the end.
   message(tickTotal.getTimings());
-
-  delete grid;
-  cudaFree( dev_grid );
 
   return 0;
 }

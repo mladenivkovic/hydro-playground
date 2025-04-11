@@ -7,8 +7,6 @@
 
 #include <sstream>
 #include <string>
-#include <cuda.h>
-#include <cuda_runtime_api.h>
 
 #include "Config.h"
 
@@ -70,9 +68,25 @@ namespace utils {
 // hacky way of getting this definition in
 #ifdef USE_CUDA
 
+#include <cuda.h>
+#include <cuda_runtime_api.h>
+
 #define HOST        __host__
 #define DEVICE      __device__
 #define HOST_DEVICE __host__ __device__
+
+#include <assert.h>
+
+#define cudaErrorCheck(ans) { checkCudaError((ans), __FILE__, __LINE__); }
+
+inline void checkCudaError( cudaError_t err, const char* file, int line) {
+  if ( err != cudaSuccess ) {
+    fprintf(stderr, "Found error %s at %s:%d\n", cudaGetErrorString(err), file, line);
+    exit(err);
+  }
+  else
+    printf("CudaSuccess at %s:%d\n", file, line);
+}
 
 #else
 

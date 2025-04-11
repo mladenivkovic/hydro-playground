@@ -22,7 +22,8 @@ constexpr size_t grid_print_precision = 3;
  * @param pars A Parameters object holding global simulation parameters
  */
 Grid::Grid(const Parameters& params):
-  _cells(nullptr),
+  _host_cells(nullptr),
+  _dev_cells(nullptr),
   _nx(params.getNx()),
   _nx_norep(params.getNx()),
   _dx(1.),
@@ -42,9 +43,9 @@ Grid::Grid(const Parameters& params):
  * Destructor
  */
 Grid::~Grid() {
-  if (_cells == nullptr)
-    error("Where did the cells array go??");
-  delete[] _cells;
+  // if (_cells == nullptr)
+  //   error("Where did the cells array go??");
+  // delete[] _cells;
 }
 
 
@@ -90,7 +91,7 @@ void Grid::initCells() {
 
     // allocate space
     total_cells = nxTot;
-    _cells      = new Cell[total_cells];
+    _host_cells = new Cell[total_cells];
 
     // set cell positions and IDs
     for (size_t i = 0; i < nxTot; i++) {
@@ -103,8 +104,8 @@ void Grid::initCells() {
   } else if (Dimensions == 2) {
 
     // allocate space
-    total_cells = nxTot * nxTot;
-    _cells      = new Cell[total_cells];
+    total_cells      = nxTot * nxTot;
+    _host_cells      = new Cell[total_cells];
 
     // set cell positions and IDs
     for (size_t i = 0; i < nxTot; i++) {
@@ -622,3 +623,4 @@ void Grid::printGrid(const char* quantity, bool boundaries) {
 
   std::cout << out.str() << "\n";
 }
+
