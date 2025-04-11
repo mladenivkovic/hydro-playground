@@ -170,7 +170,7 @@ You can pass build options to `cmake` by giving it a list of command line argume
 `-D` at build time, e.g.
 
 ```
-cd hyrdo_playground
+cd hydro_playground
 mkdir build
 cd build
 cmake .. -DOPTION1 -DOPTION2 ...

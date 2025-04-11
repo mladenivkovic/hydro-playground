@@ -63,8 +63,11 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     endif()
 
 elseif (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-    add_compile_options(
+    set( CXX_FLAGS
         -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O3 -g
+    )
+    set( CUDA_FLAGS
+        --compiler-options -Werror --compiler-options -Wall --compiler-options -Wextra --compiler-options -Wpedantic --compiler-options -Wno-unused-parameter -O0 -g
     )
     set(DEBUG_LEVEL 1)
 
@@ -74,8 +77,11 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
     endif()
 
 elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_options(
+    set( CXX_FLAGS
         -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O0 -g
+    )
+    set( CUDA_FLAGS
+        --compiler-options -Werror --compiler-options -Wall --compiler-options -Wextra --compiler-options -Wpedantic --compiler-options -Wno-unused-parameter -O0 -g
     )
     set(DEBUG_LEVEL 2)
 
