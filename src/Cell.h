@@ -20,7 +20,7 @@ public:
   void cons2prim();
 
   //! Update cell's conserved state to current primitive state
-  void prim2cons();
+  __host__ __device__ void prim2cons();
 
 private:
   //! Cell ID
@@ -71,8 +71,8 @@ public:
   __host__ __device__ PrimitiveState& getPrim();
   __host__ __device__ ConservedState& getCons();
   // const versions to shush the compiler
-  __host__ __device__ [[nodiscard]] const PrimitiveState& getPrim() const;
-  [[nodiscard]]                     const ConservedState& getCons() const;
+  __host__ __device__ [[nodiscard]]   const PrimitiveState& getPrim() const;
+  __host__ __device__ [[nodiscard]]   const ConservedState& getCons() const;
   void                                setPrim(const PrimitiveState& prim);
   void                                setCons(const ConservedState& cons);
 
@@ -97,7 +97,7 @@ inline void Cell::cons2prim() {
 };
 
 
-inline void Cell::prim2cons() {
+__host__ __device__ inline void Cell::prim2cons() {
   _cons.fromPrim(_prim);
 };
 

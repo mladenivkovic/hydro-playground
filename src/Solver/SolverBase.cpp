@@ -170,7 +170,8 @@ void SolverBase::solve() {
   timer::Timer tick(timer::Category::SolverTot);
 
   // Fill out conserved variables from read-in primitive ones.
-  _grid.convertPrim2Cons();
+  _grid.convertPrim2Cons<Device::cpu>();
+  _grid.convertPrim2Cons<Device::gpu>();
 
 
 #if DEBUG_LEVEL > 1

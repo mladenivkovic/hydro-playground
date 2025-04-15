@@ -87,9 +87,9 @@ public:
 
 
   //! Run through the grid and get cstates from pstates
-  void convertPrim2Cons();
-
-
+  template<Device>
+  __host__ void convertPrim2Cons();
+  
   //! Run through the grid and get pstates from cstates
   void convertCons2Prim();
 
@@ -214,15 +214,15 @@ public:
  * This is for the 1D grid.
  */
 __host__ __device__  inline Cell& Grid::getCell(const size_t i) {
+#if __CUDA_ARCH__
+  return _dev_cells[i];
+#else
 
 #if DEBUG_LEVEL > 0
   if (Dimensions != 1) {
     error("This function is for 1D only!");
   }
 #endif
-#if __CUDA_ARCH__
-  return _dev_cells[i];
-#else
   return _host_cells[i];
 #endif
 }
@@ -233,6 +233,11 @@ __host__ __device__  inline Cell& Grid::getCell(const size_t i) {
  * This is for the 2D grid.
  */
 __host__ __device__ inline Cell& Grid::getCell(const size_t i, const size_t j) {
+  size_t nxTot = getNxTot();
+
+#if __CUDA_ARCH__
+return _dev_cells[i + j * nxTot];
+#else
 
 #if DEBUG_LEVEL > 1
   if (_host_cells == nullptr)
@@ -245,13 +250,8 @@ __host__ __device__ inline Cell& Grid::getCell(const size_t i, const size_t j) {
   }
 #endif
 
-  size_t nxTot = getNxTot();
-
-  #if __CUDA_ARCH__
-  return _dev_cells[i + j * nxTot];
-  #else
   return _host_cells[i + j * nxTot];
-  #endif
+#endif
 }
 
 

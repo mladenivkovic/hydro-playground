@@ -285,7 +285,8 @@ void Grid::resetFluxes() {
  * runs through interior cells and calls prim2cons()
  * on each.
  */
-void Grid::convertPrim2Cons() {
+template<>
+void Grid::convertPrim2Cons<Device::cpu>() {
 
   timer::Timer tick(timer::Category::Convert);
 

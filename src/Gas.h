@@ -30,7 +30,10 @@ private:
   Float _rho;
 
   //! velocity
-  std::array<Float, Dimensions> _v;
+  // std::array<Float, Dimensions> _v;
+
+  // really sorry if you are reading this Mladen
+  Float _v[Dimensions];
 
   //! pressure
   Float _p;
@@ -59,7 +62,7 @@ public:
   [[nodiscard]] Float getSoundSpeed() const;
 
   //! Get the total gas energy from a primitive state
-  [[nodiscard]] Float getE() const;
+  __host__ __device__ [[nodiscard]] Float getE() const;
 
   //! Get a string of the state.
   [[nodiscard]] std::string toString() const;
@@ -68,18 +71,18 @@ public:
   // Getters and setters!
 
   // Setter for Rho
-  void                setRho(const Float val);
-  [[nodiscard]] Float getRho() const;
+  __host__ __device__ void                setRho(const Float val);
+  __host__ __device__ [[nodiscard]] Float getRho() const;
 
   // same for u
-  void                setV(const std::size_t index, const Float val);
-  [[nodiscard]] Float getV(const std::size_t index) const;
+  __host__ __device__ void                setV(const std::size_t index, const Float val);
+  __host__ __device__ [[nodiscard]] Float getV(const std::size_t index) const;
 
   // used a lot, made a function for it
-  [[nodiscard]] Float getVSquared() const;
+  __host__ __device__ [[nodiscard]] Float getVSquared() const;
 
-  void                setP(const Float val);
-  [[nodiscard]] Float getP() const;
+  __host__ __device__ void                setP(const Float val);
+  __host__ __device__ [[nodiscard]] Float getP() const;
 };
 
 
@@ -92,7 +95,8 @@ private:
   Float _rho;
 
   //! Momentum: rho * v
-  std::array<Float, Dimensions> _rhov;
+  // std::array<Float, Dimensions> _rhov;
+  Float _rhov[Dimensions];
 
   //! Energy
   Float _energy;
@@ -115,7 +119,7 @@ public:
    * Set the current conserved state vector to equivalent of given primitive
    * state.
    */
-  void fromPrim(const PrimitiveState& prim);
+   __host__ __device__ void fromPrim(const PrimitiveState& prim);
 
 
   /**
@@ -137,18 +141,18 @@ public:
 
 
   // Getters and setters!
-  void                                    setRho(const Float val);
+  __host__ __device__               void  setRho(const Float val);
   __host__ __device__ [[nodiscard]] Float getRho() const;
 
   // same for u
-  void                setRhov(const std::size_t index, const Float val);
-  [[nodiscard]] Float getRhov(const std::size_t index) const;
-  [[nodiscard]] Float getRhoVSquared() const;
+  __host__ __device__ void                setRhov(const std::size_t index, const Float val);
+  __host__ __device__ [[nodiscard]] Float getRhov(const std::size_t index) const;
+  __host__ __device__ [[nodiscard]] Float getRhoVSquared() const;
 
-  void                setE(const Float val);
-  [[nodiscard]] Float getE() const;
+  __host__ __device__ void                setE(const Float val);
+  __host__ __device__ [[nodiscard]] Float getE() const;
 
-  [[nodiscard]] Float getP() const;
+  __host__ __device__ [[nodiscard]] Float getP() const;
 };
 
 
@@ -159,7 +163,7 @@ public:
 // Primitive State Stuff
 // --------------------------
 
-inline void PrimitiveState::setRho(const Float val) {
+__host__ __device__ inline void PrimitiveState::setRho(const Float val) {
   // These checks will fail because we (ab)use the PrimitiveState
   // as fluxes too, which can be negative
   // #if DEBUG_LEVEL > 0
@@ -179,33 +183,37 @@ __host__ __device__ inline Float PrimitiveState::getRho() const {
 }
 
 
-inline void PrimitiveState::setV(const size_t index, const Float val) {
+__host__ __device__ inline void PrimitiveState::setV(const size_t index, const Float val) {
+#if __CUDA_ARCH__
 #if DEBUG_LEVEL > 0
   // assert(index >= 0); // always true for unsigned type
   assert(index < Dimensions);
+#endif
 #endif
   _v[index] = val;
 }
 
 
-inline Float PrimitiveState::getV(const size_t index) const {
+__host__ __device__ inline Float PrimitiveState::getV(const size_t index) const {
+#if __CUDA_ARCH__
 #if DEBUG_LEVEL > 0
   // assert(index >= 0); // always true for unsigned type
   assert(index < Dimensions);
+#endif
 #endif
   return _v[index];
 }
 
 
-inline Float PrimitiveState::getVSquared() const {
+__host__ __device__ inline Float PrimitiveState::getVSquared() const {
   if (Dimensions == 1)
     return _v[0] * _v[0];
 
   if (Dimensions == 2)
     return _v[0] * _v[0] + _v[1] * _v[1];
 
-  error("Not implemented");
-  return 0.;
+  // error("Not implemented");
+  // return 0.;
 }
 
 
@@ -251,25 +259,29 @@ inline Float PrimitiveState::getE() const {
 // Conserved State Stuff
 // --------------------------
 
-inline void ConservedState::setRhov(const size_t index, const Float val) {
+__host__ __device__ inline void ConservedState::setRhov(const size_t index, const Float val) {
+#if __CUDA_ARCH__
 #if DEBUG_LEVEL > 0
   // assert(index >= 0); // always true for unsigned type
   assert(index < Dimensions);
+#endif
 #endif
   _rhov[index] = val;
 }
 
 
-inline Float ConservedState::getRhov(const size_t index) const {
+__host__ __device__ inline Float ConservedState::getRhov(const size_t index) const {
+#if __CUDA_ARCH__
 #if DEBUG_LEVEL > 0
   // assert(index >= 0); // always true for unsigned type
   assert(index < Dimensions);
+#endif
 #endif
   return _rhov[index];
 }
 
 
-inline Float ConservedState::getRhoVSquared() const {
+__host__ __device__ inline Float ConservedState::getRhoVSquared() const {
   return _rhov[0] * _rhov[0] + _rhov[1] * _rhov[1];
 }
 
@@ -327,3 +339,18 @@ inline Float ConservedState::getP() const {
   Float rv2          = rho * (vx * vx + vy * vy);
   return cst::GM1 * (getE() - 0.5 * rv2);
 }
+
+
+
+/**
+ * Compute the conserved state vector of a given primitive state.
+ *
+ * See eqns. 16 - 18 in theory document.
+ */
+__host__ __device__ inline void ConservedState::fromPrim(const PrimitiveState& p) {
+  setRho(p.getRho());
+  setRhov(0, p.getRho() * p.getV(0));
+  setRhov(1, p.getRho() * p.getV(1));
+  setE(p.getE());
+}
+

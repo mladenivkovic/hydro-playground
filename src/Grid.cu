@@ -6,6 +6,7 @@
 // Reuse names by putting them in this namespace
 namespace Kernels{
   __global__ void collectTotalMassFromGpu(Grid, Float*, size_t, size_t);
+  __global__ void convertPrimToCons(Grid, size_t, size_t);
 
 } // namespace Kernels
 
@@ -43,8 +44,6 @@ __global__ void Kernels::collectTotalMassFromGpu( Grid grid, Float* result, size
   // shared memory for fun
   extern __shared__ Float buff[];
 
-  int offset = last - first;
-  
   int threadId   = (blockIdx.x * blockDim.x + threadIdx.x);
   buff[threadId] = 0.0;
 
@@ -76,10 +75,6 @@ __host__ Float Grid::collectTotalMassFromGpu() {
   size_t first = getFirstCellIndex();
   size_t last  = getLastCellIndex();
   
-  size_t numThreadsInEachDimension = last - first;
-  size_t totalThreads              = numThreadsInEachDimension * numThreadsInEachDimension;
-
-  
   // malloc
   cudaErrorCheck( cudaMalloc((void**)&d_output, sizeof(Float)) );
   
@@ -96,3 +91,22 @@ __host__ Float Grid::collectTotalMassFromGpu() {
   return h_output;
 }
 
+template<>
+__host__
+void Grid::convertPrim2Cons<Device::gpu>() {
+  size_t first = getFirstCellIndex();
+  size_t last  = getLastCellIndex();
+
+  printf("Launching convertPrimToCons kernel. Hardcoding in a single 1d thread block of 256 threads\n");
+
+  Kernels::convertPrimToCons<<<1,256>>>( *this, first, last );
+  cudaDeviceSynchronize();
+}
+
+
+__global__ void Kernels::convertPrimToCons( Grid grid, size_t first, size_t last ) {
+  int threadId   = (blockIdx.x * blockDim.x + threadIdx.x);
+
+  for (size_t i=first; i<last; i++)
+    grid.getCell( i, threadId + first).prim2cons();
+}

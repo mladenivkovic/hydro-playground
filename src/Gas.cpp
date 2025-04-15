@@ -156,18 +156,6 @@ ConservedState::ConservedState(const PrimitiveState& prim, const size_t dimensio
 }
 
 
-/**
- * Compute the conserved state vector of a given primitive state.
- *
- * See eqns. 16 - 18 in theory document.
- */
-void ConservedState::fromPrim(const PrimitiveState& p) {
-  setRho(p.getRho());
-  setRhov(0, p.getRho() * p.getV(0));
-  setRhov(1, p.getRho() * p.getV(1));
-  setE(p.getE());
-}
-
 
 /**
  * @brief Compute the flux of conserved variables of the Euler

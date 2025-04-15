@@ -95,3 +95,5 @@ inline void checkCudaError( cudaError_t err, const char* file, int line) {
 #define HOST_DEVICE
 
 #endif
+
+enum class Device { cpu, gpu };
