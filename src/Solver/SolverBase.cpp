@@ -55,9 +55,9 @@ void SolverBase::computeDt() {
       Float           vy = std::abs(p.getV(1));
       Float           a  = p.getSoundSpeed();
       Float           Sx = a + vx;
-      vxmax              = Sx > vxmax ? Sx : vxmax;
+      vxmax              = Sx > vxmax ? Sx : vxmax; // vxmax = std::max( Sx, vxmax )
       Float Sy           = a + vy;
-      vymax              = Sy > vymax ? Sy : vymax;
+      vymax              = Sy > vymax ? Sy : vymax; // vymax = std::max( Sy, vymax )
     }
   }
 
@@ -65,6 +65,7 @@ void SolverBase::computeDt() {
   Float vxdx   = vxmax * dx_inv;
   Float vydx   = vymax * dx_inv;
 
+  // pass ccfl into the device version
   _dt = _params.getCcfl() / (vxdx + vydx);
 
   // sometimes there might be trouble with sharp discontinuities at the
@@ -83,52 +84,6 @@ void SolverBase::computeDt() {
 
 
 /**
- * @brief Apply the actual time integration step.
- *
- * @param dt_step time interval to integrate over. In more sophisticated
- * schemes, like MUSCL-Hancock, we do several time integrations over
- * sub-intervals in a single step. So this is necessary.
- */
-void SolverBase::integrateHydro(const Float dt_step) {
-
-  message("Integrating dim=" + std::to_string(_direction), logging::LogLevel::Debug);
-  timer::Timer tick(timer::Category::HydroIntegrate);
-
-  if (Dimensions != 2) {
-    error("Not Implemented");
-    return;
-  }
-
-  size_t first = _grid.getFirstCellIndex();
-  size_t last  = _grid.getLastCellIndex();
-
-  const Float dtdx = dt_step / _grid.getDx();
-
-  if (_direction == 0) {
-    for (size_t j = first; j < last; j++) {
-      for (size_t i = first; i < last; i++) {
-        Cell& left  = _grid.getCell(i - 1, j);
-        Cell& right = _grid.getCell(i, j);
-        applyTimeUpdate(left, right, dtdx);
-      }
-    }
-  } else if (_direction == 1) {
-    for (size_t j = first; j < last; j++) {
-      for (size_t i = first; i < last; i++) {
-        Cell& left  = _grid.getCell(i, j - 1);
-        Cell& right = _grid.getCell(i, j);
-        applyTimeUpdate(left, right, dtdx);
-      }
-    }
-  } else {
-    error("Unknown dimension " + std::to_string(_direction));
-  }
-
-  // timing("Hydro integration took " + tick.tock());
-}
-
-
-/**
  * Apply the time update for a pair of cells. This Updates the conserved state
  * using the fluxes in the cells. Eq. 87 and 91 in theory document.
  *
@@ -136,7 +91,8 @@ void SolverBase::integrateHydro(const Float dt_step) {
  * @param left is the cell i-1, which stores the flux at i-1/2
  * @param dtdx: dt / dx
  */
-void SolverBase::applyTimeUpdate(Cell& left, Cell& right, const Float dtdx) {
+template <>
+void SolverBase::applyTimeUpdate<Device::cpu>(Cell& left, Cell& right, const Float dtdx) {
 
   ConservedState&       cr     = right.getCons();
   const ConservedState& lcflux = left.getCFlux();
@@ -156,6 +112,53 @@ void SolverBase::applyTimeUpdate(Cell& left, Cell& right, const Float dtdx) {
   Float e = cr.getE() + dtdx * (lcflux.getE() - rcflux.getE());
   cr.setE(e);
 }
+
+
+/**
+ * @brief Apply the actual time integration step.
+ *
+ * @param dt_step time interval to integrate over. In more sophisticated
+ * schemes, like MUSCL-Hancock, we do several time integrations over
+ * sub-intervals in a single step. So this is necessary.
+ */
+template <> 
+void SolverBase::integrateHydro<Device::cpu>(const Float dt_step) {
+
+  message("Integrating dim=" + std::to_string(_direction), logging::LogLevel::Debug);
+  timer::Timer tick(timer::Category::HydroIntegrate);
+
+  if (Dimensions != 2) {
+    error("Not Implemented");
+    return;
+  }  
+
+  size_t first = _grid.getFirstCellIndex();
+  size_t last  = _grid.getLastCellIndex();
+
+  const Float dtdx = dt_step / _grid.getDx();
+
+  if (_direction == 0) {
+    for (size_t j = first; j < last; j++) {
+      for (size_t i = first; i < last; i++) {
+        Cell& left  = _grid.getCell(i - 1, j);
+        Cell& right = _grid.getCell(i, j);
+        applyTimeUpdate<Device::cpu>(left, right, dtdx);
+      }  
+    }  
+  } else if (_direction == 1) {
+    for (size_t j = first; j < last; j++) {
+      for (size_t i = first; i < last; i++) {
+        Cell& left  = _grid.getCell(i, j - 1);
+        Cell& right = _grid.getCell(i, j);
+        applyTimeUpdate<Device::cpu>(left, right, dtdx);
+      }  
+    }  
+  } else {
+    error("Unknown dimension " + std::to_string(_direction));
+  }  
+
+  // timing("Hydro integration took " + tick.tock());
+}  
 
 
 /**

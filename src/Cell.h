@@ -78,7 +78,8 @@ public:
 
   // PrimitiveState& getPFlux();
 
-  ConservedState& getCFlux();
+  __host__ __device__       ConservedState& getCFlux();
+  __host__ __device__ const ConservedState& getCFlux() const;
   void            setCFlux(ConservedFlux& flux);
 
   ConservedState& getULMid();
@@ -148,7 +149,11 @@ __host__ __device__ inline ConservedState& Cell::getCons() {
 // }
 
 
-inline ConservedState& Cell::getCFlux() {
+__host__ __device__ inline       ConservedState& Cell::getCFlux() {
+  return _cflux;
+}
+
+__host__ __device__ inline const ConservedState& Cell::getCFlux() const {
   return _cflux;
 }
 

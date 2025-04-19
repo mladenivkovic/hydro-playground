@@ -227,7 +227,7 @@ void SolverMUSCL::step() {
   computeFluxes(0.5 * _dt);
 
   // Apply fluxes and update current states
-  integrateHydro(0.5 * _dt);
+  integrateHydro<Device::cpu>(0.5 * _dt);
 
 
   // Second sweep: Other direction, full dt
@@ -246,7 +246,7 @@ void SolverMUSCL::step() {
   // Compute updated fluxes
   computeFluxes(_dt);
   // Apply fluxes and update current states
-  integrateHydro(_dt);
+  integrateHydro<Device::cpu>(_dt);
 
 
   // Third sweep: First direction, full dt
@@ -265,7 +265,7 @@ void SolverMUSCL::step() {
   // Compute updated fluxes
   computeFluxes(0.5 * _dt);
   // Apply fluxes and update current states
-  integrateHydro(0.5 * _dt);
+  integrateHydro<Device::cpu>(0.5 * _dt);
 
 
   // Wrap-up

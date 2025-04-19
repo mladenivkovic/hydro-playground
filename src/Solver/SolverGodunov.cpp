@@ -89,7 +89,7 @@ void SolverGodunov::step() {
   computeFluxes();
 
   // Apply fluxes and update current states
-  integrateHydro(_dt);
+  integrateHydro<Device::cpu>(_dt);
 
   // Second sweep
   // -----------------
@@ -106,7 +106,7 @@ void SolverGodunov::step() {
   // Compute updated fluxes
   computeFluxes();
   // Apply fluxes and update current states
-  integrateHydro(_dt);
+  integrateHydro<Device::cpu>(_dt);
 
 
   // Get solution from previous step from conserved into primitive vars.

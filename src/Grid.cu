@@ -103,7 +103,7 @@ void Grid::convertPrim2Cons<Device::gpu>() {
   cudaDeviceSynchronize();
 }
 
-
+//! Could do this by launching 256 blocks!
 __global__ void Kernels::convertPrimToCons( Grid grid, size_t first, size_t last ) {
   int threadId   = (blockIdx.x * blockDim.x + threadIdx.x);
 

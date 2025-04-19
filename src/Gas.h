@@ -217,7 +217,7 @@ __host__ __device__ inline Float PrimitiveState::getVSquared() const {
 }
 
 
-inline void PrimitiveState::setP(const Float val) {
+__host__ __device__ inline void PrimitiveState::setP(const Float val) {
   // These checks will fail because we (ab)use the PrimitiveState
   // as fluxes too, which can be negative
   // #if DEBUG_LEVEL > 0
@@ -227,7 +227,7 @@ inline void PrimitiveState::setP(const Float val) {
 }
 
 
-inline Float PrimitiveState::getP() const {
+__host__ __device__ inline Float PrimitiveState::getP() const {
   // These checks will fail because we (ab)use the PrimitiveState
   // as fluxes too, which can be negative
   // #if DEBUG_LEVEL > 0
@@ -286,7 +286,7 @@ __host__ __device__ inline Float ConservedState::getRhoVSquared() const {
 }
 
 
-inline void ConservedState::setE(const Float val) {
+__host__ __device__ inline void ConservedState::setE(const Float val) {
   // These checks will fail because we (ab)use the ConservedState
   // as fluxes too, which can be negative
   // #if DEBUG_LEVEL > 0
@@ -296,7 +296,7 @@ inline void ConservedState::setE(const Float val) {
 }
 
 
-inline Float ConservedState::getE() const {
+__host__ __device__ inline Float ConservedState::getE() const {
   // These checks will fail because we (ab)use the ConservedState
   // as fluxes too, which can be negative
   // #if DEBUG_LEVEL > 0
@@ -306,7 +306,7 @@ inline Float ConservedState::getE() const {
 }
 
 
-inline Float ConservedState::getRho() const {
+__host__ __device__ inline Float ConservedState::getRho() const {
   // These checks will fail because we (ab)use the ConservedState
   // as fluxes too, which can be negative
   // #if DEBUG_LEVEL > 0
@@ -316,7 +316,7 @@ inline Float ConservedState::getRho() const {
 }
 
 
-inline void ConservedState::setRho(const Float val) {
+__host__ __device__ inline void ConservedState::setRho(const Float val) {
   // These checks will fail because we (ab)use the ConservedState
   // as fluxes too, which can be negative
   // #if DEBUG_LEVEL > 0
