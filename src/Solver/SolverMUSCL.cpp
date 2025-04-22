@@ -126,7 +126,8 @@ void SolverMUSCL::getBoundaryExtrapolatedValues(
  * Compute all the intercell fluxes needed for a step update along the
  * direction of @param dimension.
  */
-void SolverMUSCL::computeFluxes(const Float dt_step) {
+template<>
+void SolverMUSCL::computeFluxes<Device::cpu>(const Float dt_step) {
 
   timer::Timer tick(timer::Category::HydroFluxes);
 
@@ -224,7 +225,7 @@ void SolverMUSCL::step() {
   _grid.applyBoundaryConditions();
 
   // Compute updated fluxes over half time step
-  computeFluxes(0.5 * _dt);
+  computeFluxes<Device::cpu>(0.5 * _dt);
 
   // Apply fluxes and update current states
   integrateHydro<Device::cpu>(0.5 * _dt);
@@ -244,7 +245,7 @@ void SolverMUSCL::step() {
   _grid.applyBoundaryConditions();
 
   // Compute updated fluxes
-  computeFluxes(_dt);
+  computeFluxes<Device::cpu>(_dt);
   // Apply fluxes and update current states
   integrateHydro<Device::cpu>(_dt);
 
@@ -263,7 +264,7 @@ void SolverMUSCL::step() {
   _grid.applyBoundaryConditions();
 
   // Compute updated fluxes
-  computeFluxes(0.5 * _dt);
+  computeFluxes<Device::cpu>(0.5 * _dt);
   // Apply fluxes and update current states
   integrateHydro<Device::cpu>(0.5 * _dt);
 
@@ -278,5 +279,5 @@ void SolverMUSCL::step() {
   _grid.convertCons2Prim();
 
   // Compute next time step.
-  computeDt();
+  computeDt<Device::cpu>();
 }

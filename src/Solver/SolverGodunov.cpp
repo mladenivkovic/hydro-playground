@@ -116,5 +116,5 @@ void SolverGodunov::step() {
   _grid.convertCons2Prim();
 
   // Compute next time step.
-  computeDt();
+  computeDt<Device::cpu>();
 }

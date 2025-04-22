@@ -10,6 +10,7 @@
 class SolverMUSCL: public SolverBase {
 
   //! Compute the intercell fluxes needed for the update
+  template <Device>
   void computeFluxes(const Float dt_step);
 
   //! Compute the boundary extrapolated values.

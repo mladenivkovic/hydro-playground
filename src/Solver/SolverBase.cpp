@@ -29,7 +29,8 @@ SolverBase::SolverBase(Parameters& params_, Grid& grid_):
 /**
  * @brief Get the maximally perimissible time step size.
  */
-void SolverBase::computeDt() {
+template <>
+void SolverBase::computeDt<Device::cpu>() {
 
   message("Computing next dt.", logging::LogLevel::Debug);
   timer::Timer tick(timer::Category::CollectDt);
@@ -44,8 +45,6 @@ void SolverBase::computeDt() {
 
   Float vxmax = 0.;
   Float vymax = 0.;
-
-  // we can calculate all of this on device!
 
   for (size_t j = first; j < last; j++) {
     for (size_t i = first; i < last; i++) {
@@ -65,7 +64,6 @@ void SolverBase::computeDt() {
   Float vxdx   = vxmax * dx_inv;
   Float vydx   = vymax * dx_inv;
 
-  // pass ccfl into the device version
   _dt = _params.getCcfl() / (vxdx + vydx);
 
   // sometimes there might be trouble with sharp discontinuities at the
@@ -91,8 +89,7 @@ void SolverBase::computeDt() {
  * @param left is the cell i-1, which stores the flux at i-1/2
  * @param dtdx: dt / dx
  */
-template <>
-void SolverBase::applyTimeUpdate<Device::cpu>(Cell& left, Cell& right, const Float dtdx) {
+void SolverBase::applyTimeUpdate(Cell& left, Cell& right, const Float dtdx) {
 
   ConservedState&       cr     = right.getCons();
   const ConservedState& lcflux = left.getCFlux();
@@ -142,7 +139,7 @@ void SolverBase::integrateHydro<Device::cpu>(const Float dt_step) {
       for (size_t i = first; i < last; i++) {
         Cell& left  = _grid.getCell(i - 1, j);
         Cell& right = _grid.getCell(i, j);
-        applyTimeUpdate<Device::cpu>(left, right, dtdx);
+        applyTimeUpdate(left, right, dtdx);
       }  
     }  
   } else if (_direction == 1) {
@@ -150,7 +147,7 @@ void SolverBase::integrateHydro<Device::cpu>(const Float dt_step) {
       for (size_t i = first; i < last; i++) {
         Cell& left  = _grid.getCell(i, j - 1);
         Cell& right = _grid.getCell(i, j);
-        applyTimeUpdate<Device::cpu>(left, right, dtdx);
+        applyTimeUpdate(left, right, dtdx);
       }  
     }  
   } else {
@@ -188,7 +185,7 @@ void SolverBase::solve() {
   writer.dump(_t, _step_count);
 
   // Get current time step size
-  computeDt();
+  computeDt<Device::cpu>();
 
   // Show the output header.
   writeLogHeader();

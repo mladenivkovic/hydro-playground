@@ -59,7 +59,7 @@ public:
   void fromCons(const ConservedState& cons);
 
   //! Get the local soundspeed given a primitive state
-  [[nodiscard]] Float getSoundSpeed() const;
+  __host__ __device__ [[nodiscard]] Float getSoundSpeed() const;
 
   //! Get the total gas energy from a primitive state
   __host__ __device__ [[nodiscard]] Float getE() const;
@@ -241,8 +241,12 @@ __host__ __device__ inline Float PrimitiveState::getP() const {
  * Compute the local sound speed given a primitive state.
  * Eq. 6
  */
-inline Float PrimitiveState::getSoundSpeed() const {
+__host__ __device__ inline Float PrimitiveState::getSoundSpeed() const {
+  #if __CUDA_ARCH__
+  return sqrtf( cst::GAMMA * getP() / getRho() );
+  #else
   return std::sqrt(cst::GAMMA * getP() / getRho());
+  #endif 
 }
 
 
@@ -325,7 +329,7 @@ __host__ __device__ inline void ConservedState::setRho(const Float val) {
   _rho = val;
 }
 
-inline Float ConservedState::getP() const {
+__host__ __device__ inline Float ConservedState::getP() const {
   // this makes prim->cons->prim conversion worse due to roundoff errors.
   // Float one_over_rho = 1. / rho;
   // Float rv2 = cons.getRhoVSquared() * one_over_rho;

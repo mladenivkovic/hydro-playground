@@ -88,6 +88,8 @@ __host__ Float Grid::collectTotalMassFromGpu() {
   // copy back
   cudaErrorCheck(cudaMemcpy( (void*)&h_output, (void*)d_output, sizeof(Float), cudaMemcpyDeviceToHost ));
 
+  cudaFree( d_output );
+
   return h_output;
 }
 

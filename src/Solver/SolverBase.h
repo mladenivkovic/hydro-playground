@@ -39,16 +39,16 @@ protected:
   Grid& _grid;
 
   //! Compute current time step size.
-  void computeDt();
+  template <Device>
+  __host__ void computeDt();
 
   //! Apply the time update for a pair of cells.
-  template <Device>
   static void applyTimeUpdate(Cell& left, Cell& right, const Float dtdx);
 
   //! Apply the actual time integration step.
   //! Probably need different arguments for the device version
   template <Device>
-  void integrateHydro(const Float dt_step);
+  __host__ void integrateHydro(const Float dt_step);
 
   //! Do we still need to run?
   bool keepRunning();
