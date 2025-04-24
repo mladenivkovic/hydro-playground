@@ -70,34 +70,6 @@ PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float vy, 
 }
 
 
-/**
- * Convert a conserved state to a (this) primitive state.
- * Overwrites the contents of this primitive state.
- * See Eq. 19-21 in Theory document.
- */
-void PrimitiveState::fromCons(const ConservedState& cons) {
-  if (cons.getRho() <= cst::SMALLRHO) {
-    // execption handling for vacuum
-    setRho(cst::SMALLRHO);
-    setV(0, cst::SMALLV);
-    setV(1, cst::SMALLV);
-    setP(cst::SMALLP);
-  } else {
-    setRho(cons.getRho());
-    Float one_over_rho = 1. / cons.getRho();
-    Float vx           = cons.getRhov(0) * one_over_rho;
-    Float vy           = cons.getRhov(1) * one_over_rho;
-    setV(0, vx);
-    setV(1, vy);
-    setP(cons.getP());
-
-    // handle negative pressure
-    if (getP() <= cst::SMALLP) {
-      setP(cst::SMALLP);
-    }
-  }
-}
-
 
 /**
  * @brief construct a string with the contents.

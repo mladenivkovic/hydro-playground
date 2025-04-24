@@ -94,9 +94,6 @@ void SolverBase::computeDt<Device::gpu>() {
   size_t first = _grid.getFirstCellIndex();
   size_t last  = _grid.getLastCellIndex();
 
-  Float vxmax = 0.;
-  Float vymax = 0.;
-
   // alloc space for the dt
   Float* d_dt = nullptr;
   Float  h_dt;

@@ -63,7 +63,7 @@ public:
    * Set the current primitive state vector to equivalend of given conserved
    * state.
    */
-  void fromCons(const ConservedState& cons);
+  __host__ __device__ void fromCons(const ConservedState& cons);
 
   //! Get the local soundspeed given a primitive state
   __host__ __device__ [[nodiscard]] Float getSoundSpeed() const;
@@ -365,10 +365,41 @@ __host__ __device__ inline Float ConservedState::getP() const {
  *
  * See eqns. 16 - 18 in theory document.
  */
-__host__ __device__ inline void ConservedState::fromPrim(const PrimitiveState& p) {
+__host__ __device__ inline
+void ConservedState::fromPrim(const PrimitiveState& p) {
   setRho(p.getRho());
   setRhov(0, p.getRho() * p.getV(0));
   setRhov(1, p.getRho() * p.getV(1));
   setE(p.getE());
+}
+
+
+/**
+ * Convert a conserved state to a (this) primitive state.
+ * Overwrites the contents of this primitive state.
+ * See Eq. 19-21 in Theory document.
+ */
+ __host__ __device__ inline
+void PrimitiveState::fromCons(const ConservedState& cons) {
+  if (cons.getRho() <= cst::SMALLRHO) {
+    // execption handling for vacuum
+    setRho(cst::SMALLRHO);
+    setV(0, cst::SMALLV);
+    setV(1, cst::SMALLV);
+    setP(cst::SMALLP);
+  } else {
+    setRho(cons.getRho());
+    Float one_over_rho = 1. / cons.getRho();
+    Float vx           = cons.getRhov(0) * one_over_rho;
+    Float vy           = cons.getRhov(1) * one_over_rho;
+    setV(0, vx);
+    setV(1, vy);
+    setP(cons.getP());
+
+    // handle negative pressure
+    if (getP() <= cst::SMALLP) {
+      setP(cst::SMALLP);
+    }
+  }
 }
 

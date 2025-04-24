@@ -17,44 +17,6 @@ Cell::Cell():
 }
 
 
-/**
- * @brief Copies the gas data needed for boundaries from a real cell to this
- * cell. This means that in boundary exchanges, this should be called from
- * within the ghost cell.
- *
- * @param other the other cell, which we are copying data from
- */
-void Cell::copyBoundaryData(const Cell* other) {
-  // copy gas data from the other
-  _prim = other->getPrim();
-  _cons = other->getCons();
-}
-
-
-/**
- * @brief Copies the gas data needed for boundaries from a real cell to a ghost
- * cell. Here for a reflective boundary condition, where we need to invert the
- * velocities. Should be called from within the ghost cell.
- * See Section 6 in theory document.
- *
- * @param other: pointer to real cell from which we take data
- * @param dimension: in which dimension the reflection is supposed to be
- */
-void Cell::copyBoundaryDataReflective(const Cell* other, const size_t dimension) {
-
-  // This should be called from within the ghost
-  _prim = other->getPrim();
-  _cons = other->getCons();
-
-  // flip the velocities in specified dimension
-  Float u = getPrim().getV(dimension);
-  getPrim().setV(dimension, -u);
-
-  // Same for momentum.
-  Float rhou = getCons().getRhov(dimension);
-  getCons().setRhov(dimension, -rhou);
-}
-
 
 /**
  * Compute the i and j indexes of a cell in the grid

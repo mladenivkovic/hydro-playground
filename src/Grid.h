@@ -135,7 +135,7 @@ public:
   /**
    * @brief get the index of the first actual (= non boundary/ghost) cell
    */
-  [[nodiscard]] size_t getLastCellIndex() const;
+  __host__ __device__ [[nodiscard]] size_t getLastCellIndex() const;
 
 
   // Getters and setters
@@ -160,8 +160,8 @@ public:
   /**
    * @brief Get the type of boundary condition used
    */
-  [[nodiscard]] BC::BoundaryCondition getBoundaryType() const;
-  void                                setBoundaryType(BC::BoundaryCondition boundary);
+  __host__ __device__ [[nodiscard]] BC::BoundaryCondition getBoundaryType() const;
+  void                                                    setBoundaryType(BC::BoundaryCondition boundary);
 
 
   /**
@@ -277,7 +277,7 @@ inline void Grid::setNxNorep(const size_t nx) {
 }
 
 
-inline BC::BoundaryCondition Grid::getBoundaryType() const {
+__host__ __device__ inline BC::BoundaryCondition Grid::getBoundaryType() const {
   return _boundary_type;
 }
 
@@ -342,7 +342,7 @@ __host__ __device__ inline size_t Grid::getFirstCellIndex() const {
 }
 
 
-inline size_t Grid::getLastCellIndex() const {
+__host__ __device__ inline size_t Grid::getLastCellIndex() const {
   return getNx() + getNBC();
 }
 

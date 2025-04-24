@@ -12,12 +12,12 @@ public:
   //! Standard constructor
   Cell();
 
-  void copyBoundaryData(const Cell* other);
+  __host__ __device__ void copyBoundaryData(const Cell* other);
 
-  void copyBoundaryDataReflective(const Cell* other, const std::size_t dimension);
+  __host__ __device__ void copyBoundaryDataReflective(const Cell* other, const std::size_t dimension);
 
   //! Update cell's primitive state to current conserved state
-  void cons2prim();
+  __host__ __device__ void cons2prim();
 
   //! Update cell's conserved state to current primitive state
   __host__ __device__ void prim2cons();
@@ -92,6 +92,48 @@ public:
 // --------------------------------------------------------
 // Definitions
 // --------------------------------------------------------
+
+
+/**
+ * @brief Copies the gas data needed for boundaries from a real cell to this
+ * cell. This means that in boundary exchanges, this should be called from
+ * within the ghost cell.
+ *
+ * @param other the other cell, which we are copying data from
+ */
+inline __host__ __device__
+void Cell::copyBoundaryData(const Cell* other) {
+  // copy gas data from the other
+  _prim = other->getPrim();
+  _cons = other->getCons();
+}
+
+
+/**
+ * @brief Copies the gas data needed for boundaries from a real cell to a ghost
+ * cell. Here for a reflective boundary condition, where we need to invert the
+ * velocities. Should be called from within the ghost cell.
+ * See Section 6 in theory document.
+ *
+ * @param other: pointer to real cell from which we take data
+ * @param dimension: in which dimension the reflection is supposed to be
+ */
+inline __host__ __device__
+void Cell::copyBoundaryDataReflective(const Cell* other, const size_t dimension) {
+
+  // This should be called from within the ghost
+  _prim = other->getPrim();
+  _cons = other->getCons();
+
+  // flip the velocities in specified dimension
+  Float u = getPrim().getV(dimension);
+  getPrim().setV(dimension, -u);
+
+  // Same for momentum.
+  Float rhou = getCons().getRhov(dimension);
+  getCons().setRhov(dimension, -rhou);
+}
+
 
 inline void Cell::cons2prim() {
   _prim.fromCons(_cons);

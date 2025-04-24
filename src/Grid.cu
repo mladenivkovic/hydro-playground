@@ -2,6 +2,7 @@
 
 //! Not nice but I can't get the tests to link, so we move the cuda stuff in here
 #include "Grid.h"
+#include "assert.h"
 
 /**
 
@@ -14,7 +15,13 @@ namespace Kernels{
   __global__ void collectTotalMassFromGpu(Grid, Float*, size_t, size_t);
   __global__ void convertPrimToCons(Grid, size_t, size_t);
   __global__ void resetFluxes(Grid, size_t, size_t);
+  __global__ void applyBoundaryConditions(Grid);
+
 } // namespace Kernels
+
+namespace DeviceFunctions{
+  static __device__ void realToGhost(Grid&, Cell**, Cell**, Cell**, Cell**, size_t);
+} // namespace Device
 
 __host__ void Grid::transferCellsToDevice() {
   size_t nxTot       = getNxTot();
@@ -139,4 +146,85 @@ __global__ void Kernels::resetFluxes( Grid grid, size_t first, size_t last ) {
   int tid = threadIdx.x;
 
   grid.getCell( first + tid, first + bid ).getCFlux().clear();
+}
+
+
+template<>
+__host__ void Grid::applyBoundaryConditions<Device::gpu>() {
+  // launch kernel single-threaded (but we take up a whole warp just in case)
+  // This one is really crucial - so let's do it single threaded until everything
+  // else works
+  Kernels::applyBoundaryConditions<<<1,32>>>(*this);
+  cudaDeviceSynchronize();
+}
+
+__global__ void Kernels::applyBoundaryConditions(Grid grid) {
+  int tid = threadIdx.x;
+
+  // single threaded for the sake of correctness
+  if ( tid == 0 ) {
+    const size_t nbc       = grid.getNBC();
+    const size_t firstReal = grid.getFirstCellIndex();
+    const size_t lastReal  = grid.getLastCellIndex();
+
+    assert(Dimensions==2);
+
+    Cell** real_left   = new Cell*[nbc];
+    Cell** real_right  = new Cell*[nbc];
+    Cell** ghost_left  = new Cell*[nbc];
+    Cell** ghost_right = new Cell*[nbc];
+
+    // left-right boundaries
+    for (size_t j = firstReal; j < lastReal; j++) {
+      for (size_t i = 0; i < firstReal; i++) {
+        real_left[i]   = &(grid.getCell(firstReal + i, j));
+        real_right[i]  = &(grid.getCell(lastReal - firstReal + i, j));
+        ghost_left[i]  = &(grid.getCell(i, j));
+        ghost_right[i] = &(grid.getCell(lastReal + i, j));
+      }
+      DeviceFunctions::realToGhost(grid, real_left, real_right, ghost_left, ghost_right, 0);
+    }
+
+    // upper-lower boundaries
+    for (size_t i = firstReal; i < lastReal; i++) {
+      for (size_t j = 0; j < firstReal; j++) {
+        real_left[j]   = &(grid.getCell(i, firstReal + j));
+        real_right[j]  = &(grid.getCell(i, lastReal - firstReal + j));
+        ghost_left[j]  = &(grid.getCell(i, j));
+        ghost_right[j] = &(grid.getCell(i, lastReal + j));
+      }
+      DeviceFunctions::realToGhost(grid, real_left, real_right, ghost_left, ghost_right, 1);
+    }
+  }
+}
+
+// all these arrays should have size nbc!
+static __device__ void DeviceFunctions::realToGhost(Grid& grid, Cell** real_left, Cell** real_right, Cell** ghost_left, Cell** ghost_right, size_t dimension) {
+  size_t nbc = grid.getNBC();
+
+  switch (grid.getBoundaryType()) {
+    case BC::BoundaryCondition::Periodic:
+      for (size_t i = 0; i < nbc; i++) {
+        ghost_left[i]->copyBoundaryData(real_right[i]);
+        ghost_right[i]->copyBoundaryData(real_left[i]);
+      }
+      break;
+  
+    case BC::BoundaryCondition::Reflective:
+      for (size_t i = 0; i < nbc; i++) {
+        ghost_left[i]->copyBoundaryDataReflective(real_left[nbc - i - 1], dimension);
+        ghost_right[i]->copyBoundaryDataReflective(real_right[nbc - i - 1], dimension);
+      }
+      break;
+  
+    case BC::BoundaryCondition::Transmissive:
+      for (size_t i = 0; i < nbc; i++) {
+        ghost_left[i]->copyBoundaryData(real_left[nbc - i - 1]);
+        ghost_right[i]->copyBoundaryData(real_right[nbc - i - 1]);
+      }
+      break;
+  
+    default:
+      assert(false);
+    }
 }
