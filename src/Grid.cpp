@@ -46,7 +46,7 @@ Grid::~Grid() {
   // if (_cells == nullptr)
   //   error("Where did the cells array go??");
   // delete[] _cells;
-  printf("Calling Grid Constructor");
+  printf("Calling Grid Destructor");
 }
 
 
@@ -258,7 +258,8 @@ Float Grid::collectTotalMass() {
 /**
  * Reset all fluxes of the grid (both primitive and conservative) to zero.
  */
-void Grid::resetFluxes() {
+template <>
+void Grid::resetFluxes<Device::cpu>() {
 
   timer::Timer tick(timer::Category::Reset);
 
@@ -340,7 +341,8 @@ void Grid::convertCons2Prim() {
  * and ghost cells in a row or column and then
  * calls the function that actually copies the data.
  */
-void Grid::applyBoundaryConditions() {
+  template <>
+  void Grid::applyBoundaryConditions<Device::cpu>() {
 
   timer::Timer tick(timer::Category::BoundaryConditions);
   message("Applying boundary conditions.", logging::LogLevel::Debug);

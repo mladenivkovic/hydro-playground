@@ -80,7 +80,7 @@ public:
 
   __host__ __device__       ConservedState& getCFlux();
   __host__ __device__ const ConservedState& getCFlux() const;
-  void            setCFlux(ConservedFlux& flux);
+  void                                      setCFlux(ConservedFlux& flux);
 
   ConservedState& getULMid();
   ConservedState& getURMid();

@@ -95,10 +95,12 @@ public:
 
 
   //! Reset all fluxes
+  template <Device>
   void resetFluxes();
 
 
   //! Apply boundary conditions.
+  template <Device>
   void applyBoundaryConditions();
 
 

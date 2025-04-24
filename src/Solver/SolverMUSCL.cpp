@@ -218,11 +218,11 @@ void SolverMUSCL::step() {
   _direction = _step_count % 2;
 
   // zero out fluxes.
-  _grid.resetFluxes();
+  _grid.resetFluxes<Device::cpu>();
   // No need to convert conserved quantities to primitive ones - see below.
   // grid.convertCons2Prim();
   // Send around updated boundary values
-  _grid.applyBoundaryConditions();
+  _grid.applyBoundaryConditions<Device::cpu>();
 
   // Compute updated fluxes over half time step
   computeFluxes<Device::cpu>(0.5 * _dt);
@@ -237,12 +237,12 @@ void SolverMUSCL::step() {
   // change dimension
   _direction = (_step_count + 1) % 2;
   // zero out fluxes.
-  _grid.resetFluxes();
+  _grid.resetFluxes<Device::cpu>();
   // Transfer results from conserved states to primitive ones.
   // TODO: I'm pretty sure we can skip this unless we're writing output or computing dt.
   _grid.convertCons2Prim();
   // Send around updated boundary values
-  _grid.applyBoundaryConditions();
+  _grid.applyBoundaryConditions<Device::cpu>();
 
   // Compute updated fluxes
   computeFluxes<Device::cpu>(_dt);
@@ -256,12 +256,12 @@ void SolverMUSCL::step() {
   // change dimension
   _direction = _step_count % 2;
   // zero out fluxes.
-  _grid.resetFluxes();
+  _grid.resetFluxes<Device::cpu>();
   // Transfer results from conserved states to primitive ones.
   // TODO: I'm pretty sure we can skip this unless we're writing output or computing dt.
   _grid.convertCons2Prim();
   // Send around updated boundary values
-  _grid.applyBoundaryConditions();
+  _grid.applyBoundaryConditions<Device::cpu>();
 
   // Compute updated fluxes
   computeFluxes<Device::cpu>(0.5 * _dt);

@@ -3,11 +3,17 @@
 //! Not nice but I can't get the tests to link, so we move the cuda stuff in here
 #include "Grid.h"
 
+/**
+
+NOTE - when we do getCell(i,j) - the cell at (i+1,j) will be next in memory
+
+*/
+
 // Reuse names by putting them in this namespace
 namespace Kernels{
   __global__ void collectTotalMassFromGpu(Grid, Float*, size_t, size_t);
   __global__ void convertPrimToCons(Grid, size_t, size_t);
-
+  __global__ void resetFluxes(Grid, size_t, size_t);
 } // namespace Kernels
 
 __host__ void Grid::transferCellsToDevice() {
@@ -93,22 +99,44 @@ __host__ Float Grid::collectTotalMassFromGpu() {
   return h_output;
 }
 
+/**
+  TODO: correctness test
+
+*/
 template<>
 __host__
 void Grid::convertPrim2Cons<Device::gpu>() {
   size_t first = getFirstCellIndex();
   size_t last  = getLastCellIndex();
 
-  printf("Launching convertPrimToCons kernel. Hardcoding in a single 1d thread block of 256 threads\n");
-
-  Kernels::convertPrimToCons<<<1,256>>>( *this, first, last );
+  Kernels::convertPrimToCons<<<256,256>>>( *this, first, last );
   cudaDeviceSynchronize();
 }
 
-//! Could do this by launching 256 blocks!
-__global__ void Kernels::convertPrimToCons( Grid grid, size_t first, size_t last ) {
-  int threadId   = (blockIdx.x * blockDim.x + threadIdx.x);
 
-  for (size_t i=first; i<last; i++)
-    grid.getCell( i, threadId + first).prim2cons();
+__global__ void Kernels::convertPrimToCons( Grid grid, size_t first, size_t last ) {
+  int bid = blockIdx.x;
+  int tid = threadIdx.x;
+
+  grid.getCell( first + tid, first + bid ).prim2cons();
+}
+
+
+template<>
+__host__
+void Grid::resetFluxes<Device::gpu>() {
+  // launch
+  Kernels::resetFluxes<<<256,256>>>(*this, getFirstCellIndex(), getLastCellIndex());
+  cudaDeviceSynchronize();
+}
+
+/**
+  TODO: correctness test
+
+*/
+__global__ void Kernels::resetFluxes( Grid grid, size_t first, size_t last ) {
+  int bid = blockIdx.x;
+  int tid = threadIdx.x;
+
+  grid.getCell( first + tid, first + bid ).getCFlux().clear();
 }

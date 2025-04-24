@@ -48,8 +48,15 @@ public:
   /**
    * Clear out contents.
    */
-  void clear() {
+  __host__ __device__ void clear() {
+    #if __CUDA_ARCH__
+    _rho  = 0.;
+    _p    = 0.;
+    _v[0] = 0.;
+    _v[1] = 0.;
+    #else
     *this = PrimitiveState();
+    #endif
   }
 
   /**
@@ -110,8 +117,15 @@ public:
   /**
    * Clear out contents.
    */
-  void clear() {
+  __host__ __device__ void clear() {
+    #if __CUDA_ARCH__
+    _rho     = 0.;
+    _energy  = 0.;
+    _rhov[0] = 0.;
+    _rhov[1] = 0.;
+    #else
     *this = ConservedState();
+    #endif
   }
 
 

@@ -79,11 +79,11 @@ void SolverGodunov::step() {
   _direction = _step_count % 2;
 
   // zero out fluxes.
-  _grid.resetFluxes();
+  _grid.resetFluxes<Device::cpu>();
   // No need to convert conserved quantities to primitive ones - see below.
   // grid.convertCons2Prim();
   // Send around updated boundary values
-  _grid.applyBoundaryConditions();
+  _grid.applyBoundaryConditions<Device::cpu>();
 
   // Compute updated fluxes
   computeFluxes();
@@ -97,11 +97,11 @@ void SolverGodunov::step() {
   // change dimension
   _direction = (_step_count + 1) % 2;
   // zero out fluxes.
-  _grid.resetFluxes();
+  _grid.resetFluxes<Device::cpu>();
   // Transfer results from conserved states to primitive ones.
   _grid.convertCons2Prim();
   // Send around updated boundary values
-  _grid.applyBoundaryConditions();
+  _grid.applyBoundaryConditions<Device::cpu>();
 
   // Compute updated fluxes
   computeFluxes();
