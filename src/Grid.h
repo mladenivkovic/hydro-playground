@@ -1,7 +1,6 @@
 #pragma once
 
-#include <vector>
-
+#include "BoundaryConditions.h"
 #include "Cell.h"
 #include "Logging.h"
 #include "Parameters.h"
@@ -96,14 +95,8 @@ public:
   void applyBoundaryConditions();
 
 
-  //! Apply the boundary conditions from real to ghost cells.
-  void realToGhost(
-    std::vector<Cell*> real_left,
-    std::vector<Cell*> real_right,
-    std::vector<Cell*> ghost_left,
-    std::vector<Cell*> ghost_right,
-    const size_t       dimension = 0
-  );
+  //! Get the function that applies the correct boundary conditions.
+  BC::BoundaryFunctionPtr selectBoundaryFunction();
 
 
   //! Print out the grid.
