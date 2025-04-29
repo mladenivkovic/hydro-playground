@@ -88,6 +88,19 @@ inline void checkCudaError( cudaError_t err, const char* file, int line) {
     printf("CudaSuccess at %s:%d\n", file, line);
 }
 
+//! There is a cuda builtin for warpSize but we can't mark it static for annoying reasons
+constexpr int warp_size = 32;
+
+//! Helper function to make sure we request a whole number of
+//! warps. Only used for launching kernels so no need to optimise
+inline int minNumberOfThreads( int reqThreads ) {
+  assert( reqThreads > 0 );
+  assert( reqThreads <= 1024 );
+  return ( reqThreads % warp_size == 0 )
+    ? reqThreads
+    : reqThreads + ( warp_size - ( reqThreads % warp_size ) );
+}
+
 #else
 
 #define HOST       
@@ -96,4 +109,10 @@ inline void checkCudaError( cudaError_t err, const char* file, int line) {
 
 #endif
 
+/**
+  *
+  * Enum that lets us create two variations of functions - one that
+  * works entirely on cpu and another which launches a cuda kernel
+  *
+*/
 enum class Device { cpu, gpu };

@@ -6,6 +6,7 @@
  */
 
 #include "Constants.h"
+#include "Utils.h"
 
 namespace limiter {
 
@@ -13,7 +14,7 @@ namespace limiter {
    * Compute the actual slope limiter xi(r) for the minmod limiter
    * Eq. 104 in theory document.
    */
-  inline Float limiterXiOfR(const Float r) {
+  __host__ __device__ inline Float limiterXiOfR(const Float r) {
 
     Float xi = r > 0. ? r : 0.;
     if (r > 1.) {

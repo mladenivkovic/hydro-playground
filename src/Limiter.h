@@ -8,6 +8,7 @@
 
 #include "Config.h"
 #include "Gas.h"
+#include "Utils.h"
 
 
 #if LIMITER == LIMITER_NONE
@@ -46,7 +47,7 @@ namespace limiter {
    * switch what topleft, topright, and bottomleft are, which is
    * done in the function that is calling this one.
    */
-  inline Float limiterR(const Float topleft, const Float topright, const Float bottomleft) {
+  __host__ __device__ inline Float limiterR(const Float topleft, const Float topright, const Float bottomleft) {
 
     // avoid div by zero
     if (bottomleft == topleft)
@@ -65,7 +66,7 @@ namespace limiter {
    * @param UiM1:  U_{i-1}
    * @param r:     where flow parameter r for every conserved state will be stored
    */
-  inline void limiterGetRCstate(
+  __host__ __device__ inline void limiterGetRCstate(
     const ConservedState& UiP1,
     const ConservedState& Ui,
     const ConservedState& UiM1,
@@ -92,7 +93,7 @@ namespace limiter {
    * @param Ui: State of cell U_{i}
    * @param UiM1: State of cell U_{i-1}
    */
-  inline void limiterGetLimitedSlope(
+  __host__ __device__ inline void limiterGetLimitedSlope(
     const ConservedState& UiP1,
     const ConservedState& Ui,
     const ConservedState& UiM1,

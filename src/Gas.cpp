@@ -94,36 +94,16 @@ std::string PrimitiveState::toString() const {
 
 // ------------------------------------
 // Stuff for conserved state
+// 
+// MOVED A FEW OF THE CONSTRUCTORS INTO THE HEADER TO SIMPLIFY THE DEVICE CODE
 // ------------------------------------
-
-
-ConservedState::ConservedState():
-  _rho(0.),
-  _energy(0.) {
-  for (size_t i = 0; i < Dimensions; i++) {
-    _rhov[i] = 0.;
-  }
-}
-
-ConservedState::ConservedState(
-  const Float rho, const Float rhovx, const Float rhovy, const Float E
-):
-  _rho(rho),
-  _energy(E) {
-#if DEBUG_LEVEL > 0
-  if (Dimensions != 2)
-    error("This is for 2D only!");
-#endif
-  _rhov[0] = rhovx;
-  _rhov[1] = rhovy;
-}
 
 /**
  * Initialise a conserved flux along a dimension using primitive variables of
  * the state.
  */
 ConservedState::ConservedState(const PrimitiveState& prim, const size_t dimension) {
-
+  // next function undefined in device code. leave this one here
   getCFluxFromPState(prim, dimension);
 }
 
@@ -161,54 +141,6 @@ void ConservedState::getCFluxFromPState(const PrimitiveState& pstate, const size
   // gas energy flux
   Float E = pstate.getE();
   setE((E + p) * vdim);
-}
-
-
-/**
- * Compute the flux of conserved variables of the Euler
- * equations given a conserved state vector
- *
- * The flux is not an entire tensor for 3D Euler equations, but
- * correpsonds to the dimensionally split vectors F, G as
- * described in the "Euler equations in 2D" section of the
- * documentation TeX files.
- * That's why you need to specify the dimension.
- *
- * The flux terms for each dimension are given as the second and
- * third term in Eq. 13.
- */
-void ConservedState::getCFluxFromCstate(const ConservedState& cons, const size_t dimension) {
-
-  // Mass flux
-  Float rho = cons.getRho();
-
-  if (rho > 0.) {
-
-    setRho(cons.getRhov(dimension));
-
-    size_t other        = (dimension + 1) % 2;
-    Float  one_over_rho = 1. / rho;
-    Float  vdim         = cons.getRhov(dimension) * one_over_rho;
-    Float  p            = cons.getP();
-
-    // momentum flux along the requested dimension
-    Float momentum_dim = rho * vdim * vdim + p;
-
-    setRhov(dimension, momentum_dim);
-
-    // momentum flux along the other dimension
-    Float momentum_other = cons.getRhov(other) * vdim;
-    setRhov(other, momentum_other);
-
-    Float E = (cons.getE() + p) * vdim;
-    setE(E);
-
-  } else {
-
-    setRhov(0, 0.);
-    setRhov(1, 0.);
-    setE(0.);
-  }
 }
 
 

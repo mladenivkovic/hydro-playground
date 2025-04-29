@@ -6,13 +6,14 @@
  */
 
 #include "../Constants.h"
+#include "Utils.h"
 
 namespace limiter {
 
   /**
    * Compute the actual slope limiter xi(r) for the van Leer limiter
    */
-  inline Float limiterXiOfR(const Float r) {
+  __host__ __device__ inline Float limiterXiOfR(const Float r) {
 
     if (r <= 0.)
       return 0.;

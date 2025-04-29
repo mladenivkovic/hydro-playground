@@ -82,10 +82,10 @@ public:
   __host__ __device__ const ConservedState& getCFlux() const;
   void                                      setCFlux(ConservedFlux& flux);
 
-  ConservedState& getULMid();
-  ConservedState& getURMid();
-  void            setULMid(const ConservedState& state);
-  void            setURMid(const ConservedState& state);
+  __host__ __device__ ConservedState& getULMid();
+  __host__ __device__ ConservedState& getURMid();
+  __host__ __device__ void            setULMid(const ConservedState& state);
+  __host__ __device__ void            setURMid(const ConservedState& state);
 };
 
 
@@ -205,7 +205,7 @@ inline void Cell::setCFlux(ConservedFlux& flux) {
 }
 
 
-inline ConservedState& Cell::getULMid() {
+__host__ __device__ inline ConservedState& Cell::getULMid() {
 #if SOLVER == SOLVER_MUSCL
   return U_left_mid;
 #else
@@ -215,7 +215,7 @@ inline ConservedState& Cell::getULMid() {
 }
 
 
-inline ConservedState& Cell::getURMid() {
+__host__ __device__ inline ConservedState& Cell::getURMid() {
 #if SOLVER == SOLVER_MUSCL
   return U_right_mid;
 #else
@@ -225,7 +225,7 @@ inline ConservedState& Cell::getURMid() {
 }
 
 
-inline void Cell::setULMid(const ConservedState& state) {
+__host__ __device__ inline void Cell::setULMid(const ConservedState& state) {
 #if SOLVER == SOLVER_MUSCL
   U_left_mid = state;
 #else
@@ -234,7 +234,7 @@ inline void Cell::setULMid(const ConservedState& state) {
 }
 
 
-inline void Cell::setURMid(const ConservedState& state) {
+__host__ __device__ inline void Cell::setURMid(const ConservedState& state) {
 #if SOLVER == SOLVER_MUSCL
   U_right_mid = state;
 #else

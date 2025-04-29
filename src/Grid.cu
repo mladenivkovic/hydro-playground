@@ -195,6 +195,11 @@ __global__ void Kernels::applyBoundaryConditions(Grid grid) {
       }
       DeviceFunctions::realToGhost(grid, real_left, real_right, ghost_left, ghost_right, 1);
     }
+
+    delete[] real_left;
+    delete[] real_right;
+    delete[] ghost_left;
+    delete[] ghost_right;
   }
 }
 
