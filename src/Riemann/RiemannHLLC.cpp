@@ -17,7 +17,7 @@ ConservedFlux RiemannHLLC::solve() {
   timer::Timer tick(timer::Category::Riemann);
 
   if (hasVacuum()) {
-    PrimitiveState vac = solveVacuum();
+    PrimitiveState vac = solveVacuum<Device::cpu>();
     ConservedFlux  sol(vac, _dim);
     return sol;
   }

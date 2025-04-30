@@ -1,21 +1,17 @@
 #include "RiemannBase.h"
-
-#include <cmath>
-
 #include "Constants.h"
-#include "Gas.h"
-#include "Utils.h"
+#include <math.h>
 
+/*
+  APPARENTLY THE STD::POW THING IS A NON ISSUE.
 
+*/
 
-/**
- * Compute the vacuum solution. See Section 3.5 in theory document.
- *
- * @return the state in primitive variables corresponding to the solution
- * sampled at x=0.
- */
+//! I'm just redoing it because of the std::pow thing. It won't work in device code.
+//! TODO: again massively divergent
+//! TODO: correctnesss
 template <>
-PrimitiveState RiemannBase::solveVacuum<Device::cpu>() {
+__device__ PrimitiveState RiemannBase::solveVacuum<Device::gpu>() {
 
   size_t otherdim = (_dim + 1) % 2;
   // x / t. We always center the problem at x=0, but to sample the solution in
@@ -42,11 +38,10 @@ PrimitiveState RiemannBase::solveVacuum<Device::cpu>() {
     return PrimitiveState(cst::SMALLRHO, cst::SMALLV, cst::SMALLV, cst::SMALLP);
   }
 
-  Float rho_sol    = NAN;
-  Float vdim_sol   = NAN;
-  Float vother_sol = NAN;
-  Float p_sol      = NAN;
-
+  Float rho_sol;
+  Float vdim_sol;
+  Float vother_sol;
+  Float p_sol;
   if (rhoL <= cst::SMALLRHO) {
     // ------------------------
     // Left vacuum state
@@ -62,13 +57,13 @@ PrimitiveState RiemannBase::solveVacuum<Device::cpu>() {
       p_sol      = cst::SMALLP;
     } else if (xovert < SHR) {
       // inside rarefaction
-      Float precomp = std::pow(
+      Float precomp = powf(
         (cst::TWOOVERGP1 - cst::GM1OGP1 / aR * (vRdim - xovert)), cst::TWOOVERGM1
       );
       rho_sol    = rhoR * precomp;
       vdim_sol   = cst::TWOOVERGP1 * (cst::GM1HALF * vRdim - aR + xovert);
       vother_sol = vRother;
-      p_sol      = pR * std::pow(precomp, cst::GAMMA);
+      p_sol      = pR * powf(precomp, cst::GAMMA);
     } else {
       // original right pstate
       rho_sol    = rhoR;
@@ -94,13 +89,13 @@ PrimitiveState RiemannBase::solveVacuum<Device::cpu>() {
       p_sol      = cst::SMALLP;
     } else if (xovert > SHL) {
       // inside rarefaction
-      Float precomp = std::pow(
+      Float precomp = powf(
         (cst::TWOOVERGP1 + cst::GM1OGP1 / aL * (vLdim - xovert)), (cst::TWOOVERGM1)
       );
       rho_sol    = rhoL * precomp;
       vdim_sol   = cst::TWOOVERGP1 * (cst::GM1HALF * vLdim + aL + xovert);
       vother_sol = vLother;
-      p_sol      = pL * std::pow(precomp, cst::GAMMA);
+      p_sol      = pL * powf(precomp, cst::GAMMA);
     } else {
       // original left pstate
       rho_sol    = rhoL;
@@ -126,13 +121,13 @@ PrimitiveState RiemannBase::solveVacuum<Device::cpu>() {
       p_sol      = pL;
     } else if (xovert < SL) {
       // inside rarefaction fan from right to left
-      Float precomp = std::pow(
+      Float precomp = powf(
         (cst::TWOOVERGP1 + cst::GM1OGP1 / aL * (vLdim - xovert)), cst::TWOOVERGM1
       );
       rho_sol    = rhoL * precomp;
       vdim_sol   = cst::TWOOVERGP1 * (cst::GM1HALF * vLdim + aL + xovert);
       vother_sol = vLother;
-      p_sol      = pL * std::pow(precomp, cst::GAMMA);
+      p_sol      = pL * powf(precomp, cst::GAMMA);
     } else if (xovert < SR) {
       // vacuum region
       rho_sol    = cst::SMALLRHO;
@@ -141,13 +136,13 @@ PrimitiveState RiemannBase::solveVacuum<Device::cpu>() {
       p_sol      = cst::SMALLP;
     } else if (xovert < SHR) {
       // inside rarefaction fan from left to right
-      Float precomp = std::pow(
+      Float precomp = powf(
         (cst::TWOOVERGP1 - cst::GM1OGP1 / aR * (vRdim - xovert)), cst::TWOOVERGM1
       );
       rho_sol    = rhoR * precomp;
       vdim_sol   = cst::TWOOVERGP1 * (cst::GM1HALF * vRdim - aR + xovert);
       vother_sol = vRother;
-      p_sol      = pR * std::pow(precomp, cst::GAMMA);
+      p_sol      = pR * powf(precomp, cst::GAMMA);
     } else {
       // right original pstate
       rho_sol    = rhoR;
@@ -157,29 +152,19 @@ PrimitiveState RiemannBase::solveVacuum<Device::cpu>() {
     }
   }
 
-
-#if DEBUG_LEVEL > 0
-  assert(not std::isnan(rho_sol));
-  assert(not std::isnan(vdim_sol));
-  assert(not std::isnan(vother_sol));
-  assert(not std::isnan(p_sol));
-#endif
-
   PrimitiveState sol(rho_sol, 0., 0., p_sol);
   sol.setV(_dim, vdim_sol);
   sol.setV(otherdim, vother_sol);
   return sol;
+
 }
 
-
 /**
- * Compute the solution of the riemann problem at given time t and x,
- * specified as xovert = x/t. Here, we always set x/t = x = 0 at the
- * cell interface.
- * Section 3.6 in theory document.
- */
-template <> 
-ConservedFlux RiemannBase::sampleSolution<Device::cpu>() {
+  TODO: This function diverges enormously. It will be awful for perfornance. We might be better off launching sub-kernels
+  TODO: correctness
+*/
+template <>
+__device__ ConservedFlux RiemannBase::sampleSolution<Device::gpu>() {
 
   constexpr Float xovert   = 0.;
   size_t          otherdim = (_dim + 1) % 2;
@@ -196,10 +181,10 @@ ConservedFlux RiemannBase::sampleSolution<Device::cpu>() {
   Float pR = _right.getP();
 
 
-  Float rho_sol    = NAN;
-  Float vdim_sol   = NAN;
-  Float vother_sol = NAN;
-  Float p_sol      = NAN;
+  Float rho_sol;
+  Float vdim_sol;
+  Float vother_sol;
+  Float p_sol;
 
 
   if (xovert <= _vstar) {
@@ -221,20 +206,20 @@ ConservedFlux RiemannBase::sampleSolution<Device::cpu>() {
         vother_sol = vLother;
         p_sol      = pL;
       } else {
-        Float astarL = aL * std::pow(pstaroverpL, cst::BETA);
+        Float astarL = aL * powf(pstaroverpL, cst::BETA);
         Float STL    = _vstar - astarL; // speed of tail of left rarefaction fan
         if (xovert < STL) {
           // we're inside the fan
-          Float precomp = std::pow(
+          Float precomp = powf(
             (cst::TWOOVERGP1 + cst::GM1OGP1 / aL * (vLdim - xovert)), cst::TWOOVERGM1
           );
           rho_sol    = rhoL * precomp;
           vdim_sol   = cst::TWOOVERGP1 * (cst::GM1HALF * vLdim + aL + xovert);
           vother_sol = vLother;
-          p_sol      = pL * pow(precomp, cst::GAMMA);
+          p_sol      = pL * powf(precomp, cst::GAMMA);
         } else {
           // we're in the star region
-          rho_sol    = rhoL * std::pow(pstaroverpL, cst::ONEOVERGAMMA);
+          rho_sol    = rhoL * powf(pstaroverpL, cst::ONEOVERGAMMA);
           vdim_sol   = _vstar;
           vother_sol = vLother;
           p_sol      = _pstar;
@@ -246,7 +231,7 @@ ConservedFlux RiemannBase::sampleSolution<Device::cpu>() {
 
       // left shock speed
       Float tempsqrt = 0.5 * cst::GP1 * cst::ONEOVERGAMMA * pstaroverpL + cst::BETA;
-      Float SL       = vLdim - aL * std::sqrt(tempsqrt);
+      Float SL       = vLdim - aL * sqrtf(tempsqrt);
 
       if (xovert < SL) {
         // we're outside the shock
@@ -279,20 +264,20 @@ ConservedFlux RiemannBase::sampleSolution<Device::cpu>() {
         vother_sol = vRother;
         p_sol      = pR;
       } else {
-        Float astarR = aR * std::pow(pstaroverpR, cst::BETA);
+        Float astarR = aR * powf(pstaroverpR, cst::BETA);
         Float STR    = _vstar + astarR; // speed of tail of right rarefaction fan
         if (xovert > STR) {
           // we're inside the fan
-          Float precomp = std::pow(
+          Float precomp = powf(
             (cst::TWOOVERGP1 - cst::GM1OGP1 / aR * (vRdim - xovert)), cst::TWOOVERGM1
           );
           rho_sol    = rhoR * precomp;
           vdim_sol   = cst::TWOOVERGP1 * (cst::GM1HALF * vRdim - aR + xovert);
           vother_sol = vRother;
-          p_sol      = pR * std::pow(precomp, cst::GAMMA);
+          p_sol      = pR * powf(precomp, cst::GAMMA);
         } else {
           // we're in the star region
-          rho_sol    = rhoR * pow(pstaroverpR, cst::ONEOVERGAMMA);
+          rho_sol    = rhoR * powf(pstaroverpR, cst::ONEOVERGAMMA);
           vdim_sol   = _vstar;
           vother_sol = vRother;
           p_sol      = _pstar;
@@ -304,7 +289,7 @@ ConservedFlux RiemannBase::sampleSolution<Device::cpu>() {
 
       // right shock speed
       Float tempsqrt = 0.5 * cst::GP1 * cst::ONEOVERGAMMA * pstaroverpR + cst::BETA;
-      Float SR       = vRdim + aR * std::sqrt(tempsqrt);
+      Float SR       = vRdim + aR * sqrtf(tempsqrt);
 
       if (xovert > SR) {
         // we're outside the shock
@@ -323,18 +308,19 @@ ConservedFlux RiemannBase::sampleSolution<Device::cpu>() {
   }
 
 
-#if DEBUG_LEVEL > 0
-  assert(not std::isnan(rho_sol));
-  assert(not std::isnan(vdim_sol));
-  assert(not std::isnan(vother_sol));
-  assert(not std::isnan(p_sol));
-#endif
+// #if DEBUG_LEVEL > 0
+//   assert(not std::isnan(rho_sol));
+//   assert(not std::isnan(vdim_sol));
+//   assert(not std::isnan(vother_sol));
+//   assert(not std::isnan(p_sol));
+// #endif
 
-  std::array<Float, Dimensions> v_sol;
-  v_sol[_dim]     = vdim_sol;
-  v_sol[otherdim] = vother_sol;
+  // std::array<Float, Dimensions> v_sol;
+  // Float v_sol[Dimensions];
+  // v_sol[_dim]     = vdim_sol;
+  // v_sol[otherdim] = vother_sol;
 
-  PrimitiveState sol(rho_sol, v_sol, p_sol);
+  PrimitiveState sol(rho_sol, vdim_sol, vother_sol, p_sol);
 
   ConservedFlux Fsol(sol, _dim);
   return Fsol;

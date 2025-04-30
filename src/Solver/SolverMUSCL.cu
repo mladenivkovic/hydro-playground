@@ -1,5 +1,6 @@
 #include "SolverMUSCL.h"
 #include "Gas.h"
+#include "Riemann.h"
 #include "Limiter.h"
 
 using CState = ConservedState;
@@ -16,7 +17,7 @@ namespace Kernels{
 
   // not a kernel, but rather a device function
   __device__ static void getBoundaryExtrapolatedValues(  Cell& c, const CState& UiP1, const CState& UiM1, const Float dt_half, int direction, float dx );
-  __device__ static void computeIntercellFluxes( Cell& left, Cell& right );
+  __device__ static void computeIntercellFluxes( Cell& left, Cell& right, int direction );
 
 } // namespace Kernels
 
@@ -25,6 +26,7 @@ __host__ void SolverMUSCL::computeFluxes<Device::gpu>(const Float dt_step) {
 
   // from j=first; j<last means we need blocks from 1 -> 258
   Kernels::computeFluxes<<<258, 256, sizeof(ConservedState)>>>( _grid, dt_step, _direction );
+  cudaDeviceSynchronize();
 }
 
 
@@ -56,10 +58,13 @@ __global__ void Kernels::computeFluxes(Grid grid, Float dt, int direction) {
       // clean up the other cells we missed
     }
 
+    // now we have updated URMid and ULmid in all of the cells
     __syncthreads();
 
-    // now we have updated URMid and ULmid in all of the cells
-    // Kernels::computeIntercellFluxes();
+    // Wrong indices!!
+    Cell& left  = grid.getCell( tid + 1, bid );
+    Cell& right = grid.getCell( tid + 2, bid );
+    Kernels::computeIntercellFluxes( left, right, direction );
 
   }
 
@@ -69,8 +74,24 @@ __global__ void Kernels::computeFluxes(Grid grid, Float dt, int direction) {
   
 }
 
+
+__device__ static void Kernels::computeIntercellFluxes(Cell& left, Cell& right, int direction) {
+  PrimitiveState WL;
+  WL.fromCons(left.getURMid());
+
+  PrimitiveState WR;
+  WR.fromCons(right.getULMid());
+
+  riemann::Riemann solver(WL, WR, direction);
+  ConservedFlux    csol = solver.solveOnGpu();
+
+  left.setCFlux(csol);
+}
+
+
 /**
   TODO: check that limiter::limiterGetLimitedSlope produces same result on cpu as gpu
+  TODO: general correctness check
 */
 __device__ static void Kernels::getBoundaryExtrapolatedValues( Cell& c, const CState& UiP1, const CState& UiM1, const Float dt_half, int direction, float dx ) {
   // First get the slope.
@@ -127,4 +148,5 @@ __device__ static void Kernels::getBoundaryExtrapolatedValues( Cell& c, const CS
   CState URmid(rhoRmid, rhovxRmid, rhovyRmid, ERmid);
   c.setURMid(URmid);
 }
+
 

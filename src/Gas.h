@@ -40,10 +40,10 @@ private:
 
 
 public:
-  PrimitiveState();
-  PrimitiveState(const Float rho, const std::array<Float, Dimensions> vel, const Float p);
-  PrimitiveState(const Float rho, const Float vx, const Float p);
-  PrimitiveState(const Float rho, const Float vx, const Float vy, const Float p);
+  __host__ __device__ PrimitiveState();
+  __host__            PrimitiveState(const Float rho, const std::array<Float, Dimensions> vel, const Float p);
+  __host__ __device__ PrimitiveState(const Float rho, const Float vx, const Float p);
+  __host__ __device__ PrimitiveState(const Float rho, const Float vx, const Float vy, const Float p);
 
   /**
    * Clear out contents.
@@ -140,7 +140,7 @@ public:
    * Compute the flux of conserved variables of the Euler
    * equations given a primitive variable state vector
    */
-  void getCFluxFromPState(const PrimitiveState& pstate, const std::size_t dimension);
+  __host__ __device__ void getCFluxFromPState(const PrimitiveState& pstate, const std::size_t dimension);
 
 
   /**
@@ -176,6 +176,66 @@ public:
 
 // Primitive State Stuff
 // --------------------------
+
+
+/**
+ * @brief Default constructor.
+ */
+__host__ __device__ inline PrimitiveState::PrimitiveState():
+ _rho(0.),
+ _p(0.) {
+ for (size_t i = 0; i < Dimensions; i++) {
+   _v[i] = 0.;
+ }
+}
+
+/**
+* @brief Specialized constructor with initial values.
+* Using setters instead of initialiser lists so the debugging checks kick in.
+* 
+*/
+__host__ inline PrimitiveState::PrimitiveState(
+ const Float rho, const std::array<Float, Dimensions> vel, const Float p
+) {
+ setRho(rho);
+ for (size_t i = 0; i < Dimensions; i++) {
+   setV(i, vel[i]);
+ }
+ setP(p);
+}
+
+
+/**
+* @brief Specialized constructor with initial values for 1D.
+* Using setters instead of initialiser lists so the debugging checks kick in.
+*/
+__host__ __device__ inline PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float p) {
+#if DEBUG_LEVEL > 0 && !__CUDA_ARCH__
+ if (Dimensions != 1) {
+   error("This is a 1D function only!");
+ }
+#endif
+ setRho(rho);
+ setV(0, vx);
+ setP(p);
+}
+
+/**
+* @brief Specialized constructor with initial values for 2D.
+* Using setters instead of initialiser lists so the debugging checks kick in.
+*/
+__host__ __device__ inline PrimitiveState::PrimitiveState(const Float rho, const Float vx, const Float vy, const Float p) {
+#if DEBUG_LEVEL > 0 && !__CUDA_ARCH__
+ if (Dimensions != 2) {
+   error("This is a 2D function only!");
+ }
+#endif
+ setRho(rho);
+ setV(0, vx);
+ setV(1, vy);
+ setP(p);
+}
+
 
 __host__ __device__ inline void PrimitiveState::setRho(const Float val) {
   // These checks will fail because we (ab)use the PrimitiveState
@@ -268,7 +328,7 @@ __host__ __device__ inline Float PrimitiveState::getSoundSpeed() const {
  * Get the total gas energy from a primitive state.
  * Eq. 18
  */
-inline Float PrimitiveState::getE() const {
+__host__ __device__ inline Float PrimitiveState::getE() const {
 
   return 0.5 * getRho() * getVSquared() + getP() * cst::ONEOVERGM1;
 }
@@ -276,7 +336,6 @@ inline Float PrimitiveState::getE() const {
 
 // Conserved State Stuff
 // --------------------------
-
 
 
 __host__ __device__ inline ConservedState::ConservedState():
@@ -299,6 +358,53 @@ __host__ __device__ inline ConservedState::ConservedState(
   _rhov[0] = rhovx;
   _rhov[1] = rhovy;
 }
+
+
+/**
+ * Initialise a conserved flux along a dimension using primitive variables of
+ * the state.
+ */
+__host__ __device__ inline ConservedState::ConservedState(const PrimitiveState& prim, const size_t dimension) {
+  // next function undefined in device code. leave this one here
+  getCFluxFromPState(prim, dimension);
+}
+
+
+
+/**
+ * @brief Compute the flux of conserved variables of the Euler
+ * equations given a primitive state vector
+ *
+ * The flux is not an entire tensor for 3D Euler equations, but
+ * correpsonds to the dimensionally split vectors F, G as
+ * described in the "Euler equations in 2D" section of the
+ * documentation TeX files.
+ * That's why you need to specify the dimension.
+ *
+ * The flux terms for each dimension are given as the second and
+ * third term in Eq. 13.
+ */
+__host__ __device__ inline void ConservedState::getCFluxFromPState(const PrimitiveState& pstate, const size_t dimension) {
+
+  size_t other  = (dimension + 1) % 2;
+  Float  rho    = pstate.getRho();
+  Float  vdim   = pstate.getV(dimension);
+  Float  vother = pstate.getV(other);
+  Float  p      = pstate.getP();
+
+  // mass flux
+  setRho(rho * vdim);
+  // momentum flux along the requested dimension
+  setRhov(dimension, rho * vdim * vdim + p);
+
+  // momentum flux along the other dimension
+  setRhov(other, rho * vdim * vother);
+
+  // gas energy flux
+  Float E = pstate.getE();
+  setE((E + p) * vdim);
+}
+
 
 
 /**

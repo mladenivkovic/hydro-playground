@@ -80,7 +80,7 @@ public:
 
   __host__ __device__       ConservedState& getCFlux();
   __host__ __device__ const ConservedState& getCFlux() const;
-  void                                      setCFlux(ConservedFlux& flux);
+  __host__ __device__ void                  setCFlux(ConservedFlux& flux);
 
   __host__ __device__ ConservedState& getULMid();
   __host__ __device__ ConservedState& getURMid();
@@ -200,7 +200,7 @@ __host__ __device__ inline const ConservedState& Cell::getCFlux() const {
 }
 
 
-inline void Cell::setCFlux(ConservedFlux& flux) {
+__host__ __device__ inline void Cell::setCFlux(ConservedFlux& flux) {
   _cflux = flux;
 }
 
