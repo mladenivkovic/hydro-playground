@@ -46,7 +46,7 @@ Grid::~Grid() {
   // if (_cells == nullptr)
   //   error("Where did the cells array go??");
   // delete[] _cells;
-  printf("Calling Grid Destructor");
+  // printf("Calling Grid Destructor");
 }
 
 
@@ -216,6 +216,7 @@ void Grid::replicateICs() {
  * @brief get the total mass of the grid.
  */
 Float Grid::collectTotalMass() {
+  transferCellsDeviceToHost();
 
   timer::Timer tick(timer::Category::CollectMass);
   message("Collecting total mass in grid.", logging::LogLevel::Debug);
@@ -313,7 +314,8 @@ void Grid::convertPrim2Cons<Device::cpu>() {
  * runs through interior cells and calls cons2prim()
  * on each.
  */
-void Grid::convertCons2Prim() {
+template <>
+void Grid::convertCons2Prim<Device::cpu>() {
 
   timer::Timer tick(timer::Category::Convert);
 

@@ -143,8 +143,8 @@ void SolverMUSCL::computeFluxes<Device::cpu>(const Float dt_step) {
 
     // First, get the boundary extrapolated values.
 
-    for (size_t j = first; j < last; j++) {
-      for (size_t i = first; i < last; i++) {
+    for (size_t i = first; i < last; i++) {
+      for (size_t j = first; j < last; j++) {
 
         Cell&  cp1  = _grid.getCell(i + 1, j);
         CState UiP1 = cp1.getCons();
@@ -218,17 +218,17 @@ void SolverMUSCL::step() {
   _direction = _step_count % 2;
 
   // zero out fluxes.
-  _grid.resetFluxes<Device::cpu>();
+  _grid.resetFluxes<Device::gpu>();
   // No need to convert conserved quantities to primitive ones - see below.
   // grid.convertCons2Prim();
   // Send around updated boundary values
-  _grid.applyBoundaryConditions<Device::cpu>();
+  _grid.applyBoundaryConditions<Device::gpu>();
 
   // Compute updated fluxes over half time step
-  computeFluxes<Device::cpu>(0.5 * _dt);
+  computeFluxes<Device::gpu>(0.5 * _dt);
 
-  // Apply fluxes and update current states
-  integrateHydro<Device::cpu>(0.5 * _dt);
+  // // Apply fluxes and update current states
+  integrateHydro<Device::gpu>(0.5 * _dt);
 
 
   // Second sweep: Other direction, full dt
@@ -237,17 +237,17 @@ void SolverMUSCL::step() {
   // change dimension
   _direction = (_step_count + 1) % 2;
   // zero out fluxes.
-  _grid.resetFluxes<Device::cpu>();
+  _grid.resetFluxes<Device::gpu>();
   // Transfer results from conserved states to primitive ones.
   // TODO: I'm pretty sure we can skip this unless we're writing output or computing dt.
-  _grid.convertCons2Prim();
+  _grid.convertCons2Prim<Device::gpu>();
   // Send around updated boundary values
-  _grid.applyBoundaryConditions<Device::cpu>();
+  _grid.applyBoundaryConditions<Device::gpu>();
 
   // Compute updated fluxes
-  computeFluxes<Device::cpu>(_dt);
+  computeFluxes<Device::gpu>(_dt);
   // Apply fluxes and update current states
-  integrateHydro<Device::cpu>(_dt);
+  integrateHydro<Device::gpu>(_dt);
 
 
   // Third sweep: First direction, full dt
@@ -256,17 +256,17 @@ void SolverMUSCL::step() {
   // change dimension
   _direction = _step_count % 2;
   // zero out fluxes.
-  _grid.resetFluxes<Device::cpu>();
+  _grid.resetFluxes<Device::gpu>();
   // Transfer results from conserved states to primitive ones.
   // TODO: I'm pretty sure we can skip this unless we're writing output or computing dt.
-  _grid.convertCons2Prim();
+  _grid.convertCons2Prim<Device::gpu>();
   // Send around updated boundary values
-  _grid.applyBoundaryConditions<Device::cpu>();
+  _grid.applyBoundaryConditions<Device::gpu>();
 
   // Compute updated fluxes
-  computeFluxes<Device::cpu>(0.5 * _dt);
+  computeFluxes<Device::gpu>(0.5 * _dt);
   // Apply fluxes and update current states
-  integrateHydro<Device::cpu>(0.5 * _dt);
+  integrateHydro<Device::gpu>(0.5 * _dt);
 
 
   // Wrap-up
@@ -276,8 +276,8 @@ void SolverMUSCL::step() {
   // Do this here instead of at the start of this function so we can compute
   // dt. During startup, primitive values are correct already since that's
   // what we read from the ICs.
-  _grid.convertCons2Prim();
+  _grid.convertCons2Prim<Device::gpu>();
 
   // Compute next time step.
-  computeDt<Device::cpu>();
+  computeDt<Device::gpu>();
 }

@@ -170,7 +170,6 @@ void SolverBase::solve() {
   timer::Timer tick(timer::Category::SolverTot);
 
   // Fill out conserved variables from read-in primitive ones.
-  _grid.convertPrim2Cons<Device::cpu>();
   _grid.convertPrim2Cons<Device::gpu>();
 
 
@@ -185,7 +184,7 @@ void SolverBase::solve() {
   writer.dump(_t, _step_count);
 
   // Get current time step size
-  computeDt<Device::cpu>();
+  computeDt<Device::gpu>();
 
   // Show the output header.
   writeLogHeader();
@@ -211,25 +210,28 @@ void SolverBase::solve() {
     // update time and step. dt is next time step size at this point.
     _t += _dt_old;
     _step_count++;
-
-#if DEBUG_LEVEL > 1
-    // Collect the total mass to verify that we're actually conservative.
-    _total_mass_current = _grid.collectTotalMass();
-#endif
-
+    
     // Write output files
     if (write_output) {
+      _grid.transferCellsDeviceToHost();
       writer.dump(_t, _step_count);
       written_output = true;
     }
+    
+    #if DEBUG_LEVEL > 1
+    // Collect the total mass to verify that we're actually conservative.
+    _total_mass_current = _grid.collectTotalMass();
+    #endif
 
     // Talk to me
     writeLog(timingStep);
   }
-
+  
   // if you haven't written the output in the final step, do it now
-  if (not written_output)
+  if (not written_output) {
+    _grid.transferCellsDeviceToHost();
     writer.dump(_t, _step_count);
+  }
 
   timing("Main solver took " + tick.tock());
 }

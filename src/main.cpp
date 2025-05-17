@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
   // Read initial conditions
   input.readICFile(grid);
 
-  grid.transferCellsToDevice();
+  grid.transferCellsHostToDevice();
 
   // Launch the solver.
   solver::Solver solver(params, grid);
@@ -69,6 +69,8 @@ int main(int argc, char* argv[]) {
   (void)tickTotal.tock();
   // Use message intead of timing here: Always print timing at the end.
   message(tickTotal.getTimings());
+
+  grid.clean();
 
   return 0;
 }

@@ -315,12 +315,21 @@ __device__ ConservedFlux RiemannBase::sampleSolution<Device::gpu>() {
 //   assert(not std::isnan(p_sol));
 // #endif
 
-  // std::array<Float, Dimensions> v_sol;
-  // Float v_sol[Dimensions];
-  // v_sol[_dim]     = vdim_sol;
-  // v_sol[otherdim] = vother_sol;
-
-  PrimitiveState sol(rho_sol, vdim_sol, vother_sol, p_sol);
+  PrimitiveState sol;
+  
+  if (_dim==0) {
+    sol.setRho(rho_sol);
+    sol.setV(0, vdim_sol);
+    sol.setV(1, vother_sol);
+    sol.setP(p_sol);
+  }
+  
+  else {
+    sol.setRho(rho_sol);
+    sol.setV(0, vother_sol);
+    sol.setV(1, vdim_sol);
+    sol.setP(p_sol);
+  }
 
   ConservedFlux Fsol(sol, _dim);
   return Fsol;

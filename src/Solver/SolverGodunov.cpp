@@ -99,7 +99,7 @@ void SolverGodunov::step() {
   // zero out fluxes.
   _grid.resetFluxes<Device::cpu>();
   // Transfer results from conserved states to primitive ones.
-  _grid.convertCons2Prim();
+  _grid.convertCons2Prim<Device::cpu>();
   // Send around updated boundary values
   _grid.applyBoundaryConditions<Device::cpu>();
 
@@ -113,7 +113,7 @@ void SolverGodunov::step() {
   // Do this here instead of at the start of this function so we can compute
   // dt. During startup, primitive values are correct already since that's
   // what we read from the ICs.
-  _grid.convertCons2Prim();
+  _grid.convertCons2Prim<Device::cpu>();
 
   // Compute next time step.
   computeDt<Device::cpu>();

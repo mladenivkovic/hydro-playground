@@ -3,6 +3,7 @@
 //! Not nice but I can't get the tests to link, so we move the cuda stuff in here
 #include "Grid.h"
 #include "assert.h"
+#include <cstring>
 
 /**
 
@@ -14,6 +15,7 @@ NOTE - when we do getCell(i,j) - the cell at (i+1,j) will be next in memory
 namespace Kernels{
   __global__ void collectTotalMassFromGpu(Grid, Float*, size_t, size_t);
   __global__ void convertPrimToCons(Grid, size_t, size_t);
+  __global__ void convertCons2Prim(Grid, size_t, size_t);
   __global__ void resetFluxes(Grid, size_t, size_t);
   __global__ void applyBoundaryConditions(Grid);
 
@@ -23,7 +25,7 @@ namespace DeviceFunctions{
   static __device__ void realToGhost(Grid&, Cell**, Cell**, Cell**, Cell**, size_t);
 } // namespace Device
 
-__host__ void Grid::transferCellsToDevice() {
+__host__ void Grid::transferCellsHostToDevice() {
   size_t nxTot       = getNxTot();
   size_t total_cells = 0;
 
@@ -39,7 +41,27 @@ __host__ void Grid::transferCellsToDevice() {
 
   // copy over
   cudaErrorCheck(cudaMemcpy( (void*)_dev_cells, (void*)_host_cells, total_cells * sizeof(Cell), cudaMemcpyHostToDevice ));
+
+  // // zero out the host array
+  // std::memset( (void*)_host_cells, 0, total_cells * sizeof(Cell) );
 }
+
+
+__host__ void Grid::transferCellsDeviceToHost() {
+  size_t nxTot       = getNxTot();
+  size_t total_cells = 0;
+
+  if      (Dimensions==1)
+    total_cells = nxTot;
+  else if (Dimensions==2)
+    total_cells = nxTot * nxTot;
+  else
+    error("Not implemented yet");
+
+  // copy over
+  cudaErrorCheck(cudaMemcpy( (void*)_host_cells, (void*)_dev_cells, total_cells * sizeof(Cell), cudaMemcpyDeviceToHost ));
+}
+
 
 __host__ void Grid::clean() {
   if (_host_cells == nullptr)
@@ -49,8 +71,6 @@ __host__ void Grid::clean() {
 }
 
 /**
-  - offset - "first" from the original function. We have enough threads to 
-
   Put in some trivial multithreading for my enjoyment...
 */
 __global__ void Kernels::collectTotalMassFromGpu( Grid grid, Float* result, size_t first, size_t last ) {
@@ -116,7 +136,34 @@ void Grid::convertPrim2Cons<Device::gpu>() {
   size_t first = getFirstCellIndex();
   size_t last  = getLastCellIndex();
 
-  Kernels::convertPrimToCons<<<256,256>>>( *this, first, last );
+  // get this number of blocks
+  size_t numBlocks = getLastCellIndex();
+
+  // get more threads than we need
+  size_t num_threads = minNumberOfThreads(numBlocks);
+
+  Kernels::convertPrimToCons<<<numBlocks,num_threads>>>( *this, first, last );
+  cudaDeviceSynchronize();
+}
+
+
+/**
+  TODO: correctness test
+
+*/
+template<>
+__host__
+void Grid::convertCons2Prim<Device::gpu>() {
+  size_t first = getFirstCellIndex();
+  size_t last  = getLastCellIndex();
+
+  // get this number of blocks
+  size_t numBlocks = getLastCellIndex();
+
+  // get more threads than we need
+  size_t num_threads = minNumberOfThreads(numBlocks);
+
+  Kernels::convertCons2Prim<<<numBlocks,num_threads>>>( *this, first, last );
   cudaDeviceSynchronize();
 }
 
@@ -124,16 +171,40 @@ void Grid::convertPrim2Cons<Device::gpu>() {
 __global__ void Kernels::convertPrimToCons( Grid grid, size_t first, size_t last ) {
   int bid = blockIdx.x;
   int tid = threadIdx.x;
-
-  grid.getCell( first + tid, first + bid ).prim2cons();
+  if ( tid >= first and tid < last and bid >= first and bid < last )
+    grid.getCell( tid, bid ).prim2cons();
 }
 
 
+/**
+
+  TODO: make the kernel dims problem-agnostic
+*/
+__global__ void Kernels::convertCons2Prim( Grid grid, size_t first, size_t last ) {
+  int bid = blockIdx.x;
+  int tid = threadIdx.x;
+
+  if ( tid >= first and tid < last and bid >= first and bid < last )
+    grid.getCell( tid, bid ).cons2prim();
+}
+
+
+/**
+
+  TODO: make the kernel dims problem-agnostic
+*/
 template<>
 __host__
 void Grid::resetFluxes<Device::gpu>() {
   // launch
-  Kernels::resetFluxes<<<256,256>>>(*this, getFirstCellIndex(), getLastCellIndex());
+
+  // get this number of blocks
+  size_t numBlocks = getLastCellIndex();
+
+  // get more threads than we need
+  size_t num_threads = minNumberOfThreads(numBlocks);
+
+  Kernels::resetFluxes<<<numBlocks,num_threads>>>(*this, getFirstCellIndex(), getLastCellIndex());
   cudaDeviceSynchronize();
 }
 
@@ -145,7 +216,8 @@ __global__ void Kernels::resetFluxes( Grid grid, size_t first, size_t last ) {
   int bid = blockIdx.x;
   int tid = threadIdx.x;
 
-  grid.getCell( first + tid, first + bid ).getCFlux().clear();
+  if ( tid >= first and tid < last and bid >= first and bid < last )
+    grid.getCell( tid, bid ).getCFlux().clear();
 }
 
 

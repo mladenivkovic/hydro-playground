@@ -1,20 +1,42 @@
+CHECKING DIFFERENCES
+- REPORTED dt works correctly
+- grid quantities are mostly correct
+- copying a manually-modified gpu grid back to the cpu shows correct values in the output
+- Modifying the conserved states in one kernel can be seen in the shared memory at a later kernel
+    - (implies the shared memory is being loaded correctly)
+
+
+Fix list:
+- Seem to have fixed first part of Kernels::computeFluxes
+- Kernels::computeIntercellFluxes seems to be correct on first go when single stepping through a small selection
+- Kernels::integrateHydro seems to be fine as well - at least for direction 0
+- Everything seems fine when we enter reset fluxes after integrate hydro
+
+- One example was fine the first time we enter cons2prim in line 243
+
+
+Some things to note:
+  - the timestep falls off to zero
+
+  - My vxdx and vydx eventually blow up!!
+    Equally importantly - they are in lockstep with each other after a certain timestep!!
+    - With a single-threaded compute dt the vx and vy values are now different (possibly) some indexing errors
+        but the speeds eventually creep up anyhow...
+
+  Q: WHERE ARE THE SPEEDS SET?
+
+  - Consistent global mass implies that the rho is staying ok.
+
+THE SECOND TIME WE ARRIVE AT INTEGRATEHYDRO THE CFLUX IS WRONG!!
+
+- Seems as though the Riemann solve works fine with direction 0. But not direction 1
+
+
+
 TODO ON CUDA BRANCH
 ================
 - put a guard around the linking / compiling with cuda files (should only happen if cuda is really detected)
 - Device discovery - how much memory do we have?
-
-- I think we have to configure the grid on the host and then copy over to device!!
-
-- Lost a lot of time to some weird UB stuff on my local machine. 
-
-The way it should work for each class:
-
-Grid:
-  - Set up on host as usual
-  - Give it a method to move the cell array onto the device
-  - We then pass this object BY VALUE into any device code. That way any member attributes we need
-    like _nx etc can be copied over (minimal cost) each time we launch a kernel
-
 
 
 
@@ -157,7 +179,7 @@ okular build/latex/hydro_playground_paralleisation.pdf  # to view the resulting 
 We build the project using `cmake`:
 
 ```
-cd hyrdo_playground
+cd hydro_playground
 mkdir build
 cd build
 cmake ..
@@ -167,7 +189,7 @@ cmake --build .
 or, if you prefer:
 
 ```
-cd hyrdo_playground
+cd hydro_playground
 cmake -B build
 cmake --build build
 ```
@@ -210,7 +232,7 @@ Currently available build options are:
 
 - `-DPRECISION=` [`SINGLE`, `DOUBLE`]: (Default=`DOUBLE`)
   - Set precision for floating point variables.
-  - `SINLGE`: Single-precision floats.
+  - `SINGLE`: Single-precision floats.
   - `DOUBLE`: Double-precision floats (Default)
 
 - `-DTERMINAL_COLORS=ON`: Enable coloured output to `stdout` and `stderr` on terminals.

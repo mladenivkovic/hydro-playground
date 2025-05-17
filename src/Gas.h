@@ -365,7 +365,6 @@ __host__ __device__ inline ConservedState::ConservedState(
  * the state.
  */
 __host__ __device__ inline ConservedState::ConservedState(const PrimitiveState& prim, const size_t dimension) {
-  // next function undefined in device code. leave this one here
   getCFluxFromPState(prim, dimension);
 }
 

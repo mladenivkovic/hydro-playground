@@ -91,7 +91,8 @@ public:
   __host__ void convertPrim2Cons();
   
   //! Run through the grid and get pstates from cstates
-  void convertCons2Prim();
+  template<Device>
+  __host__ void convertCons2Prim();
 
 
   //! Reset all fluxes
@@ -196,7 +197,8 @@ public:
     Transfer cell array to device
   
   */
-  __host__ void transferCellsToDevice();
+  __host__ void transferCellsDeviceToHost();
+  __host__ void transferCellsHostToDevice();
 
   //! Plan to pass everything by value so we need to remove the 
   //! Destructor behaviour and add a cleanup function
@@ -238,7 +240,7 @@ __host__ __device__ inline Cell& Grid::getCell(const size_t i, const size_t j) {
   size_t nxTot = getNxTot();
 
 #if __CUDA_ARCH__
-return _dev_cells[i + j * nxTot];
+  return _dev_cells[i + j * nxTot];
 #else
 
 #if DEBUG_LEVEL > 1
@@ -345,5 +347,3 @@ __host__ __device__ inline size_t Grid::getFirstCellIndex() const {
 __host__ __device__ inline size_t Grid::getLastCellIndex() const {
   return getNx() + getNBC();
 }
-
-void checkYOnGpu( Grid& );

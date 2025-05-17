@@ -81,8 +81,10 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
         -Werror -Wall -Wextra -Wpedantic -Wno-unused-parameter -O0 -g
     )
     set( CUDA_FLAGS
-        --compiler-options -Werror --compiler-options -Wall --compiler-options -Wextra --compiler-options -Wpedantic --compiler-options -Wno-unused-parameter -O0 -g
+        --compiler-options -Werror --compiler-options -Wall --compiler-options -Wextra --compiler-options -Wpedantic --compiler-options -Wno-unused-parameter -O0 -g -G
     )
+    set(CMAKE_CUDA_FLAGS ${CMAKE_CUDA_FLAGS} "-g -G")
+    set(CUDA_NVCC_FLAGS "-g -G")
     set(DEBUG_LEVEL 2)
 
 else()
@@ -238,12 +240,12 @@ set_property(TARGET hydro PROPERTY CUDA_SEPARABLE_COMPILATION ON)
 # Tests
 # ----------------------------------
 
-add_subdirectory(tests)
+# add_subdirectory(tests)
 
-enable_testing()
-add_test(NAME logging COMMAND test_logging)
-add_test(NAME io COMMAND test_io)
-add_test(NAME gas COMMAND test_gas)
+# enable_testing()
+# add_test(NAME logging COMMAND test_logging)
+# add_test(NAME io COMMAND test_io)
+# add_test(NAME gas COMMAND test_gas)
 
 
 

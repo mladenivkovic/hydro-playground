@@ -84,8 +84,10 @@ inline void checkCudaError( cudaError_t err, const char* file, int line) {
     fprintf(stderr, "Found error %s at %s:%d\n", cudaGetErrorString(err), file, line);
     exit(err);
   }
-  else
-    printf("CudaSuccess at %s:%d\n", file, line);
+// #if DEBUG_LEVEL > 1
+//   else
+//     printf("CudaSuccess at %s:%d\n", file, line);
+// #endif
 }
 
 //! There is a cuda builtin for warpSize but we can't mark it static for annoying reasons
