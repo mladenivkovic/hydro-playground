@@ -2,7 +2,7 @@
 # Globals / Main Project
 # ----------------------------------
 
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.27)
 
 project(hydro_playground VERSION 1.0 LANGUAGES CXX CUDA)
 # set(LANGUAGES CXX)
@@ -21,8 +21,9 @@ if (CUDA_FOUND)
     add_definitions(-DUSE_CUDA)
 
     set( CUDA_FLAGS "-dc" )
-		message(STATUS "CUDA include dirs found: ${CUDA_INCLUDE_DIRS}")
-		include_directories(${CUDA_INCLUDE_DIRS})
+    message(STATUS "CUDA include dirs found: ${CUDA_INCLUDE_DIRS}")
+    include_directories(${CUDA_INCLUDE_DIRS})
+    set(CMAKE_CUDA_STANDARD 20)
 else()
     message(FATAL_ERROR "CUDA not found - sad!!")
 endif()
