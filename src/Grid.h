@@ -77,8 +77,6 @@ public:
    * @brief get the total mass of the grid.
    */
   __host__ Float collectTotalMass();
-  __host__ Float collectTotalMassFromGpu(); 
-
 
   /**
    * @brief Replicate the initial conditions in every dimension.

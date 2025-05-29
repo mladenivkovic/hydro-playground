@@ -25,11 +25,12 @@ __host__ void SolverMUSCL::computeFluxes<Device::gpu>(const Float dt_step) {
 
   // from j=first; j<last means we need blocks from 1 -> 258
   
-  // use 1 extra warp
-  const int numThreads = minNumberOfThreads( 257 );
-
+  
   int first = _grid.getFirstCellIndex() - 1;
   int last  = _grid.getLastCellIndex()  + 1;
+
+  // use 1 extra warp
+  const int numThreads = minNumberOfThreads( last );
 
   int numBlocks = last; //over subscribe for the hell of it
 

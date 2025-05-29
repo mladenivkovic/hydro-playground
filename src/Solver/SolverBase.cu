@@ -21,7 +21,7 @@ void SolverBase::integrateHydro<Device::gpu>(const Float dt_step) {
   // Yes we are hardcoding the 256 width here
   // Need an extra one because we read from one to the left
 
-  const int numThreads = minNumberOfThreads( 257 );
+  const int numThreads = minNumberOfThreads( last );
   const int numBlocks  = numThreads;
   // const int numThreads = 296;
 

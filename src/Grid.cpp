@@ -249,7 +249,6 @@ Float Grid::collectTotalMass() {
   msg << std::setw(grid_print_width) << std::setprecision(grid_print_precision);
 
   msg << "Collected " << total << " mass on the cpu. ";
-  msg << "Collected " << collectTotalMassFromGpu() << " mass on the gpu";
   message(msg.str());
 
   return total;
