@@ -6,6 +6,9 @@ TODO ON CUDA BRANCH
 - Possibly kick out some of the stupider shared memory uses
 - Massively improve the kernel performance (ncu thinks that it's rubbish!)
 - Look into changing the data layout (strided mem loads are bad!!)
+- Probably should template the the solver/riemann classes instead of the implementations
+- We can increase the memory bandwidth in the riemann solver by committing more threads to loading
+    individual struct members
 
 
 
