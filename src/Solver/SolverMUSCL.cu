@@ -11,6 +11,7 @@ using CFlux  = ConservedFlux;
 */
 
 namespace Kernels{
+  __global__ void updateMids(Grid grid, Float dt, int direction);
   __global__ void computeFluxes(Grid grid, Float dt, int direction);
 
   // not a kernel, but rather a device function
@@ -21,11 +22,6 @@ namespace Kernels{
 
 template<>
 __host__ void SolverMUSCL::computeFluxes<Device::gpu>(const Float dt_step) {
-  // printf("Inside compute fluxes with dt=%f\n", dt_step);
-
-  // from j=first; j<last means we need blocks from 1 -> 258
-  
-  
   int first = _grid.getFirstCellIndex() - 1;
   int last  = _grid.getLastCellIndex()  + 1;
 
@@ -34,14 +30,14 @@ __host__ void SolverMUSCL::computeFluxes<Device::gpu>(const Float dt_step) {
 
   int numBlocks = last; //over subscribe for the hell of it
 
-  Kernels::computeFluxes<<<numBlocks, numThreads, numThreads * sizeof(ConservedState)>>>( _grid, dt_step, _direction );
+  Kernels::updateMids<<<numBlocks, numThreads, numThreads * sizeof(ConservedState)>>>( _grid, dt_step, _direction );
+  cudaDeviceSynchronize();
+  Kernels::computeFluxes<<<numBlocks, numThreads>>>( _grid, dt_step, _direction );
   cudaDeviceSynchronize();
 }
 
 
-// just launch with 256 threads and use the first 4 to clean up
-// we go from 0 -> 259 inclusive!
-__global__ void Kernels::computeFluxes(Grid grid, Float dt, int direction) {
+__global__ void Kernels::updateMids(Grid grid, Float dt, int direction) {
   extern __shared__ CState buff[];
 
   const int bid = blockIdx.x;
@@ -59,33 +55,20 @@ __global__ void Kernels::computeFluxes(Grid grid, Float dt, int direction) {
       tid >= first - 1 and tid < last + 1 and
       bid >= first     and bid < last
     )
-      // load CStates into shared memory
       buff[tid] = grid.getCell( tid, bid ).getCons();
-      
-      __syncthreads();
-
-      if ( tid >= first and tid < last and bid >= first and bid < last ) {
-        Cell& c = grid.getCell( tid, bid );
-
-        // mistake!! These buffer args were previously the wrong way round
-        Kernels::getBoundaryExtrapolatedValues( c, buff[tid+1], buff[tid-1], dt * 0.5, direction, grid.getDx() );
-      }
     
-      // now we have updated URMid and ULmid in all of the cells
-      __syncthreads();
+    __syncthreads();
 
-      if ( tid >= first and tid < last and bid >= first and bid < last ) {
-        Cell& left  = grid.getCell( tid    , bid );
-        Cell& right = grid.getCell( tid + 1, bid );
-        Kernels::computeIntercellFluxes( left, right, direction );
-      }
-      
+    if ( tid >= first and tid < last and bid >= first and bid < last ) {
+      Cell& c = grid.getCell( tid, bid );
+
+      Kernels::getBoundaryExtrapolatedValues( c, buff[tid+1], buff[tid-1], dt * 0.5, direction, grid.getDx() );
+    }
+  
+    // now we have updated URMid and ULmid in all of the cells
+    // __syncthreads();
   }
 
-  /*
-    Note we have unrolled this loop
-  */
-  
   else if (direction == 1) {
     if ( 
       tid >= first - 1 and tid < last + 1 and
@@ -103,8 +86,32 @@ __global__ void Kernels::computeFluxes(Grid grid, Float dt, int direction) {
     }
     
     // now we have updated URMid and ULmid in all of the cells
-    __syncthreads();
+    // __syncthreads();
+  }
 
+}
+
+__global__ void Kernels::computeFluxes(Grid grid, Float dt, int direction) {
+  const int bid = blockIdx.x;
+  const int tid = threadIdx.x;
+
+  const int first = grid.getFirstCellIndex() - 1;
+  const int last  = grid.getLastCellIndex()  + 1;
+
+  if (direction == 0) {
+    if ( tid >= first and tid < last and bid >= first and bid < last ) {
+      Cell& left  = grid.getCell( tid    , bid );
+      Cell& right = grid.getCell( tid + 1, bid );
+      Kernels::computeIntercellFluxes( left, right, direction );
+    }
+      
+  }
+
+  /*
+    Note we have unrolled this loop
+  */
+  
+  else if (direction == 1) {
     if ( tid >= first and tid < last and bid >= first and bid < last ) {
       // these two cells are miles apart in memory
       Cell& left  = grid.getCell( bid, tid );

@@ -41,7 +41,6 @@ void SolverBase::integrateHydro<Device::gpu>(const Float dt_step) {
 */
 __global__ void Kernels::integrateHydro(Grid grid, const Float dt_step, int direction, float dx, size_t first, size_t last) {
   extern __shared__ ConservedState flux_buff[];
-  Cell& chcs = grid.getCell(97,67);
   
   const int bid = blockIdx.x;
   const int tid = threadIdx.x;
